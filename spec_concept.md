@@ -58,3 +58,52 @@ Any input changed	none	rebuild prompt from prompt_input
 •	TST-07: Five consistent cards, collapsible/resizable, mobile-optimized.
 •	TST-08: Operate + create-from-spec flows produce prompts with selected scope + create.spec_file_path.
 
+## Implementation Status
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SPEC-ENG-00 | Product MUST only generate copyable prompt text | pending |
+| SPEC-ENG-01 | flows.yaml MUST be the only flow definition source, schema-validated at startup | pending |
+| SPEC-ENG-02 | All cards MUST read/write the same prompt_input | pending |
+| SPEC-ENG-03 | Any prompt_input change MUST trigger a full prompt rebuild | pending |
+| SPEC-ENG-04 | Steps UI derived from selected flow pipeline; prompt includes only enabled steps | pending |
+| SPEC-ENG-05 | Model adapters MAY change wrapper text but MUST NOT change prompt_input fields | pending |
+| SPEC-ENG-06 | Defaults via deterministic merge: base → flow → user overrides | pending |
+| SPEC-STS-01 | Persist per-card UI state locally per session | pending |
+| SPEC-STS-02 | First load: Configuration expanded, all others collapsed | pending |
+| SPEC-STS-03 | Repo select: set repo, fetch branches, select default, load tree | pending |
+| SPEC-STS-04 | Branch select: set branch, reload tree | pending |
+| SPEC-STS-05 | Editing/clearing PAT: update configuration.pat | pending |
+| SPEC-STS-06 | File/folder selection updates scope immediately and reversibly | pending |
+| SPEC-STS-07 | Flow select: set flow_id and apply flow defaults | pending |
+| SPEC-UIX-01 | Five cards: Configuration, Scope, Tasks, Steps, Prompts | pending |
+| SPEC-UIX-02 | Cards are collapsible + resizable | pending |
+| SPEC-UIX-03 | Compact spacing; prefer single-row controls | pending |
+| SPEC-UIX-04 | Repo/branch selection as one-tap buttons | pending |
+| SPEC-UIX-05 | Steps checklist supports toggling and per-step options | pending |
+| SPEC-UIX-06 | Prompts card has prompt with one-tap copy | pending |
+| SPEC-NFR-01 | Mobile-first with button-first controls + sane defaults | pending |
+| SPEC-NFR-02 | Network loads non-blocking with loading + error states | pending |
+| SPEC-NFR-03 | Define p95 targets (warm vs cold cache) | pending |
+| SPEC-NFR-04 | Define cache strategy (keys, TTL, invalidation) | pending |
+| SPEC-NFR-05 | CSS minimizes unique classes; reuse tokens/variables | pending |
+| INVARIANT-01 | Outputs derived only from current prompt_input | pending |
+| INVARIANT-02 | Outputs always reflect the latest prompt_input | pending |
+| TST-01 | Mocked GitHub repo/branch loading test | pending |
+| TST-02 | Tree lazy-expand + selection test | pending |
+| TST-03 | Flows render from flows.yaml + defaults test | pending |
+| TST-04 | Step toggles update enabled_step_ids test | pending |
+| TST-05 | Prompt copy snapshot test | pending |
+| TST-06 | End-to-end selection → output match test | pending |
+| TST-07 | Five cards UI consistency test | pending |
+| TST-08 | Operate + create-from-spec flow test | pending |
+
+## Decisions Log
+
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| 2026-02-20 | Vite as build tool | Simple config, fast dev server, builds to static files for GitHub Pages |
+| 2026-02-20 | Vanilla JS (no framework) | Matches spec simplicity, avoids unnecessary complexity for a single-page app |
+| 2026-02-20 | Plain CSS with variables | Per spec NFR-05: minimize classes, reuse tokens. Easy to adjust. |
+| 2026-02-20 | GitHub Pages for hosting | Free for public repos, auto-deploys on merge, always-latest live URL |
+
