@@ -86,3 +86,9 @@ npm test          # Run all tests
 - **Gemini Code Assist (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
 
 PRs require product owner approval before merge.
+
+**Working with the product owner:**
+
+- The product owner is non-technical. Use plain language in PR descriptions, status summaries, and questions — explain *what it does and why*, not just *what files changed*.
+- When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
+- "Keep it basic" means the minimum setup that prevents downstream rework — not the minimum number of files or features.

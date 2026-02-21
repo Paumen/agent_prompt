@@ -106,4 +106,6 @@ Any input changed	none	rebuild prompt from prompt_input
 | 2026-02-20 | Vanilla JS (no framework) | Matches spec simplicity, avoids unnecessary complexity for a single-page app |
 | 2026-02-20 | Plain CSS with variables | Per spec NFR-05: minimize classes, reuse tokens. Easy to adjust. |
 | 2026-02-20 | GitHub Pages for hosting | Free for public repos, auto-deploys on merge, always-latest live URL |
+| 2026-02-20 | Status tracking in spec_concept.md, not a separate file | Avoids duplication. Status table + Decisions Log appended to the authoritative spec. Trade-off: possible merge conflicts when PO edits spec while Claude updates status — mitigated by merge conflict rule in CLAUDE.md |
+| 2026-02-20 | Independent subagent review for repository setup | Reviewer with no conversation context found 8 concrete issues (permission deadlock, silenced hook errors, missing test linting). Validates that a fresh-eyes review catches real bugs before merging |
 
