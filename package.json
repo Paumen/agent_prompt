@@ -7,13 +7,13 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint src/ tests/",
-    "lint:fix": "eslint src/ tests/ --fix",
-    "format": "prettier --write .",
-    "test": "vitest run"
+    "dev": "vite --config config/vite.config.js",
+    "build": "vite build --config config/vite.config.js",
+    "preview": "vite preview --config config/vite.config.js",
+    "lint": "eslint src/ tests/ --config config/eslint.config.js",
+    "lint:fix": "eslint src/ tests/ --fix --config config/eslint.config.js",
+    "format": "prettier --write . --config config/.prettierrc --ignore-path config/.prettierignore",
+    "test": "vitest run --config config/vite.config.js"
   },
   "devDependencies": {
     "eslint": "^9.0.0",
