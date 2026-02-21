@@ -1,0 +1,5 @@
+dist/
+
+# flows.yaml is excluded to preserve hand-crafted structure controlled by the product owner.
+src/config/flows.yaml
+
