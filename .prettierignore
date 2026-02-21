@@ -3,7 +3,3 @@ dist/
 # flows.yaml is excluded to preserve hand-crafted structure controlled by the product owner.
 src/config/flows.yaml
 
-# Spec files are user-controlled — do not auto-format.
-spec_concept.md
-spec_and_framework_and_schemas_trade-offs.md
-TASK_FRAMEWORK_IDEA.md
