@@ -14,15 +14,15 @@ Generates structured prompts for AI agents to perform code review, analysis, and
 
 ## Repository Structure
 
-| Path                     | Purpose                               |
-| ------------------------ | ------------------------------------- |
-| `spec_concept.md`        | Product specification (authoritative) |
-| `TASK_FRAMEWORK_IDEA.md` | High-level intent mapping             |
-| `src/`                   | Application source code               |
-| `src/config/flows.yaml`  | Flow/task/step definitions            |
-| `tests/`                 | Automated tests                       |
-| `.github/workflows/`     | CI pipeline + GitHub Pages deployment |
-| `CLAUDE.md`              | Claude Code project instructions      |
+| Path                          | Purpose                               |
+| ----------------------------- | ------------------------------------- |
+| `spec/spec_concept.md`        | Product specification (authoritative) |
+| `spec/TASK_FRAMEWORK_IDEA.md` | High-level intent mapping             |
+| `src/`                        | Application source code               |
+| `src/config/flows.yaml`       | Flow/task/step definitions            |
+| `tests/`                      | Automated tests                       |
+| `.github/workflows/`          | CI pipeline + GitHub Pages deployment |
+| `CLAUDE.md`                   | Claude Code project instructions      |
 
 ## Development
 

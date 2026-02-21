@@ -1,1 +1,1 @@
-// Entry point — see spec_concept.md for implementation requirements.
+// Entry point — see spec/spec_concept.md for implementation requirements.

@@ -13,5 +13,5 @@
 - [ ] Tests written and passing
 - [ ] Lint passing (`npm run lint`)
 - [ ] Build succeeds (`npm run build`)
-- [ ] Status updated in `spec_concept.md`
+- [ ] Status updated in `spec/spec_concept.md`
 - [ ] Formatted with Prettier (`npm run format`)
