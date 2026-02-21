@@ -76,7 +76,7 @@ npm test          # Run all tests
 4. Every PR must fill in the PR template (requirements addressed, testing done).
 5. Run `npm run format` and `npm run lint:fix` before committing.
 6. Run `npm run build` before creating a PR.
-7. If you encounter a merge conflict in `spec/spec_concept.md`, resolve by keeping ALL status updates AND ALL spec content — never discard either side's changes.
+
 
 ## Team
 
