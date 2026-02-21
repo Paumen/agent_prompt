@@ -23,12 +23,12 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 ## File Guide
 
-| File                                                   | Purpose                                                                   | How to use                                                                                                                                                            |
-| ------------------------------------------------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `spec/spec_concept.md`                                 | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress.                                                                                          |
-| `spec/spec_and_framework_and_schemas_trade-offs.md`    | Brainstorm/reference material for task schemas, lenses, flow configs.     | Only consult when you need detail on a specific feature. Search for the relevant section — do NOT read the whole file. Will be deleted after `flows.yaml` is created. |
-| `spec/TASK_FRAMEWORK_IDEA.md`                          | High-level intent mapping: user intents → agent actions.                  | Quick reference for understanding the scope of the app.                                                                                                               |
-| `src/config/flows.yaml`                                | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.                                                                                                       |
+| File                                                | Purpose                                                                   | How to use                                                                                                                                                            |
+| --------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `spec/spec_concept.md`                              | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress.                                                                                          |
+| `spec/spec_and_framework_and_schemas_trade-offs.md` | Brainstorm/reference material for task schemas, lenses, flow configs.     | Only consult when you need detail on a specific feature. Search for the relevant section — do NOT read the whole file. Will be deleted after `flows.yaml` is created. |
+| `spec/TASK_FRAMEWORK_IDEA.md`                       | High-level intent mapping: user intents → agent actions.                  | Quick reference for understanding the scope of the app.                                                                                                               |
+| `src/config/flows.yaml`                             | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.                                                                                                       |
 
 ## File Permissions
 
@@ -89,6 +89,6 @@ PRs require product owner approval before merge.
 
 **Working with the product owner:**
 
-- The product owner is non-technical. Use plain language in PR descriptions, status summaries, and questions — explain *what it does and why*, not just *what files changed*.
+- The product owner is non-technical. Use plain language in PR descriptions, status summaries, and questions — explain _what it does and why_, not just _what files changed_.
 - When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
 - "Keep it basic" means the minimum setup that prevents downstream rework — not the minimum number of files or features.
