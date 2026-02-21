@@ -108,4 +108,6 @@ Any input changed	none	rebuild prompt from prompt_input
 | 2026-02-20 | GitHub Pages for hosting | Free for public repos, auto-deploys on merge, always-latest live URL |
 | 2026-02-20 | Status tracking in spec_concept.md, not a separate file | Avoids duplication. Status table + Decisions Log appended to the authoritative spec. Trade-off: possible merge conflicts when PO edits spec while Claude updates status — mitigated by merge conflict rule in CLAUDE.md |
 | 2026-02-20 | Independent subagent review for repository setup | Reviewer with no conversation context found 8 concrete issues (permission deadlock, silenced hook errors, missing test linting). Validates that a fresh-eyes review catches real bugs before merging |
+| 2026-02-21 | Tool configs moved to `config/`, spec files moved to `spec/` | Cleaner root directory. `config/` = how to build it (vite, eslint, prettier). `spec/` = what to build (requirements, decisions, intent). All `package.json` scripts updated with explicit `--config` flags. |
+| 2026-02-21 | Prettier needs two flags when config is outside root | Moving `.prettierrc` requires `--config config/.prettierrc`; moving `.prettierignore` requires a separate `--ignore-path config/.prettierignore`. Vite and ESLint only need one `--config` flag each. Explains why the `format` script is more verbose than others. |
 
