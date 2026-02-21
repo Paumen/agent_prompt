@@ -1,3 +1,5 @@
+import globals from 'globals';
+
 export default [
   {
     files: ['src/**/*.js'],
@@ -5,22 +7,7 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        window: 'readonly',
-        document: 'readonly',
-        console: 'readonly',
-        fetch: 'readonly',
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        localStorage: 'readonly',
-        sessionStorage: 'readonly',
-        navigator: 'readonly',
-        CustomEvent: 'readonly',
-        Event: 'readonly',
-        HTMLElement: 'readonly',
+        ...globals.browser,
       },
     },
     rules: {
@@ -31,6 +18,22 @@ export default [
       'no-duplicate-case': 'error',
       'no-unreachable': 'error',
       eqeqeq: ['error', 'always'],
+      'no-var': 'error',
+      'prefer-const': 'warn',
+    },
+  },
+  {
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-undef': 'error',
       'no-var': 'error',
       'prefer-const': 'warn',
     },

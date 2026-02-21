@@ -3,13 +3,13 @@
     "SessionStart": [
       {
         "type": "command",
-        "command": "echo '--- Session Start ---' && echo \"Branch: $(git branch --show-current)\" && git status --short && echo '---' && if [ ! -d node_modules ]; then echo 'Installing dependencies...' && npm install 2>&1 || echo 'Warning: npm install failed. You can still read files and debug.'; else echo 'Dependencies ready.'; fi && echo '--- Ready ---'"
+        "command": "echo '--- Session Start ---' && echo \"Branch: $(git branch --show-current)\" && git status --short && echo '---' && if [ ! -d node_modules ]; then echo 'Installing dependencies...' && npm ci 2>&1 || echo 'Warning: npm ci failed. Falling back to npm install...' && npm install 2>&1 || echo 'Warning: npm install failed. You can still read files and debug.'; else echo 'Dependencies ready.'; fi && echo '--- Ready ---'"
       }
     ],
     "PostToolUse": [
       {
         "type": "command",
-        "command": "if echo \"$CLAUDE_TOOL_NAME\" | grep -qE '^(Write|Edit)$'; then FILE=\"$CLAUDE_FILE_PATH\"; if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then npx prettier --write \"$FILE\" 2>/dev/null; if echo \"$FILE\" | grep -qE '\\.js$'; then npx eslint --fix \"$FILE\" 2>/dev/null; fi; fi; fi"
+        "command": "if echo \"$CLAUDE_TOOL_NAME\" | grep -qE '^(Write|Edit)$'; then FILE=\"$CLAUDE_FILE_PATH\"; if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then echo \"Formatting $FILE\"; npx prettier --write \"$FILE\"; if echo \"$FILE\" | grep -qE '\\.(js|mjs|cjs)$'; then echo \"Linting $FILE\"; npx eslint --fix \"$FILE\"; fi; fi; fi"
       }
     ]
   }

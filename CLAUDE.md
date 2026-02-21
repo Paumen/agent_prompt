@@ -23,16 +23,16 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 ## File Guide
 
-| File | Purpose | How to use |
-|------|---------|------------|
-| `spec_concept.md` | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
-| `spec_and_framework_and_shemas_trade-offs.md` | Brainstorm/reference material for task schemas, lenses, flow configs. | Only consult when you need detail on a specific feature. Search for the relevant section — do NOT read the whole file. Will be deleted after `flows.yaml` is created. |
-| `TASK_FRAMEWORK_IDEA.md` | High-level intent mapping: user intents → agent actions. | Quick reference for understanding the scope of the app. |
-| `src/config/flows.yaml` | Flow/task/step definitions. Single source of truth for app behavior. | Implement EXACTLY as defined here. Never modify without asking. |
+| File                                           | Purpose                                                                   | How to use                                                                                                                                                            |
+| ---------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `spec_concept.md`                              | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress.                                                                                          |
+| `spec_and_framework_and_schemas_trade-offs.md` | Brainstorm/reference material for task schemas, lenses, flow configs.     | Only consult when you need detail on a specific feature. Search for the relevant section — do NOT read the whole file. Will be deleted after `flows.yaml` is created. |
+| `TASK_FRAMEWORK_IDEA.md`                       | High-level intent mapping: user intents → agent actions.                  | Quick reference for understanding the scope of the app.                                                                                                               |
+| `src/config/flows.yaml`                        | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.                                                                                                       |
 
 ## File Permissions
 
-- **NEVER** edit `spec_concept.md`, `TASK_FRAMEWORK_IDEA.md`, or `spec_and_framework_and_shemas_trade-offs.md` without asking the user first.
+- **NEVER** edit `spec_concept.md`, `TASK_FRAMEWORK_IDEA.md`, or `spec_and_framework_and_schemas_trade-offs.md` without asking the user first. **Exception**: Status updates to the Implementation Status table and entries to the Decisions Log in `spec_concept.md` are permitted as part of the normal workflow.
 - **NEVER** edit `src/config/flows.yaml` without asking the user first.
 - **NEVER** edit `.github/workflows/` without asking the user first.
 - **MAY** freely edit files in `src/` (except `src/config/flows.yaml`), `tests/`, and `package.json`.
