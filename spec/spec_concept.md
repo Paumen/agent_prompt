@@ -100,7 +100,7 @@ This is the single source of truth for **what happens when**. Card sections belo
 
 ---
 
-## Layout — Four Cards
+## Layout
 
 The UI is a vertical stack of four collapsible cards. Each card has an expand/collapse toggle. Cards auto-expand based on user progression (see UJ table). The Configuration card also auto-collapses on repo select and flow select. No manual-override tracking — if the user re-opens Configuration and then triggers an auto-collapse event, it collapses again. Other cards never auto-collapse; the user closes them manually if desired.
 
@@ -161,8 +161,6 @@ Purpose: Granular control and refinement of the selected flow.
 
 Purpose: Final output and extraction.
 
-Card 4 never auto-collapses. Once visible (after flow selection), it remains visible.
-
 - OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then lists configured steps.
 - OUT-02 Prompt format (step 3-7 are dymamic examples):
 
@@ -193,7 +191,8 @@ Card 4 never auto-collapses. Once visible (after flow selection), it remains vis
 - OUT-05 The prompt is purely task-oriented — no system preamble, persona, or commit conventions.
 - OUT-06 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-07 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-08 An "Open in Claude" button (claude.ai deep link) is deferred to post-v1.
+- OUT-08 An "Open in Claude" button (claude.ai deep link).
+- OUT-09 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible. 
 
 ---
 
@@ -266,54 +265,55 @@ Each requirement above is its own acceptance test. The following tests add speci
 ##  Status
 
 
-| ID        | Requirement                                            | Status  |
-| --------- | ------------------------------------------------------ | ------- |
-| GL-03     | Universal shimmer-bar loading states                   | pending |
-| GL-04     | Mobile-first responsive                                | pending |
-| GL-05     | Inline error feedback, no modals                       | pending |
-| GL-06     | Eager fetch + localStorage cache + visible refresh     | pending |
-| APP-01    | Client-side SPA, no backend                            | pending |
-| APP-02    | Vanilla JS + plain CSS                                 | pending |
-| APP-03    | Scale target: <300 files, <15 repos                    | pending |
-| APP-04    | Uniform flow list for all repos                        | pending |
-| APP-05    | Persist PAT + username only                            | pending |
-| DM-INV-01 | Outputs from current prompt_input only                 | pending |
-| DM-INV-02 | Centralized state setter with auto-rebuild             | pending |
-| DM-INV-03 | Deterministic prompt generation                        | pending |
-| DM-DEF-01 | Two-layer defaults merge (flow → user)                 | pending |
-| DM-DEF-02 | flows.yaml as single source, build-time validated      | pending |
-| DM-DEF-03 | Flow switch = full reset to flow defaults              | pending |
-| CFG-01    | PAT password field with show/hide/clear                | pending |
-| CFG-02    | Username pre-fill + auto-fetch repos                   | pending |
-| CFG-03    | Repo button grid, single-tap select                    | pending |
-| CFG-04    | Branch buttons, default auto-selected                  | pending |
-| CFG-05    | Eager load branches + file tree on repo select         | pending |
-| SCT-01    | File/folder tree with independent checkboxes           | pending |
-| SCT-02    | Selected folders → prompt scope                        | pending |
-| SCT-03    | Selected files → prompt "read upfront"                 | pending |
-| SCT-04    | 6 predefined flows                                     | pending |
-| SCT-05    | Flow button grid with icons                            | pending |
-| SCT-06    | Flat step lists, remove unwanted via STP-06            | pending |
-| SCT-07    | Flow-step definitions in flows.yaml                    | pending |
-| STP-01    | Steps as ordered list with delete                      | pending |
-| STP-02    | Step data model (operation + object + optional fields) | pending |
-| STP-03    | Lens toggles pre-selected from flow                    | pending |
-| STP-04    | Mandatory input fields inline with step                | pending |
-| STP-05    | Native select dropdowns from repo data                 | pending |
-| STP-06    | Remove steps; no reorder/add for v1                    | pending |
-| OUT-01    | XML-tagged prompt structure                            | pending |
-| OUT-02    | Prompt format per template                             | pending |
-| OUT-03    | Full regeneration on any change                        | pending |
-| OUT-04    | File/folder reference syntax                           | pending |
-| OUT-05    | Task-oriented only, no system preamble                 | pending |
-| OUT-06    | One-tap copy to clipboard                              | pending |
-| OUT-07    | Free-text notes field                                  | pending |
-| OUT-08    | "Open in Claude" deferred to post-v1                   | pending |
-| VIS-01    | Single-row buttons, wrapping grid                      | pending |
-| VIS-02    | Thumb-reachable controls                               | pending |
-| TST-08    | Prompt determinism snapshot test                       | pending |
-| TST-10    | End-to-end flow test                                   | pending |
-| TST-13    | flows.yaml build-time validation test                  | pending |
+| ID        | Status  |
+| ------    | ------- |
+| GL-03     | pending |
+| GL-04     | pending |
+| GL-05     | pending |
+| GL-06     | pending |
+| APP-01    | pending |
+| APP-02    | pending |
+| APP-03    | pending |
+| APP-04    | pending |
+| APP-05    | pending |
+| DM-INV-01 | pending |
+| DM-INV-02 | pending |
+| DM-INV-03 | pending |
+| DM-DEF-01 | pending |
+| DM-DEF-02 | pending |
+| DM-DEF-03 | pending |
+| CFG-01    | pending |
+| CFG-02    | pending |
+| CFG-03    | pending |
+| CFG-04    | pending |
+| CFG-05    | pending |
+| SCT-01    | pending |
+| SCT-02    | pending |
+| SCT-03    | pending |
+| SCT-04    | pending |
+| SCT-05    | pending |
+| SCT-06    | pending |
+| SCT-07    | pending |
+| STP-01    | pending |
+| STP-02    | pending |
+| STP-03    | pending |
+| STP-04    | pending |
+| STP-05    | pending |
+| STP-06    | pending |
+| OUT-01    | pending |
+| OUT-02    | pending |
+| OUT-03    | pending |
+| OUT-04    | pending |
+| OUT-05    | pending |
+| OUT-06    | pending |
+| OUT-07    | pending |
+| OUT-08    | pending |
+| OUT-09    | pending |
+| VIS-01    | pending |
+| VIS-02    | pending |
+| TST-08    | pending |
+| TST-10    | pending |
+| TST-13    | pending |
 
 ---
 
@@ -324,18 +324,5 @@ Each requirement above is its own acceptance test. The following tests add speci
 | 2026-02-20 | GitHub Pages for hosting                                                                                                        | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                     |
 | 2026-02-20 | Status tracking in spec_concept.md                                                                                              | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                              |
 | 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                          | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                         |
-| 2026-02-21 | Prettier needs two flags when config outside root                                                                               | `--config config/.prettierrc` + `--ignore-path config/.prettierignore`. Vite/ESLint need one flag each.                                                                  |
-| 2026-02-22 | Merged v1 + v2 specs into v3                                                                                                    | v2 had the better product definition; v1 contributed canonical data model, invariants, test criteria, status tracking, and decisions log.                                |
-| 2026-02-22 | GL-06: Cache-then-fetch with visible refresh, no silent swap                                                                    | Eliminates race conditions where user acts on stale data that gets silently replaced. Brief "Updated" indicator is negligible UX cost.                                   |
-| 2026-02-22 | SCT-01: Independent folder/file checkboxes, no tri-state                                                                        | Folders (scope) and files (context) already serve different purposes — tri-state propagation added complexity without matching the semantic model.                       |
-| 2026-02-22 | DM-INV-02: Centralized state setter with auto-rebuild                                                                           | Proxy or setState() makes the "output always matches state" invariant structurally impossible to violate, vs. manual rebuild calls at every mutation site.               |
-| 2026-02-22 | DM-DEF-01: Two-layer merge (flow defaults → user), no provenance tracking                                                       | Three-layer merge with dirty-tracking per field was over-engineered. Each flow defines its own complete defaults; no base-defaults layer needed.                         |
-| 2026-02-22 | DM-DEF-02: Build-time YAML→JSON + build-time schema validation                                                                  | Catches malformed flows before deploy (better than runtime errors). Zero runtime overhead, no YAML parser in bundle, stays within zero-dependency constraint.            |
-| 2026-02-22 | GL-03: Universal shimmer-bar skeleton, not per-component skeletons                                                              | Loading states are transient (<2s). Generic shimmer + label achieves the same "no empty screens" goal with a single reusable CSS class instead of 6+ custom skeletons.   |
-| 2026-02-22 | STP-05: Flat searchable dropdowns for step-level pickers                                                                        | Flat type-to-filter lists are faster than tree navigation for targeted file selection. Avoids duplicating the SCT-01 tree in miniature inside each step card.            |
-| 2026-02-22 | APP-05: Persist PAT + username only, no repo/branch restoration                                                                 | Restoring full selection state requires validating stale references (deleted repos, renamed branches). PAT + username cover the tedious part; repo selection is 1 click. |
-| 2026-02-22 | Card collapse: auto-collapse Configuration only, no manual-override tracking                                                    | Simplifies card state management. Cards only auto-open (except Configuration which also auto-closes). No per-card manual override flags needed.                          |
-| 2026-02-22 | CFG-05: Lazy-load PRs/issues on flow select, not repo select                                                                    | PRs/issues only needed by 2 of 6 flows. Saves ~2 API calls per repo selection and simplifies the cache.                                                                  |
-| 2026-02-22 | SCT-06: Flat step lists, no composite sub-step toggles                                                                          | Step deletion (STP-06) already covers the use case. One interaction pattern instead of two.                                                                              |
-| 2026-02-22 | S1-S5: Spec cleanup — fixed OUT-04 dup, merged DM intro, replaced UJ prose with table, dropped VIS-03, trimmed TST to 3 entries | Reduced spec size and redundancy. Fewer duplicate tracking rows. Each requirement is its own acceptance test.                                                            |
-| 2026-02-22 | S6-S10: Moved Reference section to flows.yaml comments, dropped STP-07/OUT-09/SCT-07/SCT-08, merged GL-01+GL-02 into preamble   | Non-implementation items (authoring guidelines, design principles, deferred/redundant specs) moved or removed. 7 status rows cut.                                        |
+
+
