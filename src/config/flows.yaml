@@ -1,3 +1,24 @@
 # Flow definitions — to be designed in a separate session.
 # This file is the single source of truth for task/flow/step configuration.
 # Claude implements exactly what is defined here.
+#
+# --- Vocabulary reference (pool for step definitions) ---
+#
+# Objects: repository, branch, file, folder, file tree, pull request, issue,
+#   commit, PR comments, review comments, labels, diff hunks, CI status.
+#
+# Operations: read, create, edit, delete, rename, move, merge, split, search,
+#   scan, compare, analyze, validate, commit, open (PR/issue).
+#
+# Focus Lenses: semantics, syntax, security, performance, structure,
+#   dependencies, duplications, redundancies, error handling, naming conventions,
+#   test coverage, type safety, documentation completeness, accessibility.
+#
+# --- Authoring guidelines ---
+#
+# - PR references use PR number only — don't embed diff content in the prompt.
+#   The LLM has GitHub access and can fetch PR data using the number + PAT.
+# - Write-oriented flows should instruct the LLM to create a new branch;
+#   branch naming is left to the LLM's judgment if not specified by the user.
+# - Step granularity should be moderate — assume LLM competence.
+#   Don't micro-instruct what it already knows how to do.

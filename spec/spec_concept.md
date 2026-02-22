@@ -6,10 +6,8 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 ## GL — Global Constraints
 
-These rules apply to every part of the application unless explicitly exempted.
+These rules apply to every part of the application unless explicitly exempted. _Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing._
 
-- GL-01 No action in the standard flow requires more than two clicks/taps from the user. **Exception:** file tree navigation in the Scope section — deep folder expansion may exceed two clicks.
-- GL-02 The user never needs to type what can be selected from pre-loaded data.
 - GL-03 The UI never shows empty screens while data loads — a universal shimmer-bar skeleton with a contextual loading label (e.g., "Loading repositories…") is shown in each loading area. Layout-faithful per-component skeletons are not required. Empty data states (no PRs exist, no issues, zero search results) show a brief contextual message — not a blank area.
 - GL-04 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
 - GL-05 Errors (invalid PAT, repo not found, branch deleted, PAT expired, rate limits, network failure) use inline error feedback — not blocking modals, not hidden. Error states are dismissible and the user can correct input (e.g., edit or clear PAT) and retry manually. No automatic retry logic for v1.
@@ -139,9 +137,7 @@ This card has two sections: **Scope** (optional) and **Tasks**.
   6. **Write Documentation** — generate or update docs for selected scope.
 - SCT-05 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
 - SCT-06 Each flow is a flat list of steps — no optional sub-step toggles. Users remove unwanted steps via STP-06.
-- SCT-07 PR references use PR number only — the prompt does not embed diff content. The LLM is assumed to have GitHub access and can fetch PR data using the PR number and PAT.
-- SCT-08 Write-oriented flows instruct the LLM to create a new branch; branch naming is left to the LLM's judgment if not specified by the user.
-- SCT-09 Flow-to-step definitions will be designed one-by-one (human + LLM collaboration). This spec defines the step data model and UI; individual flow step sequences are defined separately in `flows.yaml` (see DM-DEF-02).
+- SCT-07 Flow-to-step definitions will be designed one-by-one (human + LLM collaboration). This spec defines the step data model and UI; individual flow step sequences are defined separately in `flows.yaml` (see DM-DEF-02). Prompt-content rules (PR reference format, branch creation instructions, step granularity) live as comments in `flows.yaml`.
 
 ### Card 3 — Steps `STP`
 
@@ -160,7 +156,6 @@ Purpose: Granular control and refinement of the selected flow.
 - STP-04 Where a step requires mandatory user input (e.g., new file name, spec description), a text input field is shown inline with the step, clearly marked as required.
 - STP-05 Steps with pre-fillable options use flat searchable dropdowns pre-loaded from the repo — the user selects, never types. File pickers show a flat alphabetically-sorted list of all file paths (type-to-filter); PR and issue pickers show `#number — title` lists. No tree-view pickers at step level. Scope selections from SCT-01 do not constrain step-level dropdowns; they are independent selections serving different purposes (scope = LLM focus guidance, step dropdowns = specific action targets).
 - STP-06 The user can remove any step. Reordering and adding custom steps are not required for v1.
-- STP-07 Step granularity is moderate — assume LLM competence. Don't micro-instruct what it already knows how to do. This is a design guideline for authoring flow definitions (SCT-09), not a runtime behavior.
 
 ### Card 4 — Prompt `OUT`
 
@@ -199,7 +194,6 @@ Card 4 never auto-collapses. Once visible (after flow selection), it remains vis
 - OUT-06 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-07 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
 - OUT-08 An "Open in Claude" button (claude.ai deep link) is deferred to post-v1.
-- OUT-09 During development, the PAT is included explicitly in the prompt. A future version may use environment variable references instead.
 
 ---
 
@@ -259,18 +253,6 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 
 ---
 
-## Reference: Objects, Operations, Lenses
-
-These lists define the vocabulary available to flows and steps. They serve as the pool from which flow-to-step definitions (SCT-09) draw — not every item is used by every flow, and the app does not need to build generic UI for all of them.
-
-**Objects** (GitHub entities a step can act on): repository, branch, file, folder, file tree, pull request, issue, commit, PR comments, review comments, labels, diff hunks, CI status.
-
-**Operations** (actions a step can perform): read, create, edit, delete, rename, move, merge, split, search, scan, compare, analyze, validate, commit, open (PR/issue).
-
-**Focus Lenses** (configurable review dimensions): semantics, syntax, security, performance, structure, dependencies, duplications, redundancies, error handling, naming conventions, test coverage, type safety, documentation completeness, accessibility.
-
----
-
 ## TST — Test Criteria
 
 Each requirement above is its own acceptance test. The following tests add specific methodology beyond their parent requirement:
@@ -285,8 +267,6 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 | ID        | Requirement                                            | Status  |
 | --------- | ------------------------------------------------------ | ------- |
-| GL-01     | Two-click max (except tree navigation)                 | pending |
-| GL-02     | No typing when selection is possible                   | pending |
 | GL-03     | Universal shimmer-bar loading states                   | pending |
 | GL-04     | Mobile-first responsive                                | pending |
 | GL-05     | Inline error feedback, no modals                       | pending |
@@ -313,9 +293,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | SCT-04    | 6 predefined flows                                     | pending |
 | SCT-05    | Flow button grid with icons                            | pending |
 | SCT-06    | Flat step lists, remove unwanted via STP-06            | pending |
-| SCT-07    | PR reference by number only                            | pending |
-| SCT-08    | Write flows instruct LLM to create branch              | pending |
-| SCT-09    | Flow-step definitions designed separately              | pending |
+| SCT-07    | Flow-step definitions in flows.yaml                    | pending |
 | STP-01    | Steps as ordered list with delete                      | pending |
 | STP-02    | Step data model (operation + object + optional fields) | pending |
 | STP-03    | Lens toggles pre-selected from flow                    | pending |
@@ -330,7 +308,6 @@ Each requirement above is its own acceptance test. The following tests add speci
 | OUT-06    | One-tap copy to clipboard                              | pending |
 | OUT-07    | Free-text notes field                                  | pending |
 | OUT-08    | "Open in Claude" deferred to post-v1                   | pending |
-| OUT-09    | PAT included explicitly for now                        | pending |
 | VIS-01    | Single-row buttons, wrapping grid                      | pending |
 | VIS-02    | Thumb-reachable controls                               | pending |
 | TST-08    | Prompt determinism snapshot test                       | pending |
@@ -360,3 +337,4 @@ Each requirement above is its own acceptance test. The following tests add speci
 | 2026-02-22 | CFG-05: Lazy-load PRs/issues on flow select, not repo select                                                                    | PRs/issues only needed by 2 of 6 flows. Saves ~2 API calls per repo selection and simplifies the cache.                                                                  |
 | 2026-02-22 | SCT-06: Flat step lists, no composite sub-step toggles                                                                          | Step deletion (STP-06) already covers the use case. One interaction pattern instead of two.                                                                              |
 | 2026-02-22 | S1-S5: Spec cleanup — fixed OUT-04 dup, merged DM intro, replaced UJ prose with table, dropped VIS-03, trimmed TST to 3 entries | Reduced spec size and redundancy. Fewer duplicate tracking rows. Each requirement is its own acceptance test.                                                            |
+| 2026-02-22 | S6-S10: Moved Reference section to flows.yaml comments, dropped STP-07/OUT-09/SCT-07/SCT-08, merged GL-01+GL-02 into preamble   | Non-implementation items (authoring guidelines, design principles, deferred/redundant specs) moved or removed. 7 status rows cut.                                        |
