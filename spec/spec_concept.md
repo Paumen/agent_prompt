@@ -10,10 +10,10 @@ These rules apply to every part of the application unless explicitly exempted.
 
 - GL-01 No action in the standard flow requires more than two clicks/taps from the user. **Exception:** file tree navigation in the Scope section — deep folder expansion may exceed two clicks.
 - GL-02 The user never needs to type what can be selected from pre-loaded data.
-- GL-03 The UI never shows empty screens while data loads — skeleton states or progressive loading are mandatory. Empty data states (no PRs exist, no issues, zero search results) show a brief contextual message — not a blank area.
+- GL-03 The UI never shows empty screens while data loads — a universal shimmer-bar skeleton with a contextual loading label (e.g., "Loading repositories…") is shown in each loading area. Layout-faithful per-component skeletons are not required. Empty data states (no PRs exist, no issues, zero search results) show a brief contextual message — not a blank area.
 - GL-04 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
 - GL-05 Errors (invalid PAT, repo not found, branch deleted, PAT expired, rate limits, network failure) use inline error feedback — not blocking modals, not hidden. Error states are dismissible and the user can correct input (e.g., edit or clear PAT) and retry manually. No automatic retry logic for v1.
-- GL-06 All GitHub fetches start as early as possible (eager/background loading). Fetched data is cached in localStorage and shown instantly on revisit; a background refresh updates silently.
+- GL-06 All GitHub fetches start as early as possible (eager/background loading). Fetched data is cached in localStorage and shown instantly on revisit. A background fetch then retrieves fresh data — on completion the UI shows a brief "Updated" indicator and re-renders once. If the user is mid-interaction (e.g., selecting files), the re-render is deferred until the interaction completes. No silent replacement of data the user is actively viewing.
 
 ---
 
@@ -75,14 +75,14 @@ prompt_input (JSON-serializable, snake_case):
 ### DM-INV — Data Model Invariants
 
 - DM-INV-01 Outputs are derived only from current `prompt_input` — never cached or stale fragments.
-- DM-INV-02 Outputs always reflect the latest `prompt_input`. Any mutation triggers a synchronous rebuild before the next render.
+- DM-INV-02 Outputs always reflect the latest `prompt_input`. All mutations go through a centralized state setter (Proxy wrapper or `setState()` function) that automatically triggers a synchronous prompt rebuild — no manual rebuild calls at individual mutation sites.
 - DM-INV-03 Identical `prompt_input` always produces identical prompt text (deterministic output).
 
 ### DM-DEF — Defaults & Merge Strategy
 
-- DM-DEF-01 Defaults are applied via deterministic three-layer merge: **base defaults → flow defaults → user overrides**. Each layer wholly replaces the keys it defines; no deep-merge surprises.
-- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (flow metadata, step sequences, default lenses, default params). It is schema-validated at startup.
-- DM-DEF-03 Flow selection resets `steps.enabled_steps` and step-level defaults to the flow's definition. User overrides made after flow selection are preserved until the user selects a different flow.
+- DM-DEF-01 Defaults are applied via deterministic two-layer merge: **flow defaults → user overrides**. Flow defaults are the starting point; user changes override them in-place. No base-defaults layer, no provenance tracking per field. Each flow defines its own complete set of defaults.
+- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (flow metadata, step sequences, default lenses, default params). It is converted to JSON at build time (Vite plugin) and schema-validated during the build step. At runtime the app imports pre-validated JSON — no YAML parsing or runtime validation needed. Build fails with a clear error if the schema is invalid.
+- DM-DEF-03 Flow selection always fully resets `steps.enabled_steps` and all step-level values to the flow's defaults. No user overrides are carried across flow switches — selecting a flow starts fresh every time.
 
 ---
 
@@ -104,7 +104,7 @@ User selects Repo
 User optionally switches branch
   → Branch switch refreshes contextual data (PRs, issues, files)
 User optionally selects folders as scope
-User optionally selects files the llm must read for context. 
+User optionally selects files the llm must read for context.
 
 
 User selects Task/Flow
@@ -126,15 +126,15 @@ User clicks Copy button
 
 ### UJ — UI Transition Rules (detailed)
 
-| Event | UI Change | State Change |
-|---|---|---|
-| Page load | Configuration expanded; all others collapsed | Load PAT + username from localStorage; begin background repo fetch |
-| Repo selected | Expand Scope & Tasks; collapse Configuration | Set `configuration.repo`; fetch branches, file tree, PRs, issues; auto-select default branch |
-| Branch selected | None | Set `configuration.branch`; reload file tree, PRs, issues |
-| PAT edited/cleared | None | Update `configuration.pat`; re-fetch repos if PAT changed |
-| File/folder selected | None | Update `scope.selected_files` / `scope.selected_folders` immediately and reversibly |
-| Flow selected | Expand Steps + Prompt; collapse Configuration | Set `task.flow_id`; apply flow defaults to `steps.enabled_steps` per DM-DEF |
-| Any `prompt_input` field changed | None | Rebuild prompt from `prompt_input` (DM-INV-02) |
+| Event                            | UI Change                                     | State Change                                                                                 |
+| -------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Page load                        | Configuration expanded; all others collapsed  | Load PAT + username from localStorage; begin background repo fetch                           |
+| Repo selected                    | Expand Scope & Tasks; collapse Configuration  | Set `configuration.repo`; fetch branches, file tree, PRs, issues; auto-select default branch |
+| Branch selected                  | None                                          | Set `configuration.branch`; reload file tree, PRs, issues                                    |
+| PAT edited/cleared               | None                                          | Update `configuration.pat`; re-fetch repos if PAT changed                                    |
+| File/folder selected             | None                                          | Update `scope.selected_files` / `scope.selected_folders` immediately and reversibly          |
+| Flow selected                    | Expand Steps + Prompt; collapse Configuration | Set `task.flow_id`; apply flow defaults to `steps.enabled_steps` per DM-DEF                  |
+| Any `prompt_input` field changed | None                                          | Rebuild prompt from `prompt_input` (DM-INV-02)                                               |
 
 ---
 
@@ -160,7 +160,7 @@ This card has two sections: **Scope** (optional) and **Tasks**.
 
 #### Scope section
 
-- SCT-01 A file/folder tree view with checkboxes. The full tree is pre-loaded (see CFG-05 / APP-03).
+- SCT-01 A file/folder tree view with independent checkboxes for folders and files. Checking a folder does not auto-check its children and vice versa — folders and files serve different semantic purposes (SCT-02 vs SCT-03). No tri-state (partial) checkbox logic. The full tree is pre-loaded (see CFG-05 / APP-03).
 - SCT-02 Selected folders are added to the prompt as "Scope" — guidance for the LLM on where to focus.
 - SCT-03 Selected files are flagged in the prompt for the LLM to "read upfront."
 
@@ -194,7 +194,7 @@ Purpose: Granular control and refinement of the selected flow.
     - On/off toggles (for optional sub-behaviors).
 - STP-03 Where a step has lenses, they are displayed as toggles pre-selected based on the flow. The user can toggle any lens on or off.
 - STP-04 Where a step requires mandatory user input (e.g., new file name, spec description), a text input field is shown inline with the step, clearly marked as required.
-- STP-05 Steps with pre-fillable options (file pickers, PR selectors) show data pre-loaded from the repo — the user selects, never types. Scope selections from SCT-01 do not constrain step-level file pickers; they are independent selections serving different purposes (scope = LLM focus guidance, step pickers = specific action targets).
+- STP-05 Steps with pre-fillable options use flat searchable dropdowns pre-loaded from the repo — the user selects, never types. File pickers show a flat alphabetically-sorted list of all file paths (type-to-filter); PR and issue pickers show `#number — title` lists. No tree-view pickers at step level. Scope selections from SCT-01 do not constrain step-level dropdowns; they are independent selections serving different purposes (scope = LLM focus guidance, step dropdowns = specific action targets).
 - STP-06 The user can remove any step. Reordering and adding custom steps are not required for v1.
 - STP-07 Step granularity is moderate — assume LLM competence. Don't micro-instruct what it already knows how to do. This is a design guideline for authoring flow definitions (SCT-09), not a runtime behavior.
 
@@ -206,6 +206,7 @@ Card 4 never auto-collapses. Once visible (after flow selection), it remains vis
 
 - OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then lists configured steps.
 - OUT-02 Prompt format (step 3-7 are dymamic examples):
+
 ```xml
 <prompt>
   <context>
@@ -215,7 +216,7 @@ Card 4 never auto-collapses. Once visible (after flow selection), it remains vis
   </context>
   <steps>
     Step 1: Read: @claude.md
-    Step 2: Read: [selected files, if any]. 
+    Step 2: Read: [selected files, if any].
     Step 3: Create new branch from [default branch]
     Step 4: Edit [file] — focus on [semantics, syntax, structure]
     Step 5: Commit changes
@@ -227,6 +228,7 @@ Card 4 never auto-collapses. Once visible (after flow selection), it remains vis
      [optional: user's free-text comments]
 </notes>
 ```
+
 - OUT-03 The prompt is plain text, fully regenerated from current `prompt_input` each time any field changes. Deterministic output per DM-INV-03.
 - OUT-04 Files reference example:`@src/utils/auth.js`, and directory/folder reference example: `@src/components?`.
 - OUT-04 The prompt is purely task-oriented — no system preamble, persona, or commit conventions.
@@ -245,33 +247,33 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 
 #### Color Tokens
 
-| Token | Value | Usage |
-|---|---|---|
-| `--shell` | `#e8e6e1` | Page background. Smoke-grey, warm-shifted. |
-| `--surface` | `#f5f0ea` | Card backgrounds. Warm linen. |
-| `--surface-raised` | `#faf7f2` | Hovered cards, active inputs. Birch paper. |
-| `--surface-inset` | `#eceae5` | Inset wells: code preview, prompt output area. |
-| `--text-primary` | `#2c2926` | Body text. Near-black, warm. |
-| `--text-secondary` | `#6b6560` | Labels, captions, placeholders. |
-| `--text-tertiary` | `#9a9490` | Disabled text, subtle hints. |
-| `--border` | `#d6d2cc` | Card borders, dividers. |
-| `--border-focus` | `#a09a94` | Focused input borders. |
-| `--accent` | `#4A6D70` | Active-state left-edge gutter bar, selected toggles, primary buttons. Muted steel-blue. |
-| `--accent-hover` | `#326a89` | Hover state for accent elements. |
-| `--accent-subtle` | `#e9f0f5` | Accent background tint (selected items, active flow button). |
-| `--danger` | `#c2553a` | Error text, delete icon hover. Warm red. |
-| `--success` | `#4a8c6f` | Success feedback. Muted green. |
+| Token              | Value     | Usage                                                                                   |
+| ------------------ | --------- | --------------------------------------------------------------------------------------- |
+| `--shell`          | `#e8e6e1` | Page background. Smoke-grey, warm-shifted.                                              |
+| `--surface`        | `#f5f0ea` | Card backgrounds. Warm linen.                                                           |
+| `--surface-raised` | `#faf7f2` | Hovered cards, active inputs. Birch paper.                                              |
+| `--surface-inset`  | `#eceae5` | Inset wells: code preview, prompt output area.                                          |
+| `--text-primary`   | `#2c2926` | Body text. Near-black, warm.                                                            |
+| `--text-secondary` | `#6b6560` | Labels, captions, placeholders.                                                         |
+| `--text-tertiary`  | `#9a9490` | Disabled text, subtle hints.                                                            |
+| `--border`         | `#d6d2cc` | Card borders, dividers.                                                                 |
+| `--border-focus`   | `#a09a94` | Focused input borders.                                                                  |
+| `--accent`         | `#4A6D70` | Active-state left-edge gutter bar, selected toggles, primary buttons. Muted steel-blue. |
+| `--accent-hover`   | `#326a89` | Hover state for accent elements.                                                        |
+| `--accent-subtle`  | `#e9f0f5` | Accent background tint (selected items, active flow button).                            |
+| `--danger`         | `#c2553a` | Error text, delete icon hover. Warm red.                                                |
+| `--success`        | `#4a8c6f` | Success feedback. Muted green.                                                          |
 
 #### Typography
 
-| Token | Value |
-|---|---|
-| `--font-body` | `system-ui, -apple-system, sans-serif` |
-| `--font-mono` | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
-| `--text-sm` | `0.75rem` (12px) |
-| `--text-base` | `0.875rem` (14px) |
-| `--text-lg` | `1.125rem` (18px) |
-| `--line-height` | `1.3` |
+| Token           | Value                                               |
+| --------------- | --------------------------------------------------- |
+| `--font-body`   | `system-ui, -apple-system, sans-serif`              |
+| `--font-mono`   | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
+| `--text-sm`     | `0.75rem` (12px)                                    |
+| `--text-base`   | `0.875rem` (14px)                                   |
+| `--text-lg`     | `1.125rem` (18px)                                   |
+| `--line-height` | `1.3`                                               |
 
 #### Spacing Scale
 
@@ -284,13 +286,13 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 - **Buttons** (repo grid, flow grid, branch grid) use `--surface-raised` background, `--border`, and `--text-primary`. On hover: `--surface-raised` brightens slightly, border becomes `--border-focus`.
 - **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
 - **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
-- **Skeleton loading states** use `--surface-inset` with a subtle horizontal shimmer animation (opacity pulse, not color shift).
+- **Skeleton loading states** use a single reusable shimmer-bar class on `--surface-inset` with a subtle horizontal shimmer animation (opacity pulse, not color shift). One generic shimmer pattern is reused across all loading areas — no per-component skeleton shapes required (see GL-03).
 
 ### Layout Rules
 
 - VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid.
 - VIS-02 Task/flow buttons and input selectors sit within comfortable thumb/scroll reach.
-- VIS-03 File selection uses a tree-view with expand/collapse and checkboxes (Card 2, Scope section).
+- VIS-03 File selection uses a tree-view with expand/collapse and independent checkboxes per node — no tri-state propagation (Card 2, Scope section). See SCT-01.
 
 ---
 
@@ -313,7 +315,7 @@ Each requirement should be verifiable. These are the acceptance tests.
 - TST-01 Page load with valid cached PAT: repos appear without user action; Configuration card expanded, others collapsed.
 - TST-02 Repo selection: branches, file tree, PRs, issues all load; default branch auto-selected; Scope & Tasks card expands.
 - TST-03 Branch switch: file tree, PRs, issues refresh; `prompt_input.configuration.branch` updates.
-- TST-04 File/folder tree: lazy-expands on click; checkbox toggles update `scope.selected_files` / `scope.selected_folders` immediately and reversibly.
+- TST-04 File/folder tree: expands on click; independent checkbox toggles update `scope.selected_files` / `scope.selected_folders` immediately and reversibly — no tri-state propagation between parent and child nodes.
 - TST-05 Flow selection from `flows.yaml`: steps populate with flow defaults; Steps + Prompt cards expand.
 - TST-06 Step toggles: enabling/disabling a step updates `steps.enabled_steps` and the prompt output.
 - TST-07 Lens toggles: toggling a lens on a step updates that step's `lenses` array and the prompt output.
@@ -322,84 +324,91 @@ Each requirement should be verifiable. These are the acceptance tests.
 - TST-10 End-to-end: repo select → scope select → flow select → step adjust → copied prompt matches expected output for fixed inputs.
 - TST-11 Manual card expand/collapse overrides auto-collapse and persists until the user changes it.
 - TST-12 Error states: invalid PAT, missing repo, network failure all show inline errors per GL-05; user can correct and retry.
-- TST-13 `flows.yaml` schema validation: malformed flow file prevents startup with a clear error.
+- TST-13 `flows.yaml` schema validation: malformed flow file causes the build to fail with a clear error message. Runtime does not need to handle invalid flow data.
 
 ---
 
 ## Implementation Status
 
-| ID | Requirement | Status |
-|---|---|---|
-| GL-01 | Two-click max (except tree navigation) | pending |
-| GL-02 | No typing when selection is possible | pending |
-| GL-03 | Skeleton/loading states, no empty screens | pending |
-| GL-04 | Mobile-first responsive | pending |
-| GL-05 | Inline error feedback, no modals | pending |
-| GL-06 | Eager fetch + localStorage cache + silent refresh | pending |
-| APP-01 | Client-side SPA, no backend | pending |
-| APP-02 | Vanilla JS + plain CSS | pending |
-| APP-03 | Scale target: <500 files, <30 repos | pending |
-| APP-04 | Uniform flow list for all repos | pending |
-| APP-05 | Session persistence in localStorage | pending |
-| DM-INV-01 | Outputs from current prompt_input only | pending |
-| DM-INV-02 | Outputs always reflect latest prompt_input | pending |
-| DM-INV-03 | Deterministic prompt generation | pending |
-| DM-DEF-01 | Three-layer defaults merge | pending |
-| DM-DEF-02 | flows.yaml as single source, schema-validated | pending |
-| DM-DEF-03 | Flow selection resets steps to flow defaults | pending |
-| CFG-01 | PAT password field with show/hide/clear | pending |
-| CFG-02 | Username pre-fill + auto-fetch repos | pending |
-| CFG-03 | Repo button grid, single-tap select | pending |
-| CFG-04 | Branch buttons, default auto-selected | pending |
-| CFG-05 | Eager load tree + PRs + issues on repo select | pending |
-| SCT-01 | File/folder tree with checkboxes | pending |
-| SCT-02 | Selected folders → prompt scope | pending |
-| SCT-03 | Selected files → prompt "read upfront" | pending |
-| SCT-04 | 10 predefined flows | pending |
-| SCT-05 | Flow button grid with icons | pending |
-| SCT-06 | Composite tasks as sub-steps, not separate flows | pending |
-| SCT-07 | PR reference by number only | pending |
-| SCT-08 | Write flows instruct LLM to create branch | pending |
-| SCT-09 | Flow-step definitions designed separately | pending |
-| STP-01 | Steps as ordered list with delete | pending |
-| STP-02 | Step data model (operation + object + optional fields) | pending |
-| STP-03 | Lens toggles pre-selected from flow | pending |
-| STP-04 | Mandatory input fields inline with step | pending |
-| STP-05 | Pre-fillable options from repo data | pending |
-| STP-06 | Remove steps; no reorder/add for v1 | pending |
-| OUT-01 | XML-tagged prompt structure | pending |
-| OUT-02 | Prompt format per template | pending |
-| OUT-03 | Full regeneration on any change | pending |
-| OUT-04 | Task-oriented only, no system preamble | pending |
-| OUT-05 | One-tap copy to clipboard | pending |
-| OUT-06 | Free-text notes field | pending |
-| OUT-07 | "Open in Claude" deferred to post-v1 | pending |
-| OUT-08 | PAT included explicitly for now | pending |
-| VIS-01 | Single-row buttons, wrapping grid | pending |
-| VIS-02 | Thumb-reachable controls | pending |
-| VIS-03 | Tree-view with checkboxes | pending |
-| TST-01 | Page load with cached PAT test | pending |
-| TST-02 | Repo selection integration test | pending |
-| TST-03 | Branch switch test | pending |
-| TST-04 | Tree expand + checkbox test | pending |
-| TST-05 | Flow selection + defaults test | pending |
-| TST-06 | Step toggle test | pending |
-| TST-07 | Lens toggle test | pending |
-| TST-08 | Prompt determinism snapshot test | pending |
-| TST-09 | Copy button clipboard test | pending |
-| TST-10 | End-to-end flow test | pending |
-| TST-11 | Manual card state persistence test | pending |
-| TST-12 | Error state display test | pending |
-| TST-13 | flows.yaml schema validation test | pending |
+| ID        | Requirement                                            | Status  |
+| --------- | ------------------------------------------------------ | ------- |
+| GL-01     | Two-click max (except tree navigation)                 | pending |
+| GL-02     | No typing when selection is possible                   | pending |
+| GL-03     | Skeleton/loading states, no empty screens              | pending |
+| GL-04     | Mobile-first responsive                                | pending |
+| GL-05     | Inline error feedback, no modals                       | pending |
+| GL-06     | Eager fetch + localStorage cache + visible refresh     | pending |
+| APP-01    | Client-side SPA, no backend                            | pending |
+| APP-02    | Vanilla JS + plain CSS                                 | pending |
+| APP-03    | Scale target: <500 files, <30 repos                    | pending |
+| APP-04    | Uniform flow list for all repos                        | pending |
+| APP-05    | Session persistence in localStorage                    | pending |
+| DM-INV-01 | Outputs from current prompt_input only                 | pending |
+| DM-INV-02 | Outputs always reflect latest prompt_input             | pending |
+| DM-INV-03 | Deterministic prompt generation                        | pending |
+| DM-DEF-01 | Two-layer defaults merge (flow → user)                 | pending |
+| DM-DEF-02 | flows.yaml as single source, build-time validated      | pending |
+| DM-DEF-03 | Flow selection resets steps to flow defaults           | pending |
+| CFG-01    | PAT password field with show/hide/clear                | pending |
+| CFG-02    | Username pre-fill + auto-fetch repos                   | pending |
+| CFG-03    | Repo button grid, single-tap select                    | pending |
+| CFG-04    | Branch buttons, default auto-selected                  | pending |
+| CFG-05    | Eager load tree + PRs + issues on repo select          | pending |
+| SCT-01    | File/folder tree with independent checkboxes           | pending |
+| SCT-02    | Selected folders → prompt scope                        | pending |
+| SCT-03    | Selected files → prompt "read upfront"                 | pending |
+| SCT-04    | 10 predefined flows                                    | pending |
+| SCT-05    | Flow button grid with icons                            | pending |
+| SCT-06    | Composite tasks as sub-steps, not separate flows       | pending |
+| SCT-07    | PR reference by number only                            | pending |
+| SCT-08    | Write flows instruct LLM to create branch              | pending |
+| SCT-09    | Flow-step definitions designed separately              | pending |
+| STP-01    | Steps as ordered list with delete                      | pending |
+| STP-02    | Step data model (operation + object + optional fields) | pending |
+| STP-03    | Lens toggles pre-selected from flow                    | pending |
+| STP-04    | Mandatory input fields inline with step                | pending |
+| STP-05    | Flat searchable dropdowns from repo data               | pending |
+| STP-06    | Remove steps; no reorder/add for v1                    | pending |
+| OUT-01    | XML-tagged prompt structure                            | pending |
+| OUT-02    | Prompt format per template                             | pending |
+| OUT-03    | Full regeneration on any change                        | pending |
+| OUT-04    | Task-oriented only, no system preamble                 | pending |
+| OUT-05    | One-tap copy to clipboard                              | pending |
+| OUT-06    | Free-text notes field                                  | pending |
+| OUT-07    | "Open in Claude" deferred to post-v1                   | pending |
+| OUT-08    | PAT included explicitly for now                        | pending |
+| VIS-01    | Single-row buttons, wrapping grid                      | pending |
+| VIS-02    | Thumb-reachable controls                               | pending |
+| VIS-03    | Tree-view with independent checkboxes                  | pending |
+| TST-01    | Page load with cached PAT test                         | pending |
+| TST-02    | Repo selection integration test                        | pending |
+| TST-03    | Branch switch test                                     | pending |
+| TST-04    | Tree expand + checkbox test                            | pending |
+| TST-05    | Flow selection + defaults test                         | pending |
+| TST-06    | Step toggle test                                       | pending |
+| TST-07    | Lens toggle test                                       | pending |
+| TST-08    | Prompt determinism snapshot test                       | pending |
+| TST-09    | Copy button clipboard test                             | pending |
+| TST-10    | End-to-end flow test                                   | pending |
+| TST-11    | Manual card state persistence test                     | pending |
+| TST-12    | Error state display test                               | pending |
+| TST-13    | flows.yaml schema validation test                      | pending |
 
 ---
 
 ## Decisions Log
 
-| Date | Decision | Rationale |
-|---|---|---|
-| 2026-02-20 | GitHub Pages for hosting | Free for public repos, auto-deploys on merge, always-latest live URL |
-| 2026-02-20 | Status tracking in spec_concept.md | Avoids duplication. Status table + Decisions Log in the authoritative spec. |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/` | Cleaner root. `config/` = how to build. `spec/` = what to build. |
-| 2026-02-21 | Prettier needs two flags when config outside root | `--config config/.prettierrc` + `--ignore-path config/.prettierignore`. Vite/ESLint need one flag each. |
-| 2026-02-22 | Merged v1 + v2 specs into v3 | v2 had the better product definition; v1 contributed canonical data model, invariants, test criteria, status tracking, and decisions log. |
+| Date       | Decision                                                                  | Rationale                                                                                                                                                              |
+| ---------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-02-20 | GitHub Pages for hosting                                                  | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                   |
+| 2026-02-20 | Status tracking in spec_concept.md                                        | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                            |
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                    | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                       |
+| 2026-02-21 | Prettier needs two flags when config outside root                         | `--config config/.prettierrc` + `--ignore-path config/.prettierignore`. Vite/ESLint need one flag each.                                                                |
+| 2026-02-22 | Merged v1 + v2 specs into v3                                              | v2 had the better product definition; v1 contributed canonical data model, invariants, test criteria, status tracking, and decisions log.                              |
+| 2026-02-22 | GL-06: Cache-then-fetch with visible refresh, no silent swap              | Eliminates race conditions where user acts on stale data that gets silently replaced. Brief "Updated" indicator is negligible UX cost.                                 |
+| 2026-02-22 | SCT-01: Independent folder/file checkboxes, no tri-state                  | Folders (scope) and files (context) already serve different purposes — tri-state propagation added complexity without matching the semantic model.                     |
+| 2026-02-22 | DM-INV-02: Centralized state setter with auto-rebuild                     | Proxy or setState() makes the "output always matches state" invariant structurally impossible to violate, vs. manual rebuild calls at every mutation site.             |
+| 2026-02-22 | DM-DEF-01: Two-layer merge (flow defaults → user), no provenance tracking | Three-layer merge with dirty-tracking per field was over-engineered. Each flow defines its own complete defaults; no base-defaults layer needed.                       |
+| 2026-02-22 | DM-DEF-02: Build-time YAML→JSON + build-time schema validation            | Catches malformed flows before deploy (better than runtime errors). Zero runtime overhead, no YAML parser in bundle, stays within zero-dependency constraint.          |
+| 2026-02-22 | GL-03: Universal shimmer-bar skeleton, not per-component skeletons        | Loading states are transient (<2s). Generic shimmer + label achieves the same "no empty screens" goal with a single reusable CSS class instead of 6+ custom skeletons. |
+| 2026-02-22 | STP-05: Flat searchable dropdowns for step-level pickers                  | Flat type-to-filter lists are faster than tree navigation for targeted file selection. Avoids duplicating the SCT-01 tree in miniature inside each step card.          |
