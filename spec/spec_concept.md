@@ -21,7 +21,7 @@ These rules apply to every part of the application unless explicitly exempted.
 
 - APP-01 Single-page web application; fully client-side, no backend. GitHub API called directly from browser. Single-repo scope per prompt; single-user tool.
 - APP-02 Tech stack: vanilla JavaScript with ES modules, plain CSS.
-- APP-03 Target scale: repos with fewer than 500 files; users with fewer than 30 repos. Full file tree eager loading is acceptable within these bounds.
+- APP-03 Target scale: repos with fewer than 300 files; users with fewer than 15 repos. Full file tree eager loading is acceptable within these bounds.
 - APP-04 No smart flow suggestions per repo — uniform flow list for all repos.
 - APP-05 The app persists across sessions in localStorage: GitHub PAT, username, and last-used repo/branch/preferences. Previously loaded repo data (file tree, branches, PRs, issues) is cached per GL-06.
 
@@ -42,8 +42,11 @@ prompt_input (JSON-serializable, snake_case):
   }
 
   scope: {
-    selected_files: [path],  // files flagged for LLM to "read upfront"
     selected_folders: [path] // folders included as scope guidance
+  }
+
+  context: {
+    selected_files: [path],  // files flagged for LLM to "read upfront"
   }
 
   task: {
@@ -98,9 +101,11 @@ User selects Repo
   → Scope & Tasks card expands
   → Configuration card collapses
 
-User optionally selects folders/files as scope
 User optionally switches branch
   → Branch switch refreshes contextual data (PRs, issues, files)
+User optionally selects folders as scope
+User optionally selects files the llm must read for context. 
+
 
 User selects Task/Flow
   → Steps card populates with predefined steps and smart defaults
@@ -168,14 +173,10 @@ This card has two sections: **Scope** (optional) and **Tasks**.
   4. **Refactor** — restructure code with configurable scope and focus.
   5. **Write Tests** — add test coverage for selected files/modules.
   6. **Write Documentation** — generate or update docs for selected scope.
-  7. **Security Audit** — scan for vulnerabilities and suggest fixes.
-  8. **Dependency Update** — review and update dependencies.
-  9. **Code Migration** — migrate code patterns, frameworks, or language versions.
-  10. **Performance Optimization** — identify and fix performance bottlenecks.
 - SCT-05 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
 - SCT-06 Composite tasks are handled as optional sub-steps within a base flow (e.g., Review PR has an optional "Apply fixes" toggle), not as separate composite flows.
 - SCT-07 PR references use PR number only — the prompt does not embed diff content. The LLM is assumed to have GitHub access and can fetch PR data using the PR number and PAT.
-- SCT-08 Write-oriented flows instruct the LLM to create a new branch; branch naming is left to the LLM's judgment.
+- SCT-08 Write-oriented flows instruct the LLM to create a new branch; branch naming is left to the LLM's judgment if not specified by the user.
 - SCT-09 Flow-to-step definitions will be designed one-by-one (human + LLM collaboration). This spec defines the step data model and UI; individual flow step sequences are defined separately in `flows.yaml` (see DM-DEF-02).
 
 ### Card 3 — Steps `STP`
@@ -204,32 +205,34 @@ Purpose: Final output and extraction.
 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible.
 
 - OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then lists configured steps.
-- OUT-02 Prompt format:
+- OUT-02 Prompt format (step 3-7 are dymamic examples):
 ```xml
 <prompt>
   <context>
     Execute the following steps for repository [owner/repo] on branch [branch].
     Scope: [selected folders, if any].
-    Read upfront: [selected files, if any].
     Authenticate using PAT: [PAT value].
   </context>
   <steps>
-    Step 1: Read file(s): [file names]
-    Step 2: Create new branch from [default branch]
-    Step 3: Edit [file] — focus on [semantics, syntax, structure]
-    Step 4: Commit changes
-    Step 5: Open PR
+    Step 1: Read: @claude.md
+    Step 2: Read: [selected files, if any]. 
+    Step 3: Create new branch from [default branch]
+    Step 4: Edit [file] — focus on [semantics, syntax, structure]
+    Step 5: Commit changes
+    Step 6: Test and verify
+    Step 7: Open PR
   </steps>
 </prompt>
 <notes>
-  [optional: user's free-text comments]
+     [optional: user's free-text comments]
 </notes>
 ```
 - OUT-03 The prompt is plain text, fully regenerated from current `prompt_input` each time any field changes. Deterministic output per DM-INV-03.
+- OUT-04 Files reference example:`@src/utils/auth.js`, and directory/folder reference example: `@src/components?`.
 - OUT-04 The prompt is purely task-oriented — no system preamble, persona, or commit conventions.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-07 An "Open in Claude" button (claude.ai deep link) is deferred to post-v1 unless trivially implementable via URL query parameter.
+- OUT-07 An "Open in Claude" button (claude.ai deep link) is deferred implementable via URL query parameter (if not too complex).
 - OUT-08 During development, the PAT is included explicitly in the prompt. A future version may use environment variable references instead.
 
 ---
@@ -253,7 +256,7 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 | `--text-tertiary` | `#9a9490` | Disabled text, subtle hints. |
 | `--border` | `#d6d2cc` | Card borders, dividers. |
 | `--border-focus` | `#a09a94` | Focused input borders. |
-| `--accent` | `#3d7b9e` | Active-state left-edge gutter bar, selected toggles, primary buttons. Muted steel-blue. |
+| `--accent` | `#4A6D70` | Active-state left-edge gutter bar, selected toggles, primary buttons. Muted steel-blue. |
 | `--accent-hover` | `#326a89` | Hover state for accent elements. |
 | `--accent-subtle` | `#e9f0f5` | Accent background tint (selected items, active flow button). |
 | `--danger` | `#c2553a` | Error text, delete icon hover. Warm red. |
@@ -265,27 +268,27 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 |---|---|
 | `--font-body` | `system-ui, -apple-system, sans-serif` |
 | `--font-mono` | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
-| `--text-sm` | `0.8125rem` (13px) |
-| `--text-base` | `0.9375rem` (15px) |
+| `--text-sm` | `0.75rem` (12px) |
+| `--text-base` | `0.875rem` (14px) |
 | `--text-lg` | `1.125rem` (18px) |
-| `--line-height` | `1.5` |
+| `--line-height` | `1.3` |
 
 #### Spacing Scale
 
-`--sp-1` through `--sp-6`: `4px, 8px, 12px, 16px, 24px, 32px`.
+`--sp-1` through `--sp-6`: `2px, 4px, 8px, 12px, 16px, 24px`.
 
 #### Component Treatments
 
 - **Cards** sit on `--surface` with a `1px` `--border` and `8px` border-radius. Card header uses `--text-primary` at `--text-base` weight 600.
 - **Active/selected items** (selected repo, selected flow, selected branch) display a `3px` left-edge `--accent` bar — like a code editor gutter marker. Background shifts to `--accent-subtle`.
 - **Buttons** (repo grid, flow grid, branch grid) use `--surface-raised` background, `--border`, and `--text-primary`. On hover: `--surface-raised` brightens slightly, border becomes `--border-focus`.
-- **Toggles/lenses** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
+- **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
 - **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
 - **Skeleton loading states** use `--surface-inset` with a subtle horizontal shimmer animation (opacity pulse, not color shift).
 
 ### Layout Rules
 
-- VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid; at narrow viewports (< 380px), buttons go full-width single-column.
+- VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid.
 - VIS-02 Task/flow buttons and input selectors sit within comfortable thumb/scroll reach.
 - VIS-03 File selection uses a tree-view with expand/collapse and checkboxes (Card 2, Scope section).
 
@@ -305,7 +308,7 @@ These lists define the vocabulary available to flows and steps. They serve as th
 
 ## TST — Test Criteria
 
-Each requirement should be verifiable. These are the acceptance tests for v1.
+Each requirement should be verifiable. These are the acceptance tests.
 
 - TST-01 Page load with valid cached PAT: repos appear without user action; Configuration card expanded, others collapsed.
 - TST-02 Repo selection: branches, file tree, PRs, issues all load; default branch auto-selected; Scope & Tasks card expands.
@@ -395,9 +398,6 @@ Each requirement should be verifiable. These are the acceptance tests for v1.
 
 | Date | Decision | Rationale |
 |---|---|---|
-| 2026-02-20 | Vite as build tool | Simple config, fast dev server, builds to static files for GitHub Pages |
-| 2026-02-20 | Vanilla JS (no framework) | Matches spec simplicity, avoids unnecessary complexity for a single-page app |
-| 2026-02-20 | Plain CSS with variables | Per VIS theme: minimize classes, reuse tokens. Easy to adjust. |
 | 2026-02-20 | GitHub Pages for hosting | Free for public repos, auto-deploys on merge, always-latest live URL |
 | 2026-02-20 | Status tracking in spec_concept.md | Avoids duplication. Status table + Decisions Log in the authoritative spec. |
 | 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/` | Cleaner root. `config/` = how to build. `spec/` = what to build. |
