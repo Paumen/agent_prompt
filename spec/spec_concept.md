@@ -328,69 +328,71 @@ Each requirement should be verifiable. These are the acceptance tests.
 
 ## Implementation Status
 
-| ID | Requirement | Status |
-|---|---|---|
-| GL-01 | Two-click max (except tree navigation) | pending |
-| GL-02 | No typing when selection is possible | pending |
-| GL-03 | Skeleton/loading states, no empty screens | pending |
-| GL-04 | Mobile-first responsive | pending |
-| GL-05 | Inline error feedback, no modals | pending |
-| GL-06 | Eager fetch + localStorage cache + silent refresh | pending |
-| APP-01 | Client-side SPA, no backend | pending |
-| APP-02 | Vanilla JS + plain CSS | pending |
-| APP-03 | Scale target: <500 files, <30 repos | pending |
-| APP-04 | Uniform flow list for all repos | pending |
-| APP-05 | Session persistence in localStorage | pending |
-| DM-INV-01 | Outputs from current prompt_input only | pending |
-| DM-INV-02 | Outputs always reflect latest prompt_input | pending |
-| DM-INV-03 | Deterministic prompt generation | pending |
-| DM-DEF-01 | Three-layer defaults merge | pending |
-| DM-DEF-02 | flows.yaml as single source, schema-validated | pending |
-| DM-DEF-03 | Flow selection resets steps to flow defaults | pending |
-| CFG-01 | PAT password field with show/hide/clear | pending |
-| CFG-02 | Username pre-fill + auto-fetch repos | pending |
-| CFG-03 | Repo button grid, single-tap select | pending |
-| CFG-04 | Branch buttons, default auto-selected | pending |
-| CFG-05 | Eager load tree + PRs + issues on repo select | pending |
-| SCT-01 | File/folder tree with checkboxes | pending |
-| SCT-02 | Selected folders → prompt scope | pending |
-| SCT-03 | Selected files → prompt "read upfront" | pending |
-| SCT-04 | 10 predefined flows | pending |
-| SCT-05 | Flow button grid with icons | pending |
-| SCT-06 | Composite tasks as sub-steps, not separate flows | pending |
-| SCT-07 | PR reference by number only | pending |
-| SCT-08 | Write flows instruct LLM to create branch | pending |
-| SCT-09 | Flow-step definitions designed separately | pending |
-| STP-01 | Steps as ordered list with delete | pending |
-| STP-02 | Step data model (operation + object + optional fields) | pending |
-| STP-03 | Lens toggles pre-selected from flow | pending |
-| STP-04 | Mandatory input fields inline with step | pending |
-| STP-05 | Pre-fillable options from repo data | pending |
-| STP-06 | Remove steps; no reorder/add for v1 | pending |
-| OUT-01 | XML-tagged prompt structure | pending |
-| OUT-02 | Prompt format per template | pending |
-| OUT-03 | Full regeneration on any change | pending |
-| OUT-04 | Task-oriented only, no system preamble | pending |
-| OUT-05 | One-tap copy to clipboard | pending |
-| OUT-06 | Free-text notes field | pending |
-| OUT-07 | "Open in Claude" deferred to post-v1 | pending |
-| OUT-08 | PAT included explicitly for now | pending |
-| VIS-01 | Single-row buttons, wrapping grid | pending |
-| VIS-02 | Thumb-reachable controls | pending |
-| VIS-03 | Tree-view with checkboxes | pending |
-| TST-01 | Page load with cached PAT test | pending |
-| TST-02 | Repo selection integration test | pending |
-| TST-03 | Branch switch test | pending |
-| TST-04 | Tree expand + checkbox test | pending |
-| TST-05 | Flow selection + defaults test | pending |
-| TST-06 | Step toggle test | pending |
-| TST-07 | Lens toggle test | pending |
-| TST-08 | Prompt determinism snapshot test | pending |
-| TST-09 | Copy button clipboard test | pending |
-| TST-10 | End-to-end flow test | pending |
-| TST-11 | Manual card state persistence test | pending |
-| TST-12 | Error state display test | pending |
-| TST-13 | flows.yaml schema validation test | pending |
+## Implementation Status
+
+| ID | Status |
+|---|---|
+| GL-01 | pending |
+| GL-02 | pending |
+| GL-03 | pending |
+| GL-04 | pending |
+| GL-05 | pending |
+| GL-06 | pending |
+| APP-01 | pending |
+| APP-02 | pending |
+| APP-03 | pending |
+| APP-04 | pending |
+| APP-05 | pending |
+| DM-INV-01 | pending |
+| DM-INV-02 | pending |
+| DM-INV-03 | pending |
+| DM-DEF-01 | pending |
+| DM-DEF-02 | pending |
+| DM-DEF-03 | pending |
+| CFG-01 | pending |
+| CFG-02 | pending |
+| CFG-03 | pending |
+| CFG-04 | pending |
+| CFG-05 | pending |
+| SCT-01 | pending |
+| SCT-02 | pending |
+| SCT-03 | pending |
+| SCT-04 | pending |
+| SCT-05 | pending |
+| SCT-06 | pending |
+| SCT-07 | pending |
+| SCT-08 | pending |
+| SCT-09 | pending |
+| STP-01 | pending |
+| STP-02 | pending |
+| STP-03 | pending |
+| STP-04 | pending |
+| STP-05 | pending |
+| STP-06 | pending |
+| OUT-01 | pending |
+| OUT-02 | pending |
+| OUT-03 | pending |
+| OUT-04 | pending |
+| OUT-05 | pending |
+| OUT-06 | pending |
+| OUT-07 | pending |
+| OUT-08 | pending |
+| VIS-01 | pending |
+| VIS-02 | pending |
+| VIS-03 | pending |
+| TST-01 | pending |
+| TST-02 | pending |
+| TST-03 | pending |
+| TST-04 | pending |
+| TST-05 | pending |
+| TST-06 | pending |
+| TST-07 | pending |
+| TST-08 | pending |
+| TST-09 | pending |
+| TST-10 | pending |
+| TST-11 | pending |
+| TST-12 | pending |
+| TST-13 | pending |
 
 ---
 
