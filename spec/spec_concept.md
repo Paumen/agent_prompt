@@ -263,7 +263,8 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ---
 
-## Implementation Status
+##  Status
+
 
 | ID        | Requirement                                            | Status  |
 | --------- | ------------------------------------------------------ | ------- |
