@@ -823,13 +823,13 @@ Target: files/folders\ Pipeline: ctx.folder.load → plan.refactor_steps → gen
 
 5.6 Operate flows (dry-run first, always)
 S) ops.branch
-Create/merge/delete branch\ Pipeline: plan.ops_dry_run → apply.branch._ → report.summary
+Create/merge/delete branch\ Pipeline: plan.ops*dry_run → apply.branch.* → report.summary
 T) ops.pr
-Create/merge/delete PR, add reviewers/labels, link issues\ Pipeline: plan.ops_dry_run → apply.pr._ → report
+Create/merge/delete PR, add reviewers/labels, link issues\ Pipeline: plan.ops*dry_run → apply.pr.* → report
 U) ops.issue
-Create/delete/label/assign/link/merge issues\ Pipeline: plan.ops_dry_run → apply.issue._ → report
+Create/delete/label/assign/link/merge issues\ Pipeline: plan.ops*dry_run → apply.issue.* → report
 V) ops.workflow
-Trigger/create/modify workflow\ Pipeline: ctx.workflow.load(optional) → plan.ops_dry_run → apply.workflow._ → report
+Trigger/create/modify workflow\ Pipeline: ctx.workflow.load(optional) → plan.ops*dry_run → apply.workflow.* → report
 W) ops.project
 Projects/cards/fields operations\ Pipeline: plan.ops_dry_run → apply.project.\* → report
 
@@ -944,16 +944,16 @@ Buttons
 
 8. Variable map (UI → schema → prompt placeholders)
    Key mapping
-   • Flow picker → intent.flow_id, intent.mode, intent.title
+   • Flow picker → intent.flow*id, intent.mode, intent.title
    • Target fields → target.type, target.id, target.repo, target.ref
    • Scope checkboxes → scope.consider[]
-   • Filters → scope.filters._
+   • Filters → scope.filters.*
    • Lenses → lens.selected[], lens.strictness
    • Output → output.destination[], output.format
-   • Apply toggle → apply.write_mode
-   • Branch/commit/PR fields → apply.branch._, apply.commit._, apply.pr._
-   • Repo defaults → repo_policy._
-   • Constraints → constraints._
+   • Apply toggle → apply.write*mode
+   • Branch/commit/PR fields → apply.branch.*, apply.commit._, apply.pr._
+   • Repo defaults → repo*policy.*
+   • Constraints → constraints.\_
 
 ---
 

@@ -77,7 +77,6 @@ npm test          # Run all tests
 5. Run `npm run format` and `npm run lint:fix` before committing.
 6. Run `npm run build` before creating a PR.
 
-
 ## Team
 
 - **Product Owner (user)**: Writes specs, defines requirements, reviews and approves PRs.
