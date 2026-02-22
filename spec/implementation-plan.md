@@ -1,6 +1,6 @@
 # Implementation Plan
 
-> **Status**: Draft v1 — awaiting PO approval.
+> **Status**: Draft v2 — updated with PO decisions.
 > **Date**: 2026-02-22
 
 ---
@@ -55,59 +55,58 @@ index.html
 
 ### Source files
 
-| File | Purpose | Created in | Req IDs |
-|------|---------|------------|---------|
-| `src/css/variables.css` | CSS custom properties (colors, type, spacing) | Phase 0 | VIS-* |
-| `src/css/styles.css` | All component styles, mobile-first | Phase 0 | GL-03, VIS-01, VIS-02 |
-| `src/index.html` | Shell: 4 card containers, script/css imports | Phase 0 | APP-01 |
-| `src/js/main.js` | Entry point: init state, render cards, wire events | Phase 1 | APP-01, APP-02 |
-| `src/js/state.js` | `setState()`, `getState()`, `subscribe()`, session reset | Phase 1 | DM-INV-01..03, DM-DEF-01, APP-05 |
-| `src/js/prompt-builder.js` | Pure function: `prompt_input` → prompt string | Phase 1 | OUT-01..04, DM-INV-03 |
-| `src/js/components.js` | Shared UI: shimmer skeleton, inline error, dismissible notification, searchable dropdown | Phase 0/3 | GL-02, GL-04, STP-05 |
-| `src/js/github-api.js` | GitHub REST: repos, branches, tree, PRs, issues | Phase 3 | CFG-02..05, APP-03 |
-| `src/js/cache.js` | localStorage read/write, TTL, PAT-change invalidation | Phase 3 | GL-05, APP-05 |
-| `src/js/flow-loader.js` | Import pre-validated flow JSON, expose `getFlows()`, `getFlowById()` | Phase 2 | DM-DEF-02, SCT-04 |
-| `src/js/card-configuration.js` | Card 1 UI: PAT, username, repo grid, branch grid | Phase 4 | CFG-01..05 |
-| `src/js/card-scope-tasks.js` | Card 2 UI: file tree + flow selector | Phase 5 | SCT-01..07 |
-| `src/js/file-tree.js` | Recursive file/folder tree with independent checkboxes | Phase 5 | SCT-01..03 |
-| `src/js/card-steps.js` | Card 3 UI: step list, lenses, params, delete | Phase 6 | STP-01..06 |
-| `src/js/card-prompt.js` | Card 4 UI: prompt preview, copy, notes, Open in Claude | Phase 7 | OUT-01..08 |
+| File                           | Purpose                                                                                  | Created in | Req IDs                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------- | ---------- | -------------------------------- |
+| `src/css/variables.css`        | CSS custom properties (colors, type, spacing)                                            | Phase 0    | VIS-\*                           |
+| `src/css/styles.css`           | All component styles, mobile-first                                                       | Phase 0    | GL-03, VIS-01, VIS-02            |
+| `src/index.html`               | Shell: 4 card containers, script/css imports                                             | Phase 0    | APP-01                           |
+| `src/js/main.js`               | Entry point: init state, render cards, wire events                                       | Phase 1    | APP-01, APP-02                   |
+| `src/js/state.js`              | `setState()`, `getState()`, `subscribe()`, session reset                                 | Phase 1    | DM-INV-01..03, DM-DEF-01, APP-04 |
+| `src/js/prompt-builder.js`     | Pure function: `prompt_input` → prompt string                                            | Phase 1    | OUT-01..04, DM-INV-03            |
+| `src/js/components.js`         | Shared UI: shimmer skeleton, inline error, dismissible notification, searchable dropdown | Phase 0/3  | GL-02, GL-04, STP-05             |
+| `src/js/github-api.js`         | GitHub REST: repos, branches, tree, PRs, issues                                          | Phase 3    | CFG-02..05, APP-03               |
+| `src/js/cache.js`              | localStorage read/write, TTL, PAT-change invalidation                                    | Phase 3    | GL-05, APP-04                    |
+| `src/js/flow-loader.js`        | Import pre-validated flow JSON, expose `getFlows()`, `getFlowById()`                     | Phase 2    | DM-DEF-02, SCT-04                |
+| `src/js/card-configuration.js` | Card 1 UI: PAT, username, repo grid, branch grid                                         | Phase 4    | CFG-01..05                       |
+| `src/js/card-scope-tasks.js`   | Card 2 UI: file tree + flow selector                                                     | Phase 5    | SCT-01..07                       |
+| `src/js/file-tree.js`          | Recursive file/folder tree with independent checkboxes                                   | Phase 5    | SCT-01..03                       |
+| `src/js/card-steps.js`         | Card 3 UI: step list, lenses, params, delete                                             | Phase 6    | STP-01..06                       |
+| `src/js/card-prompt.js`        | Card 4 UI: prompt preview, copy, notes, Open in Claude                                   | Phase 7    | OUT-01..08                       |
 
 ### Config/build files
 
-| File | Purpose | Created in |
-|------|---------|------------|
-| `config/flow-schema.js` | JSON Schema for flows.yaml validation (build-time only) | Phase 2 |
-| `config/vite-plugin-yaml.js` | Vite plugin: parse YAML → validate → emit JSON | Phase 2 |
+| File                         | Purpose                                                 | Created in |
+| ---------------------------- | ------------------------------------------------------- | ---------- |
+| `config/flow-schema.js`      | JSON Schema for flows.yaml validation (build-time only) | Phase 2    |
+| `config/vite-plugin-yaml.js` | Vite plugin: parse YAML → validate → emit JSON          | Phase 2    |
 
 ### Test files
 
-| File | Purpose | Created in |
-|------|---------|------------|
-| `tests/state.test.js` | State management: setState, subscribe, session reset, hydration | Phase 1 |
-| `tests/prompt-builder.test.js` | Deterministic prompt generation, snapshot tests | Phase 1 |
-| `tests/flow-loader.test.js` | Flow loading, schema validation | Phase 2 |
-| `tests/github-api.test.js` | API calls (mocked), error handling, limits | Phase 3 |
-| `tests/cache.test.js` | Cache read/write, TTL, PAT invalidation cascade | Phase 3 |
-| `tests/card-configuration.test.js` | Card 1 behavior | Phase 4 |
-| `tests/card-scope-tasks.test.js` | Card 2 behavior, file tree, flow selection | Phase 5 |
-| `tests/card-steps.test.js` | Card 3 behavior, lens toggling, step removal | Phase 6 |
-| `tests/card-prompt.test.js` | Card 4 behavior, copy, notes | Phase 7 |
-| `tests/e2e.test.js` | Full user journey: repo → scope → flow → steps → copy | Phase 9 |
+| File                               | Purpose                                                         | Created in |
+| ---------------------------------- | --------------------------------------------------------------- | ---------- |
+| `tests/state.test.js`              | State management: setState, subscribe, session reset, hydration | Phase 1    |
+| `tests/prompt-builder.test.js`     | Deterministic prompt generation, snapshot tests                 | Phase 1    |
+| `tests/flow-loader.test.js`        | Flow loading, schema validation                                 | Phase 2    |
+| `tests/github-api.test.js`         | API calls (mocked), error handling, limits                      | Phase 3    |
+| `tests/cache.test.js`              | Cache read/write, TTL, PAT invalidation cascade                 | Phase 3    |
+| `tests/card-configuration.test.js` | Card 1 behavior                                                 | Phase 4    |
+| `tests/card-scope-tasks.test.js`   | Card 2 behavior, file tree, flow selection                      | Phase 5    |
+| `tests/card-steps.test.js`         | Card 3 behavior, lens toggling, step removal                    | Phase 6    |
+| `tests/card-prompt.test.js`        | Card 4 behavior, copy, notes                                    | Phase 7    |
+| `tests/e2e.test.js`                | Full user journey: repo → scope → flow → steps → copy           | Phase 9    |
 
 ---
 
 ## 3. Preconditions & Blockers
 
-| # | Precondition | Needed by | Status |
-|---|-------------|-----------|--------|
-| P1 | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md) | Phase 2 | **Blocked — needs PO decision** |
-| P2 | **PO to author real flows** in `flows.yaml` with full step definitions for all 6 flows | Phase 5 (full), Phase 6 | **Blocked — PO action** |
-| P3 | **OUT-07 feasibility**: research whether `claude.ai` supports deep links with pre-filled prompts | Phase 7 | **Needs research — see Risk R3** |
-| P4 | **APP-04 clarification**: ID exists in status table but has no definition in the spec body | Any | **Needs PO clarification — see Open Questions** |
-| P5 | **PR template** exists at `.github/pull_request_template.md` | All PRs | Done (already exists) |
-| P6 | **CI pipeline** exists (lint, test, build) | All PRs | Done (ci.yml exists) |
-| P7 | **Node 20+** available in dev environment | Phase 0 | Done (.nvmrc exists) |
+| #   | Precondition                                                                                              | Needed by               | Status                         |
+| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------------ |
+| P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | **Ask PO when Phase 2 starts** |
+| P2  | **PO to author real flows** in `flows.yaml` with full step definitions for all 6 flows                    | Phase 5 (full), Phase 6 | **Blocked — PO action**        |
+| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                   |
+| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)          |
+| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)           |
+| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)           |
 
 ### Mock Flow Structure (for P1)
 
@@ -124,8 +123,8 @@ flows:
         operation: read
         object: file
         params:
-          file: "@claude.md"
-        required: true        # always-on, non-removable
+          file: '@claude.md'
+        required: true # always-on, non-removable
       - id: read-selected
         operation: read
         object: files
@@ -134,12 +133,12 @@ flows:
         operation: checkout
         object: pr
         params:
-          pr_number: null      # user must select — STP-05 dropdown
-        required_input: true   # shows inline picker
+          pr_number: null # user must select — STP-05 dropdown
+        required_input: true # shows inline picker
       - id: review-code
         operation: review
         object: code
-        lenses:                # STP-03 lens pills
+        lenses: # STP-03 lens pills
           - correctness
           - security
           - performance
@@ -160,7 +159,7 @@ flows:
         operation: read
         object: file
         params:
-          file: "@claude.md"
+          file: '@claude.md'
         required: true
       - id: read-selected
         operation: read
@@ -170,12 +169,12 @@ flows:
         operation: create
         object: branch
         params:
-          from_branch: null    # auto-filled from selected branch
+          from_branch: null # auto-filled from selected branch
       - id: read-spec
         operation: read
         object: file
         params:
-          file: null           # STP-05 file picker
+          file: null # STP-05 file picker
         required_input: true
       - id: implement
         operation: edit
@@ -203,7 +202,7 @@ This structure covers: required steps, optional steps, lens pills with defaults,
 
 **Goal**: Design tokens, base layout, card shell, mobile-first responsive grid.
 
-**Req IDs**: VIS-*, GL-03 (foundation), GL-02 (shimmer class)
+**Req IDs**: VIS-\*, GL-03 (foundation), GL-02 (shimmer class)
 
 ### Checklist
 
@@ -236,7 +235,7 @@ This structure covers: required steps, optional steps, lens pills with defaults,
 
 **Goal**: Centralized state with `setState()`, automatic prompt rebuild, session/persistent separation.
 
-**Req IDs**: DM-INV-01, DM-INV-02, DM-INV-03, DM-DEF-01, APP-05
+**Req IDs**: DM-INV-01, DM-INV-02, DM-INV-03, DM-DEF-01, APP-04
 
 ### Technical Design: `setState()` over Proxy
 
@@ -255,7 +254,8 @@ export function subscribe(listener)            // called after each setState
 export function resetSession()                 // clears repo/branch/prefs, keeps PAT/username
 ```
 
-**Session vs. persistent state** (per APP-05):
+**Session vs. persistent state** (per APP-04):
+
 - **Persistent** (survives page reload): `configuration.pat`, `configuration.owner` → saved to `localStorage`
 - **Session** (cleared on page reload): `configuration.repo`, `configuration.branch`, `scope.*`, `context.*`, `task.*`, `steps.*`, `notes.*` → initialized to defaults on every page load
 
@@ -297,6 +297,7 @@ Pure function `buildPrompt(promptInput) → string`. Called synchronously inside
 ### Technical Design: Vite Plugin
 
 A custom Vite plugin (`config/vite-plugin-yaml.js`) that:
+
 1. Intercepts imports of `.yaml` files
 2. Parses YAML to JS object via `js-yaml` (dev dependency)
 3. Validates against schema defined in `config/flow-schema.js`
@@ -368,7 +369,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 **Goal**: PAT input, username, repo grid, branch grid — fully wired to state and API.
 
-**Req IDs**: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, APP-05
+**Req IDs**: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, APP-04
 
 ### Checklist
 
@@ -482,8 +483,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
   - "Copy" button: `navigator.clipboard.writeText()` — primary output action (OUT-05). On success: brief "Copied!" indicator. On failure: inline error.
     - **Note**: requires secure context (HTTPS or localhost). GitHub Pages serves HTTPS. No fallback for HTTP — modern browsers only.
   - Free-text notes field below prompt preview (OUT-06): textarea, stored in `notes.user_text`, wrapped in `<notes>` tags in output
-  - "Open in Claude" button (OUT-07): **see Risk R3**. If deep link is feasible, use `https://claude.ai/new?q=...` with URL-encoded prompt. If not feasible, fall back to opening `https://claude.ai` (PO to decide — see Open Questions).
-    - URL encoding must handle XML tags, ampersands, special characters in prompt text
+  - "Open in Claude" button (OUT-07): opens `https://claude.ai` in a new tab. **Does not transfer the prompt** — user copies prompt first via the Copy button, then pastes in Claude. Button label must clearly communicate this (e.g., "Open Claude" not "Send to Claude").
   - Card never auto-collapses once visible (OUT-08). Once expanded after flow selection, stays expanded.
   - Prompt is fully regenerated from current `prompt_input` on every change (OUT-03, DM-INV-01)
 - [ ] **Large prompt consideration**: if prompt exceeds ~10,000 characters, show character count as informational. No hard limit enforced in v1.
@@ -517,7 +517,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 - [ ] **GL-02 verify**: all async loads show shimmer skeleton with contextual label. Empty states show message, not blank area.
 - [ ] **GL-04 verify**: all error states are inline, dismissible. No blocking modals anywhere.
 - [ ] **GL-05 verify**: background refresh works, shows "Updated" indicator, defers if mid-interaction (e.g., user is actively toggling file tree checkboxes or editing step lenses).
-  - **Mid-interaction deferral**: track a `isInteracting` flag set during active user input sequences. Background refresh waits until flag clears before re-rendering.
+  - **Mid-interaction deferral** (PO-approved definition): user has active focus on an input field, OR has toggled a checkbox/lens within the last 2 seconds. Track via `isInteracting` flag. Background refresh waits until flag clears before re-rendering.
 - [ ] **APP-01 verify**: fully client-side, no server calls except GitHub API
 - [ ] **APP-02 verify**: vanilla JS, ES modules, plain CSS — no frameworks or preprocessors
 
@@ -564,90 +564,89 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 Every spec requirement mapped to its primary implementation phase and verification phase.
 
-| Req ID | Primary Phase | Verified In | Notes |
-|--------|--------------|-------------|-------|
-| GL-01 | 4, 5, 6, 7 (each card) | 8b | Click audit per card + final audit |
-| GL-02 | 0 (class), 3 (component) | 8b | Shimmer class in CSS, component in JS |
-| GL-03 | 0 (foundation) | 4, 5, 6, 7, 8a | Mobile tested per card + final audit |
-| GL-04 | 3 (component) | 4, 5, 6, 7, 8b | Error component used in each card |
-| GL-05 | 3 (cache) | 8b | Background refresh + deferred re-render |
-| APP-01 | 0 | 8b | SPA, client-side only |
-| APP-02 | 0 | 8b | Vanilla JS, ES modules, plain CSS |
-| APP-03 | 3 | 3 | Limit enforcement in API module |
-| **APP-04** | — | — | **Undefined in spec. See Open Questions.** |
-| APP-05 | 1 | 1 | Session vs persistent state |
-| DM-INV-01 | 1 | 1, 9 | Derived from current state only |
-| DM-INV-02 | 1 | 1, 9 | setState() triggers synchronous rebuild |
-| DM-INV-03 | 1 | 1, 9 | Deterministic output, snapshot tests |
-| DM-DEF-01 | 1 | 1 | Two-layer merge in setState |
-| DM-DEF-02 | 2 | 2 | YAML → JSON + schema validation |
-| DM-DEF-03 | 5 | 5, 9 | Flow selection resets steps |
-| CFG-01 | 4 | 4 | PAT field + clear |
-| CFG-02 | 4 | 4 | Username + auto-fetch |
-| CFG-03 | 4 | 4 | Repo button grid |
-| CFG-04 | 4 | 4 | Branch buttons + auto-select |
-| CFG-05 | 4 | 4 | Background fetch on repo select |
-| SCT-01 | 5 | 5 | Independent checkboxes, no coupling |
-| SCT-02 | 5 | 5 | Folders → scope |
-| SCT-03 | 5 | 5 | Files → context |
-| SCT-04 | 5 | 5 | 6 predefined flows |
-| SCT-05 | 5 | 5 | Flow button grid |
-| SCT-06 | 5, 6 | 6 | Flat step list, removable |
-| SCT-07 | 2 | 2 | flows.yaml definitions |
-| STP-01 | 6 | 6 | Ordered list + delete |
-| STP-02 | 6 | 6 | Step data model |
-| STP-03 | 6 | 6 | Lens pills |
-| STP-04 | 6 | 6 | Required text input |
-| STP-05 | 6 | 6 | Searchable dropdowns |
-| STP-06 | 6 | 6 | Step removal |
-| OUT-01 | 7 | 7 | XML-tagged prompt |
-| OUT-02 | 1, 7 | 7, 9 | Prompt format (builder in 1, display in 7) |
-| OUT-03 | 1 | 1, 7 | Full regeneration |
-| OUT-04 | 1 | 1 | @ file references |
-| OUT-05 | 7 | 7 | Copy to clipboard |
-| OUT-06 | 7 | 7 | Notes textarea |
-| OUT-07 | 7 | 7 | Open in Claude (pending feasibility) |
-| OUT-08 | 7 | 7, 8 | Card never collapses |
-| VIS-01 | 0 | 4, 5 | Icon + title single row |
-| VIS-02 | 0 | 8a | Thumb/scroll reach |
-| TST-08 | 9 | 9 | Prompt determinism |
-| TST-10 | 9 | 9 | End-to-end journey |
-| TST-13 | 2 | 2 | Schema validation failure |
+| Req ID    | Primary Phase            | Verified In    | Notes                                                |
+| --------- | ------------------------ | -------------- | ---------------------------------------------------- |
+| GL-01     | 4, 5, 6, 7 (each card)   | 8b             | Click audit per card + final audit                   |
+| GL-02     | 0 (class), 3 (component) | 8b             | Shimmer class in CSS, component in JS                |
+| GL-03     | 0 (foundation)           | 4, 5, 6, 7, 8a | Mobile tested per card + final audit                 |
+| GL-04     | 3 (component)            | 4, 5, 6, 7, 8b | Error component used in each card                    |
+| GL-05     | 3 (cache)                | 8b             | Background refresh + deferred re-render              |
+| APP-01    | 0                        | 8b             | SPA, client-side only                                |
+| APP-02    | 0                        | 8b             | Vanilla JS, ES modules, plain CSS                    |
+| APP-03    | 3                        | 3              | Limit enforcement in API module                      |
+| APP-04    | 1                        | 1              | Session vs persistent state (was APP-05, renumbered) |
+| DM-INV-01 | 1                        | 1, 9           | Derived from current state only                      |
+| DM-INV-02 | 1                        | 1, 9           | setState() triggers synchronous rebuild              |
+| DM-INV-03 | 1                        | 1, 9           | Deterministic output, snapshot tests                 |
+| DM-DEF-01 | 1                        | 1              | Two-layer merge in setState                          |
+| DM-DEF-02 | 2                        | 2              | YAML → JSON + schema validation                      |
+| DM-DEF-03 | 5                        | 5, 9           | Flow selection resets steps                          |
+| CFG-01    | 4                        | 4              | PAT field + clear                                    |
+| CFG-02    | 4                        | 4              | Username + auto-fetch                                |
+| CFG-03    | 4                        | 4              | Repo button grid                                     |
+| CFG-04    | 4                        | 4              | Branch buttons + auto-select                         |
+| CFG-05    | 4                        | 4              | Background fetch on repo select                      |
+| SCT-01    | 5                        | 5              | Independent checkboxes, no coupling                  |
+| SCT-02    | 5                        | 5              | Folders → scope                                      |
+| SCT-03    | 5                        | 5              | Files → context                                      |
+| SCT-04    | 5                        | 5              | 6 predefined flows                                   |
+| SCT-05    | 5                        | 5              | Flow button grid                                     |
+| SCT-06    | 5, 6                     | 6              | Flat step list, removable                            |
+| SCT-07    | 2                        | 2              | flows.yaml definitions                               |
+| STP-01    | 6                        | 6              | Ordered list + delete                                |
+| STP-02    | 6                        | 6              | Step data model                                      |
+| STP-03    | 6                        | 6              | Lens pills                                           |
+| STP-04    | 6                        | 6              | Required text input                                  |
+| STP-05    | 6                        | 6              | Searchable dropdowns                                 |
+| STP-06    | 6                        | 6              | Step removal                                         |
+| OUT-01    | 7                        | 7              | XML-tagged prompt                                    |
+| OUT-02    | 1, 7                     | 7, 9           | Prompt format (builder in 1, display in 7)           |
+| OUT-03    | 1                        | 1, 7           | Full regeneration                                    |
+| OUT-04    | 1                        | 1              | @ file references                                    |
+| OUT-05    | 7                        | 7              | Copy to clipboard                                    |
+| OUT-06    | 7                        | 7              | Notes textarea                                       |
+| OUT-07    | 7                        | 7              | Opens claude.ai only (no prompt transfer)            |
+| OUT-08    | 7                        | 7, 8           | Card never collapses                                 |
+| VIS-01    | 0                        | 4, 5           | Icon + title single row                              |
+| VIS-02    | 0                        | 8a             | Thumb/scroll reach                                   |
+| TST-08    | 9                        | 9              | Prompt determinism                                   |
+| TST-10    | 9                        | 9              | End-to-end journey                                   |
+| TST-13    | 2                        | 2              | Schema validation failure                            |
 
 ---
 
 ## 15. Risk Register
 
-| # | Risk | Impact | Likelihood | Mitigation |
-|---|------|--------|------------|------------|
-| R1 | `flows.yaml` not authored by PO in time | Blocks Phase 5 (full), Phase 6 | Medium | Use detailed mock flows (defined above in Preconditions). Design UI to handle any number of steps/lenses/params. |
-| R2 | Searchable dropdown in vanilla JS is complex (keyboard nav, mobile touch, scroll, search filter) | Delays Phase 6 | Medium | Start with a simpler select-based dropdown. Enhance to searchable only if file/PR lists are long enough to warrant it. |
-| R3 | **OUT-07**: `claude.ai` may not support deep links with pre-filled prompts | Degrades Phase 7 feature | High | Research ASAP. Fallback: button opens `claude.ai` without pre-filled prompt (user pastes manually after copy). PO to decide. |
-| R4 | localStorage corruption from version changes | Breaks state hydration | Low | Validate shape on hydration. If invalid, clear and start fresh. Log to console. |
-| R5 | Large file trees (close to 300-file limit) cause slow rendering | Degrades UX on large repos | Low | Use document fragment for batch DOM insertion. Consider virtual scrolling only if performance is measurably poor. |
-| R6 | Synchronous prompt rebuild causes UI jank on complex prompts | Degrades UX | Low | Profile first. If measurable jank (>16ms rebuild), batch via `requestAnimationFrame`. Unlikely for text-only generation. |
+| #   | Risk                                                                                             | Impact                         | Likelihood | Mitigation                                                                                                               |
+| --- | ------------------------------------------------------------------------------------------------ | ------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
+| R1  | `flows.yaml` not authored by PO in time                                                          | Blocks Phase 5 (full), Phase 6 | Medium     | Use detailed mock flows (defined above in Preconditions). Design UI to handle any number of steps/lenses/params.         |
+| R2  | Searchable dropdown in vanilla JS is complex (keyboard nav, mobile touch, scroll, search filter) | Delays Phase 6                 | Medium     | Start with a simpler select-based dropdown. Enhance to searchable only if file/PR lists are long enough to warrant it.   |
+| R3  | ~~**OUT-07**: deep link feasibility~~                                                            | ~~Degrades Phase 7 feature~~   | —          | **Resolved**: PO decided button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this.           |
+| R4  | localStorage corruption from version changes                                                     | Breaks state hydration         | Low        | Validate shape on hydration. If invalid, clear and start fresh. Log to console.                                          |
+| R5  | Large file trees (close to 300-file limit) cause slow rendering                                  | Degrades UX on large repos     | Low        | Use document fragment for batch DOM insertion. Consider virtual scrolling only if performance is measurably poor.        |
+| R6  | Synchronous prompt rebuild causes UI jank on complex prompts                                     | Degrades UX                    | Low        | Profile first. If measurable jank (>16ms rebuild), batch via `requestAnimationFrame`. Unlikely for text-only generation. |
 
 ---
 
-## 16. Open Questions for PO
+## 16. Resolved Questions (PO Decisions — 2026-02-22)
 
-1. **APP-04**: This ID appears in the status table but has no definition in the spec body (the spec jumps from APP-03 to APP-05). Is this a real requirement that needs a definition, or should it be removed from the status table?
+1. **APP-04 (phantom)**: Removed from spec. Former APP-05 renumbered to APP-04. Status table updated.
 
-2. **OUT-07 fallback**: If `claude.ai` does not support deep links with pre-filled prompts, should the "Open in Claude" button simply open `claude.ai` (user pastes prompt manually), or should we remove the button entirely?
+2. **OUT-07**: Button kept — opens `claude.ai` only (no prompt transfer). Label must clearly indicate it only opens the site (e.g., "Open Claude"). User copies prompt separately via Copy button.
 
-3. **Placeholder flows**: May we add development placeholder flows to `src/config/flows.yaml` to unblock Phases 2-6? The file is protected per CLAUDE.md. The placeholders will be replaced by your real flow definitions later.
+3. **Placeholder flows**: Will ask PO for approval when Phase 2 starts. Not pre-approved.
 
-4. **GL-05 mid-interaction deferral**: The spec says background refresh should be "deferred if mid-interaction." How should we define "mid-interaction"? Our proposal: any period during which the user has an active focus on an input field, or has toggled a checkbox/lens within the last 2 seconds.
+4. **GL-05 mid-interaction**: Agreed — mid-interaction defined as: user has active focus on an input field, OR has toggled a checkbox/lens within the last 2 seconds.
 
 ---
 
 ## 17. Technical Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **`setState()` over Proxy** for DM-INV-02 | Simpler, more debuggable, handles nested objects/arrays without deep wrapping. Spec explicitly allows either approach. Aligns with Anti-Over-Engineering Rule. |
-| **Schema file in `config/`** not `src/js/` | Build-time artifact. Should not be bundled into production code. |
-| **Shared `components.js`** for UI primitives | Shimmer, errors, notifications, and searchable dropdowns are needed across multiple cards. Shared module prevents duplication. |
-| **Vite plugin** (not pre-build script) for YAML | Cleaner integration with Vite's dev server (HMR support for flows.yaml changes). The `transform` hook is straightforward for this use case. |
-| **No Proxy, no reactive framework** | The app has ~6 state fields that change independently. Explicit `setState()` calls at ~15-20 interaction points is manageable and clear. A reactive system would be over-engineering. |
-| **Modern browsers only** (Clipboard API, ES modules) | Spec targets developers using current tools. No IE11/legacy support needed. GitHub Pages serves HTTPS. |
+| Decision                                             | Rationale                                                                                                                                                                             |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`setState()` over Proxy** for DM-INV-02            | Simpler, more debuggable, handles nested objects/arrays without deep wrapping. Spec explicitly allows either approach. Aligns with Anti-Over-Engineering Rule.                        |
+| **Schema file in `config/`** not `src/js/`           | Build-time artifact. Should not be bundled into production code.                                                                                                                      |
+| **Shared `components.js`** for UI primitives         | Shimmer, errors, notifications, and searchable dropdowns are needed across multiple cards. Shared module prevents duplication.                                                        |
+| **Vite plugin** (not pre-build script) for YAML      | Cleaner integration with Vite's dev server (HMR support for flows.yaml changes). The `transform` hook is straightforward for this use case.                                           |
+| **No Proxy, no reactive framework**                  | The app has ~6 state fields that change independently. Explicit `setState()` calls at ~15-20 interaction points is manageable and clear. A reactive system would be over-engineering. |
+| **Modern browsers only** (Clipboard API, ES modules) | Spec targets developers using current tools. No IE11/legacy support needed. GitHub Pages serves HTTPS.                                                                                |

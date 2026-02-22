@@ -6,7 +6,7 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 ## GL — Global Constraints
 
-- GL-01 Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing._
+- GL-01 Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing.\_
 - GL-02 Use universal shimmer-bar skeleton with contextual loading label while data loads. Empty data states show brief contextual message, not a blank area. — not a blank area.
 - GL-03 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
 - GL-04 Inline error feedback (no blocking modals). Dismissible. User can correct input and manually retry.
@@ -16,10 +16,10 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 ## APP — Application Architecture
 
-- APP-01:** SPA; fully client-side. Direct GitHub API calls. Single-repo scope per prompt; single-user.
+- APP-01:\*\* SPA; fully client-side. Direct GitHub API calls. Single-repo scope per prompt; single-user.
 - APP-02: Vanilla JS, ES modules, plain CSS.
 - APP-03: Limits: <300 files/repo, <15 repos/user. Full file tree eager loading permitted.
--APP-05: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists per GL-06.
+- APP-04: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists per GL-05.
 
 ---
 
@@ -177,7 +177,7 @@ Purpose: Final output and extraction.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
 - OUT-07 An "Open in Claude" button (claude.ai deep link).
-- OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible. 
+- OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible.
 
 ---
 
@@ -229,7 +229,8 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 - **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
 - **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
 - **Skeleton loading states** Single reusable shimmer-bar class on --surface-inset, opacity pulse.
-- 
+-
+
 ### Layout Rules
 
 - VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid.
@@ -247,11 +248,10 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ---
 
-##  Status
-
+## Status
 
 | ID        | Status  |
-| ------    | ------- |
+| --------- | ------- |
 | GL-01     | pending |
 | GL-02     | pending |
 | GL-03     | pending |
@@ -261,7 +261,6 @@ Each requirement above is its own acceptance test. The following tests add speci
 | APP-02    | pending |
 | APP-03    | pending |
 | APP-04    | pending |
-| APP-05    | pending |
 | DM-INV-01 | pending |
 | DM-INV-02 | pending |
 | DM-INV-03 | pending |
@@ -304,10 +303,12 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ## Decisions Log
 
-| Date       | Decision                                                                                                                        | Rationale                                                                                                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2026-02-20 | GitHub Pages for hosting                                                                                                        | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                     |
-| 2026-02-20 | Status tracking in spec_concept.md                                                                                              | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                              |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                          | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                         |
-
-
+| Date       | Decision                                                                        | Rationale                                                                                                                             |
+| ---------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-02-20 | GitHub Pages for hosting                                                        | Free for public repos, auto-deploys on merge, always-latest live URL                                                                  |
+| 2026-02-20 | Status tracking in spec_concept.md                                              | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                           |
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                          | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                      |
+| 2026-02-22 | Removed phantom APP-04; renumbered APP-05 → APP-04                              | APP-04 existed in status table but had no definition in spec body. PO confirmed it was not a real requirement.                        |
+| 2026-02-22 | OUT-07 "Open in Claude" button opens claude.ai only (no prompt transfer)        | Deep link with pre-filled prompt may not be supported. Button naming must clearly indicate it only opens the site.                    |
+| 2026-02-22 | Mid-interaction = active focus on input OR checkbox/lens toggled within last 2s | Defines when background refresh (GL-05) should defer re-rendering to avoid disrupting the user.                                       |
+| 2026-02-22 | `setState()` over Proxy for centralized state (DM-INV-02)                       | Simpler, debuggable, handles nested objects/arrays without deep wrapping. Spec allows either. Aligns with Anti-Over-Engineering Rule. |

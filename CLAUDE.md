@@ -18,10 +18,10 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 ## File Guide
 
-| File                                                | Purpose                                                                   | How to use                                                                                                                                                            |
-| --------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `spec/spec_concept.md`                              | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress.                                                                                                               |
-| `src/config/flows.yaml`                             | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.                                                                                                       |
+| File                    | Purpose                                                                   | How to use                                                                   |
+| ----------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `spec/spec_concept.md`  | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
+| `src/config/flows.yaml` | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
 
 ## File Permissions
 
