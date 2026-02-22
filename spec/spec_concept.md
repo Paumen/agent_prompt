@@ -7,19 +7,19 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 ## GL — Global Constraints
 
 - GL-01 Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing._
-- GL-02 TWhile data loads — a universal shimmer-bar skeleton with a contextual loading label (e.g., "Loading repositories…") is shown in each loading area. Empty data states (no PRs exist, no issues, zero search results) show a brief contextual message — not a blank area.
+- GL-02 Use universal shimmer-bar skeleton with contextual loading label while data loads. Empty data states show brief contextual message, not a blank area. — not a blank area.
 - GL-03 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
-- GL-04 Errors (invalid PAT, repo not found, branch deleted, PAT expired, rate limits, network failure) use inline error feedback. Error states are dismissible and the user can correct input (e.g., edit or clear PAT) and retry manually.
-- GL-05 All GitHub fetches start as early as possible (eager/background loading). Fetched data is cached in localStorage and shown instantly on revisit. A background fetch then retrieves fresh data — on completion the UI shows a brief "Updated" indicator and re-renders once. If the user is mid-interaction (e.g., selecting files), the re-render is deferred until the interaction completes. No silent replacement of data the user is actively viewing.
+- GL-04 Inline error feedback (no blocking modals). Dismissible. User can correct input and manually retry.
+- GL-05 Eager/background loading for all GitHub fetches. Cache in `localStorage`; show instantly on revisit. Background fetch retrieves fresh data → shows brief "Updated" indicator → re-renders once (deferred if mid-interaction). No silent replacement of active views.
 
 ---
 
 ## APP — Application Architecture
 
-- APP-01 Single-page web application; fully client-side, no backend. GitHub API called directly from browser. Single-repo scope per prompt; single-user tool.
-- APP-02 Tech stack: vanilla JavaScript with ES modules, plain CSS.
-- APP-03 Target scale: repos with fewer than 200 files; users with fewer than 10 repos. Full file tree eager loading is acceptable within these bounds.
-- APP-04 The app persists PAT and username in localStorage across sessions. Repo/branch/preferences are not restored — each visit starts fresh after authentication. Previously loaded repo data (file tree, branches) is cached per GL-06.
+- APP-01:** SPA; fully client-side. Direct GitHub API calls. Single-repo scope per prompt; single-user.
+- APP-02: Vanilla JS, ES modules, plain CSS.
+- APP-03: Limits: <300 files/repo, <15 repos/user. Full file tree eager loading permitted.
+-APP-05: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists per GL-06.
 
 ---
 
@@ -100,32 +100,27 @@ This is the single source of truth for **what happens when**. Card sections belo
 
 ## Layout
 
-The UI is a vertical stack of four collapsible cards. Each card has an expand/collapse toggle. Cards auto-expand based on user progression (see UJ table). The Configuration card also auto-collapses on repo select and flow select. No manual-override tracking. 
+Vertical stack of 4 collapsible cards. Auto-expand based on progression. Config card auto-collapses on repo/flow select. Re-opened Config auto-collapses on next trigger. Other cards require manual close.
 
 ### Card 1 — Configuration `CFG`
 
-Purpose: Authentication and target selection.
+Authentication and target selection.
 
 - CFG-01 PAT input is a password field with show/hide toggle. A "Clear" action lets the user remove the stored PAT. PAT is persisted in localStorage.
 - CFG-02 GitHub username input is pre-filled from localStorage. On page load, repositories are automatically fetched.
 - CFG-03 Repository buttons are displayed as a scrollable, wrapping button grid so the user can select one with a single tap.
 - CFG-04 On repo selection, branch buttons appear (pre-loaded in background per GL-06). The default branch is auto-selected.
-- CFG-05 On repo selection, branches and the full recursive file tree load eagerly in the background. PRs and issues are fetched on-demand when a flow that needs them is selected. No on-demand lazy loading of tree levels.
+- CFG-05 Repo selection triggers eager background load of branches and full recursive file tree. PRs/issues fetched on-demand per flow.
 
 ### Card 2 — Scope & Tasks `SCT`
 
-Purpose: Define codebase boundaries and select a high-level automation task.
+Define codebase boundaries and select a high-level automation task.
 
 This card has two sections: **Scope** (optional) and **Tasks**.
 
-#### Scope section
-
-- SCT-01 A file/folder tree view with independent checkboxes for folders and files. Checking a folder does not auto-check its children and vice versa (SCT-02 vs SCT-03). No tri-state (partial) checkbox logic. The full tree is pre-loaded (see CFG-05 / APP-03).
+- SCT-01 File/folder tree with independent checkboxes. No parent/child auto-check coupling. No tri-state logic. Full tree pre-loaded.
 - SCT-02 Selected folders are added to the prompt as "Scope" — guidance for the LLM on where to focus.
 - SCT-03 Selected files are flagged in the prompt for the LLM to "read upfront."
-
-#### Tasks section
-
 - SCT-04 The app presents a fixed set of predefined flows:
   1. **Review PR** — review an open pull request with configurable focus lenses.
   2. **Implement Feature** — from spec file(s) or from user description.
@@ -135,24 +130,17 @@ This card has two sections: **Scope** (optional) and **Tasks**.
   6. **Write Documentation** — generate or update docs for selected scope.
 - SCT-05 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
 - SCT-06 Each flow is a flat list of steps. Users remove unwanted steps via STP-06.
-- SCT-07 Flow-to-step definitions will be designed one-by-one (human + LLM collaboration). This spec defines the step data model and UI; individual flow step sequences are defined separately in `flows.yaml` (see DM-DEF-02). Prompt-content rules (PR reference format, branch creation instructions, step granularity) live as comments in `flows.yaml`.
+- SCT-07 Flow-to-step definitions in flows.yaml. Spec defines step data model/UI. Prompt-content rules live as comments in flows.yaml.
 
 ### Card 3 — Steps `STP`
 
 Purpose: Granular control and refinement of the selected flow.
 
 - STP-01 Steps appear as an ordered list. Each step can be deleted with a single tap (trash icon).
-- STP-02 Step data model — a step contains at minimum:
-  - 1× operation (required) — e.g., read, create, edit, open, review, commit.
-  - 1× object (required) — e.g., file, branch, PR, issue.
-  - Depending on the step, it may also include any combination of:
-    - Focus lenses (optional selections) — e.g., semantics, syntax, security, performance, structure.
-    - Additional object(s) (rare).
-    - Text input field (for mandatory user input, e.g., file name, description).
-    - On/off toggles (for optional sub-behaviors).
+- STP-02 Data model minimums: 1× operation, 1× object. Optional: focus lenses, additional objects, required text input, on/off toggles.
 - STP-03 Where a step has lenses, they are displayed as pills pre-selected based on the flow. The user can toggle any lens on or off.
 - STP-04 Where a step requires mandatory user input (e.g., new file name, spec description), a text input field is shown inline with the step, clearly marked as required.
-- STP-05 Steps with pre-fillable options use flat searchable dropdowns pre-loaded from the repo — the user selects, never types. File pickers show a flat alphabetically-sorted list of all file paths (type-to-filter); PR and issue pickers show `#number — title` lists. Scope selections from SCT-01 do not constrain step-level dropdowns; they are independent selections serving different purposes (scope = LLM focus guidance, step dropdowns = specific action targets).
+- STP-05 Pre-fillable options use flat searchable dropdowns (select, never type). File pickers: flat alphabetical list. PR/issue pickers: #number — title. Independent from Scope selections.
 - STP-06 The user can remove any step.
 
 ### Card 4 — Prompt `OUT`
@@ -240,8 +228,8 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 - **Buttons** (repo grid, flow grid, branch grid) use `--surface-raised` background, `--border`, and `--text-primary`. On hover: `--surface-raised` brightens slightly, border becomes `--border-focus`.
 - **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
 - **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
-- **Skeleton loading states** use a single reusable shimmer-bar class on `--surface-inset` with a subtle horizontal shimmer animation (opacity pulse, not color shift). One generic shimmer pattern is reused across all loading areas — no per-component skeleton shapes required (see GL-03).
-
+- **Skeleton loading states** Single reusable shimmer-bar class on --surface-inset, opacity pulse.
+- 
 ### Layout Rules
 
 - VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid.
