@@ -6,12 +6,11 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 ## GL — Global Constraints
 
-These rules apply to every part of the application unless explicitly exempted. _Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing._
-
-- GL-03 The UI never shows empty screens while data loads — a universal shimmer-bar skeleton with a contextual loading label (e.g., "Loading repositories…") is shown in each loading area. Layout-faithful per-component skeletons are not required. Empty data states (no PRs exist, no issues, zero search results) show a brief contextual message — not a blank area.
-- GL-04 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
-- GL-05 Errors (invalid PAT, repo not found, branch deleted, PAT expired, rate limits, network failure) use inline error feedback — not blocking modals, not hidden. Error states are dismissible and the user can correct input (e.g., edit or clear PAT) and retry manually. No automatic retry logic for v1.
-- GL-06 All GitHub fetches start as early as possible (eager/background loading). Fetched data is cached in localStorage and shown instantly on revisit. A background fetch then retrieves fresh data — on completion the UI shows a brief "Updated" indicator and re-renders once. If the user is mid-interaction (e.g., selecting files), the re-render is deferred until the interaction completes. No silent replacement of data the user is actively viewing.
+- GL-01 Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing._
+- GL-02 TWhile data loads — a universal shimmer-bar skeleton with a contextual loading label (e.g., "Loading repositories…") is shown in each loading area. Empty data states (no PRs exist, no issues, zero search results) show a brief contextual message — not a blank area.
+- GL-03 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
+- GL-04 Errors (invalid PAT, repo not found, branch deleted, PAT expired, rate limits, network failure) use inline error feedback. Error states are dismissible and the user can correct input (e.g., edit or clear PAT) and retry manually.
+- GL-05 All GitHub fetches start as early as possible (eager/background loading). Fetched data is cached in localStorage and shown instantly on revisit. A background fetch then retrieves fresh data — on completion the UI shows a brief "Updated" indicator and re-renders once. If the user is mid-interaction (e.g., selecting files), the re-render is deferred until the interaction completes. No silent replacement of data the user is actively viewing.
 
 ---
 
@@ -19,9 +18,8 @@ These rules apply to every part of the application unless explicitly exempted. _
 
 - APP-01 Single-page web application; fully client-side, no backend. GitHub API called directly from browser. Single-repo scope per prompt; single-user tool.
 - APP-02 Tech stack: vanilla JavaScript with ES modules, plain CSS.
-- APP-03 Target scale: repos with fewer than 300 files; users with fewer than 15 repos. Full file tree eager loading is acceptable within these bounds.
-- APP-04 No smart flow suggestions per repo — uniform flow list for all repos.
-- APP-05 The app persists PAT and username in localStorage across sessions. Repo/branch/preferences are not restored — each visit starts fresh after authentication. Previously loaded repo data (file tree, branches) is cached per GL-06.
+- APP-03 Target scale: repos with fewer than 200 files; users with fewer than 10 repos. Full file tree eager loading is acceptable within these bounds.
+- APP-04 The app persists PAT and username in localStorage across sessions. Repo/branch/preferences are not restored — each visit starts fresh after authentication. Previously loaded repo data (file tree, branches) is cached per GL-06.
 
 ---
 
@@ -79,8 +77,8 @@ prompt_input (JSON-serializable, snake_case):
 ### DM-DEF — Defaults & Merge Strategy
 
 - DM-DEF-01 Defaults are applied via deterministic two-layer merge: **flow defaults → user overrides**. Flow defaults are the starting point; user changes override them in-place. No base-defaults layer, no provenance tracking per field. Each flow defines its own complete set of defaults.
-- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (flow metadata, step sequences, default lenses, default params). It is converted to JSON at build time (Vite plugin) and schema-validated during the build step. At runtime the app imports pre-validated JSON — no YAML parsing or runtime validation needed. Build fails with a clear error if the schema is invalid.
-- DM-DEF-03 Flow selection always fully resets `steps.enabled_steps` and all step-level values to the flow's defaults. No user overrides are carried across flow switches — selecting a flow starts fresh every time.
+- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (flow metadata, step sequences, default lenses, default params). It is converted to JSON at build time (Vite plugin) and schema-validated during the build step. At runtime the app imports pre-validated Json. Build fails with a clear error if the schema is invalid.
+- DM-DEF-03 Flow selection always fully resets `steps.enabled_steps` and all step-level values to the flow's defaults. No user overrides are carried across flow switches.
 
 ---
 
@@ -102,14 +100,14 @@ This is the single source of truth for **what happens when**. Card sections belo
 
 ## Layout
 
-The UI is a vertical stack of four collapsible cards. Each card has an expand/collapse toggle. Cards auto-expand based on user progression (see UJ table). The Configuration card also auto-collapses on repo select and flow select. No manual-override tracking — if the user re-opens Configuration and then triggers an auto-collapse event, it collapses again. Other cards never auto-collapse; the user closes them manually if desired.
+The UI is a vertical stack of four collapsible cards. Each card has an expand/collapse toggle. Cards auto-expand based on user progression (see UJ table). The Configuration card also auto-collapses on repo select and flow select. No manual-override tracking. 
 
 ### Card 1 — Configuration `CFG`
 
 Purpose: Authentication and target selection.
 
 - CFG-01 PAT input is a password field with show/hide toggle. A "Clear" action lets the user remove the stored PAT. PAT is persisted in localStorage.
-- CFG-02 GitHub username input is pre-filled from localStorage. On page load, repositories are automatically fetched — no manual trigger required.
+- CFG-02 GitHub username input is pre-filled from localStorage. On page load, repositories are automatically fetched.
 - CFG-03 Repository buttons are displayed as a scrollable, wrapping button grid so the user can select one with a single tap.
 - CFG-04 On repo selection, branch buttons appear (pre-loaded in background per GL-06). The default branch is auto-selected.
 - CFG-05 On repo selection, branches and the full recursive file tree load eagerly in the background. PRs and issues are fetched on-demand when a flow that needs them is selected. No on-demand lazy loading of tree levels.
@@ -122,13 +120,13 @@ This card has two sections: **Scope** (optional) and **Tasks**.
 
 #### Scope section
 
-- SCT-01 A file/folder tree view with independent checkboxes for folders and files. Checking a folder does not auto-check its children and vice versa — folders and files serve different semantic purposes (SCT-02 vs SCT-03). No tri-state (partial) checkbox logic. The full tree is pre-loaded (see CFG-05 / APP-03).
+- SCT-01 A file/folder tree view with independent checkboxes for folders and files. Checking a folder does not auto-check its children and vice versa (SCT-02 vs SCT-03). No tri-state (partial) checkbox logic. The full tree is pre-loaded (see CFG-05 / APP-03).
 - SCT-02 Selected folders are added to the prompt as "Scope" — guidance for the LLM on where to focus.
 - SCT-03 Selected files are flagged in the prompt for the LLM to "read upfront."
 
 #### Tasks section
 
-- SCT-04 The app presents a fixed set of predefined flows (maximum 10). The definitive v1 list:
+- SCT-04 The app presents a fixed set of predefined flows:
   1. **Review PR** — review an open pull request with configurable focus lenses.
   2. **Implement Feature** — from spec file(s) or from user description.
   3. **Fix Bug / Issue** — from GitHub issue or user description.
@@ -136,7 +134,7 @@ This card has two sections: **Scope** (optional) and **Tasks**.
   5. **Write Tests** — add test coverage for selected files/modules.
   6. **Write Documentation** — generate or update docs for selected scope.
 - SCT-05 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
-- SCT-06 Each flow is a flat list of steps — no optional sub-step toggles. Users remove unwanted steps via STP-06.
+- SCT-06 Each flow is a flat list of steps. Users remove unwanted steps via STP-06.
 - SCT-07 Flow-to-step definitions will be designed one-by-one (human + LLM collaboration). This spec defines the step data model and UI; individual flow step sequences are defined separately in `flows.yaml` (see DM-DEF-02). Prompt-content rules (PR reference format, branch creation instructions, step granularity) live as comments in `flows.yaml`.
 
 ### Card 3 — Steps `STP`
@@ -148,14 +146,14 @@ Purpose: Granular control and refinement of the selected flow.
   - 1× operation (required) — e.g., read, create, edit, open, review, commit.
   - 1× object (required) — e.g., file, branch, PR, issue.
   - Depending on the step, it may also include any combination of:
-    - Focus lenses (optional toggles) — e.g., semantics, syntax, security, performance, structure.
+    - Focus lenses (optional selections) — e.g., semantics, syntax, security, performance, structure.
     - Additional object(s) (rare).
     - Text input field (for mandatory user input, e.g., file name, description).
     - On/off toggles (for optional sub-behaviors).
-- STP-03 Where a step has lenses, they are displayed as toggles pre-selected based on the flow. The user can toggle any lens on or off.
+- STP-03 Where a step has lenses, they are displayed as pills pre-selected based on the flow. The user can toggle any lens on or off.
 - STP-04 Where a step requires mandatory user input (e.g., new file name, spec description), a text input field is shown inline with the step, clearly marked as required.
-- STP-05 Steps with pre-fillable options use flat searchable dropdowns pre-loaded from the repo — the user selects, never types. File pickers show a flat alphabetically-sorted list of all file paths (type-to-filter); PR and issue pickers show `#number — title` lists. No tree-view pickers at step level. Scope selections from SCT-01 do not constrain step-level dropdowns; they are independent selections serving different purposes (scope = LLM focus guidance, step dropdowns = specific action targets).
-- STP-06 The user can remove any step. Reordering and adding custom steps are not required for v1.
+- STP-05 Steps with pre-fillable options use flat searchable dropdowns pre-loaded from the repo — the user selects, never types. File pickers show a flat alphabetically-sorted list of all file paths (type-to-filter); PR and issue pickers show `#number — title` lists. Scope selections from SCT-01 do not constrain step-level dropdowns; they are independent selections serving different purposes (scope = LLM focus guidance, step dropdowns = specific action targets).
+- STP-06 The user can remove any step.
 
 ### Card 4 — Prompt `OUT`
 
@@ -188,11 +186,10 @@ Purpose: Final output and extraction.
 
 - OUT-03 The prompt is plain text, fully regenerated from current `prompt_input` each time any field changes. Deterministic output per DM-INV-03.
 - OUT-04 Files reference example: `@src/utils/auth.js`, and directory/folder reference example: `@src/components/`.
-- OUT-05 The prompt is purely task-oriented — no system preamble, persona, or commit conventions.
-- OUT-06 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
-- OUT-07 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-08 An "Open in Claude" button (claude.ai deep link).
-- OUT-09 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible. 
+- OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
+- OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
+- OUT-07 An "Open in Claude" button (claude.ai deep link).
+- OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible. 
 
 ---
 
@@ -267,10 +264,11 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 | ID        | Status  |
 | ------    | ------- |
+| GL-01     | pending |
+| GL-02     | pending |
 | GL-03     | pending |
 | GL-04     | pending |
 | GL-05     | pending |
-| GL-06     | pending |
 | APP-01    | pending |
 | APP-02    | pending |
 | APP-03    | pending |
@@ -308,7 +306,6 @@ Each requirement above is its own acceptance test. The following tests add speci
 | OUT-06    | pending |
 | OUT-07    | pending |
 | OUT-08    | pending |
-| OUT-09    | pending |
 | VIS-01    | pending |
 | VIS-02    | pending |
 | TST-08    | pending |
