@@ -10,8 +10,10 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# gemini-cli settings
-.gemini/
+# gemini-cli settings (API keys and local logs only)
+.gemini/settings.json
+.gemini/telemetry.log
+.gemini/.gemini-oauth-creds.json
 
 # GitHub App credentials
 gha-creds-*.json
