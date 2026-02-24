@@ -1,4 +1,38 @@
-/* Design tokens — to be defined in a separate UX/UI design session. */
 :root {
-  /* Colors, spacing, fonts, radius, etc. will be added here. */
+  /* === Colors === */
+  --shell: #e8e6e1;
+  --surface: #f7f3ed;
+  --surface-raised: #faf7f2;
+  --surface-inset: #eceae5;
+  --text-primary: #2c2926;
+  --text-secondary: #6b6560;
+  --text-tertiary: #9a9490;
+  --border: #d6d2cc;
+  --border-focus: #a09a94;
+  --accent: #42767a;
+  --accent-hover: #326a89;
+  --accent-subtle: #aed1d4;
+  --danger: #c2553a;
+  --success: #4a8c6f;
+
+  /* === Typography === */
+  --font-body: system-ui, -apple-system, sans-serif;
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  --text-sm: 0.6875rem;
+  --text-base: 0.875rem;
+  --text-lg: 1.125rem;
+  --line-height-sm: 1;
+  --line-height-base: 1.2;
+  --line-height-lg: 1.4;
+
+  /* === Spacing === */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 8px;
+  --sp-4: 12px;
+  --sp-5: 16px;
+  --sp-6: 24px;
+
+  /* === Border radius === */
+  --radius: 6px;
 }

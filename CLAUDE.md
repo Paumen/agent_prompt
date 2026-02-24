@@ -27,7 +27,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 - **NEVER** edit `spec/spec_concept.md` without asking the user first. **Exception**: Status updates to the Implementation Status table and entries to the Decisions Log in `spec/spec_concept.md` are permitted as part of the normal workflow.
 - **NEVER** edit `src/config/flows.yaml` without asking the user first.
-- **NEVER** edit `.github/workflows/` without asking the user first.
+- **NEVER** edit `.github/workflows/` without asking the user first. **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
 - **MAY** freely edit files in `src/` (except `src/config/flows.yaml`), `tests/`, and `package.json`.
 
 ## Anti-Over-Engineering Rule

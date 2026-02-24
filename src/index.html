@@ -4,11 +4,71 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Prompt</title>
-    <link rel="stylesheet" href="./css/variables.css" />
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-    <main id="app"></main>
+    <main id="app">
+      <!-- Card 1: Configuration — expanded on page load -->
+      <section class="card card--open" id="card-configuration">
+        <button
+          class="card-header"
+          aria-expanded="true"
+          aria-controls="bd-configuration"
+        >
+          <span class="card-title">Configuration</span>
+          <span class="card-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="card-body" id="bd-configuration">
+          <!-- populated by card-configuration.js -->
+        </div>
+      </section>
+
+      <!-- Card 2: Super Tasks — collapsed -->
+      <section class="card" id="card-tasks">
+        <button
+          class="card-header"
+          aria-expanded="false"
+          aria-controls="bd-tasks"
+        >
+          <span class="card-title">Super Tasks</span>
+          <span class="card-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="card-body" id="bd-tasks">
+          <!-- populated by card-tasks.js -->
+        </div>
+      </section>
+
+      <!-- Card 3: Steps — collapsed -->
+      <section class="card" id="card-steps">
+        <button
+          class="card-header"
+          aria-expanded="false"
+          aria-controls="bd-steps"
+        >
+          <span class="card-title">Steps</span>
+          <span class="card-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="card-body" id="bd-steps">
+          <!-- populated by card-steps.js -->
+        </div>
+      </section>
+
+      <!-- Card 4: Prompt — collapsed (never auto-collapses once opened per OUT-08) -->
+      <section class="card" id="card-prompt">
+        <button
+          class="card-header"
+          aria-expanded="false"
+          aria-controls="bd-prompt"
+        >
+          <span class="card-title">Prompt</span>
+          <span class="card-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="card-body" id="bd-prompt">
+          <!-- populated by card-prompt.js -->
+        </div>
+      </section>
+    </main>
+
     <script type="module" src="./js/main.js"></script>
   </body>
 </html>
