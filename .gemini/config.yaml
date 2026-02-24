@@ -1,0 +1,25 @@
+# Gemini Code Assist configuration.
+# https://developers.google.com/gemini-code-assist/docs/customize-gemini-behavior-github
+
+have_fun: true
+
+code_review:
+  disable: false
+  comment_severity_threshold: 'MEDIUM'
+  max_review_comments: -1
+  pull_request_opened:
+    help: false
+    summary: false
+    code_review: true
+    include_drafts: false
+
+# Files and directories to exclude from code review.
+ignore_patterns:
+  - "ebg/**"
+  - "img/**"
+  - "node_modules/**"
+  - "vendor/**"
+  - "*.min.js"
+  - "*.min.css"
+  - "package-lock.json"
+  - "composer.lock"
