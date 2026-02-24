@@ -276,11 +276,11 @@ Each requirement above is its own acceptance test. The following tests add speci
 | APP-01    | Testing     | —    | —   | ◻   | Phase 0: SPA shell created                       |
 | APP-02    | Testing     | —    | —   | ◻   | Phase 0: vanilla JS + plain CSS                  |
 | APP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
-| APP-04    | To start    | ◻    | —   | ◻   |                                                  |
-| DM-INV-01 | To start    | ◻    | ◻   | —   |                                                  |
-| DM-INV-02 | To start    | ◻    | ◻   | —   |                                                  |
-| DM-INV-03 | To start    | ◻    | ◻   | —   | Snapshot test                                    |
-| DM-DEF-01 | To start    | ◻    | ◻   | —   |                                                  |
+| APP-04    | Testing     | ✅   | —   | ◻   | PAT/owner persist; session resets on reload      |
+| DM-INV-01 | Testing     | ✅   | ◻   | —   | getState() returns derived prompt                |
+| DM-INV-02 | Testing     | ✅   | ◻   | —   | setState() auto-rebuilds prompt                  |
+| DM-INV-03 | Testing     | ✅   | ◻   | —   | Snapshot test passes (TST-01)                    |
+| DM-DEF-01 | Testing     | ✅   | ◻   | —   | deepMerge for flow defaults → user overrides     |
 | DM-DEF-02 | To start    | ◻    | —   | —   | Build-time validation                            |
 | DM-DEF-03 | To start    | ◻    | ◻   | ◻   |                                                  |
 | CFG-01    | To start    | ◻    | ◻   | ◻   |                                                  |
@@ -310,7 +310,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | VIS-01    | Testing     | —    | —   | ◻   | Phase 0: CSS grid layout done                    |
 | VIS-02    | Testing     | —    | —   | ◻   | Phase 0: touch targets set                       |
 | VIS-03    | Testing     | —    | —   | ◻   | Phase 0: card layout CSS done                    |
-| TST-01    | To start    | ◻    | ◻   | —   | Snapshot test                                    |
+| TST-01    | Testing     | ✅   | ◻   | —   | Snapshot test in prompt-builder.test.js          |
 | TST-02    | To start    | —    | ◻   | —   | E2e test                                         |
 | TST-03    | To start    | ◻    | —   | —   | Build-time validation                            |
 
@@ -318,13 +318,16 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ## Decisions Log
 
-| Date       | Decision                                                                    | Rationale                                                                         |
-| ---------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| 2026-02-20 | GitHub Pages for hosting                                                    | Free for public repos, auto-deploys on merge, always-latest live URL              |
-| 2026-02-20 | Status tracking in spec_concept.md                                          | Avoids duplication. Status table + Decisions Log in the authoritative spec.       |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                      | Cleaner root. `config/` = how to build. `spec/` = what to build.                  |
-| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent) | Clearer UX, simpler tree logic, more background loading time, less vertical space |
-| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                  | Investigated and verified feasible, no backup needed                              |
-| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling             | Clearer for user                                                                  |
+| Date       | Decision                                                                                          | Rationale                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 2026-02-20 | GitHub Pages for hosting                                                                          | Free for public repos, auto-deploys on merge, always-latest live URL                  |
+| 2026-02-20 | Status tracking in spec_concept.md                                                                | Avoids duplication. Status table + Decisions Log in the authoritative spec.           |
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                            | Cleaner root. `config/` = how to build. `spec/` = what to build.                      |
+| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                       | Clearer UX, simpler tree logic, more background loading time, less vertical space     |
+| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                        | Investigated and verified feasible, no backup needed                                  |
+| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                   | Clearer for user                                                                      |
 | 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0. |
-| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds       | Modern browsers only per spec; avoids adding extra color tokens for subtle tints. |
+| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                             | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.     |
+| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                            | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                       |
+| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                      | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.              |
+| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                   | State tests need `localStorage`; keeping node env for pure functions avoids overhead. |
