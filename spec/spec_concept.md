@@ -19,7 +19,7 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 - APP-01:** SPA; fully client-side. Direct GitHub API calls. Single-repo scope per prompt; single-user.
 - APP-02: Vanilla JS, ES modules, plain CSS.
 - APP-03: Limits: <300 files/repo, <15 repos/user. Full file tree eager loading permitted.
--APP-05: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists per GL-06.
+- APP-04: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists per GL-06.
 
 ---
 
@@ -88,8 +88,8 @@ This is the single source of truth for **what happens when**. Card sections belo
 | Repo selected             | Expand Tasks                                  | Set `configuration.repo`; fetch branches + file tree; auto-select default branch           |
 | Branch selected           | —                                             | Set `configuration.branch`; reload file tree                                               |
 | PAT edited/cleared        | —                                             | Update `configuration.pat`; re-fetch repos if PAT changed                                  |
-| Flow selected             | Expand Steps + Prompt; collapse Configuration | Set `task.flow_id`; apply flow defaults per DM-DEF; fetch PRs/issues if flow requires them |
-| File selected             | —                                             | Update `scope.selected_files`                                                              |
+| Flow selected             | Expand Steps + Prompt; flow specific add mandatory fields to Flow ; collapse Configuration | Set `task.flow_id`; apply flow defaults per DM-DEF; fetch PRs/issues if flow requires them |
+| File selected             | —                                             | Update `selected_files`                                                              |
 | Any `prompt_input` change | —                                             | Rebuild prompt (DM-INV-02)                                                                 |
 
 ---
@@ -113,7 +113,7 @@ Authentication and target selection.
 Define a high-level automation task.
 
 - SCT-01 Selected files are flagged in the prompt for the LLM to "read upfront."
-- SCT-022 The app presents a fixed set of predefined flows:
+- SCT-02 The app presents a fixed set of predefined flows:
   1. **Review PR** — review an open pull request with configurable focus lenses.
   2. **Implement Feature** — from spec file(s) or from user description.
   3. **Fix Bug / Issue** — from GitHub issue or user description.
@@ -140,22 +140,22 @@ Purpose: Granular control and refinement of the selected flow.
 Purpose: Final output and extraction.
 
 - OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then lists configured steps.
-- OUT-02 Prompt format (step 3-6 are dymamic examples):
+- OUT-02 Prompt format (step 2-6 are dymamic examples):
 
 ```xml
 <prompt>
   <context>
-    Execute following steps for repository [htttps://github.com/owner/repo] on branch [branch].
-    Authenticate using PAT: [PAT value].
+    Execute following TODO steps for <repository> htttps://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
+    Authenticate using PAT: <PAT> {{pat}} </PAT>.
   </context>
-  <steps>
+  <todo>
     Step 1: Read: @claude.md
     Step 2: Create new branch from [default branch]
     Step 3: Edit [file] — focus on [semantics, syntax, structure]
     Step 4: Commit changes
     Step 5: Test and verify
     Step 6: Open PR
-  </steps>
+  </todo>
 </prompt>
 <notes>
      [optional: user's free-text comments]
@@ -163,7 +163,7 @@ Purpose: Final output and extraction.
 ```
 
 - OUT-03 The prompt is plain text, fully regenerated from current `prompt_input` each time any field changes. Deterministic output per DM-INV-03.
-- OUT-04 Files reference example: `@src/utils/auth.js`, and directory/folder reference example: `@src/components/`.
+- OUT-04 Files reference example: `@src/utils/auth.js`.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
 - OUT-07 An "Open in Claude" button (claude.ai deep link, human investigated: this is possible).
@@ -202,10 +202,12 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 | --------------- | --------------------------------------------------- |
 | `--font-body`   | `system-ui, -apple-system, sans-serif`              |
 | `--font-mono`   | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
-| `--text-sm`     | `0.75rem` (12px)                                    |
+| `--text-sm`     | `0.6875` (11px)                                    |
 | `--text-base`   | `0.875rem` (14px)                                   |
 | `--text-lg`     | `1.125rem` (18px)                                   |
-| `--line-height` | `1.1`                                               |
+| `--line-height-sm` | `1`                                               |
+| `--line-height-base` | `1.2`                                             |
+| `--line-height-lg` | `1.4`                                               |
 
 #### Spacing Scale
 
@@ -213,7 +215,7 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 
 #### Component Treatments
 
-- **Cards** sit on `--surface` with a `1px` `--border` and `8px` border-radius. Card header uses `--text-primary` at `--text-base` weight 600.
+- **Cards** sit on minimal or no `--surface` with `1px` or no `--border` and `6px` border-radius. Card header uses `--text-primary` at `--text-base` weight 600.
 - **Active/selected items** (selected repo, selected flow, selected branch) display a `3px` left-edge `--accent` bar — like a code editor gutter marker. Background shifts to `--accent-subtle`.
 - **Buttons** (repo grid, flow grid, branch grid) use `--surface-raised` background, `--border`, and `--text-primary`. On hover: `--surface-raised` brightens slightly, border becomes `--border-focus`.
 - **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
@@ -224,6 +226,7 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 
 - VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid.
 - VIS-02 Task/flow buttons and input selectors sit within comfortable thumb/scroll reach.
+- VIS-03 Minimum of 2 open cards and 2 collapsed cards must be visible within viewport at all times. Headers, titles and descripiton (propose to PO if in doubt) are kept as short as possible and text take minimal screen footprint specially vertically. Smart alternatives are used to achieved this, e.g.: Explanotry text and subtext either next to header, on hover, and/or via info "i"/"?" icon/button or similar. Multiple input field next to eachother instead of new line for each. Inline labels. Smart accordion design (make it a visual selling point, not a limitation). Minimal or no (where possible) margin and padding, expecially vertical. E.g. steps can be stacked bars. Small font size for specific, non-essential, or high-density, informational content. Smart use of colors, borders, bevels, etc. to compensate for reduced use of padding/margins/gaps. Minimize other options (tasks/branches/repos/etc) after user manaully selected their choice (and replace by "show more"/"show all" button or text, and other ways to make it visually clear how to get them back). In some cases truncation / ellipsis is allowed. E.g. very long repository names, PR names, issue names, but show alternative like full title on hover.
 
 ---
 
@@ -231,14 +234,13 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 
 Each requirement above is its own acceptance test. The following tests add specific methodology beyond their parent requirement:
 
-- TST-08 Prompt determinism: identical `prompt_input` always produces identical prompt text (snapshot test).
-- TST-10 End-to-end: repo select → scope select → flow select → step adjust → copied prompt matches expected output for fixed inputs.
-- TST-13 `flows.yaml` schema validation: malformed flow file causes the build to fail with a clear error message.
+- TST-01 Prompt determinism: identical `prompt_input` always produces identical prompt text (snapshot test).
+- TST-02 End-to-end: repo select → flow select → flow input → step adjust → copied prompt matches expected output for fixed inputs.
+- TST-03 `flows.yaml` schema validation: malformed flow file causes the build to fail with a clear error message.
 
 ---
 
 ##  Status
-
 
 | ID        | Status  |
 | ------    | ------- |
@@ -251,7 +253,6 @@ Each requirement above is its own acceptance test. The following tests add speci
 | APP-02    | pending |
 | APP-03    | pending |
 | APP-04    | pending |
-| APP-05    | pending |
 | DM-INV-01 | pending |
 | DM-INV-02 | pending |
 | DM-INV-03 | pending |
@@ -274,8 +275,6 @@ Each requirement above is its own acceptance test. The following tests add speci
 | STP-02    | pending |
 | STP-03    | pending |
 | STP-04    | pending |
-| STP-05    | pending |
-| STP-06    | pending |
 | OUT-01    | pending |
 | OUT-02    | pending |
 | OUT-03    | pending |
@@ -286,9 +285,10 @@ Each requirement above is its own acceptance test. The following tests add speci
 | OUT-08    | pending |
 | VIS-01    | pending |
 | VIS-02    | pending |
-| TST-08    | pending |
-| TST-10    | pending |
-| TST-13    | pending |
+| VIS-03    | pending |
+| TST-01    | pending |
+| TST-02    | pending |
+| TST-03    | pending |
 
 ---
 
@@ -298,6 +298,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 2026-02-20 | GitHub Pages for hosting                                                                                                        | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                     |
 | 2026-02-20 | Status tracking in spec_concept.md                                                                                              | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                              |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                          | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                         |
-
-
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                          |  Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                         |
+| 2026-02-24 | No file (context) / folder (scope) selection before task selection, to be selected files (optional) based on, and after, selected flow/task |   clearer for user, less complex technically with tree and more time background loading, less vertical space consumed by ui |
+| 2026-02-24 | Deeplink claudie.ai is hard requirement first build |  Investigated it and it is feasible, no reason for backups  |
+| 2026-02-24 | Thightening UI requirements to secure minimal vertical scrolling |  clearer for user |
