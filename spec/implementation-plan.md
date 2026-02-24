@@ -198,7 +198,7 @@ This structure covers: required steps, optional steps, lens pills with defaults,
 
 ---
 
-## 4. Phase 0 — CSS Foundation `To start`
+## 4. Phase 0 — CSS Foundation `Testing`
 
 **Goal**: Design tokens, base layout, card shell, mobile-first responsive grid.
 
@@ -206,8 +206,8 @@ This structure covers: required steps, optional steps, lens pills with defaults,
 
 ### Checklist
 
-- [ ] Populate `src/css/variables.css` with all tokens from spec VIS section (colors, typography, spacing)
-- [ ] Write base styles in `src/css/styles.css`:
+- [x] Populate `src/css/variables.css` with all tokens from spec VIS section (colors, typography, spacing)
+- [x] Write base styles in `src/css/styles.css`:
   - Page background (`--shell`), body typography
   - Card component: collapsed/expanded states, header with expand/collapse, `aria-expanded` attribute styling
   - Active/selected item: 3px left-edge `--accent` bar + `--accent-subtle` background
@@ -217,11 +217,11 @@ This structure covers: required steps, optional steps, lens pills with defaults,
   - Shimmer-bar skeleton: reusable `.shimmer` class on `--surface-inset`, opacity pulse animation
   - Empty-state message: contextual inline message (not blank area)
   - Inline error: `--danger` colored, dismissible
-- [ ] Update `src/index.html` with 4 card container `<section>` elements, semantic HTML
+- [x] Update `src/index.html` with 4 card container `<section>` elements, semantic HTML
   - Card headers use `<button>` elements (not divs) for accessibility
   - `aria-expanded="true|false"` on card headers
-- [ ] Mobile-first: base styles for small screens, `@media (min-width: 768px)` for larger
-- [ ] **Accessibility**: card expand/collapse via keyboard (Enter/Space), focus-visible outlines
+- [x] Mobile-first: base styles for small screens, `@media (min-width: 768px)` for larger
+- [x] **Accessibility**: card expand/collapse via keyboard (Enter/Space), focus-visible outlines
 
 ### Output
 
