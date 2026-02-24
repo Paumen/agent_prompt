@@ -145,7 +145,7 @@ Purpose: Final output and extraction.
 ```xml
 <prompt>
   <context>
-    Execute following TODO steps for <repository> https://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
+    Execute the following TODO steps for <repository> https://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
     Authenticate using PAT: <PAT> {{pat}} </PAT>.
   </context>
   <todo>
