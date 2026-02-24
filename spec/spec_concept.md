@@ -6,8 +6,8 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 ## GL — Global Constraints
 
-- GL-01 Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing._
-- GL-02 Use universal shimmer-bar skeleton with contextual loading label while data loads. Empty data states show brief contextual message, not a blank area. — not a blank area.
+- GL-01 Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing.
+- GL-02 Use universal shimmer-bar skeleton with contextual loading label while data loads. Empty data states show brief contextual message, not a blank area.
 - GL-03 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
 - GL-04 Inline error feedback (no blocking modals). Dismissible. User can correct input and manually retry.
 - GL-05 Eager/background loading for all GitHub fetches. Cache in `localStorage`; show instantly on revisit. Background fetch retrieves fresh data → shows brief "Updated" indicator → re-renders once (deferred if mid-interaction). No silent replacement of active views.
@@ -16,10 +16,10 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 ## APP — Application Architecture
 
-- APP-01:** SPA; fully client-side. Direct GitHub API calls. Single-repo scope per prompt; single-user.
+- APP-01: SPA; fully client-side. Direct GitHub API calls. Single-repo scope per prompt; single-user.
 - APP-02: Vanilla JS, ES modules, plain CSS.
 - APP-03: Limits: <300 files/repo, <15 repos/user. Full file tree eager loading permitted.
-- APP-04: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists per GL-06.
+- APP-04: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists across sessions.
 
 ---
 
@@ -67,13 +67,13 @@ prompt_input (JSON-serializable, snake_case):
 ### DM-INV — Data Model Invariants
 
 - DM-INV-01 Outputs are derived only from current `prompt_input` — never cached or stale fragments.
-- DM-INV-02 Outputs always reflect the latest `prompt_input`. All mutations go through a centralized state setter (Proxy wrapper or `setState()` function) that automatically triggers a synchronous prompt rebuild — no manual rebuild calls at individual mutation sites.
+- DM-INV-02 Outputs always reflect the latest `prompt_input`. All mutations go through a centralized state setter (Proxy wrapper or `setState()`) that auto-triggers prompt rebuild — no manual rebuild calls needed.
 - DM-INV-03 Identical `prompt_input` always produces identical prompt text (deterministic output).
 
 ### DM-DEF — Defaults & Merge Strategy
 
-- DM-DEF-01 Defaults are applied via deterministic two-layer merge: **flow defaults → user overrides**. Flow defaults are the starting point; user changes override them in-place. No base-defaults layer, no provenance tracking per field. Each flow defines its own complete set of defaults.
-- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (flow metadata, step sequences, default lenses, default params). It is converted to JSON at build time (Vite plugin) and schema-validated during the build step. At runtime the app imports pre-validated Json. Build fails with a clear error if the schema is invalid.
+- DM-DEF-01 Defaults use two-layer merge: **flow defaults → user overrides**. User changes override flow defaults in-place. No base-defaults layer, no field provenance tracking. Each flow defines its own complete defaults.
+- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (metadata, steps, lenses, params). Converted to JSON at build time via Vite plugin with schema validation. Runtime imports pre-validated JSON. Build fails with clear error on invalid schema.
 - DM-DEF-03 Flow selection always fully resets `steps.enabled_steps` and all step-level values to the flow's defaults. No user overrides are carried across flow switches.
 
 ---
@@ -88,8 +88,8 @@ This is the single source of truth for **what happens when**. Card sections belo
 | Repo selected             | Expand Tasks                                  | Set `configuration.repo`; fetch branches + file tree; auto-select default branch           |
 | Branch selected           | —                                             | Set `configuration.branch`; reload file tree                                               |
 | PAT edited/cleared        | —                                             | Update `configuration.pat`; re-fetch repos if PAT changed                                  |
-| Flow selected             | Expand Steps + Prompt; flow specific add mandatory fields to Flow ; collapse Configuration | Set `task.flow_id`; apply flow defaults per DM-DEF; fetch PRs/issues if flow requires them |
-| File selected             | —                                             | Update `selected_files`                                                              |
+| Flow selected             | Expand Steps + Prompt; show flow-specific mandatory fields; collapse Configuration | Set `task.flow_id`; apply flow defaults per DM-DEF; fetch PRs/issues if flow requires them |
+| File selected             | —                                             | Update `context.selected_files`                                                     |
 | Any `prompt_input` change | —                                             | Rebuild prompt (DM-INV-02)                                                                 |
 
 ---
@@ -121,9 +121,9 @@ Define a high-level automation task.
   5. **Write Tests** — add test coverage for selected files/modules.
   6. **Write Documentation** — generate or update docs for selected scope.
 - SCT-03 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
-- SCT-04 If a flow is selected additional input fields for the specific flow will appear. For example: when "implement feature" is selected, a text input field (mandatory) to describe what to implement (an optional "advanced" option that shows more fields like "current behavior" and "expected" behavior" and "acceptance criteria") and a file picker for adding specification file for requirement (at least one of them must be filled, other becomes optional.  Example "Review PR" list of open PRs to select by user.
-- STP-05 Where a flow requires mandatory user input (e.g., spec description), input field is clearly marked as required.
-- STP-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title. 
+- SCT-04 Flow selection shows flow-specific input fields. Examples: "Implement Feature" shows a mandatory description field plus optional spec file picker (at least one required); "advanced" toggle reveals current/expected behavior and acceptance criteria fields. "Review PR" shows a list of open PRs to select.
+- SCT-05 Where a flow requires mandatory user input (e.g., spec description), input field is clearly marked as required.
+- SCT-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title. 
 - SCT-07 Flow-to-step definitions in flows.yaml. Spec defines step data model/UI. Prompt-content rules live as comments in flows.yaml.
 
 ### Card 3 — Steps `STP`
@@ -131,8 +131,8 @@ Define a high-level automation task.
 Purpose: Granular control and refinement of the selected flow.
 
 - STP-01 Steps appear as an ordered list. Each step can be deleted with a single tap (trash icon).
-- STP-02 Data model minimums: 1× operation, 1× object. Optional: focus lenses, additional objects, required text input, on/off toggles. Note difference compared to SCT-04 is that  STP-02 inputs do not require user decision, if user doesn't touch them, the default will be used. For example: For "write documentation" an option (default) to let llm determine the file name, and an option (optional) to let user fill file name themselves. Example 2: a file picker for adding conventions or style guide (optional), and an "add" / "+" button to add aditional conext files.
-- STP-03 Where a step has lenses, they are displayed as pills pre-selected based on the flow. The user can toggle any lens on or off. Also there will be an option to add lenses manually with free text field user can fill.
+- STP-02 Data model minimums: 1× operation, 1× object. Optional: lenses, additional objects, text input, toggles. Unlike SCT-04, defaults are pre-applied — users only change what they want. Examples: "Write Documentation" defaults to LLM-chosen filename (user can override); optional file picker for conventions/style guide with "+" button to add more context files.
+- STP-03 Lenses display as pre-selected pills (based on flow). Users can toggle any lens on/off or add custom lenses via free-text input.
 - STP-04 The user can remove any step.
 
 ### Card 4 — Prompt `OUT`
@@ -140,12 +140,12 @@ Purpose: Granular control and refinement of the selected flow.
 Purpose: Final output and extraction.
 
 - OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then lists configured steps.
-- OUT-02 Prompt format (step 2-6 are dymamic examples):
+- OUT-02 Prompt format (step 2-6 are dynamic examples):
 
 ```xml
 <prompt>
   <context>
-    Execute following TODO steps for <repository> htttps://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
+    Execute following TODO steps for <repository> https://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
     Authenticate using PAT: <PAT> {{pat}} </PAT>.
   </context>
   <todo>
@@ -166,7 +166,7 @@ Purpose: Final output and extraction.
 - OUT-04 Files reference example: `@src/utils/auth.js`.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-07 An "Open in Claude" button (claude.ai deep link, human investigated: this is possible).
+- OUT-07 An "Open in Claude" button (claude.ai deep link — verified feasible).
 - OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible, except if user manually collapses it.
 
 ---
@@ -202,7 +202,7 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 | --------------- | --------------------------------------------------- |
 | `--font-body`   | `system-ui, -apple-system, sans-serif`              |
 | `--font-mono`   | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
-| `--text-sm`     | `0.6875` (11px)                                    |
+| `--text-sm`     | `0.6875rem` (11px)                                 |
 | `--text-base`   | `0.875rem` (14px)                                   |
 | `--text-lg`     | `1.125rem` (18px)                                   |
 | `--line-height-sm` | `1`                                               |
@@ -215,18 +215,18 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 
 #### Component Treatments
 
-- **Cards** sit on minimal or no `--surface` with `1px` or no `--border` and `6px` border-radius. Card header uses `--text-primary` at `--text-base` weight 600.
+- **Cards** use `--surface` (or none) with `1px` or no `--border`, `6px` border-radius. Card header uses `--text-primary` at `--text-base` weight 600.
 - **Active/selected items** (selected repo, selected flow, selected branch) display a `3px` left-edge `--accent` bar — like a code editor gutter marker. Background shifts to `--accent-subtle`.
 - **Buttons** (repo grid, flow grid, branch grid) use `--surface-raised` background, `--border`, and `--text-primary`. On hover: `--surface-raised` brightens slightly, border becomes `--border-focus`.
 - **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
 - **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
-- **Skeleton loading states** Single reusable shimmer-bar class on --surface-inset, opacity pulse.
+- **Skeleton loading** Single reusable shimmer-bar class on `--surface-inset` with opacity pulse.
 - 
 ### Layout Rules
 
 - VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid.
 - VIS-02 Task/flow buttons and input selectors sit within comfortable thumb/scroll reach.
-- VIS-03 Minimum of 2 open cards and 2 collapsed cards must be visible within viewport at all times. Headers, titles and descripiton (propose to PO if in doubt) are kept as short as possible and text take minimal screen footprint specially vertically. Smart alternatives are used to achieved this, e.g.: Explanotry text and subtext either next to header, on hover, and/or via info "i"/"?" icon/button or similar. Multiple input field next to eachother instead of new line for each. Inline labels. Smart accordion design (make it a visual selling point, not a limitation). Minimal or no (where possible) margin and padding, expecially vertical. E.g. steps can be stacked bars. Small font size for specific, non-essential, or high-density, informational content. Smart use of colors, borders, bevels, etc. to compensate for reduced use of padding/margins/gaps. Minimize other options (tasks/branches/repos/etc) after user manaully selected their choice (and replace by "show more"/"show all" button or text, and other ways to make it visually clear how to get them back). In some cases truncation / ellipsis is allowed. E.g. very long repository names, PR names, issue names, but show alternative like full title on hover.
+- VIS-03 Minimum 2 open + 2 collapsed cards visible in viewport. Keep headers/titles/descriptions short (ask PO if unsure). Reduce vertical footprint via: explanatory text on hover or via info icon; inline labels; multiple fields per row; smart accordion design; minimal vertical padding (e.g., stacked step bars); small font for non-essential info; colors/borders/bevels instead of gaps. After selection, hide other options behind "show more" button. Truncate long names with full title on hover.
 
 ---
 
@@ -299,6 +299,6 @@ Each requirement above is its own acceptance test. The following tests add speci
 | 2026-02-20 | GitHub Pages for hosting                                                                                                        | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                     |
 | 2026-02-20 | Status tracking in spec_concept.md                                                                                              | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                              |
 | 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                          |  Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                         |
-| 2026-02-24 | No file (context) / folder (scope) selection before task selection, to be selected files (optional) based on, and after, selected flow/task |   clearer for user, less complex technically with tree and more time background loading, less vertical space consumed by ui |
-| 2026-02-24 | Deeplink claudie.ai is hard requirement first build |  Investigated it and it is feasible, no reason for backups  |
-| 2026-02-24 | Thightening UI requirements to secure minimal vertical scrolling |  clearer for user |
+| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent) | Clearer UX, simpler tree logic, more background loading time, less vertical space |
+| 2026-02-24 | Deep link to claude.ai is hard requirement for first build | Investigated and verified feasible, no backup needed |
+| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling | Clearer for user |
