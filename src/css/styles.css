@@ -1,2 +1,397 @@
-/* Base styles — to be defined in the UX/UI design session. Mobile-first. */
 @import './variables.css';
+
+/* === Reset & Base === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* === Page === */
+body {
+  background: var(--shell);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--line-height-lg);
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* === Cards === */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: var(--line-height-base);
+  text-align: left;
+}
+
+.card-header:hover {
+  background: var(--surface-raised);
+}
+
+.card-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Expand/collapse chevron */
+.card-chevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--text-secondary);
+  border-bottom: 2px solid var(--text-secondary);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+  margin-left: var(--sp-3);
+}
+
+.card-header[aria-expanded='true'] .card-chevron {
+  transform: rotate(-135deg);
+}
+
+/* Card body hidden when collapsed */
+.card-body {
+  display: none;
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+
+.card--open .card-body {
+  display: block;
+}
+
+/* === Active / Selected State (3px left-edge gutter bar) === */
+/* Applied to btn-grid-item buttons when selected */
+.btn-grid-item.item-selected {
+  position: relative;
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  padding-left: calc(var(--sp-4) + 3px);
+}
+
+.item-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+/* === Button Grid (repo / branch / flow buttons) === */
+.btn-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.btn-grid-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--line-height-base);
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 36px;
+}
+
+.btn-grid-item:hover {
+  border-color: var(--border-focus);
+  filter: brightness(1.015);
+}
+
+.btn-grid-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* === Pill Toggles (lens pills) === */
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-base);
+  cursor: pointer;
+  min-height: 28px;
+}
+
+.pill:hover {
+  border-color: var(--border-focus);
+}
+
+.pill:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pill[aria-checked='true'],
+.pill.pill--on {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* === Input Fields === */
+.field-label {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-2);
+}
+
+.field-label .required {
+  color: var(--danger);
+  margin-left: var(--sp-1);
+}
+
+.input-field {
+  width: 100%;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--line-height-base);
+  min-height: 36px;
+}
+
+.input-field::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--surface-raised);
+}
+
+.input-field:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+
+/* Password field wrapper (show/hide toggle) */
+.input-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-password-wrap .input-field {
+  padding-right: calc(var(--sp-6) + var(--sp-3));
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: var(--sp-2);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  min-width: 32px;
+  min-height: 32px;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  color: var(--text-primary);
+}
+
+.btn-icon:focus-visible {
+  outline: 2px solid var(--accent);
+  border-radius: var(--sp-1);
+}
+
+.input-password-wrap .btn-icon {
+  position: absolute;
+  right: var(--sp-2);
+}
+
+/* === Shimmer Skeleton (GL-02) === */
+@keyframes shimmer-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.shimmer {
+  background: var(--surface-inset);
+  border-radius: var(--radius);
+  animation: shimmer-pulse 1.5s ease-in-out infinite;
+}
+
+.shimmer-bar {
+  height: var(--sp-5);
+  border-radius: var(--sp-1);
+  margin-bottom: var(--sp-3);
+}
+
+.shimmer-label {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--sp-3);
+}
+
+/* === Empty State === */
+.empty-state {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  padding: var(--sp-4) 0;
+  text-align: center;
+}
+
+/* === Inline Error (GL-04) === */
+.error-inline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--danger) 25%, var(--border));
+  border-radius: var(--radius);
+  color: var(--danger);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-lg);
+}
+
+.error-inline[role='alert'] {
+  /* role set in JS; style here as reminder */
+}
+
+.btn-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: var(--text-base);
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.btn-dismiss:hover {
+  opacity: 1;
+}
+
+.btn-dismiss:focus-visible {
+  outline: 2px solid currentColor;
+  border-radius: 2px;
+}
+
+/* === Notification (GL-05 "Updated" indicator) === */
+.notification {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-base);
+}
+
+.notification--success {
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+}
+
+.notification--error {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+.notification--info {
+  color: var(--text-secondary);
+  background: var(--surface-inset);
+}
+
+/* === Prompt Output Area (OUT-01) === */
+.prompt-output {
+  background: var(--surface-inset);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-lg);
+  color: var(--text-primary);
+  padding: var(--sp-4);
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: left;
+  min-height: 120px;
+}
+
+/* === Responsive (min-width: 768px) === */
+@media (min-width: 768px) {
+  #app {
+    padding: var(--sp-5) var(--sp-6);
+    gap: var(--sp-4);
+  }
+
+  .card-header {
+    padding: var(--sp-4) var(--sp-5);
+  }
+
+  .card-body {
+    padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  }
+}
