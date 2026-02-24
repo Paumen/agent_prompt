@@ -158,7 +158,7 @@ Purpose: Final output and extraction.
   </todo>
 </prompt>
 <notes>
-     [optional: user's free-text comments]
+  [optional: user's free-text comments]
 </notes>
 ```
 
