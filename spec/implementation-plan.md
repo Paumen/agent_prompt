@@ -1,7 +1,7 @@
 # Implementation Plan
 
 > **Status**: Draft v2 — updated with PO decisions.
-> **Date**: 2026-02-22
+> **Date**: 2026-02-24
 
 ---
 
@@ -15,7 +15,7 @@
 6. [Phase 2 — Build Pipeline & Flow Loading](#6-phase-2--build-pipeline--flow-loading)
 7. [Phase 3 — GitHub API & Caching](#7-phase-3--github-api--caching)
 8. [Phase 4 — Card 1: Configuration](#8-phase-4--card-1-configuration)
-9. [Phase 5 — Card 2: Scope & Tasks](#9-phase-5--card-2-scope--tasks)
+9. [Phase 5 — Card 2: Super Tasks](#9-phase-5--card-2-super-tasks)
 10. [Phase 6 — Card 3: Steps](#10-phase-6--card-3-steps)
 11. [Phase 7 — Card 4: Prompt Output](#11-phase-7--card-4-prompt-output)
 12. [Phase 8 — Polish & Global Constraints](#12-phase-8--polish--global-constraints)
@@ -39,13 +39,13 @@ index.html
         ├── flow-loader.js    ← imports pre-validated flow JSON
         ├── components.js     ← shared UI primitives (shimmer, errors, dropdowns)
         ├── card-configuration.js
-        ├── card-scope-tasks.js
+        ├── card-tasks.js
         │     └── file-tree.js
         ├── card-steps.js
         └── card-prompt.js
 ```
 
-**Data flow**: User interaction → `setState()` call → state updated → prompt rebuilt synchronously → UI subscribers notified → DOM updated.
+**Data flow**: User interaction → `setState()` call → state updated → prompt rebuilt → UI subscribers notified → DOM updated.
 
 **No frameworks, no build-time dependencies beyond Vite and js-yaml.**
 
@@ -63,14 +63,14 @@ index.html
 | `src/js/main.js`               | Entry point: init state, render cards, wire events                                       | Phase 1    | APP-01, APP-02                   |
 | `src/js/state.js`              | `setState()`, `getState()`, `subscribe()`, session reset                                 | Phase 1    | DM-INV-01..03, DM-DEF-01, APP-04 |
 | `src/js/prompt-builder.js`     | Pure function: `prompt_input` → prompt string                                            | Phase 1    | OUT-01..04, DM-INV-03            |
-| `src/js/components.js`         | Shared UI: shimmer skeleton, inline error, dismissible notification, searchable dropdown | Phase 0/3  | GL-02, GL-04, STP-05             |
+| `src/js/components.js`         | Shared UI: shimmer skeleton, inline error, dismissible notification, searchable dropdown | Phase 0/3  | GL-02, GL-04, SCT-06             |
 | `src/js/github-api.js`         | GitHub REST: repos, branches, tree, PRs, issues                                          | Phase 3    | CFG-02..05, APP-03               |
 | `src/js/cache.js`              | localStorage read/write, TTL, PAT-change invalidation                                    | Phase 3    | GL-05, APP-04                    |
-| `src/js/flow-loader.js`        | Import pre-validated flow JSON, expose `getFlows()`, `getFlowById()`                     | Phase 2    | DM-DEF-02, SCT-04                |
+| `src/js/flow-loader.js`        | Import pre-validated flow JSON, expose `getFlows()`, `getFlowById()`                     | Phase 2    | DM-DEF-02, SCT-07                |
 | `src/js/card-configuration.js` | Card 1 UI: PAT, username, repo grid, branch grid                                         | Phase 4    | CFG-01..05                       |
-| `src/js/card-scope-tasks.js`   | Card 2 UI: file tree + flow selector                                                     | Phase 5    | SCT-01..07                       |
-| `src/js/file-tree.js`          | Recursive file/folder tree with independent checkboxes                                   | Phase 5    | SCT-01..03                       |
-| `src/js/card-steps.js`         | Card 3 UI: step list, lenses, params, delete                                             | Phase 6    | STP-01..06                       |
+| `src/js/card-tasks.js`         | Card 2 UI: flow selector + flow-specific inputs                                          | Phase 5    | SCT-01..07                       |
+| `src/js/file-tree.js`          | Recursive file tree for file selection (flow-dependent)                                  | Phase 5    | SCT-01, SCT-06                   |
+| `src/js/card-steps.js`         | Card 3 UI: step list, lenses, params, delete                                             | Phase 6    | STP-01..04                       |
 | `src/js/card-prompt.js`        | Card 4 UI: prompt preview, copy, notes, Open in Claude                                   | Phase 7    | OUT-01..08                       |
 
 ### Config/build files
@@ -90,10 +90,10 @@ index.html
 | `tests/github-api.test.js`         | API calls (mocked), error handling, limits                      | Phase 3    |
 | `tests/cache.test.js`              | Cache read/write, TTL, PAT invalidation cascade                 | Phase 3    |
 | `tests/card-configuration.test.js` | Card 1 behavior                                                 | Phase 4    |
-| `tests/card-scope-tasks.test.js`   | Card 2 behavior, file tree, flow selection                      | Phase 5    |
+| `tests/card-tasks.test.js`         | Card 2 behavior, flow selection, flow-specific inputs                   | Phase 5    |
 | `tests/card-steps.test.js`         | Card 3 behavior, lens toggling, step removal                    | Phase 6    |
 | `tests/card-prompt.test.js`        | Card 4 behavior, copy, notes                                    | Phase 7    |
-| `tests/e2e.test.js`                | Full user journey: repo → scope → flow → steps → copy           | Phase 9    |
+| `tests/e2e.test.js`                | Full user journey: repo → flow → steps → copy                                            | Phase 9    |
 
 ---
 
@@ -133,7 +133,7 @@ flows:
         operation: checkout
         object: pr
         params:
-          pr_number: null # user must select — STP-05 dropdown
+          pr_number: null # user must select — SCT-06 dropdown
         required_input: true # shows inline picker
       - id: review-code
         operation: review
@@ -174,7 +174,7 @@ flows:
         operation: read
         object: file
         params:
-          file: null # STP-05 file picker
+          file: null # SCT-06 file picker
         required_input: true
       - id: implement
         operation: edit
@@ -257,25 +257,25 @@ export function resetSession()                 // clears repo/branch/prefs, keep
 **Session vs. persistent state** (per APP-04):
 
 - **Persistent** (survives page reload): `configuration.pat`, `configuration.owner` → saved to `localStorage`
-- **Session** (cleared on page reload): `configuration.repo`, `configuration.branch`, `scope.*`, `context.*`, `task.*`, `steps.*`, `notes.*` → initialized to defaults on every page load
+- **Session** (cleared on page reload): `configuration.repo`, `configuration.branch`, `context.*`, `task.*`, `steps.*`, `notes.*` → initialized to defaults on every page load
 
 ### Prompt Builder
 
-Pure function `buildPrompt(promptInput) → string`. Called synchronously inside `setState()` after every mutation. Result stored on state as a derived field (not part of `prompt_input` itself).
+Pure function `buildPrompt(promptInput) → string`. Called inside `setState()` after every mutation. Result stored on state as a derived field (not part of `prompt_input` itself).
 
 ### Checklist
 
 - [ ] Create `src/js/state.js` with `setState()`, `getState()`, `subscribe()`, `resetSession()`
 - [ ] Implement two-layer merge strategy (DM-DEF-01): flow defaults → user overrides, applied on flow selection
-- [ ] On `setState()`: update state → call `buildPrompt()` → notify subscribers. Synchronous.
+- [ ] On `setState()`: update state → call `buildPrompt()` → notify subscribers.
 - [ ] Hydrate PAT + username from `localStorage` on init; validate stored data shape before hydrating (guard against corruption)
 - [ ] `resetSession()`: clear all fields except PAT/username, reset derived prompt
 - [ ] Create `src/js/prompt-builder.js` with `buildPrompt(promptInput)` pure function
 - [ ] Prompt format per OUT-02: XML tags, repo context header, ordered steps, notes section
-- [ ] File references use `@` prefix per OUT-04: `@src/utils/auth.js`, `@src/components/`
-- [ ] Steps 1-2 always present (read claude.md, read selected files); remaining steps are dynamic from `enabled_steps`
+- [ ] File references use `@` prefix per OUT-04: `@src/utils/auth.js`
+- [ ] Steps 1-2 always present (read claude.md, read selected files if any); remaining steps are dynamic from `enabled_steps`
 - [ ] **Test**: `tests/state.test.js` — setState triggers rebuild, subscribe fires, session reset preserves PAT, corrupted localStorage handled gracefully
-- [ ] **Test**: `tests/prompt-builder.test.js` — deterministic output (snapshot test, TST-08), empty state, full state, various step combinations
+- [ ] **Test**: `tests/prompt-builder.test.js` — deterministic output (snapshot test, TST-01), empty state, full state, various step combinations
 
 ### Output
 
@@ -290,7 +290,7 @@ Pure function `buildPrompt(promptInput) → string`. Called synchronously inside
 
 **Goal**: YAML → JSON build step with schema validation; flow loader module.
 
-**Req IDs**: DM-DEF-02, DM-DEF-03, SCT-07, TST-13
+**Req IDs**: DM-DEF-02, DM-DEF-03, SCT-07, TST-03
 
 **Blocker**: P1 — needs PO approval for placeholder flows in `flows.yaml`.
 
@@ -301,7 +301,7 @@ A custom Vite plugin (`config/vite-plugin-yaml.js`) that:
 1. Intercepts imports of `.yaml` files
 2. Parses YAML to JS object via `js-yaml` (dev dependency)
 3. Validates against schema defined in `config/flow-schema.js`
-4. On validation failure: throws build error with clear message (DM-DEF-02, TST-13)
+4. On validation failure: throws build error with clear message (DM-DEF-02, TST-03)
 5. Emits validated JSON for runtime import
 
 The schema file lives in `config/` (not `src/js/`) because it's a build-time artifact that should not be bundled into production code.
@@ -314,7 +314,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 - [ ] Create `src/js/flow-loader.js` — `import flows from '../config/flows.yaml'`; exports `getFlows()`, `getFlowById(id)`
 - [ ] Build fails with clear error message on malformed YAML or schema violation
 - [ ] **Test**: `tests/flow-loader.test.js` — valid flows load, invalid flows cause error, getFlowById returns correct flow
-- [ ] **Test**: TST-13 — malformed flow file causes build failure with clear error
+- [ ] **Test**: TST-03 — malformed flow file causes build failure with clear error
 
 ### Output
 
@@ -350,7 +350,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
   - `renderShimmer(container, label)` — shimmer skeleton with contextual label (GL-02)
   - `renderError(container, message, onDismiss)` — inline error, dismissible (GL-04)
   - `renderNotification(container, message, type)` — brief "Updated" / success / error indicator
-  - `renderSearchableDropdown(options, onSelect)` — flat searchable dropdown for STP-05 (keyboard navigable, mobile-friendly touch targets)
+  - `renderSearchableDropdown(options, onSelect)` — flat searchable dropdown for SCT-06 (keyboard navigable, mobile-friendly touch targets)
 - [ ] **Accessibility**: error messages use `role="alert"`, notifications use `aria-live="polite"`
 - [ ] **Test**: `tests/github-api.test.js` — mock fetch, success/error paths, limit enforcement
 - [ ] **Test**: `tests/cache.test.js` — TTL expiry, PAT invalidation cascade, corrupted data handling
@@ -380,7 +380,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
   - On page load: auto-fetch repos using stored PAT + username (CFG-02)
   - Repo buttons: scrollable wrapping button grid, single-tap select (CFG-03)
   - Selected repo: 3px left `--accent` bar + `--accent-subtle` bg (VIS treatment)
-  - On repo select: fetch branches + full file tree in background (CFG-05), auto-select default branch (CFG-04), expand Scope & Tasks card, collapse Configuration card
+  - On repo select: fetch branches + full file tree in background (CFG-05), auto-select default branch (CFG-04), expand Tasks card, collapse Configuration card
   - Branch buttons: wrapping grid, auto-selected default highlighted (CFG-04)
   - On branch change: reload file tree (from UJ table: "Branch selected → reload file tree")
   - On PAT change: re-fetch repos, flush entire cache (PAT cascade)
@@ -399,9 +399,9 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 9. Phase 5 — Card 2: Scope & Tasks
+## 9. Phase 5 — Card 2: Super Tasks
 
-**Goal**: File/folder tree with independent checkboxes, flow selector grid.
+**Goal**: Flow selector grid with flow-specific input fields.
 
 **Req IDs**: SCT-01..07, DM-DEF-03
 
@@ -409,40 +409,40 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Checklist
 
-- [ ] Create `src/js/file-tree.js`:
-  - Render recursive file/folder tree from API data
-  - Independent checkboxes — no parent/child coupling, no tri-state (SCT-01)
-  - Folders update `scope.selected_folders` via `setState()` (SCT-02)
-  - Files update `context.selected_files` via `setState()` (SCT-03)
-  - Full tree pre-loaded (SCT-01, APP-03 — within 300-file limit)
-  - If tree exceeds 300 files: truncate and show warning message
-  - **Accessibility**: tree uses `role="tree"` / `role="treeitem"`, keyboard navigation (arrow keys to expand/collapse, Space to toggle checkbox)
-- [ ] Create `src/js/card-scope-tasks.js`:
-  - Two sections: **Scope** (optional, contains file tree) and **Tasks** (contains flow grid)
-  - Flow buttons: wrapping grid with icon + title per button, single row per button (VIS-01, SCT-05)
-  - 6 predefined flows per SCT-04: Review PR, Implement Feature, Fix Bug, Refactor, Write Tests, Write Documentation
+- [ ] Create `src/js/card-tasks.js`:
+  - Flow buttons: wrapping grid with icon + title per button, single row per button (VIS-01, SCT-03)
+  - 6 predefined flows per SCT-02: Review PR, Implement Feature, Fix Bug, Refactor, Write Tests, Write Documentation
   - On flow select: `setState('task.flow_id', id)` + apply flow defaults to `steps.enabled_steps` (DM-DEF-03 — full reset, no carry-over)
-  - On flow select: expand Steps + Prompt cards, collapse Configuration (from UJ table)
+  - On flow select: expand Steps + Prompt cards, show flow-specific mandatory fields, collapse Configuration (from UJ table)
+  - Flow-specific input fields per SCT-04: e.g., "Implement Feature" shows mandatory description field + optional spec file picker; "Review PR" shows list of open PRs to select
+  - Mandatory input fields clearly marked as required (SCT-05)
   - If flow requires PRs/issues: trigger fetch (from UJ table: "fetch PRs/issues if flow requires them")
   - Selected flow: accent bar + subtle background
-  - Shimmer skeleton while file tree loads (GL-02)
-- [ ] **Click audit (GL-01)**: folder toggle = 1 click, file toggle = 1 click, flow select = 1 click. All within target.
-- [ ] **Mobile (GL-03)**: file tree scrolls vertically, flow grid reflows, touch targets adequate
-- [ ] **Test**: `tests/card-scope-tasks.test.js` — tree renders, checkbox independence, flow selection resets steps, card expand behavior
+  - Shimmer skeleton while data loads (GL-02)
+- [ ] Create `src/js/file-tree.js` (flow-dependent file selection):
+  - Render recursive file tree from API data when flow requires file selection
+  - Files update `context.selected_files` via `setState()` (SCT-01)
+  - Full tree pre-loaded (APP-03 — within 300-file limit)
+  - If tree exceeds 300 files: truncate and show warning message
+  - **Accessibility**: tree uses `role="tree"` / `role="treeitem"`, keyboard navigation (arrow keys to expand/collapse, Space to toggle checkbox)
+- [ ] Pre-fillable options use flat searchable dropdowns (SCT-06): file pickers (flat alphabetical list), PR/issue pickers (#number — title). Uses shared `renderSearchableDropdown()` from `components.js`
+- [ ] **Click audit (GL-01)**: flow select = 1 click, file toggle = 1 click. All within target.
+- [ ] **Mobile (GL-03)**: flow grid reflows, file tree scrolls vertically, touch targets adequate
+- [ ] **Test**: `tests/card-tasks.test.js` — flow selection resets steps, flow-specific inputs appear, card expand behavior
 
 ### Output
 
+- `src/js/card-tasks.js`
 - `src/js/file-tree.js`
-- `src/js/card-scope-tasks.js`
-- `tests/card-scope-tasks.test.js`
+- `tests/card-tasks.test.js`
 
 ---
 
 ## 10. Phase 6 — Card 3: Steps
 
-**Goal**: Ordered step list with lenses, params, required inputs, and deletion.
+**Goal**: Ordered step list with lenses and deletion.
 
-**Req IDs**: STP-01..06
+**Req IDs**: STP-01..04
 
 **Dependency**: Phase 2 (flow definitions) + Phase 5 (flow selection populates steps).
 
@@ -450,17 +450,15 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 - [ ] Create `src/js/card-steps.js`:
   - Render ordered step list from `state.steps.enabled_steps` (STP-01)
-  - Each step shows: operation + object label, optional lenses, optional params, optional required input
-  - Delete button (trash icon) on each step — single tap removes it (STP-01, STP-06)
-  - Lens pills: pre-selected based on flow defaults, user can toggle on/off (STP-03)
-  - Required text input: inline field marked as required, shown when step has `required_input: true` (STP-04)
-  - Searchable dropdowns for pre-fillable options: file picker (flat alphabetical), PR/issue picker (#number — title) (STP-05). Uses shared `renderSearchableDropdown()` from `components.js`
-  - Dropdown selections are independent from Scope selections (STP-05)
+  - Each step shows: operation + object label, optional lenses, optional params, optional text input
+  - Data model minimums: 1× operation, 1× object. Optional: lenses, additional objects, text input, toggles (STP-02). Defaults are pre-applied from flow — users only change what they want.
+  - Lens pills: pre-selected based on flow defaults, user can toggle on/off or add custom lenses via free-text input (STP-03)
+  - Delete button (trash icon) on each step — single tap removes it (STP-01, STP-04)
   - All interactions call `setState()` to update `steps.enabled_steps`
-- [ ] **Click audit (GL-01)**: lens toggle = 1 click, step delete = 1 click, dropdown select = 2 clicks (open + select). All within target.
-- [ ] **Mobile (GL-03)**: step list scrolls, dropdowns use full-width on mobile, adequate touch targets for lens pills and delete buttons
-- [ ] **Accessibility**: delete buttons have `aria-label="Remove step: [step name]"`, lens pills are `role="switch"` with `aria-checked`, dropdowns are keyboard navigable
-- [ ] **Test**: `tests/card-steps.test.js` — step rendering, lens toggling updates state, step deletion, required input validation, dropdown selection
+- [ ] **Click audit (GL-01)**: lens toggle = 1 click, step delete = 1 click. All within target.
+- [ ] **Mobile (GL-03)**: step list scrolls, adequate touch targets for lens pills and delete buttons
+- [ ] **Accessibility**: delete buttons have `aria-label="Remove step: [step name]"`, lens pills are `role="switch"` with `aria-checked`
+- [ ] **Test**: `tests/card-steps.test.js` — step rendering, lens toggling updates state, step deletion
 
 ### Output
 
@@ -484,7 +482,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
     - **Note**: requires secure context (HTTPS or localhost). GitHub Pages serves HTTPS. No fallback for HTTP — modern browsers only.
   - Free-text notes field below prompt preview (OUT-06): textarea, stored in `notes.user_text`, wrapped in `<notes>` tags in output
   - "Open in Claude" button (OUT-07): opens `https://claude.ai` in a new tab. **Does not transfer the prompt** — user copies prompt first via the Copy button, then pastes in Claude. Button label must clearly communicate this (e.g., "Open Claude" not "Send to Claude").
-  - Card never auto-collapses once visible (OUT-08). Once expanded after flow selection, stays expanded.
+  - Card never auto-collapses once visible (OUT-08). Once expanded after flow selection, stays expanded, except if user manually collapses it.
   - Prompt is fully regenerated from current `prompt_input` on every change (OUT-03, DM-INV-01)
 - [ ] **Large prompt consideration**: if prompt exceeds ~10,000 characters, show character count as informational. No hard limit enforced in v1.
 - [ ] **Mobile (GL-03)**: prompt area scrolls, copy button is fixed/accessible, notes field is full-width
@@ -523,7 +521,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Phase 8c — Final Polish
 
-- [ ] Card auto-expand/collapse behavior per UJ table: Configuration expanded on load, collapses on repo select, Scope & Tasks expands on repo select, Steps + Prompt expand on flow select
+- [ ] Card auto-expand/collapse behavior per UJ table: Configuration expanded on load, collapses on repo select, Tasks expands on repo select, Steps + Prompt expand on flow select
 - [ ] Re-opened Configuration auto-collapses on next trigger (per Layout spec)
 - [ ] Run `npm run format` + `npm run lint:fix`
 - [ ] Run `npm run build` — verify clean build with no warnings
@@ -539,13 +537,13 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 **Goal**: Full user journey test, prompt determinism verification.
 
-**Req IDs**: TST-08, TST-10
+**Req IDs**: TST-01, TST-02
 
 ### Checklist
 
 - [ ] Create `tests/e2e.test.js`:
-  - **TST-10**: repo select → scope select → flow select → step adjust → copied prompt matches expected output for fixed inputs
-  - **TST-08**: prompt determinism — identical `prompt_input` always produces identical prompt text (snapshot test, run multiple times)
+  - **TST-02**: repo select → flow select → step adjust → copied prompt matches expected output for fixed inputs
+  - **TST-01**: prompt determinism — identical `prompt_input` always produces identical prompt text (snapshot test, run multiple times)
   - Test card expand/collapse transitions through the full journey
   - Test flow switch fully resets steps (DM-DEF-03)
   - Test PAT clear + re-entry flow
@@ -574,9 +572,9 @@ Every spec requirement mapped to its primary implementation phase and verificati
 | APP-01    | 0                        | 8b             | SPA, client-side only                                |
 | APP-02    | 0                        | 8b             | Vanilla JS, ES modules, plain CSS                    |
 | APP-03    | 3                        | 3              | Limit enforcement in API module                      |
-| APP-04    | 1                        | 1              | Session vs persistent state (was APP-05, renumbered) |
+| APP-04    | 1                        | 1              | Session vs persistent state                          |
 | DM-INV-01 | 1                        | 1, 9           | Derived from current state only                      |
-| DM-INV-02 | 1                        | 1, 9           | setState() triggers synchronous rebuild              |
+| DM-INV-02 | 1                        | 1, 9           | setState() triggers prompt rebuild                   |
 | DM-INV-03 | 1                        | 1, 9           | Deterministic output, snapshot tests                 |
 | DM-DEF-01 | 1                        | 1              | Two-layer merge in setState                          |
 | DM-DEF-02 | 2                        | 2              | YAML → JSON + schema validation                      |
@@ -586,19 +584,17 @@ Every spec requirement mapped to its primary implementation phase and verificati
 | CFG-03    | 4                        | 4              | Repo button grid                                     |
 | CFG-04    | 4                        | 4              | Branch buttons + auto-select                         |
 | CFG-05    | 4                        | 4              | Background fetch on repo select                      |
-| SCT-01    | 5                        | 5              | Independent checkboxes, no coupling                  |
-| SCT-02    | 5                        | 5              | Folders → scope                                      |
-| SCT-03    | 5                        | 5              | Files → context                                      |
-| SCT-04    | 5                        | 5              | 6 predefined flows                                   |
-| SCT-05    | 5                        | 5              | Flow button grid                                     |
-| SCT-06    | 5, 6                     | 6              | Flat step list, removable                            |
+| SCT-01    | 5                        | 5              | Files flagged for LLM to "read upfront"              |
+| SCT-02    | 5                        | 5              | 6 predefined flows                                   |
+| SCT-03    | 5                        | 5              | Flow button grid                                     |
+| SCT-04    | 5                        | 5              | Flow-specific input fields                           |
+| SCT-05    | 5                        | 5              | Mandatory input field marking                        |
+| SCT-06    | 5                        | 5              | Pre-fillable dropdowns                               |
 | SCT-07    | 2                        | 2              | flows.yaml definitions                               |
 | STP-01    | 6                        | 6              | Ordered list + delete                                |
 | STP-02    | 6                        | 6              | Step data model                                      |
 | STP-03    | 6                        | 6              | Lens pills                                           |
-| STP-04    | 6                        | 6              | Required text input                                  |
-| STP-05    | 6                        | 6              | Searchable dropdowns                                 |
-| STP-06    | 6                        | 6              | Step removal                                         |
+| STP-04    | 6                        | 6              | Step removal                                         |
 | OUT-01    | 7                        | 7              | XML-tagged prompt                                    |
 | OUT-02    | 1, 7                     | 7, 9           | Prompt format (builder in 1, display in 7)           |
 | OUT-03    | 1                        | 1, 7           | Full regeneration                                    |
@@ -606,12 +602,13 @@ Every spec requirement mapped to its primary implementation phase and verificati
 | OUT-05    | 7                        | 7              | Copy to clipboard                                    |
 | OUT-06    | 7                        | 7              | Notes textarea                                       |
 | OUT-07    | 7                        | 7              | Opens claude.ai only (no prompt transfer)            |
-| OUT-08    | 7                        | 7, 8           | Card never collapses                                 |
+| OUT-08    | 7                        | 7, 8           | Card never auto-collapses                            |
 | VIS-01    | 0                        | 4, 5           | Icon + title single row                              |
 | VIS-02    | 0                        | 8a             | Thumb/scroll reach                                   |
-| TST-08    | 9                        | 9              | Prompt determinism                                   |
-| TST-10    | 9                        | 9              | End-to-end journey                                   |
-| TST-13    | 2                        | 2              | Schema validation failure                            |
+| VIS-03    | 0                        | 8a             | Minimum 2 open + 2 collapsed cards visible           |
+| TST-01    | 9                        | 9              | Prompt determinism                                   |
+| TST-02    | 9                        | 9              | End-to-end journey                                   |
+| TST-03    | 2                        | 2              | Schema validation failure                            |
 
 ---
 
@@ -620,21 +617,21 @@ Every spec requirement mapped to its primary implementation phase and verificati
 | #   | Risk                                                                                             | Impact                         | Likelihood | Mitigation                                                                                                               |
 | --- | ------------------------------------------------------------------------------------------------ | ------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
 | R1  | `flows.yaml` not authored by PO in time                                                          | Blocks Phase 5 (full), Phase 6 | Medium     | Use detailed mock flows (defined above in Preconditions). Design UI to handle any number of steps/lenses/params.         |
-| R2  | Searchable dropdown in vanilla JS is complex (keyboard nav, mobile touch, scroll, search filter) | Delays Phase 6                 | Medium     | Start with a simpler select-based dropdown. Enhance to searchable only if file/PR lists are long enough to warrant it.   |
+| R2  | Searchable dropdown in vanilla JS is complex (keyboard nav, mobile touch, scroll, search filter) | Delays Phase 5                 | Medium     | Start with a simpler select-based dropdown. Enhance to searchable only if file/PR lists are long enough to warrant it.   |
 | R3  | ~~**OUT-07**: deep link feasibility~~                                                            | ~~Degrades Phase 7 feature~~   | —          | **Resolved**: PO decided button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this.           |
 | R4  | localStorage corruption from version changes                                                     | Breaks state hydration         | Low        | Validate shape on hydration. If invalid, clear and start fresh. Log to console.                                          |
 | R5  | Large file trees (close to 300-file limit) cause slow rendering                                  | Degrades UX on large repos     | Low        | Use document fragment for batch DOM insertion. Consider virtual scrolling only if performance is measurably poor.        |
-| R6  | Synchronous prompt rebuild causes UI jank on complex prompts                                     | Degrades UX                    | Low        | Profile first. If measurable jank (>16ms rebuild), batch via `requestAnimationFrame`. Unlikely for text-only generation. |
+| R6  | Prompt rebuild causes UI jank on complex prompts                                                 | Degrades UX                    | Low        | Profile first. If measurable jank (>16ms rebuild), batch via `requestAnimationFrame`. Unlikely for text-only generation. |
 
 ---
 
-## 16. Resolved Questions (PO Decisions — 2026-02-22)
+## 16. Resolved Questions (PO Decisions — 2026-02-24)
 
-1. **APP-04 (phantom)**: Removed from spec. Former APP-05 renumbered to APP-04. Status table updated.
+1. **File/folder selection moved after task selection**: File selection is now optional and flow-dependent (not a separate Scope section). Clearer UX, simpler tree logic, more background loading time, less vertical space.
 
-2. **OUT-07**: Button kept — opens `claude.ai` only (no prompt transfer). Label must clearly indicate it only opens the site (e.g., "Open Claude"). User copies prompt separately via Copy button.
+2. **OUT-07 Deep link**: Verified feasible. Button opens `claude.ai` (no prompt transfer). Label must clearly indicate it only opens the site.
 
-3. **Placeholder flows**: Will ask PO for approval when Phase 2 starts. Not pre-approved.
+3. **VIS-03 added**: Minimum 2 open + 2 collapsed cards visible in viewport. Tightening UI requirements to ensure minimal vertical scrolling.
 
 4. **GL-05 mid-interaction**: Agreed — mid-interaction defined as: user has active focus on an input field, OR has toggled a checkbox/lens within the last 2 seconds.
 
