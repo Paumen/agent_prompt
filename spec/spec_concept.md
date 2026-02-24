@@ -37,10 +37,6 @@ prompt_input (JSON-serializable, snake_case):
     pat: str                 // GitHub personal access token
   }
 
-  scope: {
-    selected_folders: [path] // folders included as scope guidance
-  }
-
   context: {
     selected_files: [path],  // files flagged for LLM to "read upfront"
   }
@@ -55,7 +51,7 @@ prompt_input (JSON-serializable, snake_case):
       operation: str,        // e.g., read, create, edit, commit, open
       object: str,           // e.g., file, branch, PR, issue
       lenses: [str],         // active focus lenses for this step
-      params: {}             // step-specific parameters (file name, PR number, etc.)
+      params: {}             // step-specific parameters (file name, PR number, issue number, etc.)
     }]
   }
 
@@ -64,7 +60,7 @@ prompt_input (JSON-serializable, snake_case):
   }
 
   output: {
-    destination: 'clipboard' // v1: clipboard only
+    destination: 'clipboard' // 
   }
 ```
 
@@ -89,11 +85,11 @@ This is the single source of truth for **what happens when**. Card sections belo
 | Event                     | Card State                                    | Data Change                                                                                |
 | ------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Page load                 | Configuration expanded; all others collapsed  | Load PAT + username from localStorage; begin background repo fetch                         |
-| Repo selected             | Expand Scope & Tasks; collapse Configuration  | Set `configuration.repo`; fetch branches + file tree; auto-select default branch           |
+| Repo selected             | Expand Tasks                                  | Set `configuration.repo`; fetch branches + file tree; auto-select default branch           |
 | Branch selected           | —                                             | Set `configuration.branch`; reload file tree                                               |
 | PAT edited/cleared        | —                                             | Update `configuration.pat`; re-fetch repos if PAT changed                                  |
-| File/folder selected      | —                                             | Update `scope.selected_files` / `scope.selected_folders`                                   |
 | Flow selected             | Expand Steps + Prompt; collapse Configuration | Set `task.flow_id`; apply flow defaults per DM-DEF; fetch PRs/issues if flow requires them |
+| File selected             | —                                             | Update `scope.selected_files`                                                              |
 | Any `prompt_input` change | —                                             | Rebuild prompt (DM-INV-02)                                                                 |
 
 ---
@@ -112,24 +108,22 @@ Authentication and target selection.
 - CFG-04 On repo selection, branch buttons appear (pre-loaded in background per GL-06). The default branch is auto-selected.
 - CFG-05 Repo selection triggers eager background load of branches and full recursive file tree. PRs/issues fetched on-demand per flow.
 
-### Card 2 — Scope & Tasks `SCT`
+### Card 2 — Super Tasks `SCT`
 
-Define codebase boundaries and select a high-level automation task.
+Define a high-level automation task.
 
-This card has two sections: **Scope** (optional) and **Tasks**.
-
-- SCT-01 File/folder tree with independent checkboxes. No parent/child auto-check coupling. No tri-state logic. Full tree pre-loaded.
-- SCT-02 Selected folders are added to the prompt as "Scope" — guidance for the LLM on where to focus.
-- SCT-03 Selected files are flagged in the prompt for the LLM to "read upfront."
-- SCT-04 The app presents a fixed set of predefined flows:
+- SCT-01 Selected files are flagged in the prompt for the LLM to "read upfront."
+- SCT-022 The app presents a fixed set of predefined flows:
   1. **Review PR** — review an open pull request with configurable focus lenses.
   2. **Implement Feature** — from spec file(s) or from user description.
   3. **Fix Bug / Issue** — from GitHub issue or user description.
   4. **Refactor** — restructure code with configurable scope and focus.
   5. **Write Tests** — add test coverage for selected files/modules.
   6. **Write Documentation** — generate or update docs for selected scope.
-- SCT-05 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
-- SCT-06 Each flow is a flat list of steps. Users remove unwanted steps via STP-06.
+- SCT-03 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
+- SCT-04 If a flow is selected additional input fields for the specific flow will appear. For example: when "implement feature" is selected, a text input field (mandatory) to describe what to implement (an optional "advanced" option that shows more fields like "current behavior" and "expected" behavior" and "acceptance criteria") and a file picker for adding specification file for requirement (at least one of them must be filled, other becomes optional.  Example "Review PR" list of open PRs to select by user.
+- STP-05 Where a flow requires mandatory user input (e.g., spec description), input field is clearly marked as required.
+- STP-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title. 
 - SCT-07 Flow-to-step definitions in flows.yaml. Spec defines step data model/UI. Prompt-content rules live as comments in flows.yaml.
 
 ### Card 3 — Steps `STP`
@@ -137,34 +131,30 @@ This card has two sections: **Scope** (optional) and **Tasks**.
 Purpose: Granular control and refinement of the selected flow.
 
 - STP-01 Steps appear as an ordered list. Each step can be deleted with a single tap (trash icon).
-- STP-02 Data model minimums: 1× operation, 1× object. Optional: focus lenses, additional objects, required text input, on/off toggles.
-- STP-03 Where a step has lenses, they are displayed as pills pre-selected based on the flow. The user can toggle any lens on or off.
-- STP-04 Where a step requires mandatory user input (e.g., new file name, spec description), a text input field is shown inline with the step, clearly marked as required.
-- STP-05 Pre-fillable options use flat searchable dropdowns (select, never type). File pickers: flat alphabetical list. PR/issue pickers: #number — title. Independent from Scope selections.
-- STP-06 The user can remove any step.
+- STP-02 Data model minimums: 1× operation, 1× object. Optional: focus lenses, additional objects, required text input, on/off toggles. Note difference compared to SCT-04 is that  STP-02 inputs do not require user decision, if user doesn't touch them, the default will be used. For example: For "write documentation" an option (default) to let llm determine the file name, and an option (optional) to let user fill file name themselves. Example 2: a file picker for adding conventions or style guide (optional), and an "add" / "+" button to add aditional conext files.
+- STP-03 Where a step has lenses, they are displayed as pills pre-selected based on the flow. The user can toggle any lens on or off. Also there will be an option to add lenses manually with free text field user can fill.
+- STP-04 The user can remove any step.
 
 ### Card 4 — Prompt `OUT`
 
 Purpose: Final output and extraction.
 
 - OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then lists configured steps.
-- OUT-02 Prompt format (step 3-7 are dymamic examples):
+- OUT-02 Prompt format (step 3-6 are dymamic examples):
 
 ```xml
 <prompt>
   <context>
-    Execute the following steps for repository [owner/repo] on branch [branch].
-    Scope: [selected folders, if any].
+    Execute following steps for repository [htttps://github.com/owner/repo] on branch [branch].
     Authenticate using PAT: [PAT value].
   </context>
   <steps>
     Step 1: Read: @claude.md
-    Step 2: Read: [selected files, if any].
-    Step 3: Create new branch from [default branch]
-    Step 4: Edit [file] — focus on [semantics, syntax, structure]
-    Step 5: Commit changes
-    Step 6: Test and verify
-    Step 7: Open PR
+    Step 2: Create new branch from [default branch]
+    Step 3: Edit [file] — focus on [semantics, syntax, structure]
+    Step 4: Commit changes
+    Step 5: Test and verify
+    Step 6: Open PR
   </steps>
 </prompt>
 <notes>
@@ -176,8 +166,8 @@ Purpose: Final output and extraction.
 - OUT-04 Files reference example: `@src/utils/auth.js`, and directory/folder reference example: `@src/components/`.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-07 An "Open in Claude" button (claude.ai deep link).
-- OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible. 
+- OUT-07 An "Open in Claude" button (claude.ai deep link, human investigated: this is possible).
+- OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible, except if user manually collapses it.
 
 ---
 
@@ -192,7 +182,7 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 | Token              | Value     | Usage                                                                                   |
 | ------------------ | --------- | --------------------------------------------------------------------------------------- |
 | `--shell`          | `#e8e6e1` | Page background. Smoke-grey, warm-shifted.                                              |
-| `--surface`        | `#f5f0ea` | Card backgrounds. Warm linen.                                                           |
+| `--surface`        | `#f7f3ed` | Card backgrounds. Warm linen.                                                           |
 | `--surface-raised` | `#faf7f2` | Hovered cards, active inputs. Birch paper.                                              |
 | `--surface-inset`  | `#eceae5` | Inset wells: code preview, prompt output area.                                          |
 | `--text-primary`   | `#2c2926` | Body text. Near-black, warm.                                                            |
@@ -200,9 +190,9 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 | `--text-tertiary`  | `#9a9490` | Disabled text, subtle hints.                                                            |
 | `--border`         | `#d6d2cc` | Card borders, dividers.                                                                 |
 | `--border-focus`   | `#a09a94` | Focused input borders.                                                                  |
-| `--accent`         | `#4A6D70` | Active-state left-edge gutter bar, selected toggles, primary buttons. Muted steel-blue. |
+| `--accent`         | `#42767a` | Active-state left-edge gutter bar, selected toggles, primary buttons. Muted steel-blue. |
 | `--accent-hover`   | `#326a89` | Hover state for accent elements.                                                        |
-| `--accent-subtle`  | `#e9f0f5` | Accent background tint (selected items, active flow button).                            |
+| `--accent-subtle`  | `#aed1d4` | Accent background tint (selected items, active flow button).                            |
 | `--danger`         | `#c2553a` | Error text, delete icon hover. Warm red.                                                |
 | `--success`        | `#4a8c6f` | Success feedback. Muted green.                                                          |
 
@@ -215,7 +205,7 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 | `--text-sm`     | `0.75rem` (12px)                                    |
 | `--text-base`   | `0.875rem` (14px)                                   |
 | `--text-lg`     | `1.125rem` (18px)                                   |
-| `--line-height` | `1.3`                                               |
+| `--line-height` | `1.1`                                               |
 
 #### Spacing Scale
 
