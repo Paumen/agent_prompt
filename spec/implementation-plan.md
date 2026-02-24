@@ -90,10 +90,10 @@ index.html
 | `tests/github-api.test.js`         | API calls (mocked), error handling, limits                      | Phase 3    |
 | `tests/cache.test.js`              | Cache read/write, TTL, PAT invalidation cascade                 | Phase 3    |
 | `tests/card-configuration.test.js` | Card 1 behavior                                                 | Phase 4    |
-| `tests/card-tasks.test.js`         | Card 2 behavior, flow selection, flow-specific inputs                   | Phase 5    |
+| `tests/card-tasks.test.js`         | Card 2 behavior, flow selection, flow-specific inputs           | Phase 5    |
 | `tests/card-steps.test.js`         | Card 3 behavior, lens toggling, step removal                    | Phase 6    |
 | `tests/card-prompt.test.js`        | Card 4 behavior, copy, notes                                    | Phase 7    |
-| `tests/e2e.test.js`                | Full user journey: repo → flow → steps → copy                                            | Phase 9    |
+| `tests/e2e.test.js`                | Full user journey: repo → flow → steps → copy                   | Phase 9    |
 
 ---
 
@@ -562,53 +562,53 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 Every spec requirement mapped to its primary implementation phase and verification phase.
 
-| Req ID    | Primary Phase            | Verified In    | Notes                                                |
-| --------- | ------------------------ | -------------- | ---------------------------------------------------- |
-| GL-01     | 4, 5, 6, 7 (each card)   | 8b             | Click audit per card + final audit                   |
-| GL-02     | 0 (class), 3 (component) | 8b             | Shimmer class in CSS, component in JS                |
-| GL-03     | 0 (foundation)           | 4, 5, 6, 7, 8a | Mobile tested per card + final audit                 |
-| GL-04     | 3 (component)            | 4, 5, 6, 7, 8b | Error component used in each card                    |
-| GL-05     | 3 (cache)                | 8b             | Background refresh + deferred re-render              |
-| APP-01    | 0                        | 8b             | SPA, client-side only                                |
-| APP-02    | 0                        | 8b             | Vanilla JS, ES modules, plain CSS                    |
-| APP-03    | 3                        | 3              | Limit enforcement in API module                      |
-| APP-04    | 1                        | 1              | Session vs persistent state                          |
-| DM-INV-01 | 1                        | 1, 9           | Derived from current state only                      |
-| DM-INV-02 | 1                        | 1, 9           | setState() triggers prompt rebuild                   |
-| DM-INV-03 | 1                        | 1, 9           | Deterministic output, snapshot tests                 |
-| DM-DEF-01 | 1                        | 1              | Two-layer merge in setState                          |
-| DM-DEF-02 | 2                        | 2              | YAML → JSON + schema validation                      |
-| DM-DEF-03 | 5                        | 5, 9           | Flow selection resets steps                          |
-| CFG-01    | 4                        | 4              | PAT field + clear                                    |
-| CFG-02    | 4                        | 4              | Username + auto-fetch                                |
-| CFG-03    | 4                        | 4              | Repo button grid                                     |
-| CFG-04    | 4                        | 4              | Branch buttons + auto-select                         |
-| CFG-05    | 4                        | 4              | Background fetch on repo select                      |
-| SCT-01    | 5                        | 5              | Files flagged for LLM to "read upfront"              |
-| SCT-02    | 5                        | 5              | 6 predefined flows                                   |
-| SCT-03    | 5                        | 5              | Flow button grid                                     |
-| SCT-04    | 5                        | 5              | Flow-specific input fields                           |
-| SCT-05    | 5                        | 5              | Mandatory input field marking                        |
-| SCT-06    | 5                        | 5              | Pre-fillable dropdowns                               |
-| SCT-07    | 2                        | 2              | flows.yaml definitions                               |
-| STP-01    | 6                        | 6              | Ordered list + delete                                |
-| STP-02    | 6                        | 6              | Step data model                                      |
-| STP-03    | 6                        | 6              | Lens pills                                           |
-| STP-04    | 6                        | 6              | Step removal                                         |
-| OUT-01    | 7                        | 7              | XML-tagged prompt                                    |
-| OUT-02    | 1, 7                     | 7, 9           | Prompt format (builder in 1, display in 7)           |
-| OUT-03    | 1                        | 1, 7           | Full regeneration                                    |
-| OUT-04    | 1                        | 1              | @ file references                                    |
-| OUT-05    | 7                        | 7              | Copy to clipboard                                    |
-| OUT-06    | 7                        | 7              | Notes textarea                                       |
-| OUT-07    | 7                        | 7              | Opens claude.ai only (no prompt transfer)            |
-| OUT-08    | 7                        | 7, 8           | Card never auto-collapses                            |
-| VIS-01    | 0                        | 4, 5           | Icon + title single row                              |
-| VIS-02    | 0                        | 8a             | Thumb/scroll reach                                   |
-| VIS-03    | 0                        | 8a             | Minimum 2 open + 2 collapsed cards visible           |
-| TST-01    | 9                        | 9              | Prompt determinism                                   |
-| TST-02    | 9                        | 9              | End-to-end journey                                   |
-| TST-03    | 2                        | 2              | Schema validation failure                            |
+| Req ID    | Primary Phase            | Verified In    | Notes                                      |
+| --------- | ------------------------ | -------------- | ------------------------------------------ |
+| GL-01     | 4, 5, 6, 7 (each card)   | 8b             | Click audit per card + final audit         |
+| GL-02     | 0 (class), 3 (component) | 8b             | Shimmer class in CSS, component in JS      |
+| GL-03     | 0 (foundation)           | 4, 5, 6, 7, 8a | Mobile tested per card + final audit       |
+| GL-04     | 3 (component)            | 4, 5, 6, 7, 8b | Error component used in each card          |
+| GL-05     | 3 (cache)                | 8b             | Background refresh + deferred re-render    |
+| APP-01    | 0                        | 8b             | SPA, client-side only                      |
+| APP-02    | 0                        | 8b             | Vanilla JS, ES modules, plain CSS          |
+| APP-03    | 3                        | 3              | Limit enforcement in API module            |
+| APP-04    | 1                        | 1              | Session vs persistent state                |
+| DM-INV-01 | 1                        | 1, 9           | Derived from current state only            |
+| DM-INV-02 | 1                        | 1, 9           | setState() triggers prompt rebuild         |
+| DM-INV-03 | 1                        | 1, 9           | Deterministic output, snapshot tests       |
+| DM-DEF-01 | 1                        | 1              | Two-layer merge in setState                |
+| DM-DEF-02 | 2                        | 2              | YAML → JSON + schema validation            |
+| DM-DEF-03 | 5                        | 5, 9           | Flow selection resets steps                |
+| CFG-01    | 4                        | 4              | PAT field + clear                          |
+| CFG-02    | 4                        | 4              | Username + auto-fetch                      |
+| CFG-03    | 4                        | 4              | Repo button grid                           |
+| CFG-04    | 4                        | 4              | Branch buttons + auto-select               |
+| CFG-05    | 4                        | 4              | Background fetch on repo select            |
+| SCT-01    | 5                        | 5              | Files flagged for LLM to "read upfront"    |
+| SCT-02    | 5                        | 5              | 6 predefined flows                         |
+| SCT-03    | 5                        | 5              | Flow button grid                           |
+| SCT-04    | 5                        | 5              | Flow-specific input fields                 |
+| SCT-05    | 5                        | 5              | Mandatory input field marking              |
+| SCT-06    | 5                        | 5              | Pre-fillable dropdowns                     |
+| SCT-07    | 2                        | 2              | flows.yaml definitions                     |
+| STP-01    | 6                        | 6              | Ordered list + delete                      |
+| STP-02    | 6                        | 6              | Step data model                            |
+| STP-03    | 6                        | 6              | Lens pills                                 |
+| STP-04    | 6                        | 6              | Step removal                               |
+| OUT-01    | 7                        | 7              | XML-tagged prompt                          |
+| OUT-02    | 1, 7                     | 7, 9           | Prompt format (builder in 1, display in 7) |
+| OUT-03    | 1                        | 1, 7           | Full regeneration                          |
+| OUT-04    | 1                        | 1              | @ file references                          |
+| OUT-05    | 7                        | 7              | Copy to clipboard                          |
+| OUT-06    | 7                        | 7              | Notes textarea                             |
+| OUT-07    | 7                        | 7              | Opens claude.ai only (no prompt transfer)  |
+| OUT-08    | 7                        | 7, 8           | Card never auto-collapses                  |
+| VIS-01    | 0                        | 4, 5           | Icon + title single row                    |
+| VIS-02    | 0                        | 8a             | Thumb/scroll reach                         |
+| VIS-03    | 0                        | 8a             | Minimum 2 open + 2 collapsed cards visible |
+| TST-01    | 9                        | 9              | Prompt determinism                         |
+| TST-02    | 9                        | 9              | End-to-end journey                         |
+| TST-03    | 2                        | 2              | Schema validation failure                  |
 
 ---
 
