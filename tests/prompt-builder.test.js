@@ -392,22 +392,111 @@ describe('prompt-builder.js', () => {
   });
 
   describe('XML escaping', () => {
+    const baseConfig = {
+      configuration: {
+        owner: 'alice',
+        repo: 'wonderland',
+        branch: 'main',
+        pat: '',
+      },
+      context: { selected_files: [] },
+      steps: { enabled_steps: [] },
+      notes: { user_text: '' },
+    };
+
     it('escapes special characters in owner/repo/branch', () => {
       const state = {
+        ...baseConfig,
         configuration: {
           owner: 'user<script>',
           repo: 'repo&name',
           branch: 'feat>test',
           pat: '',
         },
-        context: { selected_files: [] },
-        steps: { enabled_steps: [] },
-        notes: { user_text: '' },
       };
       const result = buildPrompt(state);
       expect(result).toContain('user&lt;script&gt;');
       expect(result).toContain('repo&amp;name');
       expect(result).toContain('feat&gt;test');
+      expect(result).not.toContain('<script>');
+    });
+
+    it('escapes special characters in selected file paths', () => {
+      const state = {
+        ...baseConfig,
+        context: { selected_files: ['src/<malicious>.js', 'a&b.ts'] },
+      };
+      const result = buildPrompt(state);
+      expect(result).toContain('@src/&lt;malicious&gt;.js');
+      expect(result).toContain('@a&amp;b.ts');
+      expect(result).not.toContain('<malicious>');
+    });
+
+    it('escapes special characters in notes', () => {
+      const state = {
+        ...baseConfig,
+        notes: { user_text: 'Check <script>alert("xss")</script> & more' },
+      };
+      const result = buildPrompt(state);
+      expect(result).toContain('&lt;script&gt;');
+      expect(result).toContain('&amp; more');
+      expect(result).not.toContain('<script>alert');
+    });
+
+    it('escapes special characters in step operation and object', () => {
+      const state = {
+        ...baseConfig,
+        steps: {
+          enabled_steps: [
+            {
+              id: 'test',
+              operation: 'read<inject>',
+              object: 'file&name',
+            },
+          ],
+        },
+      };
+      const result = buildPrompt(state);
+      expect(result).toContain('Read&lt;inject&gt;');
+      expect(result).toContain('file&amp;name');
+    });
+
+    it('escapes special characters in step params', () => {
+      const state = {
+        ...baseConfig,
+        steps: {
+          enabled_steps: [
+            {
+              id: 'test',
+              operation: 'read',
+              object: 'file',
+              params: { file: '<evil>.js', other: 'a&b' },
+            },
+          ],
+        },
+      };
+      const result = buildPrompt(state);
+      expect(result).toContain('@&lt;evil&gt;.js');
+      expect(result).toContain('a&amp;b');
+    });
+
+    it('escapes special characters in lenses', () => {
+      const state = {
+        ...baseConfig,
+        steps: {
+          enabled_steps: [
+            {
+              id: 'test',
+              operation: 'review',
+              object: 'code',
+              lenses: ['<script>', 'a&b'],
+            },
+          ],
+        },
+      };
+      const result = buildPrompt(state);
+      expect(result).toContain('&lt;script&gt;');
+      expect(result).toContain('a&amp;b');
       expect(result).not.toContain('<script>');
     });
   });

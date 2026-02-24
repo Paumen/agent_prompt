@@ -245,4 +245,46 @@ describe('state.js', () => {
       expect(stored.owner).toBe('myuser');
     });
   });
+
+  describe('prototype pollution protection', () => {
+    it('setByPath rejects __proto__ in path', () => {
+      const before = Object.prototype.polluted;
+      stateModule.setState('__proto__.polluted', true);
+      expect(Object.prototype.polluted).toBeUndefined();
+      expect(Object.prototype.polluted).toBe(before);
+    });
+
+    it('setByPath rejects constructor in path', () => {
+      stateModule.setState('constructor.polluted', true);
+      expect({}.polluted).toBeUndefined();
+    });
+
+    it('setByPath rejects prototype in path', () => {
+      stateModule.setState('prototype.polluted', true);
+      expect({}.polluted).toBeUndefined();
+    });
+
+    it('setByPath rejects __proto__ in nested path', () => {
+      stateModule.setState('configuration.__proto__.polluted', true);
+      expect(Object.prototype.polluted).toBeUndefined();
+    });
+
+    it('deepMerge skips __proto__ keys in updater', () => {
+      const before = Object.prototype.polluted;
+      stateModule.setState(() => {
+        // Attempt to inject __proto__ via the updater function
+        const malicious = JSON.parse('{"__proto__": {"polluted": true}}');
+        return malicious;
+      });
+      expect(Object.prototype.polluted).toBeUndefined();
+      expect(Object.prototype.polluted).toBe(before);
+    });
+
+    it('deepMerge skips constructor keys in updater', () => {
+      stateModule.setState(() => ({
+        constructor: { polluted: true },
+      }));
+      expect({}.polluted).toBeUndefined();
+    });
+  });
 });

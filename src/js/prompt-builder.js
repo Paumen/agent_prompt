@@ -45,7 +45,7 @@ export function buildPrompt(state) {
   // Step 2: Read selected files (if any) — per OUT-04 with @ prefix
   const files = context?.selected_files || [];
   if (files.length > 0) {
-    const fileRefs = files.map((f) => `@${f}`).join(', ');
+    const fileRefs = files.map((f) => `@${esc(f)}`).join(', ');
     lines.push(`    Step ${stepNum}: Read: ${fileRefs}`);
     stepNum++;
   }
@@ -65,7 +65,7 @@ export function buildPrompt(state) {
   const userNotes = notes?.user_text?.trim();
   if (userNotes) {
     lines.push('<notes>');
-    lines.push(`  ${userNotes}`);
+    lines.push(`  ${esc(userNotes)}`);
     lines.push('</notes>');
   }
 
@@ -81,8 +81,8 @@ function formatStep(step) {
   const parts = [];
 
   // Operation + object (STP-02 minimum: 1× operation, 1× object)
-  const op = capitalize(step.operation || '');
-  const obj = step.object || '';
+  const op = capitalize(esc(step.operation || ''));
+  const obj = esc(step.object || '');
   parts.push(`${op} ${obj}`.trim());
 
   // Params — add relevant details
@@ -91,8 +91,9 @@ function formatStep(step) {
     for (const [key, val] of Object.entries(step.params)) {
       if (val !== null && val !== undefined && val !== '') {
         // File references get @ prefix (OUT-04)
-        const display = key === 'file' ? `@${val}` : val;
-        paramParts.push(`${display}`);
+        const escaped = esc(String(val));
+        const display = key === 'file' ? `@${escaped}` : escaped;
+        paramParts.push(display);
       }
     }
     if (paramParts.length > 0) {
@@ -103,7 +104,7 @@ function formatStep(step) {
   // Lenses (STP-03)
   const lenses = step.lenses || [];
   if (lenses.length > 0) {
-    parts.push(`— focus on [${lenses.join(', ')}]`);
+    parts.push(`— focus on [${lenses.map(esc).join(', ')}]`);
   }
 
   return parts.join(' ');

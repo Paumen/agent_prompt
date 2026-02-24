@@ -69,10 +69,19 @@ function savePersistent() {
   }
 }
 
+// --- Safety helpers ---
+
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+function isSafeKey(key) {
+  return !DANGEROUS_KEYS.has(key);
+}
+
 // --- Path-based state access ---
 
 function setByPath(obj, path, value) {
   const keys = path.split('.');
+  if (!keys.every(isSafeKey)) return;
   const last = keys.pop();
   const target = keys.reduce((o, k) => {
     if (o[k] === null || o[k] === undefined || typeof o[k] !== 'object')
@@ -165,6 +174,7 @@ export function resetSession() {
 function deepMerge(target, source) {
   const result = structuredClone(target);
   for (const key of Object.keys(source)) {
+    if (!isSafeKey(key)) continue;
     if (
       source[key] &&
       typeof source[key] === 'object' &&
