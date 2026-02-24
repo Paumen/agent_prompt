@@ -91,11 +91,11 @@ body {
 
 /* === Active / Selected State (3px left-edge gutter bar) === */
 /* Applied to btn-grid-item buttons when selected */
-.item-selected {
+.btn-grid-item.item-selected {
   position: relative;
-  background: var(--accent-subtle) !important;
-  border-color: var(--accent) !important;
-  padding-left: calc(var(--sp-4) + 3px) !important;
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  padding-left: calc(var(--sp-4) + 3px);
 }
 
 .item-selected::before {
