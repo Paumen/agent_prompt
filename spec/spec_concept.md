@@ -243,7 +243,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 ##  Status
 
 | ID        | Status  |
-| ------    | ------- |
+| --------- | ------- |
 | GL-01     | pending |
 | GL-02     | pending |
 | GL-03     | pending |
