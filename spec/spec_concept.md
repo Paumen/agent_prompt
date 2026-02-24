@@ -60,7 +60,7 @@ prompt_input (JSON-serializable, snake_case):
   }
 
   output: {
-    destination: 'clipboard' // 
+    destination: 'clipboard'
   }
 ```
 
