@@ -64,7 +64,9 @@ npm test          # Run all tests
 ## Workflow
 
 1. Write a test for every feature/requirement implemented.
-2. After implementing a spec requirement, update its status in the Implementation Status table at the bottom of `spec/spec_concept.md` (`pending` → `implemented` → `tested`).
+2. After implementing a spec requirement, update the Implementation Status table at the bottom of `spec/spec_concept.md`:
+   - **Lifecycle**: `To start` → `In progress` → `Testing` → `🏁 Approved` (or `🚫 Blocked` if stuck). Claude Code may set statuses up to `Testing`. Only the PO may set `🏁 Approved`.
+   - **Test columns** (Unit / SIT / UAT): update independently as tests are written and pass. Use `—` (N/A), `◻` (not yet run), `❌` (failed), `✅` (passed).
 3. Log significant technical decisions in the Decisions Log section of `spec/spec_concept.md`.
 4. Every PR must fill in the PR template (requirements addressed, testing done).
 5. Run `npm run format` and `npm run lint:fix` before committing.

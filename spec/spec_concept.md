@@ -82,15 +82,15 @@ prompt_input (JSON-serializable, snake_case):
 
 This is the single source of truth for **what happens when**. Card sections below define content and layout only.
 
-| Event                     | Card State                                    | Data Change                                                                                |
-| ------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Page load                 | Configuration expanded; all others collapsed  | Load PAT + username from localStorage; begin background repo fetch                         |
-| Repo selected             | Expand Tasks                                  | Set `configuration.repo`; fetch branches + file tree; auto-select default branch           |
-| Branch selected           | —                                             | Set `configuration.branch`; reload file tree                                               |
-| PAT edited/cleared        | —                                             | Update `configuration.pat`; re-fetch repos if PAT changed                                  |
+| Event                     | Card State                                                                         | Data Change                                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Page load                 | Configuration expanded; all others collapsed                                       | Load PAT + username from localStorage; begin background repo fetch                         |
+| Repo selected             | Expand Tasks                                                                       | Set `configuration.repo`; fetch branches + file tree; auto-select default branch           |
+| Branch selected           | —                                                                                  | Set `configuration.branch`; reload file tree                                               |
+| PAT edited/cleared        | —                                                                                  | Update `configuration.pat`; re-fetch repos if PAT changed                                  |
 | Flow selected             | Expand Steps + Prompt; show flow-specific mandatory fields; collapse Configuration | Set `task.flow_id`; apply flow defaults per DM-DEF; fetch PRs/issues if flow requires them |
-| File selected             | —                                             | Update `context.selected_files`                                                     |
-| Any `prompt_input` change | —                                             | Rebuild prompt (DM-INV-02)                                                                 |
+| File selected             | —                                                                                  | Update `context.selected_files`                                                            |
+| Any `prompt_input` change | —                                                                                  | Rebuild prompt (DM-INV-02)                                                                 |
 
 ---
 
@@ -123,7 +123,7 @@ Define a high-level automation task.
 - SCT-03 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
 - SCT-04 Flow selection shows flow-specific input fields. Examples: "Implement Feature" shows a mandatory description field plus optional spec file picker (at least one required); "advanced" toggle reveals current/expected behavior and acceptance criteria fields. "Review PR" shows a list of open PRs to select.
 - SCT-05 Where a flow requires mandatory user input (e.g., spec description), input field is clearly marked as required.
-- SCT-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title. 
+- SCT-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title.
 - SCT-07 Flow-to-step definitions in flows.yaml. Spec defines step data model/UI. Prompt-content rules live as comments in flows.yaml.
 
 ### Card 3 — Steps `STP`
@@ -198,16 +198,16 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 
 #### Typography
 
-| Token           | Value                                               |
-| --------------- | --------------------------------------------------- |
-| `--font-body`   | `system-ui, -apple-system, sans-serif`              |
-| `--font-mono`   | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
-| `--text-sm`     | `0.6875rem` (11px)                                 |
-| `--text-base`   | `0.875rem` (14px)                                   |
-| `--text-lg`     | `1.125rem` (18px)                                   |
-| `--line-height-sm` | `1`                                               |
-| `--line-height-base` | `1.2`                                             |
-| `--line-height-lg` | `1.4`                                               |
+| Token                | Value                                               |
+| -------------------- | --------------------------------------------------- |
+| `--font-body`        | `system-ui, -apple-system, sans-serif`              |
+| `--font-mono`        | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
+| `--text-sm`          | `0.6875rem` (11px)                                  |
+| `--text-base`        | `0.875rem` (14px)                                   |
+| `--text-lg`          | `1.125rem` (18px)                                   |
+| `--line-height-sm`   | `1`                                                 |
+| `--line-height-base` | `1.2`                                               |
+| `--line-height-lg`   | `1.4`                                               |
 
 #### Spacing Scale
 
@@ -221,7 +221,8 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 - **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
 - **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
 - **Skeleton loading** Single reusable shimmer-bar class on `--surface-inset` with opacity pulse.
-- 
+-
+
 ### Layout Rules
 
 - VIS-01 Each selectable option (repo, branch, flow button) displays icon and title on a single row — never stacked vertically. Buttons use a wrapping grid.
@@ -240,65 +241,89 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ---
 
-##  Status
+## Status
 
-| ID        | Status  |
-| --------- | ------- |
-| GL-01     | pending |
-| GL-02     | pending |
-| GL-03     | pending |
-| GL-04     | pending |
-| GL-05     | pending |
-| APP-01    | pending |
-| APP-02    | pending |
-| APP-03    | pending |
-| APP-04    | pending |
-| DM-INV-01 | pending |
-| DM-INV-02 | pending |
-| DM-INV-03 | pending |
-| DM-DEF-01 | pending |
-| DM-DEF-02 | pending |
-| DM-DEF-03 | pending |
-| CFG-01    | pending |
-| CFG-02    | pending |
-| CFG-03    | pending |
-| CFG-04    | pending |
-| CFG-05    | pending |
-| SCT-01    | pending |
-| SCT-02    | pending |
-| SCT-03    | pending |
-| SCT-04    | pending |
-| SCT-05    | pending |
-| SCT-06    | pending |
-| SCT-07    | pending |
-| STP-01    | pending |
-| STP-02    | pending |
-| STP-03    | pending |
-| STP-04    | pending |
-| OUT-01    | pending |
-| OUT-02    | pending |
-| OUT-03    | pending |
-| OUT-04    | pending |
-| OUT-05    | pending |
-| OUT-06    | pending |
-| OUT-07    | pending |
-| OUT-08    | pending |
-| VIS-01    | pending |
-| VIS-02    | pending |
-| VIS-03    | pending |
-| TST-01    | pending |
-| TST-02    | pending |
-| TST-03    | pending |
+### Legend
+
+**Lifecycle statuses**
+
+| Status      | Meaning                                            | Moved by    |
+| ----------- | -------------------------------------------------- | ----------- |
+| To start    | Not yet started                                    | —           |
+| In progress | Implementation actively underway                   | Claude Code |
+| Testing     | Code complete, testing in progress                 | Claude Code |
+| 🏁 Approved | PO reviewed and signed off                         | PO only     |
+| 🚫 Blocked  | Waiting on dependency, decision, or external input | Anyone      |
+
+**Test columns** — tracked independently per requirement. Not all requirements need all test types.
+
+| Icon | Meaning                  |
+| ---- | ------------------------ |
+| —    | N/A for this requirement |
+| ◻    | Applicable, not yet run  |
+| ❌   | Failed                   |
+| ✅   | Passed                   |
+
+### Implementation Status
+
+| ID        | Status   | Unit | SIT | UAT | Notes                            |
+| --------- | -------- | ---- | --- | --- | -------------------------------- |
+| GL-01     | To start | —    | ◻   | ◻   | Click audit — verified per card  |
+| GL-02     | To start | ◻    | ◻   | ◻   |                                  |
+| GL-03     | To start | —    | ◻   | ◻   | Mobile audit                     |
+| GL-04     | To start | ◻    | ◻   | ◻   |                                  |
+| GL-05     | To start | ◻    | ◻   | ◻   |                                  |
+| APP-01    | To start | —    | —   | ◻   | Architectural constraint         |
+| APP-02    | To start | —    | —   | ◻   | Architectural constraint         |
+| APP-03    | To start | ◻    | ◻   | ◻   |                                  |
+| APP-04    | To start | ◻    | —   | ◻   |                                  |
+| DM-INV-01 | To start | ◻    | ◻   | —   |                                  |
+| DM-INV-02 | To start | ◻    | ◻   | —   |                                  |
+| DM-INV-03 | To start | ◻    | ◻   | —   | Snapshot test                    |
+| DM-DEF-01 | To start | ◻    | ◻   | —   |                                  |
+| DM-DEF-02 | To start | ◻    | —   | —   | Build-time validation            |
+| DM-DEF-03 | To start | ◻    | ◻   | ◻   |                                  |
+| CFG-01    | To start | ◻    | ◻   | ◻   |                                  |
+| CFG-02    | To start | ◻    | ◻   | ◻   |                                  |
+| CFG-03    | To start | ◻    | —   | ◻   |                                  |
+| CFG-04    | To start | ◻    | ◻   | ◻   |                                  |
+| CFG-05    | To start | ◻    | ◻   | ◻   |                                  |
+| SCT-01    | To start | ◻    | ◻   | ◻   |                                  |
+| SCT-02    | To start | ◻    | —   | ◻   |                                  |
+| SCT-03    | To start | —    | —   | ◻   | Visual/layout only               |
+| SCT-04    | To start | ◻    | ◻   | ◻   |                                  |
+| SCT-05    | To start | ◻    | —   | ◻   |                                  |
+| SCT-06    | To start | ◻    | ◻   | ◻   |                                  |
+| SCT-07    | To start | ◻    | —   | —   | Build-time, covered by DM-DEF-02 |
+| STP-01    | To start | ◻    | ◻   | ◻   |                                  |
+| STP-02    | To start | ◻    | —   | ◻   |                                  |
+| STP-03    | To start | ◻    | ◻   | ◻   |                                  |
+| STP-04    | To start | ◻    | —   | ◻   |                                  |
+| OUT-01    | To start | ◻    | ◻   | ◻   |                                  |
+| OUT-02    | To start | ◻    | ◻   | ◻   |                                  |
+| OUT-03    | To start | ◻    | ◻   | —   | Deterministic — DM-INV-03        |
+| OUT-04    | To start | ◻    | —   | —   |                                  |
+| OUT-05    | To start | ◻    | ◻   | ◻   |                                  |
+| OUT-06    | To start | ◻    | —   | ◻   |                                  |
+| OUT-07    | To start | —    | —   | ◻   | Opens claude.ai only             |
+| OUT-08    | To start | —    | ◻   | ◻   | Behavioral constraint            |
+| VIS-01    | To start | —    | —   | ◻   | Visual review only               |
+| VIS-02    | To start | —    | —   | ◻   | Visual review only               |
+| VIS-03    | To start | —    | —   | ◻   | Visual review only               |
+| TST-01    | To start | ◻    | ◻   | —   | Snapshot test                    |
+| TST-02    | To start | —    | ◻   | —   | E2e test                         |
+| TST-03    | To start | ◻    | —   | —   | Build-time validation            |
 
 ---
 
 ## Decisions Log
 
-| Date       | Decision                                                                                                                        | Rationale                                                                                                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2026-02-20 | GitHub Pages for hosting                                                                                                        | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                     |
-| 2026-02-20 | Status tracking in spec_concept.md                                                                                              | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                              |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                          |  Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                         |
-| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent) | Clearer UX, simpler tree logic, more background loading time, less vertical space |
-| 2026-02-24 | Deep link to claude.ai is hard requirement for first build | Investigated and verified feasible, no backup needed |
-| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling | Clearer for user |
+| Date       | Decision                                                                                                                                                                                   | Rationale                                                                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-02-20 | GitHub Pages for hosting                                                                                                                                                                   | Free for public repos, auto-deploys on merge, always-latest live URL                                                           |
+| 2026-02-20 | Status tracking in spec_concept.md                                                                                                                                                         | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                    |
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                                                                                     | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                               |
+| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                                                                                                                | Clearer UX, simpler tree logic, more background loading time, less vertical space                                              |
+| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                                                                                                                 | Investigated and verified feasible, no backup needed                                                                           |
+| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                                                                                                            | Clearer for user                                                                                                               |
+| 2026-02-24 | Enhanced status tracking: 5 lifecycle statuses (To start, In progress, Testing, 🏁 Approved, 🚫 Blocked) + independent test columns (Unit, SIT, UAT) with N/A/pending/failed/passed states | Differentiates partial vs. full implementation, testing types, and human-only sign-off. PO is sole gatekeeper for 🏁 Approved. |
