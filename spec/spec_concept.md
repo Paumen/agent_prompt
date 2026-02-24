@@ -243,53 +243,76 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ## Status
 
-| ID        | Status  |
-| --------- | ------- |
-| GL-01     | pending |
-| GL-02     | implemented |
-| GL-03     | implemented |
-| GL-04     | implemented |
-| GL-05     | pending |
-| APP-01    | implemented |
-| APP-02    | implemented |
-| APP-03    | pending |
-| APP-04    | pending |
-| DM-INV-01 | pending |
-| DM-INV-02 | pending |
-| DM-INV-03 | pending |
-| DM-DEF-01 | pending |
-| DM-DEF-02 | pending |
-| DM-DEF-03 | pending |
-| CFG-01    | pending |
-| CFG-02    | pending |
-| CFG-03    | pending |
-| CFG-04    | pending |
-| CFG-05    | pending |
-| SCT-01    | pending |
-| SCT-02    | pending |
-| SCT-03    | pending |
-| SCT-04    | pending |
-| SCT-05    | pending |
-| SCT-06    | pending |
-| SCT-07    | pending |
-| STP-01    | pending |
-| STP-02    | pending |
-| STP-03    | pending |
-| STP-04    | pending |
-| OUT-01    | pending |
-| OUT-02    | pending |
-| OUT-03    | pending |
-| OUT-04    | pending |
-| OUT-05    | pending |
-| OUT-06    | pending |
-| OUT-07    | pending |
-| OUT-08    | pending |
-| VIS-01    | implemented |
-| VIS-02    | implemented |
-| VIS-03    | implemented |
-| TST-01    | pending |
-| TST-02    | pending |
-| TST-03    | pending |
+### Legend
+
+**Lifecycle statuses**
+
+| Status      | Meaning                                            | Moved by    |
+| ----------- | -------------------------------------------------- | ----------- |
+| To start    | Not yet started                                    | —           |
+| In progress | Implementation actively underway                   | Claude Code |
+| Testing     | Code complete, testing in progress                 | Claude Code |
+| 🏁 Approved | PO reviewed and signed off                         | PO only     |
+| 🚫 Blocked  | Waiting on dependency, decision, or external input | Anyone      |
+
+**Test columns** — tracked independently per requirement. Not all requirements need all test types.
+
+| Icon | Meaning                  |
+| ---- | ------------------------ |
+| —    | N/A for this requirement |
+| ◻    | Applicable, not yet run  |
+| ❌   | Failed                   |
+| ✅   | Passed                   |
+
+### Implementation Status
+
+| ID        | Status      | Unit | SIT | UAT | Notes                                            |
+| --------- | ----------- | ---- | --- | --- | ------------------------------------------------ |
+| GL-01     | To start    | —    | ◻   | ◻   | Click audit — verified per card                  |
+| GL-02     | In progress | ◻    | ◻   | ◻   | Phase 0: shimmer CSS done. JS component Phase 3  |
+| GL-03     | In progress | —    | ◻   | ◻   | Phase 0: foundation CSS done. Per-card Phase 4–7 |
+| GL-04     | In progress | ◻    | ◻   | ◻   | Phase 0: error CSS done. JS component Phase 3    |
+| GL-05     | To start    | ◻    | ◻   | ◻   |                                                  |
+| APP-01    | Testing     | —    | —   | ◻   | Phase 0: SPA shell created                       |
+| APP-02    | Testing     | —    | —   | ◻   | Phase 0: vanilla JS + plain CSS                  |
+| APP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
+| APP-04    | To start    | ◻    | —   | ◻   |                                                  |
+| DM-INV-01 | To start    | ◻    | ◻   | —   |                                                  |
+| DM-INV-02 | To start    | ◻    | ◻   | —   |                                                  |
+| DM-INV-03 | To start    | ◻    | ◻   | —   | Snapshot test                                    |
+| DM-DEF-01 | To start    | ◻    | ◻   | —   |                                                  |
+| DM-DEF-02 | To start    | ◻    | —   | —   | Build-time validation                            |
+| DM-DEF-03 | To start    | ◻    | ◻   | ◻   |                                                  |
+| CFG-01    | To start    | ◻    | ◻   | ◻   |                                                  |
+| CFG-02    | To start    | ◻    | ◻   | ◻   |                                                  |
+| CFG-03    | To start    | ◻    | —   | ◻   |                                                  |
+| CFG-04    | To start    | ◻    | ◻   | ◻   |                                                  |
+| CFG-05    | To start    | ◻    | ◻   | ◻   |                                                  |
+| SCT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
+| SCT-02    | To start    | ◻    | —   | ◻   |                                                  |
+| SCT-03    | To start    | —    | —   | ◻   | Visual/layout only                               |
+| SCT-04    | To start    | ◻    | ◻   | ◻   |                                                  |
+| SCT-05    | To start    | ◻    | —   | ◻   |                                                  |
+| SCT-06    | To start    | ◻    | ◻   | ◻   |                                                  |
+| SCT-07    | To start    | ◻    | —   | —   | Build-time, covered by DM-DEF-02                 |
+| STP-01    | To start    | ◻    | ◻   | ◻   |                                                  |
+| STP-02    | To start    | ◻    | —   | ◻   |                                                  |
+| STP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
+| STP-04    | To start    | ◻    | —   | ◻   |                                                  |
+| OUT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
+| OUT-02    | To start    | ◻    | ◻   | ◻   |                                                  |
+| OUT-03    | To start    | ◻    | ◻   | —   | Deterministic — DM-INV-03                        |
+| OUT-04    | To start    | ◻    | —   | —   |                                                  |
+| OUT-05    | To start    | ◻    | ◻   | ◻   |                                                  |
+| OUT-06    | To start    | ◻    | —   | ◻   |                                                  |
+| OUT-07    | To start    | —    | —   | ◻   | Opens claude.ai only                             |
+| OUT-08    | To start    | —    | ◻   | ◻   | Behavioral constraint                            |
+| VIS-01    | Testing     | —    | —   | ◻   | Phase 0: CSS grid layout done                    |
+| VIS-02    | Testing     | —    | —   | ◻   | Phase 0: touch targets set                       |
+| VIS-03    | Testing     | —    | —   | ◻   | Phase 0: card layout CSS done                    |
+| TST-01    | To start    | ◻    | ◻   | —   | Snapshot test                                    |
+| TST-02    | To start    | —    | ◻   | —   | E2e test                                         |
+| TST-03    | To start    | ◻    | —   | —   | Build-time validation                            |
 
 ---
 

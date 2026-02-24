@@ -198,7 +198,7 @@ This structure covers: required steps, optional steps, lens pills with defaults,
 
 ---
 
-## 4. Phase 0 — CSS Foundation
+## 4. Phase 0 — CSS Foundation `Testing`
 
 **Goal**: Design tokens, base layout, card shell, mobile-first responsive grid.
 
@@ -206,8 +206,8 @@ This structure covers: required steps, optional steps, lens pills with defaults,
 
 ### Checklist
 
-- [ ] Populate `src/css/variables.css` with all tokens from spec VIS section (colors, typography, spacing)
-- [ ] Write base styles in `src/css/styles.css`:
+- [x] Populate `src/css/variables.css` with all tokens from spec VIS section (colors, typography, spacing)
+- [x] Write base styles in `src/css/styles.css`:
   - Page background (`--shell`), body typography
   - Card component: collapsed/expanded states, header with expand/collapse, `aria-expanded` attribute styling
   - Active/selected item: 3px left-edge `--accent` bar + `--accent-subtle` background
@@ -217,11 +217,11 @@ This structure covers: required steps, optional steps, lens pills with defaults,
   - Shimmer-bar skeleton: reusable `.shimmer` class on `--surface-inset`, opacity pulse animation
   - Empty-state message: contextual inline message (not blank area)
   - Inline error: `--danger` colored, dismissible
-- [ ] Update `src/index.html` with 4 card container `<section>` elements, semantic HTML
+- [x] Update `src/index.html` with 4 card container `<section>` elements, semantic HTML
   - Card headers use `<button>` elements (not divs) for accessibility
   - `aria-expanded="true|false"` on card headers
-- [ ] Mobile-first: base styles for small screens, `@media (min-width: 768px)` for larger
-- [ ] **Accessibility**: card expand/collapse via keyboard (Enter/Space), focus-visible outlines
+- [x] Mobile-first: base styles for small screens, `@media (min-width: 768px)` for larger
+- [x] **Accessibility**: card expand/collapse via keyboard (Enter/Space), focus-visible outlines
 
 ### Output
 
@@ -231,7 +231,7 @@ This structure covers: required steps, optional steps, lens pills with defaults,
 
 ---
 
-## 5. Phase 1 — State Management
+## 5. Phase 1 — State Management `To start`
 
 **Goal**: Centralized state with `setState()`, automatic prompt rebuild, session/persistent separation.
 
@@ -286,7 +286,7 @@ Pure function `buildPrompt(promptInput) → string`. Called inside `setState()` 
 
 ---
 
-## 6. Phase 2 — Build Pipeline & Flow Loading
+## 6. Phase 2 — Build Pipeline & Flow Loading `To start`
 
 **Goal**: YAML → JSON build step with schema validation; flow loader module.
 
@@ -325,7 +325,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 7. Phase 3 — GitHub API & Caching
+## 7. Phase 3 — GitHub API & Caching `To start`
 
 **Goal**: GitHub REST API module with caching layer, background refresh, limit enforcement.
 
@@ -365,7 +365,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 8. Phase 4 — Card 1: Configuration
+## 8. Phase 4 — Card 1: Configuration `To start`
 
 **Goal**: PAT input, username, repo grid, branch grid — fully wired to state and API.
 
@@ -399,7 +399,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 9. Phase 5 — Card 2: Super Tasks
+## 9. Phase 5 — Card 2: Super Tasks `To start`
 
 **Goal**: Flow selector grid with flow-specific input fields.
 
@@ -438,7 +438,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 10. Phase 6 — Card 3: Steps
+## 10. Phase 6 — Card 3: Steps `To start`
 
 **Goal**: Ordered step list with lenses and deletion.
 
@@ -467,7 +467,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 11. Phase 7 — Card 4: Prompt Output
+## 11. Phase 7 — Card 4: Prompt Output `To start`
 
 **Goal**: Prompt preview, copy to clipboard, user notes, Open in Claude button.
 
@@ -496,7 +496,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 12. Phase 8 — Polish & Global Constraints
+## 12. Phase 8 — Polish & Global Constraints `To start`
 
 **Goal**: Verify all global constraints, mobile audit, performance check, remaining polish.
 
@@ -533,7 +533,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 13. Phase 9 — End-to-End Tests
+## 13. Phase 9 — End-to-End Tests `To start`
 
 **Goal**: Full user journey test, prompt determinism verification.
 
