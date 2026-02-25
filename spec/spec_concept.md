@@ -318,16 +318,24 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ## Decisions Log
 
-| Date       | Decision                                                                                          | Rationale                                                                             |
-| ---------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 2026-02-20 | GitHub Pages for hosting                                                                          | Free for public repos, auto-deploys on merge, always-latest live URL                  |
-| 2026-02-20 | Status tracking in spec_concept.md                                                                | Avoids duplication. Status table + Decisions Log in the authoritative spec.           |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                            | Cleaner root. `config/` = how to build. `spec/` = what to build.                      |
-| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                       | Clearer UX, simpler tree logic, more background loading time, less vertical space     |
-| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                        | Investigated and verified feasible, no backup needed                                  |
-| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                   | Clearer for user                                                                      |
-| 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0. |
-| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                             | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.     |
-| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                            | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                       |
-| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                      | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.              |
-| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                   | State tests need `localStorage`; keeping node env for pure functions avoids overhead. |
+| Date       | Decision                                                                                          | Rationale                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 2026-02-20 | GitHub Pages for hosting                                                                          | Free for public repos, auto-deploys on merge, always-latest live URL                     |
+| 2026-02-20 | Status tracking in spec_concept.md                                                                | Avoids duplication. Status table + Decisions Log in the authoritative spec.              |
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                            | Cleaner root. `config/` = how to build. `spec/` = what to build.                         |
+| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                       | Clearer UX, simpler tree logic, more background loading time, less vertical space        |
+| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                        | Investigated and verified feasible, no backup needed                                     |
+| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                   | Clearer for user                                                                         |
+| 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0.    |
+| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                             | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.        |
+| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                            | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                          |
+| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                      | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.                 |
+| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                   | State tests need `localStorage`; keeping node env for pure functions avoids overhead.    |
+| 2026-02-25 | Redesigned flow framework: 4 flows (Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify)   | Balances coverage (all use cases) with simplicity (4 choices vs 6). Dual-panel layout.   |
+| 2026-02-25 | Dual-panel layout per flow: Situation (Panel A) + Target (Panel B) with flow-specific fields      | Current/desired structure gives built-in verification; consistent across all flows.      |
+| 2026-02-25 | Steps auto-generated from flow + user inputs; user can toggle lenses and remove steps             | Reduces user effort while keeping fine-tuning available. No manual step creation.        |
+| 2026-02-25 | Quality Meter with fixed field weights and 4 color thresholds                                     | Motivates thoroughness without over-engineering. Simple scoring, no word counting.       |
+| 2026-02-25 | Improve flow: multi-file scope selector (each file vs across files)                               | Makes LLM intent clear for multi-file improvements. Affects prompt instruction.          |
+| 2026-02-25 | No auto-suggestion of files from description text                                                 | Risk of wrong file suggestions is worse than no suggestions; Claude explores on its own. |
+| 2026-02-25 | No explicit fences/boundaries section                                                             | Clear, specific prompts naturally prevent Claude drift. Vagueness is the root cause.     |
+| 2026-02-25 | Spec files vs Guideline files distinction: WHAT to build vs HOW to build                          | Valuable separation; UX challenge to make distinction clear (tooltip recommended).       |

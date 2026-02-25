@@ -15,11 +15,11 @@ code_review:
 
 # Files and directories to exclude from code review.
 ignore_patterns:
-  - "ebg/**"
-  - "img/**"
-  - "node_modules/**"
-  - "vendor/**"
-  - "*.min.js"
-  - "*.min.css"
-  - "package-lock.json"
-  - "composer.lock"
+  - 'ebg/**'
+  - 'img/**'
+  - 'node_modules/**'
+  - 'vendor/**'
+  - '*.min.js'
+  - '*.min.css'
+  - 'package-lock.json'
+  - 'composer.lock'
