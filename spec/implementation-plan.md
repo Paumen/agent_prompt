@@ -1,11 +1,7 @@
 # Implementation Plan
 
-<<<<<<< claude/alternative-prompt-frameworks-uEn1j
-> **Status**: Draft v3 — updated for 4-flow dual-panel framework.
-> **Date**: 2026-02-25
-=======
-> **Status**: Draft v4 — updated with LLM complexity ratings and hybrid framework alignment.
-> **Date**: 2026-02-25
+**Status**: Draft v3 — updated for 4-flow dual-panel framework.
+**Date**: 2026-02-25
 
 ---
 
