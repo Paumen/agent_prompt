@@ -40,36 +40,36 @@ prompt_input (JSON-serializable, snake_case):
   }
 
   task: {
-    flow_id: "fix" | "review" | "implement" | "improve"  // selected flow
+    flow_id: str             // "fix" | "review" | "implement" | "improve"
   }
 
-  panel_a: {                        // "Situation" panel
-    description: str,               // free-text description of current state
-    issue_number: int | null,       // GitHub issue selector
-    pr_number: int | null,          // GitHub PR selector (review flow only)
-    files: [path]                   // file picker: location / supporting / starting files
+  panel_a: {                 // "Situation" panel — what exists / what to examine
+    description: str,        // free-text description
+    issue_number: int|null,  // GitHub issue selector (fix, improve flows)
+    pr_number: int|null,     // GitHub PR selector (review flow only)
+    files: [path]            // file picker: location / supporting / starting files
   }
 
-  panel_b: {                        // "Target" panel
-    description: str,               // free-text desired outcome / criteria / build spec
-    issue_number: int | null,       // GitHub issue (improve flow — desired state from issue)
-    spec_files: [path],             // specification/requirement documents
-    guideline_files: [path],        // style guides, coding standards
-    acceptance_criteria: str,       // how to know it's done (implement flow)
-    lenses: [str]                   // focus lenses (review / improve flows)
+  panel_b: {                 // "Target" panel — desired outcome / criteria
+    description: str,        // free-text desired outcome / build spec
+    issue_number: int|null,  // GitHub issue (improve flow — desired state)
+    spec_files: [path],      // specification/requirement documents
+    guideline_files: [path], // style guides, coding standards
+    acceptance_criteria: str, // how to know it's done (implement flow)
+    lenses: [str]            // focus lenses (review / improve flows)
   }
 
   steps: {
-    enabled_steps: [{               // auto-generated from flow, user can fine-tune
+    enabled_steps: [{        // auto-generated from flow, user can fine-tune
       id: str,
-      operation: str,               // e.g., read, create, edit, commit, analyze
-      object: str,                  // e.g., file, branch, PR, issue, pull_request
-      lenses: [str],                // user-adjustable focus lenses per step
-      params: {}                    // step-specific parameters
+      operation: str,        // e.g., read, create, edit, commit, analyze, validate
+      object: str,           // e.g., file, branch, PR, issue, tests
+      lenses: [str],         // user-adjustable focus lenses per step
+      params: {}             // step-specific parameters
     }]
   }
 
-  improve_scope: "each_file" | "across_files" | null   // improve flow only: multi-file handling
+  improve_scope: str|null,   // "each_file" | "across_files" (improve flow, 2+ files)
 
   notes: {
     user_text: str                  // optional free-text appended to prompt
@@ -154,8 +154,8 @@ function migrateState(state) {
 ### DM-DEF — Defaults & Merge Strategy
 
 - DM-DEF-01 Defaults use two-layer merge: **flow defaults → user overrides**. User changes override flow defaults in-place. No base-defaults layer, no field provenance tracking. Each flow defines its own complete defaults.
-- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (metadata, steps, lenses, params). Converted to JSON at build time via Vite plugin with schema validation. Runtime imports pre-validated JSON. Build fails with clear error on invalid schema.
-- DM-DEF-03 Flow selection always fully resets `steps.enabled_steps` and all step-level values to the flow's defaults. No user overrides are carried across flow switches. Steps are auto-generated from flow definition and updated as panel fields are filled.
+- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (field configuration, step templates, lenses, params). Converted to JSON at build time via Vite plugin with schema validation. Runtime imports pre-validated JSON. Build fails with clear error on invalid schema.
+- DM-DEF-03 Flow selection always fully resets `panel_a`, `panel_b`, `steps.enabled_steps`, and `improve_scope` to the flow's defaults. No user overrides are carried across flow switches.
 
 ---
 
@@ -194,69 +194,69 @@ Authentication and target selection.
 - CFG-04 On repo selection, branch buttons appear (pre-loaded in background per GL-06). The default branch is auto-selected.
 - CFG-05 Repo selection triggers eager background load of branches and full recursive file tree. PRs/issues fetched on-demand per flow.
 
-### Card 2 — Task `SCT` (Dual-Panel Layout)
+### Card 2 — Task `SCT`
 
-Define a high-level automation task using dual-panel layout (Situation → Target).
+Define the task using a dual-panel layout: **Situation** (what exists) → **Target** (what's needed).
 
-- SCT-01 Flow selector at top with 4 predefined flows displayed as a button grid:
-  1. **Fix / Debug** — Bug, error, broken behavior.
-  2. **Review / Analyze** — PR review, code analysis, audits.
-  3. **Implement / Build** — New feature, new file, greenfield.
-  4. **Improve / Modify** — Refactor, optimize, enhance.
-- SCT-02 Dual-panel layout (left/right on desktop, stacked on mobile):
-  - **Panel A (Situation)** — What's happening now / what exists
-  - **Panel B (Target)** — Desired outcome / criteria
-- SCT-03 Flow-specific fields render in each panel based on flow definition in `flows.yaml`. Required fields marked with indicator.
-- SCT-04 Validation: "at least one of X or Y" for fields with `required_group`.
-- SCT-05 Quality Meter appears below flow selector, showing prompt completeness via color-coded bar.
-- SCT-06 Pre-fillable options (PR, issue, file pickers) use flat searchable dropdowns.
-- SCT-07 Flow definitions in `flows.yaml` include panel field configuration and step templates.
-- SCT-08 Multi-file scope selector (Improve flow only): "Each file separately" vs "Across files together".
-- SCT-09 Steps auto-generated when flow selected; updated as panel fields are filled.
+- SCT-01 Files selected in Panel A are flagged in the prompt for the LLM to "read upfront."
+- SCT-02 The app presents 4 predefined flows:
+  1. **Fix / Debug** — identify and resolve issues by capturing current state vs expected outcome.
+  2. **Review / Analyze** — examine PRs, code, or documents against specified criteria and lenses.
+  3. **Implement / Build** — create something new from requirements, description, and/or acceptance criteria.
+  4. **Improve / Modify** — enhance or refine existing work with configurable focus lenses.
+- SCT-03 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
+- SCT-04 Flow selection shows a dual-panel layout (left/right on desktop, stacked on mobile). Each panel has a generic label ("Situation" / "Target") plus a flow-specific subtitle. Fields within each panel are flow-specific (defined in flows.yaml). Examples: "Fix / Debug" Situation panel shows description field + issue picker + location file picker; Target panel shows expected behavior field + spec file picker + guideline file picker. "Review / Analyze" Situation panel shows context field + PR picker + file picker. See `spec/hybrid-framework-design.md` for full field mapping per flow.
+- SCT-05 Where a flow requires mandatory user input, the field is clearly marked as required. Required group logic: at least one field in a required group must be filled (e.g., description OR issue for Fix/Debug).
+- SCT-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title. Spec/guideline file pickers use tooltip helper text to clarify the distinction (specs = WHAT to build, guidelines = HOW to build).
+- SCT-07 Flow field definitions and step templates in flows.yaml. Spec defines field types and step data model. See `spec/hybrid-framework-design.md` for full flows.yaml structure.
+- SCT-08 Quality Meter: a thin horizontal bar below the flow selector showing prompt completeness. Color transitions at 4 thresholds (red/orange/yellow/green). Score = filled field weights / total possible weights for the active flow. Updates in real-time.
+- SCT-09 Improve/Modify flow: when 2+ files are selected in Panel A, a scope selector appears: "Each file separately" vs "Across files together". This affects the prompt instructions.
 
 ### Card 3 — Steps `STP`
 
-Purpose: Fine-tune auto-generated steps.
+Purpose: Fine-tuning of auto-generated steps.
 
-- STP-01 Steps appear as an ordered list, auto-generated from flow definition. Each step can be deleted with a single tap (trash icon) except locked steps.
-- STP-02 Locked steps (e.g., "Read @claude.md") cannot be removed and show visual indicator.
-- STP-03 Lenses display as pre-selected pills (based on flow). Users can toggle any lens on/off or add custom lenses via free-text input.
-- STP-04 Steps cannot be reordered or added manually — auto-generation keeps it simple.
+- STP-01 Steps are auto-generated when a flow is selected and updated dynamically as the user fills Panel A/B fields. Steps appear as an ordered list. Each non-locked step can be deleted with a single tap (trash icon).
+- STP-02 Data model minimums: 1× operation, 1× object. Optional: lenses, params. Steps with a `source` field in flows.yaml are conditional — they appear only when the referenced field is filled (e.g., "Read issue #N" appears only when an issue is selected). Locked steps (e.g., "Read @claude.md") cannot be removed.
+- STP-03 Lenses display as pre-selected pills (based on flow defaults). Users can toggle any lens on/off per step.
+- STP-04 The user can remove any non-locked step. Steps cannot be reordered or manually added.
 
 ### Card 4 — Prompt `OUT`
 
 Purpose: Final output and extraction.
 
-- OUT-01 The generated prompt is structured using XML tags with flow-specific `<task>` section.
-- OUT-02 Prompt format varies by flow (see `hybrid-framework-design.md` for templates):
+- OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then a flow-specific `<task>` section (with Panel A/B content), then a `<todo>` step list.
+- OUT-02 Prompt format varies per flow. Each flow has a `<task flow="...">` section with flow-specific XML tags for Panel A and Panel B content, followed by a `<todo>` step list. Example (Fix/Debug flow):
 
 ```xml
 <prompt>
   <context>
-    Execute the following task for <repository> https://github.com/{{owner}}/{{repo}} </repository>
-    on <branch> {{branch}} </branch>.
+    Execute the following task for <repository> https://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
     Authenticate using PAT: <PAT> {{pat}} </PAT>.
   </context>
-  <task flow="{{flow_id}}">
+  <task flow="fix">
     <current_state>
-      {{panel_a.description}}
-      {{#if issue}}Related issue: #{{issue_number}}{{/if}}
-      {{#if files}}Location: {{files as @-prefixed list}}{{/if}}
+      [Panel A: description, issue reference, location files]
     </current_state>
     <expected_outcome>
-      {{panel_b.description}}
-      {{#if spec_files}}Specifications: {{spec_files as @-prefixed list}}{{/if}}
+      [Panel B: expected behavior, spec files, guideline files]
     </expected_outcome>
   </task>
   <todo>
-    Step 1: Read @claude.md
-    Step 2: {{dynamic steps based on panel inputs}}
-    ...
-    Step N: Commit changes and open PR
+    Step 1: Read: @claude.md
+    Step 2: Read: @src/utils/auth.js
+    Step 3: Read issue #42
+    Step 4: Identify root cause — focus on [error_handling, semantics]
+    Step 5: Create new branch
+    Step 6: Implement fix — focus on [error_handling, semantics]
+    Step 7: Run tests
+    Step 8: Commit changes and open PR
   </todo>
 </prompt>
 <notes>{{user_text}}</notes>
 ```
+
+See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 
 - OUT-03 The prompt is plain text, fully regenerated from current `prompt_input` each time any field changes. Deterministic output per DM-INV-03.
 - OUT-04 Files reference example: `@src/utils/auth.js`.
@@ -390,10 +390,10 @@ Each requirement above is its own acceptance test. The following tests add speci
 | SCT-05    | To start    | ◻    | ◻   | ◻   | Quality Meter (new)                              |
 | SCT-06    | To start    | ◻    | ◻   | ◻   |                                                  |
 | SCT-07    | To start    | ◻    | —   | —   | Build-time, covered by DM-DEF-02                 |
-| SCT-08    | To start    | ◻    | ◻   | ◻   | Multi-file scope selector (new)                  |
-| SCT-09    | To start    | ◻    | ◻   | ◻   | Step auto-generation (new)                       |
-| STP-01    | To start    | ◻    | ◻   | ◻   |                                                  |
-| STP-02    | To start    | ◻    | —   | ◻   | Locked steps (new)                               |
+| SCT-08    | To start    | ◻    | ◻   | ◻   | Quality Meter                                    |
+| SCT-09    | To start    | ◻    | ◻   | ◻   | Improve multi-file scope selector                |
+| STP-01    | To start    | ◻    | ◻   | ◻   | Auto-generated steps + fine-tuning               |
+| STP-02    | To start    | ◻    | —   | ◻   |                                                  |
 | STP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
 | STP-04    | To start    | ◻    | —   | ◻   |                                                  |
 | OUT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
@@ -415,21 +415,24 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ## Decisions Log
 
-| Date       | Decision                                                                                          | Rationale                                                                             |
-| ---------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 2026-02-20 | GitHub Pages for hosting                                                                          | Free for public repos, auto-deploys on merge, always-latest live URL                  |
-| 2026-02-20 | Status tracking in spec_concept.md                                                                | Avoids duplication. Status table + Decisions Log in the authoritative spec.           |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                            | Cleaner root. `config/` = how to build. `spec/` = what to build.                      |
-| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                       | Clearer UX, simpler tree logic, more background loading time, less vertical space     |
-| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                        | Investigated and verified feasible, no backup needed                                  |
-| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                   | Clearer for user                                                                      |
-| 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0. |
-| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                             | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.     |
-| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                            | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                       |
-| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                      | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.              |
-| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                   | State tests need `localStorage`; keeping node env for pure functions avoids overhead. |
-| 2026-02-25 | Hybrid framework: 4 flows replace 6 flows                                                         | Simpler mental model; Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify      |
-| 2026-02-25 | Dual-panel layout: Situation → Target                                                             | Intuitive mapping of current state to desired outcome per flow                        |
-| 2026-02-25 | Auto-generated steps from flow definition                                                         | Reduces user burden; steps update dynamically as fields are filled                    |
-| 2026-02-25 | State schema version field added                                                                  | Enables migration for future schema changes; v1.0 for hybrid framework                |
-| 2026-02-25 | Data model uses panel_a/panel_b instead of context.selected_files                                 | Aligns with dual-panel UI; clearer separation of situation vs target                  |
+| Date       | Decision                                                                                          | Rationale                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 2026-02-20 | GitHub Pages for hosting                                                                          | Free for public repos, auto-deploys on merge, always-latest live URL                     |
+| 2026-02-20 | Status tracking in spec_concept.md                                                                | Avoids duplication. Status table + Decisions Log in the authoritative spec.              |
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                            | Cleaner root. `config/` = how to build. `spec/` = what to build.                         |
+| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                       | Clearer UX, simpler tree logic, more background loading time, less vertical space        |
+| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                        | Investigated and verified feasible, no backup needed                                     |
+| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                   | Clearer for user                                                                         |
+| 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0.    |
+| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                             | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.        |
+| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                            | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                          |
+| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                      | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.                 |
+| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                   | State tests need `localStorage`; keeping node env for pure functions avoids overhead.    |
+| 2026-02-25 | Redesigned flow framework: 4 flows (Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify)   | Balances coverage (all use cases) with simplicity (4 choices vs 6). Dual-panel layout.   |
+| 2026-02-25 | Dual-panel layout per flow: Situation (Panel A) + Target (Panel B) with flow-specific fields      | Current/desired structure gives built-in verification; consistent across all flows.      |
+| 2026-02-25 | Steps auto-generated from flow + user inputs; user can toggle lenses and remove steps             | Reduces user effort while keeping fine-tuning available. No manual step creation.        |
+| 2026-02-25 | Quality Meter with fixed field weights and 4 color thresholds                                     | Motivates thoroughness without over-engineering. Simple scoring, no word counting.       |
+| 2026-02-25 | Improve flow: multi-file scope selector (each file vs across files)                               | Makes LLM intent clear for multi-file improvements. Affects prompt instruction.          |
+| 2026-02-25 | No auto-suggestion of files from description text                                                 | Risk of wrong file suggestions is worse than no suggestions; Claude explores on its own. |
+| 2026-02-25 | No explicit fences/boundaries section                                                             | Clear, specific prompts naturally prevent Claude drift. Vagueness is the root cause.     |
+| 2026-02-25 | Spec files vs Guideline files distinction: WHAT to build vs HOW to build                          | Valuable separation; UX challenge to make distinction clear (tooltip recommended).       |
