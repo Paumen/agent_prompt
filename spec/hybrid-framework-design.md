@@ -773,12 +773,3 @@ Two separate file pickers with tooltip/helper text to explain the distinction:
 | **Implementation complexity**    |        Low        |      Low-medium      |      Medium       |   Medium-high    |       High       |    **Medium**     |
 | **Migration from current spec**  |   Major rewrite   |    Major rewrite     |    Incremental    |  Major rewrite   |  Major rewrite   |   **Moderate**    |
 
----
-
-## Appendix: 5 Alternative Frameworks
-
-The frameworks below were the original exploration. The Hybrid Framework above is the selected direction.
-
----
-
-## Framework 1: "Three Signals" — Problem, Map, Action
