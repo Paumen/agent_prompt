@@ -37,23 +37,37 @@ prompt_input (JSON-serializable, snake_case):
     pat: str                 // GitHub personal access token
   }
 
-  context: {
-    selected_files: [path],  // files flagged for LLM to "read upfront"
+  task: {
+    flow_id: str             // "fix" | "review" | "implement" | "improve"
   }
 
-  task: {
-    flow_id: str             // selected flow from flows.yaml
+  panel_a: {                 // "Situation" panel — what exists / what to examine
+    description: str,        // free-text description
+    issue_number: int|null,  // GitHub issue selector (fix, improve flows)
+    pr_number: int|null,     // GitHub PR selector (review flow only)
+    files: [path]            // file picker: location / supporting / starting files
+  }
+
+  panel_b: {                 // "Target" panel — desired outcome / criteria
+    description: str,        // free-text desired outcome / build spec
+    issue_number: int|null,  // GitHub issue (improve flow — desired state)
+    spec_files: [path],      // specification/requirement documents
+    guideline_files: [path], // style guides, coding standards
+    acceptance_criteria: str, // how to know it's done (implement flow)
+    lenses: [str]            // focus lenses (review / improve flows)
   }
 
   steps: {
-    enabled_steps: [{        // ordered list of active steps
+    enabled_steps: [{        // auto-generated from flow, user can fine-tune
       id: str,
-      operation: str,        // e.g., read, create, edit, commit, open
-      object: str,           // e.g., file, branch, PR, issue
-      lenses: [str],         // active focus lenses for this step
-      params: {}             // step-specific parameters (file name, PR number, issue number, etc.)
+      operation: str,        // e.g., read, create, edit, commit, analyze, validate
+      object: str,           // e.g., file, branch, PR, issue, tests
+      lenses: [str],         // user-adjustable focus lenses per step
+      params: {}             // step-specific parameters
     }]
   }
+
+  improve_scope: str|null,   // "each_file" | "across_files" (improve flow, 2+ files)
 
   notes: {
     user_text: str           // optional free-text appended to prompt
@@ -73,8 +87,8 @@ prompt_input (JSON-serializable, snake_case):
 ### DM-DEF — Defaults & Merge Strategy
 
 - DM-DEF-01 Defaults use two-layer merge: **flow defaults → user overrides**. User changes override flow defaults in-place. No base-defaults layer, no field provenance tracking. Each flow defines its own complete defaults.
-- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (metadata, steps, lenses, params). Converted to JSON at build time via Vite plugin with schema validation. Runtime imports pre-validated JSON. Build fails with clear error on invalid schema.
-- DM-DEF-03 Flow selection always fully resets `steps.enabled_steps` and all step-level values to the flow's defaults. No user overrides are carried across flow switches.
+- DM-DEF-02 `flows.yaml` is the single source of truth for flow definitions (field configuration, step templates, lenses, params). Converted to JSON at build time via Vite plugin with schema validation. Runtime imports pre-validated JSON. Build fails with clear error on invalid schema.
+- DM-DEF-03 Flow selection always fully resets `panel_a`, `panel_b`, `steps.enabled_steps`, and `improve_scope` to the flow's defaults. No user overrides are carried across flow switches.
 
 ---
 
@@ -82,15 +96,20 @@ prompt_input (JSON-serializable, snake_case):
 
 This is the single source of truth for **what happens when**. Card sections below define content and layout only.
 
-| Event                     | Card State                                                                         | Data Change                                                                                |
-| ------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Page load                 | Configuration expanded; all others collapsed                                       | Load PAT + username from localStorage; begin background repo fetch                         |
-| Repo selected             | Expand Tasks                                                                       | Set `configuration.repo`; fetch branches + file tree; auto-select default branch           |
-| Branch selected           | —                                                                                  | Set `configuration.branch`; reload file tree                                               |
-| PAT edited/cleared        | —                                                                                  | Update `configuration.pat`; re-fetch repos if PAT changed                                  |
-| Flow selected             | Expand Steps + Prompt; show flow-specific mandatory fields; collapse Configuration | Set `task.flow_id`; apply flow defaults per DM-DEF; fetch PRs/issues if flow requires them |
-| File selected             | —                                                                                  | Update `context.selected_files`                                                            |
-| Any `prompt_input` change | —                                                                                  | Rebuild prompt (DM-INV-02)                                                                 |
+| Event                     | Card State                                                               | Data Change                                                                                        |
+| ------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Page load                 | Configuration expanded; all others collapsed                             | Load PAT + username from localStorage; begin background repo fetch                                 |
+| Repo selected             | Expand Task card                                                         | Set `configuration.repo`; fetch branches + file tree; auto-select default branch                   |
+| Branch selected           | —                                                                        | Set `configuration.branch`; reload file tree                                                       |
+| PAT edited/cleared        | —                                                                        | Update `configuration.pat`; re-fetch repos if PAT changed                                          |
+| Flow selected             | Expand Task fields + Steps + Prompt; collapse Configuration              | Set `task.flow_id`; load default steps; apply flow defaults per DM-DEF; fetch PRs/issues if needed |
+| Panel A field changed     | Quality meter updates; steps update (conditional steps appear/disappear) | Update `panel_a.*`; add/remove conditional steps in `steps.enabled_steps`                          |
+| Panel B field changed     | Quality meter updates; steps update                                      | Update `panel_b.*`; add/remove conditional steps                                                   |
+| Step lens toggled         | Prompt preview updates                                                   | Update `steps.enabled_steps[n].lenses`                                                             |
+| Step removed              | Step disappears; prompt updates                                          | Remove from `steps.enabled_steps`                                                                  |
+| Improve: 2+ files         | Scope selector appears                                                   | —                                                                                                  |
+| Scope selected            | Steps update with scope instruction                                      | Set `improve_scope`                                                                                |
+| Any `prompt_input` change | —                                                                        | Rebuild prompt (DM-INV-02)                                                                         |
 
 ---
 
@@ -108,59 +127,71 @@ Authentication and target selection.
 - CFG-04 On repo selection, branch buttons appear (pre-loaded in background per GL-06). The default branch is auto-selected.
 - CFG-05 Repo selection triggers eager background load of branches and full recursive file tree. PRs/issues fetched on-demand per flow.
 
-### Card 2 — Super Tasks `SCT`
+### Card 2 — Task `SCT`
 
-Define a high-level automation task.
+Define the task using a dual-panel layout: **Situation** (what exists) → **Target** (what's needed).
 
-- SCT-01 Selected files are flagged in the prompt for the LLM to "read upfront."
-- SCT-02 The app presents a fixed set of predefined flows:
-  1. **Review PR** — review an open pull request with configurable focus lenses.
-  2. **Implement Feature** — from spec file(s) or from user description.
-  3. **Fix Bug / Issue** — from GitHub issue or user description.
-  4. **Refactor** — restructure code with configurable scope and focus.
-  5. **Write Tests** — add test coverage for selected files/modules.
-  6. **Write Documentation** — generate or update docs for selected scope.
+- SCT-01 Files selected in Panel A are flagged in the prompt for the LLM to "read upfront."
+- SCT-02 The app presents 4 predefined flows:
+  1. **Fix / Debug** — identify and resolve issues by capturing current state vs expected outcome.
+  2. **Review / Analyze** — examine PRs, code, or documents against specified criteria and lenses.
+  3. **Implement / Build** — create something new from requirements, description, and/or acceptance criteria.
+  4. **Improve / Modify** — enhance or refine existing work with configurable focus lenses.
 - SCT-03 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
-- SCT-04 Flow selection shows flow-specific input fields. Examples: "Implement Feature" shows a mandatory description field plus optional spec file picker (at least one required); "advanced" toggle reveals current/expected behavior and acceptance criteria fields. "Review PR" shows a list of open PRs to select.
-- SCT-05 Where a flow requires mandatory user input (e.g., spec description), input field is clearly marked as required.
-- SCT-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title.
-- SCT-07 Flow-to-step definitions in flows.yaml. Spec defines step data model/UI. Prompt-content rules live as comments in flows.yaml.
+- SCT-04 Flow selection shows a dual-panel layout (left/right on desktop, stacked on mobile). Each panel has a generic label ("Situation" / "Target") plus a flow-specific subtitle. Fields within each panel are flow-specific (defined in flows.yaml). Examples: "Fix / Debug" Situation panel shows description field + issue picker + location file picker; Target panel shows expected behavior field + spec file picker + guideline file picker. "Review / Analyze" Situation panel shows context field + PR picker + file picker. See `spec/hybrid-framework-design.md` for full field mapping per flow.
+- SCT-05 Where a flow requires mandatory user input, the field is clearly marked as required. Required group logic: at least one field in a required group must be filled (e.g., description OR issue for Fix/Debug).
+- SCT-06 Pre-fillable options use flat searchable dropdowns. File pickers: flat alphabetical list. PR/issue pickers: #number — title. Spec/guideline file pickers use tooltip helper text to clarify the distinction (specs = WHAT to build, guidelines = HOW to build).
+- SCT-07 Flow field definitions and step templates in flows.yaml. Spec defines field types and step data model. See `spec/hybrid-framework-design.md` for full flows.yaml structure.
+- SCT-08 Quality Meter: a thin horizontal bar below the flow selector showing prompt completeness. Color transitions at 4 thresholds (red/orange/yellow/green). Score = filled field weights / total possible weights for the active flow. Updates in real-time.
+- SCT-09 Improve/Modify flow: when 2+ files are selected in Panel A, a scope selector appears: "Each file separately" vs "Across files together". This affects the prompt instructions.
 
 ### Card 3 — Steps `STP`
 
-Purpose: Granular control and refinement of the selected flow.
+Purpose: Fine-tuning of auto-generated steps.
 
-- STP-01 Steps appear as an ordered list. Each step can be deleted with a single tap (trash icon).
-- STP-02 Data model minimums: 1× operation, 1× object. Optional: lenses, additional objects, text input, toggles. Unlike SCT-04, defaults are pre-applied — users only change what they want. Examples: "Write Documentation" defaults to LLM-chosen filename (user can override); optional file picker for conventions/style guide with "+" button to add more context files.
-- STP-03 Lenses display as pre-selected pills (based on flow). Users can toggle any lens on/off or add custom lenses via free-text input.
-- STP-04 The user can remove any step.
+- STP-01 Steps are auto-generated when a flow is selected and updated dynamically as the user fills Panel A/B fields. Steps appear as an ordered list. Each non-locked step can be deleted with a single tap (trash icon).
+- STP-02 Data model minimums: 1× operation, 1× object. Optional: lenses, params. Steps with a `source` field in flows.yaml are conditional — they appear only when the referenced field is filled (e.g., "Read issue #N" appears only when an issue is selected). Locked steps (e.g., "Read @claude.md") cannot be removed.
+- STP-03 Lenses display as pre-selected pills (based on flow defaults). Users can toggle any lens on/off per step.
+- STP-04 The user can remove any non-locked step. Steps cannot be reordered or manually added.
 
 ### Card 4 — Prompt `OUT`
 
 Purpose: Final output and extraction.
 
-- OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then lists configured steps.
-- OUT-02 Prompt format (step 2-6 are dynamic examples):
+- OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then a flow-specific `<task>` section (with Panel A/B content), then a `<todo>` step list.
+- OUT-02 Prompt format varies per flow. Each flow has a `<task flow="...">` section with flow-specific XML tags for Panel A and Panel B content, followed by a `<todo>` step list. Example (Fix/Debug flow):
 
 ```xml
 <prompt>
   <context>
-    Execute the following TODO steps for <repository> https://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
+    Execute the following task for <repository> https://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
     Authenticate using PAT: <PAT> {{pat}} </PAT>.
   </context>
+  <task flow="fix">
+    <current_state>
+      [Panel A: description, issue reference, location files]
+    </current_state>
+    <expected_outcome>
+      [Panel B: expected behavior, spec files, guideline files]
+    </expected_outcome>
+  </task>
   <todo>
     Step 1: Read: @claude.md
-    Step 2: Create new branch from [default branch]
-    Step 3: Edit [file] — focus on [semantics, syntax, structure]
-    Step 4: Commit changes
-    Step 5: Test and verify
-    Step 6: Open PR
+    Step 2: Read: @src/utils/auth.js
+    Step 3: Read issue #42
+    Step 4: Identify root cause — focus on [error_handling, semantics]
+    Step 5: Create new branch
+    Step 6: Implement fix — focus on [error_handling, semantics]
+    Step 7: Run tests
+    Step 8: Commit changes and open PR
   </todo>
 </prompt>
 <notes>
   [optional: user's free-text comments]
 </notes>
 ```
+
+See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 
 - OUT-03 The prompt is plain text, fully regenerated from current `prompt_input` each time any field changes. Deterministic output per DM-INV-03.
 - OUT-04 Files reference example: `@src/utils/auth.js`.
@@ -295,7 +326,9 @@ Each requirement above is its own acceptance test. The following tests add speci
 | SCT-05    | To start    | ◻    | —   | ◻   |                                                  |
 | SCT-06    | To start    | ◻    | ◻   | ◻   |                                                  |
 | SCT-07    | To start    | ◻    | —   | —   | Build-time, covered by DM-DEF-02                 |
-| STP-01    | To start    | ◻    | ◻   | ◻   |                                                  |
+| SCT-08    | To start    | ◻    | ◻   | ◻   | Quality Meter                                    |
+| SCT-09    | To start    | ◻    | ◻   | ◻   | Improve multi-file scope selector                |
+| STP-01    | To start    | ◻    | ◻   | ◻   | Auto-generated steps + fine-tuning               |
 | STP-02    | To start    | ◻    | —   | ◻   |                                                  |
 | STP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
 | STP-04    | To start    | ◻    | —   | ◻   |                                                  |

@@ -17,56 +17,16 @@ The user designed a hybrid framework with 4 flows and a Quality Meter. This docu
 
 ---
 
-## Panel Naming
+## Panel Naming — Decided: Option D (Situation / Target)
 
-### Option A: Generic pair + flow-specific subtitle
+Generic "Situation → Target" labels across all flows, with flow-specific subtitles.
 
-Use the same two labels across all flows, with a subtitle that varies per flow.
-
-| Flow            | Panel A label | Panel A subtitle     | Panel B label | Panel B subtitle         |
-| --------------- | :-----------: | -------------------- | :-----------: | ------------------------ |
-| Fix/Debug       |   **Input**   | What's happening now |  **Output**   | How it should work       |
-| Review/Analyze  |   **Input**   | What to examine      |  **Output**   | What to evaluate against |
-| Implement/Build |   **Input**   | Starting context     |  **Output**   | What to build            |
-| Improve/Modify  |   **Input**   | What needs improving |  **Output**   | What it should become    |
-
-Pro: Consistent mental model ("I describe input, I describe output"). Con: "Input/Output" is abstract.
-
-### Option B: Descriptive pair, same labels all flows
-
-Use slightly more descriptive generic labels.
-
-| Flow      |     Panel A     |      Panel B      |
-| --------- | :-------------: | :---------------: |
-| All flows | **What exists** | **What's needed** |
-
-Pro: Most concise, universal. Con: "What exists" is awkward for Implement (nothing exists yet).
-
-### Option C: Generic base + flow-specific labels (current design, refined)
-
-Different labels per flow, chosen to feel natural for each.
-
-| Flow            |   Panel A label    |    Panel B label     |
-| --------------- | :----------------: | :------------------: |
-| Fix/Debug       | **Current State**  | **Expected Outcome** |
-| Review/Analyze  | **Review Subject** | **Review Criteria**  |
-| Implement/Build |    **Context**     |   **Requirements**   |
-| Improve/Modify  | **Current State**  | **Desired Outcome**  |
-
-Pro: Each label perfectly matches the mental model. Con: Inconsistency across flows.
-
-### Option D: Hybrid — generic labels + flow-specific subtitles (recommended)
-
-One recognizable pair across all flows, with a small subtitle for flow-specific clarity.
-
-| Flow            | Panel A                                                   | Panel B                                                 |
+| Flow            | Panel A (Situation)                                       | Panel B (Target)                                        |
 | --------------- | --------------------------------------------------------- | ------------------------------------------------------- |
 | Fix/Debug       | **Situation** — What's happening now                      | **Target** — How it should work after the fix           |
 | Review/Analyze  | **Situation** — The PR, code, or document to examine      | **Target** — Standards and criteria for the review      |
 | Implement/Build | **Situation** — Existing context to build upon (optional) | **Target** — What to build and how to know it's done    |
 | Improve/Modify  | **Situation** — What exists and what needs improvement    | **Target** — What the improved version should look like |
-
-Pro: Recognizable "Situation → Target" pattern. Subtitles clarify per flow. Con: "Situation" for Implement (where there may be no existing situation) is a slight stretch.
 
 ---
 
@@ -744,26 +704,12 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 
 ---
 
-## Spec vs. Guideline: UX Distinction
+## Spec vs. Guideline: UX Distinction — Decided: Labels + Helper Text
 
-The distinction between specification files and guideline files is valuable but may not be obvious to users. Options:
+Two separate file pickers with tooltip/helper text to explain the distinction:
 
-**Option 1: Labels with helper text**
-
-- "Specifications" with tooltip/helper: "Documents that define WHAT should be built (requirements, user stories, design docs)"
-- "Guidelines" with tooltip/helper: "Documents that define HOW it should be built (coding standards, style guides)"
-
-**Option 2: Combined picker with tag**
-
-- Single "Reference files" picker, but user tags each file as "Spec" or "Guide" via a small toggle
-- Simpler UI, but adds a per-file interaction
-
-**Option 3: Grouped under a single "Reference" section**
-
-- Header "Reference documents" with two sub-pickers: "Requirements & specs" and "Standards & guides"
-- Visual grouping makes the distinction clear
-
-Recommendation: Option 1 (labels + helper text) — simplest to implement, clear enough with tooltips.
+- **"Specifications"** — tooltip: "Documents that define WHAT should be built (requirements, user stories, design docs)"
+- **"Guidelines"** — tooltip: "Documents that define HOW it should be built (coding standards, style guides)"
 
 ---
 
@@ -798,13 +744,13 @@ Recommendation: Option 1 (labels + helper text) — simplest to implement, clear
 
 ---
 
-## Open Decisions
+## Resolved Decisions
 
-| #   | Question                | Options                                                                                                  | Recommendation      |
-| --- | ----------------------- | -------------------------------------------------------------------------------------------------------- | ------------------- |
-| 1   | Panel naming            | Option A (Input/Output) / B (What exists/needed) / C (per-flow labels) / D (Situation/Target + subtitle) | User to choose      |
-| 2   | Spec vs. Guideline UX   | Labels + tooltip / Combined picker + tag / Grouped section                                               | Labels + tooltip    |
-| 3   | Quality meter placement | Below flow selector / Bottom of task card / Floating                                                     | Below flow selector |
+| #   | Question                | Decision                                      |
+| --- | ----------------------- | --------------------------------------------- |
+| 1   | Panel naming            | Option D: Situation / Target + flow subtitles |
+| 2   | Spec vs. Guideline UX   | Labels + tooltip helper text                  |
+| 3   | Quality meter placement | Below flow selector                           |
 
 ---
 
