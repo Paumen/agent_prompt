@@ -6,7 +6,7 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 ## GL — Global Constraints
 
-- GL-01 Design principles: minimize clicks (target ≤2 for any action, except deep tree navigation), prefer selection over typing.
+- GL-01 Design principles: minimize clicks (target ≤2 for any action), prefer selection over typing where possible.
 - GL-02 Use universal shimmer-bar skeleton with contextual loading label while data loads. Empty data states show brief contextual message, not a blank area.
 - GL-03 Mobile-first responsive design: every interaction works on a phone screen without horizontal scrolling.
 - GL-04 Inline error feedback (no blocking modals). Dismissible. User can correct input and manually retry.
@@ -216,10 +216,10 @@ Define the task using a dual-panel layout: **Situation** (what exists) → **Tar
 
 Purpose: Fine-tuning of auto-generated steps.
 
-- STP-01 Steps are auto-generated when a flow is selected and updated dynamically as the user fills Panel A/B fields. Steps appear as an ordered list. Each non-locked step can be deleted with a single tap (trash icon).
-- STP-02 Data model minimums: 1× operation, 1× object. Optional: lenses, params. Steps with a `source` field in flows.yaml are conditional — they appear only when the referenced field is filled (e.g., "Read issue #N" appears only when an issue is selected). Locked steps (e.g., "Read @claude.md") cannot be removed.
+- STP-01 Steps are auto-generated when a flow is selected and updated dynamically as the user fills Panel A/B fields. Steps appear as an ordered list. Each step can be deleted with a single tap (trash icon).
+- STP-02 Data model minimums: 1× operation, 1× object. Optional: lenses, params. Steps with a `source` field in flows.yaml are conditional — they appear only when the referenced field is filled (e.g., "Read issue #N" appears only when an issue is selected).
 - STP-03 Lenses display as pre-selected pills (based on flow defaults). Users can toggle any lens on/off per step.
-- STP-04 The user can remove any non-locked step. Steps cannot be reordered or manually added.
+- STP-04 The user can remove any step. Steps cannot be reordered or manually added.
 
 ### Card 4 — Prompt `OUT`
 
@@ -259,10 +259,10 @@ Purpose: Final output and extraction.
 See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 
 - OUT-03 The prompt is plain text, fully regenerated from current `prompt_input` each time any field changes. Deterministic output per DM-INV-03.
-- OUT-04 Files reference example: `@src/utils/auth.js`.
+- OUT-04 File reference example: `@src/utils/auth.js`.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-07 An "Open in Claude" button opens claude.ai in a new tab (no prompt transfer — user copies first).
+- OUT-07 An "Prompt Claude" button opens deeplink to claude.ai and pastes prompt in claude chat.
 - OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible, except if user manually collapses it.
 
 ---
@@ -428,11 +428,9 @@ Each requirement above is its own acceptance test. The following tests add speci
 | 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                            | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                          |
 | 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                      | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.                 |
 | 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                   | State tests need `localStorage`; keeping node env for pure functions avoids overhead.    |
-| 2026-02-25 | Redesigned flow framework: 4 flows (Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify)   | Balances coverage (all use cases) with simplicity (4 choices vs 6). Dual-panel layout.   |
-| 2026-02-25 | Dual-panel layout per flow: Situation (Panel A) + Target (Panel B) with flow-specific fields      | Current/desired structure gives built-in verification; consistent across all flows.      |
-| 2026-02-25 | Steps auto-generated from flow + user inputs; user can toggle lenses and remove steps             | Reduces user effort while keeping fine-tuning available. No manual step creation.        |
-| 2026-02-25 | Quality Meter with fixed field weights and 4 color thresholds                                     | Motivates thoroughness without over-engineering. Simple scoring, no word counting.       |
-| 2026-02-25 | Improve flow: multi-file scope selector (each file vs across files)                               | Makes LLM intent clear for multi-file improvements. Affects prompt instruction.          |
-| 2026-02-25 | No auto-suggestion of files from description text                                                 | Risk of wrong file suggestions is worse than no suggestions; Claude explores on its own. |
-| 2026-02-25 | No explicit fences/boundaries section                                                             | Clear, specific prompts naturally prevent Claude drift. Vagueness is the root cause.     |
-| 2026-02-25 | Spec files vs Guideline files distinction: WHAT to build vs HOW to build                          | Valuable separation; UX challenge to make distinction clear (tooltip recommended).       |
+
+| 2026-02-25 | Redesigned to 4 flows (Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify) with dual-panel layout per flow (Situation + Target). | Balances coverage with simplicity (4 vs 6). Current/desired structure gives built-in verification across all flows.                                                                                  |
+| 2026-02-25 | Steps auto-generated from flow + user inputs (toggle lenses/remove steps). No auto-suggestion of files. No explicit fences/boundaries section. | Reduces effort while keeping fine-tuning. Risk of wrong file suggestions > none; Claude explores independently. Clear, specific prompts prevent drift (vagueness is root cause).                      |
+| 2026-02-25 | Quality Meter Fixed field weights + 4 color thresholds.                                                                              | Motivates thoroughness without over-engineering. Simple scoring, no word counting.                                                                                                                    |
+| 2026-02-25 | Improve flow scope selector: "each file" vs "across files".                                                      | Makes LLM intent clear for multi-file improvements; affects prompt instruction.                                                                                                                       |
+| 2026-02-25 | Spec files (WHAT to build) vs Guideline files (HOW to build).                                                | Valuable separation; UX challenge – needs tooltip for clarity.                                                                                                                                       |
