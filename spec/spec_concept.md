@@ -30,6 +30,8 @@ All UI cards read and write a single shared state object (`prompt_input`). This 
 ```
 prompt_input (JSON-serializable, snake_case):
 
+  version: str,                    // schema version, e.g., "1.0" — enables migration
+
   configuration: {
     owner: str,              // GitHub username
     repo: str,               // selected repository name
@@ -70,12 +72,77 @@ prompt_input (JSON-serializable, snake_case):
   improve_scope: str|null,   // "each_file" | "across_files" (improve flow, 2+ files)
 
   notes: {
-    user_text: str           // optional free-text appended to prompt
+    user_text: str                  // optional free-text appended to prompt
   }
 
   output: {
     destination: 'clipboard'
   }
+```
+
+### Field Validation per Flow
+
+| Field                         |   Fix/Debug    | Review/Analyze | Implement/Build |         Improve/Modify          |
+| ----------------------------- | :------------: | :------------: | :-------------: | :-----------------------------: |
+| **Panel A (Situation)**       |                |                |                 |                                 |
+| `panel_a.description`         |   Required\*   |    Optional    |    Optional     |           Required\*            |
+| `panel_a.issue_number`        |   Required\*   |       —        |        —        |           Required\*            |
+| `panel_a.pr_number`           |       —        |  Required\*\*  |        —        |                —                |
+| `panel_a.files`               |    Optional    |  Required\*\*  |    Optional     |            Optional             |
+| **Panel B (Target)**          |                |                |                 |                                 |
+| `panel_b.description`         |    Optional    |       —        |    Required     |            Optional             |
+| `panel_b.issue_number`        |       —        |       —        |        —        |            Optional             |
+| `panel_b.spec_files`          |    Optional    |    Optional    |    Optional     |                —                |
+| `panel_b.guideline_files`     |    Optional    |    Optional    |        —        | Optional (as "reference files") |
+| `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —                |
+| `panel_b.lenses`              |       —        |    Optional    |        —        |            Optional             |
+| **Other**                     |                |                |                 |                                 |
+| `improve_scope`               |       —        |       —        |        —        |       Shown when 2+ files       |
+
+`\*` = At least one field marked `*` in Panel A must be filled (description OR issue_number).
+`\*\*` = Review flow: at least one of PR or files required. Either or both can be filled.
+
+### State Migration
+
+When `version` field is missing or older than current, apply migration:
+
+```javascript
+function migrateState(state) {
+  const CURRENT_VERSION = "1.0";
+  
+  if (!state.version) {
+    // v0 (legacy) → v1.0 migration
+    // Old structure had context.selected_files
+    // New structure uses panel_a.files
+    state = {
+      version: CURRENT_VERSION,
+      configuration: state.configuration || {},
+      task: state.task || {},
+      panel_a: {
+        description: '',
+        issue_number: null,
+        pr_number: null,
+        files: state.context?.selected_files || []
+      },
+      panel_b: {
+        description: '',
+        issue_number: null,
+        spec_files: [],
+        guideline_files: [],
+        acceptance_criteria: '',
+        lenses: []
+      },
+      steps: state.steps || { enabled_steps: [] },
+      improve_scope: null,
+      notes: state.notes || { user_text: '' },
+      output: { destination: 'clipboard' }
+    };
+    // Clear old context field
+    delete state.context;
+  }
+  
+  return state;
+}
 ```
 
 ### DM-INV — Data Model Invariants
@@ -96,20 +163,20 @@ prompt_input (JSON-serializable, snake_case):
 
 This is the single source of truth for **what happens when**. Card sections below define content and layout only.
 
-| Event                     | Card State                                                               | Data Change                                                                                        |
-| ------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| Page load                 | Configuration expanded; all others collapsed                             | Load PAT + username from localStorage; begin background repo fetch                                 |
-| Repo selected             | Expand Task card                                                         | Set `configuration.repo`; fetch branches + file tree; auto-select default branch                   |
-| Branch selected           | —                                                                        | Set `configuration.branch`; reload file tree                                                       |
-| PAT edited/cleared        | —                                                                        | Update `configuration.pat`; re-fetch repos if PAT changed                                          |
-| Flow selected             | Expand Task fields + Steps + Prompt; collapse Configuration              | Set `task.flow_id`; load default steps; apply flow defaults per DM-DEF; fetch PRs/issues if needed |
-| Panel A field changed     | Quality meter updates; steps update (conditional steps appear/disappear) | Update `panel_a.*`; add/remove conditional steps in `steps.enabled_steps`                          |
-| Panel B field changed     | Quality meter updates; steps update                                      | Update `panel_b.*`; add/remove conditional steps                                                   |
-| Step lens toggled         | Prompt preview updates                                                   | Update `steps.enabled_steps[n].lenses`                                                             |
-| Step removed              | Step disappears; prompt updates                                          | Remove from `steps.enabled_steps`                                                                  |
-| Improve: 2+ files         | Scope selector appears                                                   | —                                                                                                  |
-| Scope selected            | Steps update with scope instruction                                      | Set `improve_scope`                                                                                |
-| Any `prompt_input` change | —                                                                        | Rebuild prompt (DM-INV-02)                                                                         |
+| Event                      | UI State                                             | Data Change                                          |
+| -------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
+| Page load                  | Config card expanded; all others collapsed           | Load PAT + owner from localStorage                   |
+| Repo selected              | Expand Task card                                     | Set `configuration.repo`; fetch branches + file tree |
+| Branch selected            | —                                                    | Set `configuration.branch`                           |
+| Flow selected              | Expand Task fields + Steps + Prompt; collapse Config | Set `task.flow_id`; load default steps from flow     |
+| Panel A field changed      | Quality meter updates; steps update                  | Update `panel_a.*`; add/remove conditional steps     |
+| Panel B field changed      | Quality meter updates; steps update                  | Update `panel_b.*`; add/remove conditional steps     |
+| Step lens toggled          | Prompt preview updates                               | Update `steps.enabled_steps[n].lenses`               |
+| Step removed               | Step disappears; prompt updates                      | Remove from `steps.enabled_steps`                    |
+| Improve: 2+ files selected | Scope selector appears                               | —                                                    |
+| Scope selected             | Steps update with scope instruction                  | Set `improve_scope`                                  |
+| Any `prompt_input` change  | Prompt preview updates                               | Rebuild prompt (DM-INV-02)                           |
+| Copy clicked               | "Copied!" feedback                                   | Copy prompt to clipboard                             |
 
 ---
 
@@ -186,9 +253,7 @@ Purpose: Final output and extraction.
     Step 8: Commit changes and open PR
   </todo>
 </prompt>
-<notes>
-  [optional: user's free-text comments]
-</notes>
+<notes>{{user_text}}</notes>
 ```
 
 See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
@@ -197,7 +262,7 @@ See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 - OUT-04 Files reference example: `@src/utils/auth.js`.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-07 An "Open in Claude" button (claude.ai deep link — verified feasible).
+- OUT-07 An "Open in Claude" button opens claude.ai in a new tab (no prompt transfer — user copies first).
 - OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible, except if user manually collapses it.
 
 ---
@@ -252,7 +317,6 @@ Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined 
 - **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
 - **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
 - **Skeleton loading** Single reusable shimmer-bar class on `--surface-inset` with opacity pulse.
--
 
 ### Layout Rules
 
@@ -320,10 +384,10 @@ Each requirement above is its own acceptance test. The following tests add speci
 | CFG-04    | To start    | ◻    | ◻   | ◻   |                                                  |
 | CFG-05    | To start    | ◻    | ◻   | ◻   |                                                  |
 | SCT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
-| SCT-02    | To start    | ◻    | —   | ◻   |                                                  |
-| SCT-03    | To start    | —    | —   | ◻   | Visual/layout only                               |
-| SCT-04    | To start    | ◻    | ◻   | ◻   |                                                  |
-| SCT-05    | To start    | ◻    | —   | ◻   |                                                  |
+| SCT-02    | To start    | ◻    | —   | ◻   | Dual-panel layout (new)                          |
+| SCT-03    | To start    | ◻    | ◻   | ◻   |                                                  |
+| SCT-04    | To start    | ◻    | —   | ◻   |                                                  |
+| SCT-05    | To start    | ◻    | ◻   | ◻   | Quality Meter (new)                              |
 | SCT-06    | To start    | ◻    | ◻   | ◻   |                                                  |
 | SCT-07    | To start    | ◻    | —   | —   | Build-time, covered by DM-DEF-02                 |
 | SCT-08    | To start    | ◻    | ◻   | ◻   | Quality Meter                                    |
@@ -333,7 +397,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | STP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
 | STP-04    | To start    | ◻    | —   | ◻   |                                                  |
 | OUT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
-| OUT-02    | To start    | ◻    | ◻   | ◻   |                                                  |
+| OUT-02    | To start    | ◻    | ◻   | ◻   | Flow-specific templates                          |
 | OUT-03    | To start    | ◻    | ◻   | —   | Deterministic — DM-INV-03                        |
 | OUT-04    | To start    | ◻    | —   | —   |                                                  |
 | OUT-05    | To start    | ◻    | ◻   | ◻   |                                                  |
