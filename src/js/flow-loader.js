@@ -3,7 +3,7 @@
  * Imports pre-validated flow JSON (built by vite-plugin-yaml at build time).
  * Exports getFlows() and getFlowById(id) for runtime use.
  */
-import flowData from "../config/flows.yaml";
+import flowData from '../config/flows.yaml';
 
 const flows = flowData?.flows || {};
 

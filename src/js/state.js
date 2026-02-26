@@ -1,32 +1,32 @@
-import { buildPrompt } from "./prompt-builder.js";
+import { buildPrompt } from './prompt-builder.js';
 
 // --- Default state shape (DM canonical model) ---
 
-const CURRENT_VERSION = "1.0";
+const CURRENT_VERSION = '1.0';
 
 const DEFAULT_STATE = {
   version: CURRENT_VERSION,
   configuration: {
-    owner: "",
-    repo: "",
-    branch: "",
-    pat: "",
+    owner: '',
+    repo: '',
+    branch: '',
+    pat: '',
   },
   task: {
-    flow_id: "",
+    flow_id: '',
   },
   panel_a: {
-    description: "",
+    description: '',
     issue_number: null,
     pr_number: null,
     files: [],
   },
   panel_b: {
-    description: "",
+    description: '',
     issue_number: null,
     spec_files: [],
     guideline_files: [],
-    acceptance_criteria: "",
+    acceptance_criteria: '',
     lenses: [],
   },
   steps: {
@@ -34,21 +34,21 @@ const DEFAULT_STATE = {
   },
   improve_scope: null,
   notes: {
-    user_text: "",
+    user_text: '',
   },
   output: {
-    destination: "clipboard",
+    destination: 'clipboard',
   },
 };
 
 // Keys persisted to localStorage (APP-04)
-const PERSISTENT_KEYS = ["configuration.pat", "configuration.owner"];
-const STORAGE_KEY = "agent_prompt_state";
+const PERSISTENT_KEYS = ['configuration.pat', 'configuration.owner'];
+const STORAGE_KEY = 'agent_prompt_state';
 
 // --- Internal state ---
 
 let state = structuredClone(DEFAULT_STATE);
-let prompt = "";
+let prompt = '';
 const subscribers = new Set();
 
 // --- localStorage helpers ---
@@ -59,9 +59,9 @@ function loadPersistent() {
     if (!raw) return;
     const saved = JSON.parse(raw);
     // Guard against corruption: only hydrate known persistent fields
-    if (saved && typeof saved === "object") {
-      if (typeof saved.pat === "string") state.configuration.pat = saved.pat;
-      if (typeof saved.owner === "string")
+    if (saved && typeof saved === 'object') {
+      if (typeof saved.pat === 'string') state.configuration.pat = saved.pat;
+      if (typeof saved.owner === 'string')
         state.configuration.owner = saved.owner;
     }
   } catch {
@@ -77,7 +77,7 @@ function savePersistent() {
       JSON.stringify({
         pat: state.configuration.pat,
         owner: state.configuration.owner,
-      }),
+      })
     );
   } catch {
     // Storage full or unavailable — silently ignore
@@ -86,7 +86,7 @@ function savePersistent() {
 
 // --- Safety helpers ---
 
-const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 function isSafeKey(key) {
   return !DANGEROUS_KEYS.has(key);
@@ -95,11 +95,11 @@ function isSafeKey(key) {
 // --- Path-based state access ---
 
 function setByPath(obj, path, value) {
-  const keys = path.split(".");
+  const keys = path.split('.');
   if (!keys.every(isSafeKey)) return;
   const last = keys.pop();
   const target = keys.reduce((o, k) => {
-    if (o[k] === null || o[k] === undefined || typeof o[k] !== "object")
+    if (o[k] === null || o[k] === undefined || typeof o[k] !== 'object')
       o[k] = {};
     return o[k];
   }, obj);
@@ -126,12 +126,12 @@ export function getState() {
  * @param {*} [value] - value to set (when pathOrUpdater is a string)
  */
 export function setState(pathOrUpdater, value) {
-  if (typeof pathOrUpdater === "function") {
+  if (typeof pathOrUpdater === 'function') {
     const updates = pathOrUpdater(structuredClone(state));
-    if (updates && typeof updates === "object") {
+    if (updates && typeof updates === 'object') {
       Object.assign(state, deepMerge(state, updates));
     }
-  } else if (typeof pathOrUpdater === "string") {
+  } else if (typeof pathOrUpdater === 'string') {
     setByPath(state, pathOrUpdater, value);
   } else {
     return;
@@ -142,11 +142,11 @@ export function setState(pathOrUpdater, value) {
 
   // Persist PAT/username if changed
   if (
-    typeof pathOrUpdater === "string" &&
+    typeof pathOrUpdater === 'string' &&
     PERSISTENT_KEYS.includes(pathOrUpdater)
   ) {
     savePersistent();
-  } else if (typeof pathOrUpdater === "function") {
+  } else if (typeof pathOrUpdater === 'function') {
     // Updater might change persistent fields — always save
     savePersistent();
   }
@@ -224,10 +224,10 @@ function deepMerge(target, source) {
     if (!isSafeKey(key)) continue;
     if (
       source[key] &&
-      typeof source[key] === "object" &&
+      typeof source[key] === 'object' &&
       !Array.isArray(source[key]) &&
       target[key] &&
-      typeof target[key] === "object" &&
+      typeof target[key] === 'object' &&
       !Array.isArray(target[key])
     ) {
       result[key] = deepMerge(target[key], source[key]);

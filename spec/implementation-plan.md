@@ -316,7 +316,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 9. Phase 5 — Card 2: Task (Dual-Panel) `To start`
+## 9. Phase 5 — Card 2: Task (Dual-Panel) `Testing`
 
 **Goal**: Flow selector grid with dual-panel layout (Situation/Target), flow-specific input fields, quality meter.
 
@@ -326,7 +326,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Checklist
 
-- [ ] Create `src/js/card-tasks.js`:
+- [x] Create `src/js/card-tasks.js`:
   - Flow buttons: wrapping grid with icon + title per button, single row per button (VIS-01, SCT-03)
   - 4 flows per SCT-02: Fix / Debug, Review / Analyze, Implement / Build, Improve / Modify
   - On flow select: `setState('task.flow_id', id)` + reset panel_a, panel_b, steps, improve_scope (DM-DEF-03 — full reset, no carry-over)
@@ -336,24 +336,23 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
   - If flow requires PRs/issues: trigger fetch (from UJ table)
   - Selected flow: accent bar + subtle background
   - Shimmer skeleton while data loads (GL-02)
-- [ ] Create `src/js/file-tree.js` (file selection for Panel A/B file pickers):
-  - Render recursive file tree from API data when flow requires file selection
+- [x] Create `src/js/file-tree.js` (file selection for Panel A/B file pickers):
+  - Flat searchable list (not role="tree"; PO decision — see Decisions Log)
   - Files update `panel_a.files`, `panel_b.spec_files`, or `panel_b.guideline_files` via `setState()` (SCT-01)
   - Full tree pre-loaded (APP-03 — within 300-file limit)
   - If tree exceeds 300 files: truncate and show warning message
-  - **Spec vs Guideline**: file pickers for spec_files and guideline_files display tooltip/helper text distinguishing WHAT (specs) vs HOW (guidelines) per SCT-06
-  - **Accessibility**: tree uses `role="tree"` / `role="treeitem"`, keyboard navigation
-- [ ] Create `src/js/quality-meter.js` (SCT-08):
-  - Calculate score from filled fields: each field type has a fixed weight (required text=25, required selector=20, optional text=15, file picker=15, lens picker=10, notes=5)
+  - **Spec vs Guideline**: file pickers for spec_files and guideline_files display helper text distinguishing WHAT (specs) vs HOW (guidelines) per SCT-06
+- [x] Create `src/js/quality-meter.js` (SCT-08):
+  - Hybrid-design weights: PR=20, file=10, text=10, notes=10, lens=5, issue=5 (PO decision)
   - Score = filled weights / total possible weights for the active flow
-  - Render thin horizontal bar below flow selector with 4 color thresholds (red ≤30%, orange 31-55%, yellow 56-75%, green 76-100%)
+  - Render thin horizontal bar below flow selector with 6 color thresholds (Poor/Minimal/Basic/Good/Strong/Excellent)
   - Updates on every state change via subscription
-- [ ] **Improve/Modify scope selector** (SCT-09): when 2+ files selected in panel_a.files, show toggle: "Each file separately" vs "Across files together". Updates `improve_scope` in state.
-- [ ] Pre-fillable options use flat searchable dropdowns (SCT-06): file pickers (flat alphabetical list), PR/issue pickers (#number — title). Uses shared `renderSearchableDropdown()` from `components.js`
-- [ ] **Click audit (GL-01)**: flow select = 1 click, file toggle = 1 click. All within target.
-- [ ] **Mobile (GL-03)**: flow grid reflows, dual-panel stacks vertically, file pickers scroll, touch targets adequate
-- [ ] **Test**: `tests/card-tasks.test.js` — flow selection resets panels + steps, dual-panel renders per flow, required groups validate
-- [ ] **Test**: `tests/quality-meter.test.js` — scoring per flow, threshold colors, updates on field change
+- [x] **Improve/Modify scope selector** (SCT-09): when 2+ files selected in panel_a.files, show toggle: "Each file separately" vs "Across files together". Updates `improve_scope` in state.
+- [x] Pre-fillable options use flat searchable dropdowns (SCT-06): file pickers (flat alphabetical list), PR/issue pickers (#number — title).
+- [x] **Click audit (GL-01)**: flow select = 1 click, file toggle = 1 click. All within target.
+- [x] **Mobile (GL-03)**: flow grid reflows, dual-panel stacks vertically, file pickers scroll, touch targets adequate
+- [x] **Test**: `tests/card-tasks.test.js` — flow selection resets panels + steps, dual-panel renders per flow, required groups validate
+- [x] **Test**: `tests/quality-meter.test.js` — scoring per flow, threshold colors, updates on field change
 
 ### Output
 
