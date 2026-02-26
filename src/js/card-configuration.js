@@ -242,8 +242,11 @@ function onRepoSelect(repo, allRepos) {
   const state = getState();
   const { owner, pat } = state.configuration;
 
-  setState("configuration.repo", repo.name);
-  setState("configuration.branch", "");
+  setState(s => {
+    s.configuration.repo = repo.name;
+    s.configuration.branch = "";
+    return s;
+  });
   fileTree = [];
 
   // Re-render repos collapsed (VIS-03)
