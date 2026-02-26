@@ -85,8 +85,9 @@ prompt_input:
       lenses: [str],                # user-adjustable focus lenses per step
       file_name: str,
       pr_name: str,
-      directory: str,
       branch_name: str,
+      directory: str,
+      output: str,
       params: {}
     }]
   }
@@ -104,40 +105,34 @@ prompt_input:
 
 ### Which fields appear in which flow
 
-| Field                         |   Fix/Debug    | Review/Analyze | Implement/Build |         Improve/Modify          |
-| ----------------------------- | :------------: | :------------: | :-------------: | :-----------------------------: |
-| **Panel A (Situation)**       |                |                |                 |                                 |
-| `panel_a.description`         |   Required\*   |    Optional    |    Optional     |           Required\*            |
-| `panel_a.issue_number`        |   Required\*   |       —        |        —        |           Required\*            |
-| `panel_a.pr_number`           |       —        |  Required\*\*  |        —        |                —                |
-| `panel_a.files`               |    Optional    |  Required\*\*  |    Optional     |            Optional             |
-| **Panel B (Target)**          |                |                |                 |                                 |
-| `panel_b.description`         |    Optional    |       —        |   Required\*      |            Optional             |
-| `panel_b.issue_number`        |       —        |       —        |   Hidden required\*    |            Optional             |
-| `panel_b.user_story_template` |       —        |       —        |   Required\*      |           Hidden Optional              |
-| `panel_b.spec_files`          |    Optional    |    Optional    |    Optional     |                —                |
-| `panel_b.guideline_files`     |    Optional    |    Optional    |        —        | Optional (as "reference files") |
-| `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —                |
-| **Steps**                     |                |                |                 |                                 |
-| `steps.enabled_steps`         | Auto-generated | Auto-generated | Auto-generated  |         Auto-generated          |
-| `Step lenses`                 |    Per step    |    Per step    |    Per step     |            Per step             |
-| `file_name  `                 |    Per step    |    Per step    |    Per step     |            Per step             |
-| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step             |
-| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step             |
-| `output `                     |    Per step    |    Per step    |    Per step     |            Per step             |
-| **Other**                     |                |                |                 |                                 |
-| `improve_scope`               |       —        | Shown at 2+ files |        —        |       Shown at 2+ files       |
-| `notes.user_text`             |    Optional    |    Optional    |    Optional     |            Optional             |
+| Field                         |   Fix/Debug    | Review/Analyze | Implement/Build |      Improve/Modify        |
+| ----------------------------- | :------------: | :------------: | :-------------: | :------------------------: |
+| **Panel A (Situation)**       |                |                |                 |                            |
+| `panel_a.description`         |   Required\*   |    Optional    |    Optional     |           Required\*       |
+| `panel_a.issue_number`        |   Required\*   |       —        |        —        |           Required\*       |
+| `panel_a.pr_number`           |       —        |  Required\*\*  |        —        |                —           |
+| `panel_a.files`               |    Optional    |  Required\*\*  |    Optional     |            Optional        |
+| **Panel B (Target)**          |                |                |                 |                            |
+| `panel_b.description`         |    Required\*  |   Required\*   |   Required\*    |            Optional        |
+| `Step lenses`                 |       —        |   Required\*   |        —        |            Required\*      |
+| `panel_b.issue_number`        |    Required\*  |       —        |Hidden required\*|        Hidden Required\*   |
+| `panel_b.user_story_template` |       —        |       —        |Hidden Required\*|        Hidden Required\*   |
+| `panel_b.spec_files`          |    Optional    |    Optional    |    Optional     |                —           |
+| `panel_b.guideline_files`     |    Optional    |    Optional    |        —        |            Optional        |
+| `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —           |
+| **Steps**                     |                |                |                 |                            |
+| `steps.enabled_steps`         | Auto-generated | Auto-generated | Auto-generated  |         Auto-generated     |
+| `Step lenses`                 |    Per step    |    Per step    |    Per step     |            Per step        |
+| `file_name  `                 |    Per step    |    Per step    |    Per step     |            Per step        |
+| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step        |
+| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step        |
+| `output `                     |    Per step    |    Per step    |    Per step     |            Per step        |
+| **Other**                     |                |                |                 |                            |
+| `improve_scope`               |       —        | Shown 2+ files |        —        |       Shown 2+ files       |
+| `notes.user_text`             |    Optional    |    Optional    |    Optional     |         Optional           |
 
-`*` = At least one field marked `*` in Panel A must be filled (description OR issue_number).
+`*` = At least one field marked `*` in Panelmust be filled.
 `**` = Review flow: at least one of PR or files required. Either or both can be filled. In the prompt, PR input results in "review the PR diff" instruction; file input results in "review these files" instruction. When both are provided, both are included.
-
-### Validation rules per flow
-
-- **Fix/Debug**: Panel A requires `description` OR `issue_number`. Panel B has no required fields.
-- **Review/Analyze**: Panel A requires `pr_number` OR `files` (both allowed). Panel B has no required fields.
-- **Implement/Build**: Panel B requires `description` (what to build). Panel A is entirely optional.
-- **Improve/Modify**: Panel A requires `description` OR `issue_number`. Panel B has no required fields. When 2+ files selected, `improve_scope` selector appears: "Improve each file separately" vs "Improve across files together".
 
 ---
 
@@ -156,64 +151,9 @@ Steps are NOT removed. They are **auto-generated** when a flow is selected and *
    - Selecting `panel_a.files` → adds "Read [files]" step
 3. **User can fine-tune**:
    - Toggle lenses on/off per step (pre-selected from flow defaults)
+   - Determine new file/pr/branch names (override default of letting the llm ).
    - Remove any step (trash icon)
    - Steps cannot be reordered or added manually (keeps it simple)
-
-### Default step templates per flow
-
-**Fix / Debug:**
-
-```
-1. Read @claude.md
-2. [if files] Read: @location-files
-3. [if issue] Read issue #N
-4. [if spec_files] Read: @spec-files
-5. [if guideline_files] Read: @guideline-files
-6. Identify root cause
-7. Create new branch
-8. Implement fix — lenses: [error_handling, semantics]
-9. Run tests
-10. Commit changes and open PR
-```
-
-**Review / Analyze:**
-
-```
-1. Read @claude.md
-2. [if spec_files] Read: @spec-files
-3. [if guideline_files] Read: @guideline-files
-4. [if pr] Fetch and review PR #N diff — lenses: [user-selected or defaults]
-5. [if files] Read and analyze: @review-files — lenses: [user-selected or defaults]
-6. Provide structured feedback with specific file/line references
-```
-
-**Implement / Build:**
-
-```
-1. Read @claude.md
-2. [if panel_a.files] Read: @starting-files
-3. [if spec_files] Read: @spec-files
-4. Create new branch
-5. Implement requirements — lenses: [semantics, structure]
-6. [if acceptance_criteria] Verify acceptance criteria
-7. Run tests
-8. Commit changes and open PR
-```
-
-**Improve / Modify:**
-
-```
-1. Read @claude.md
-2. [if files] Read: @files-to-improve
-3. [if issue] Read issue #N
-4. [if guideline_files] Read: @reference-files
-5. Create new branch
-6. Apply improvements — lenses: [user-selected or defaults]
-7. [if improve_scope == "across_files"] Apply improvements across all files as a unified change
-7. [if improve_scope == "each_file"] Apply improvements to each file independently
-8. Verify improvements
-9. Commit changes and open PR
-```
 
 ### Step display in UI (Card 3 — Steps)
 
@@ -242,285 +182,6 @@ This generates different prompt instructions:
 
 ---
 
-## Flows.yaml Structure
-
-Each flow defines its field configuration AND step templates.
-
-```yaml
-flows:
-  fix:
-    label: 'Fix / Debug'
-    icon: 'bug'
-    panel_a:
-      label: 'Current State' # or per naming option chosen
-      subtitle: "What's happening now"
-      fields:
-        description:
-          type: text
-          placeholder: 'Describe the issue: error messages, unexpected behavior, steps to reproduce...'
-          required_group: a_required
-        issue_number:
-          type: issue_picker
-          placeholder: 'Select a GitHub issue'
-          required_group: a_required
-        files:
-          type: file_picker_multi
-          placeholder: 'Where does the issue occur?'
-    panel_b:
-      label: 'Expected Outcome'
-      subtitle: 'How it should work after the fix'
-      fields:
-        description:
-          type: text
-          placeholder: 'Describe the expected behavior after the fix is applied...'
-        spec_files:
-          type: file_picker_multi
-          placeholder: 'Requirements or specification documents'
-        guideline_files:
-          type: file_picker_multi
-          placeholder: 'Style guides or coding standards'
-    steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
-        locked: true # user cannot remove
-      - id: read-location
-        operation: read
-        object: files
-        source: panel_a.files # conditional: only if files selected
-      - id: read-issue
-        operation: read
-        object: issue
-        source: panel_a.issue_number # conditional: only if issue selected
-      - id: read-specs
-        operation: read
-        object: files
-        source: panel_b.spec_files
-      - id: read-guidelines
-        operation: read
-        object: files
-        source: panel_b.guideline_files
-      - id: identify-cause
-        operation: analyze
-        object: issue
-        lenses: [error_handling, semantics]
-      - id: create-branch
-        operation: create
-        object: branch
-      - id: implement-fix
-        operation: edit
-        object: files
-        lenses: [error_handling, semantics]
-      - id: run-tests
-        operation: validate
-        object: tests
-      - id: commit-pr
-        operation: commit
-        object: changes
-        params: { open_pr: true }
-
-  review:
-    label: 'Review / Analyze'
-    icon: 'search'
-    panel_a:
-      label: 'Review Subject'
-      subtitle: 'The PR, code, or document to examine'
-      fields:
-        description:
-          type: text
-          placeholder: 'Background, specific questions, or areas of concern...'
-        pr_number:
-          type: pr_picker
-          placeholder: 'Select a pull request'
-          required_group: a_required
-        files:
-          type: file_picker_multi
-          placeholder: 'Files to review'
-          required_group: a_required
-    panel_b:
-      label: 'Review Criteria'
-      subtitle: 'Standards and criteria for the review'
-      fields:
-        lenses:
-          type: lens_picker
-          default: [semantics, structure]
-        spec_files:
-          type: file_picker_multi
-          placeholder: 'Requirements the code should meet'
-        guideline_files:
-          type: file_picker_multi
-          placeholder: 'Standards to check against'
-    steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
-        locked: true
-      - id: read-specs
-        operation: read
-        object: files
-        source: panel_b.spec_files
-      - id: read-guidelines
-        operation: read
-        object: files
-        source: panel_b.guideline_files
-      - id: review-pr
-        operation: analyze
-        object: pull_request
-        source: panel_a.pr_number
-        lenses: [] # populated from panel_b.lenses
-      - id: review-files
-        operation: analyze
-        object: files
-        source: panel_a.files
-        lenses: [] # populated from panel_b.lenses
-      - id: provide-feedback
-        operation: create
-        object: review_feedback
-
-  implement:
-    label: 'Implement / Build'
-    icon: 'plus'
-    panel_a:
-      label: 'Context'
-      subtitle: 'Existing code or context to build upon (optional)'
-      fields:
-        description:
-          type: text
-          placeholder: 'Background, constraints, or existing context...'
-        files:
-          type: file_picker_multi
-          placeholder: 'Existing files to build upon'
-    panel_b:
-      label: 'Requirements'
-      subtitle: 'What to build and completion criteria'
-      fields:
-        description:
-          type: text
-          required: true
-          placeholder: 'Describe what to build: functionality, behavior, constraints...'
-        spec_files:
-          type: file_picker_multi
-          placeholder: 'Requirement docs, user stories, technical specs'
-        acceptance_criteria:
-          type: text
-          placeholder: "How to know it's done: test cases, edge cases, quality standards..."
-    steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
-        locked: true
-      - id: read-starting
-        operation: read
-        object: files
-        source: panel_a.files
-      - id: read-specs
-        operation: read
-        object: files
-        source: panel_b.spec_files
-      - id: create-branch
-        operation: create
-        object: branch
-      - id: implement
-        operation: create
-        object: implementation
-        lenses: [semantics, structure]
-      - id: verify-criteria
-        operation: validate
-        object: acceptance_criteria
-        source: panel_b.acceptance_criteria
-      - id: run-tests
-        operation: validate
-        object: tests
-      - id: commit-pr
-        operation: commit
-        object: changes
-        params: { open_pr: true }
-
-  improve:
-    label: 'Improve / Modify'
-    icon: 'arrow-up'
-    panel_a:
-      label: 'Current State'
-      subtitle: 'What exists and what needs improvement'
-      fields:
-        description:
-          type: text
-          placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...'
-          required_group: a_required
-        issue_number:
-          type: issue_picker
-          placeholder: 'Select a related GitHub issue'
-          required_group: a_required
-        files:
-          type: file_picker_multi
-          placeholder: 'Files to improve'
-    panel_b:
-      label: 'Desired Outcome'
-      subtitle: 'What the improved version should look like'
-      fields:
-        lenses:
-          type: lens_picker
-          default: []
-        description:
-          type: text
-          placeholder: 'Describe the desired improvements, goals, or constraints...'
-        issue_number:
-          type: issue_picker
-          placeholder: 'Issue describing the desired state'
-        guideline_files:
-          type: file_picker_multi
-          label: 'Reference files'
-          placeholder: 'Style guides, examples of desired output, or specs'
-    multi_file:
-      scope_selector:
-        label: 'How should files be improved?'
-        options:
-          each_file: 'Each file separately'
-          across_files: 'Across files together'
-        show_when: 'panel_a.files.length >= 2'
-    steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
-        locked: true
-      - id: read-files
-        operation: read
-        object: files
-        source: panel_a.files
-      - id: read-issue-current
-        operation: read
-        object: issue
-        source: panel_a.issue_number
-      - id: read-issue-desired
-        operation: read
-        object: issue
-        source: panel_b.issue_number
-      - id: read-references
-        operation: read
-        object: files
-        source: panel_b.guideline_files
-      - id: create-branch
-        operation: create
-        object: branch
-      - id: apply-improvements
-        operation: edit
-        object: files
-        lenses: [] # populated from panel_b.lenses
-      - id: verify
-        operation: validate
-        object: improvements
-      - id: commit-pr
-        operation: commit
-        object: changes
-        params: { open_pr: true }
-```
-
----
-
 ## Quality Meter
 
 A visual bar showing prompt completeness. Color transitions at thresholds. No exact percentage displayed.
@@ -529,23 +190,32 @@ A visual bar showing prompt completeness. Color transitions at thresholds. No ex
 
 Each input field has a fixed weight. Score = filled weights / total possible weights for the active flow.
 
+| Flow                      | Base Weight |
+| ------------------------------- | ------ |
+| Fix / Debug                     | 30     |
+| Review / Analyse                | 40     |
+| Improve / Modify                | 40     |
+| Implement / Build               | 40     |
+
 | Field type                      | Weight |
 | ------------------------------- | ------ |
-| Required text field (filled)    | 25     |
-| Required selector (filled)      | 20     |
-| Optional text field (filled)    | 15     |
-| File picker (1+ files selected) | 15     |
-| Lens picker (1+ selected)       | 10     |
-| Notes (filled)                  | 5      |
+| selector PR                     | 20     |
+| File picker (1+ files selected) | 10     |
+| text field filled               | 10     |
+| Notes (filled)                  | 10     |
+| Lens picker (1+ selected)       | 5      |
+| selector issue                  | 5      |
 
 ### Display thresholds
 
-| Score range | Color  | Label   |
-| ----------- | ------ | ------- |
-| 0-30%       | Red    | Minimal |
-| 31-55%      | Orange | Basic   |
-| 56-75%      | Yellow | Good    |
-| 76-100%     | Green  | Strong  |
+| Score range | Color  | Label     |
+| ----------- | ------ | -------   |
+| 0-50%       | Red    | Poor      |
+| 51-60%      | Orange | Minimal   |
+| 61-70%      | Yellow | Basic     |
+| 71-80%      | lime   | Good      |
+| 78-90%      | lGreen | Strong    |
+| 91-100%     | Green  | Excellent |
 
 The meter appears as a thin horizontal bar below the flow selector, always visible. It updates in real-time as fields are filled.
 
@@ -558,34 +228,42 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 ```xml
 <prompt>
   <context>
-    Execute the following task for <repository> https://github.com/{{owner}}/{{repo}} </repository>
+    Pleasae help <task> {{task}} </task> by executing below 'todo' steps
+    for <repository> https://github.com/{{owner}}/{{repo}} </repository>
     on <branch> {{branch}} </branch>.
     Authenticate using PAT: <PAT> {{pat}} </PAT>.
+    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.
   </context>
-  <task flow="fix">
-    <current_state>
-      {{panel_a.description}}
-      {{#if issue}}Related issue: #{{issue_number}}{{/if}}
-      {{#if files}}Location: {{files as @-prefixed list}}{{/if}}
-    </current_state>
-    <expected_outcome>
-      {{#if panel_b.description}}{{panel_b.description}}{{/if}}
-      {{#if spec_files}}Specifications: {{spec_files as @-prefixed list}}{{/if}}
-      {{#if guideline_files}}Guidelines: {{guideline_files as @-prefixed list}}{{/if}}
-    </expected_outcome>
-  </task>
   <todo>
     Step 1: Read @claude.md
-    Step 2: Read {{all referenced files}}
-    {{#if issue}}Step N: Read issue #{{issue_number}}{{/if}}
-    Step N: Identify the root cause — focus on [{{lenses}}]
-    Step N: Create new branch
-    Step N: Implement fix — focus on [{{lenses}}]
-    Step N: Run tests
-    Step N: Commit changes and open PR
+    Step N: Read and investigate the `undesired_behavior` and `expected_behavior` to understand the issue:
+              <undesired_behavior>
+                {{#if description}} Undisered behavior observed by user is: {{description}}. {{/if}}
+                {{#if issue}} Attempt to learn more regarding the undesired behavior by reading issue #{{issue_number}}. {{/if}}
+                {{#if files}} Attempt to learn more regarding the undesired behavior by reading file {{files as @-prefixed list}}. {{/if}}
+              </undesired_behavior>
+              <expected_behavior>
+                {{#if description}} Undisered behavior observed by user is: {{description}}. {{/if}}
+                {{#if issue}} Attempt to learn more regarding the undesired behavior by reading issue #{{issue_number}}. {{/if}}
+                {{#if file}} Attempt to learn more regarding the undesired behavior by reading file {{file}}. {{/if}}
+               </expected_behavior>
+             If unclear or high ambiguity, STOP and DONOT proceed to next steps, share your interpreation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.
+    Step N: Identify the root cause. {{#if lenses}} Focus on: {{lenses}}] {{/if}}
+    Step N: Create new branch. {{#if branch_name}} Name it {{branch_name}}] {{/if}}
+    Step N: Implement fix. {{#if lenses}} Focus on: {{lenses}}] {{/if}}
+    Step N: Run tests.
+    Step N: Verify if 'undisered_behavior' is resolved and 'expected_behavior' is realized.
+    Step N: Commit changes and open PR. {{#if pr_name}} Name it {{branch_name}}] {{/if}}
+    Step N: Provide consice feedback to HUMAN (me) here (in this interface) include:
+              - Your understanding of the issue in one sentence.
+              - The root caue you identified.
+              - The action your took: create branch (incl name and link), implemented fix by editing files (incl files names), ran tests (incl which ones), verfiied issue is solved, commited PR (incl PR name and link)
   </todo>
 </prompt>
-<notes>{{user_text}}</notes>
+<notes>
+    Critical note: {{user_text}}
+</notes>
+
 ```
 
 ### Review / Analyze
@@ -609,7 +287,7 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
     Step 1: Read @claude.md
     {{#if spec/guideline files}}Step N: Read specification/guideline files{{/if}}
     {{#if pr}}Step N: Fetch and review PR #{{pr_number}} diff — focus on [{{lenses}}]{{/if}}
-    {{#if files}}Step N: Read and analyze {{files}} — focus on [{{lenses}}]{{/if}}
+    {{#if files}}Step N: Read and analyze {{files}}.{{#if lenses}} Focus on: {{lenses}}] {{/if}} {{/if}}
     Step N: Provide structured feedback with file/line references
   </todo>
 </prompt>
@@ -707,7 +385,7 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 
 1. **Card 1 — Configuration** (same as current spec CFG)
 2. **Card 2 — Task** (replaces SCT): flow selector buttons at top, then dual-panel layout with flow-specific fields, quality meter bar
-3. **Card 3 — Steps** (simplified STP): auto-generated step list with toggleable lenses and trash icons. No add/reorder.
+3. **Card 3 — Steps**: auto-generated step list with toggleable lenses, optional fields, filename addiiton text fields, and trash icons. No add/reorder.
 4. **Card 4 — Prompt** (same as current OUT): preview + copy + notes + Open in Claude
 
 ---
