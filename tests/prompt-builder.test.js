@@ -108,10 +108,46 @@ describe('prompt-builder.js', () => {
     });
   });
 
-  describe('step 1: always read claude.md', () => {
-    it('always includes Step 1: Read @claude.md', () => {
-      const result = buildPrompt(baseState());
+  describe('read-claude step (STP-04)', () => {
+    it('renders read-claude as Step 1 when present in enabled_steps', () => {
+      const state = baseState({
+        steps: {
+          enabled_steps: [
+            {
+              id: 'read-claude',
+              operation: 'read',
+              object: 'file',
+              params: { file: 'claude.md' },
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
       expect(result).toContain('Step 1: Read @claude.md');
+      // Should NOT render as "Read file @claude.md" (formatStep output)
+      expect(result).not.toContain('Read file @claude.md');
+    });
+
+    it('omits read-claude when user removes it from enabled_steps', () => {
+      const state = baseState({
+        task: { flow_id: 'fix' },
+        panel_a: {
+          description: 'Bug',
+          issue_number: null,
+          pr_number: null,
+          files: [],
+        },
+        steps: {
+          enabled_steps: [
+            { id: 'create-branch', operation: 'create', object: 'branch' },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).not.toContain('Read @claude.md');
+      // Task step becomes Step 1, create-branch becomes Step 2
+      expect(result).toContain('Step 1:');
+      expect(result).toContain('Step 2: Create branch');
     });
   });
 
@@ -372,7 +408,7 @@ describe('prompt-builder.js', () => {
       expect(result).toContain('Read file @spec/spec.md');
     });
 
-    it('correctly numbers steps with flow task step + enabled_steps', () => {
+    it('correctly numbers steps with read-claude + task step + enabled_steps', () => {
       const state = baseState({
         task: { flow_id: 'fix' },
         panel_a: {
@@ -383,13 +419,19 @@ describe('prompt-builder.js', () => {
         },
         steps: {
           enabled_steps: [
+            {
+              id: 'read-claude',
+              operation: 'read',
+              object: 'file',
+              params: { file: 'claude.md' },
+            },
             { id: 'create-branch', operation: 'create', object: 'branch' },
           ],
         },
       });
       const result = buildPrompt(state);
-      // Step 1: Read @claude.md
-      // Step 2: Fix task step (undesired/expected)
+      // Step 1: Read @claude.md (from enabled_steps)
+      // Step 2: Fix task step (understanding — inserted after read-claude)
       // Step 3: Create branch
       expect(result).toContain('Step 1: Read @claude.md');
       expect(result).toContain('Step 3: Create branch');
@@ -491,6 +533,12 @@ describe('prompt-builder.js', () => {
         },
         steps: {
           enabled_steps: [
+            {
+              id: 'read-claude',
+              operation: 'read',
+              object: 'file',
+              params: { file: 'claude.md' },
+            },
             {
               id: 'identify',
               operation: 'analyze',
@@ -664,9 +712,16 @@ describe('prompt-builder.js', () => {
     });
   });
 
-  describe('read-claude step deduplication', () => {
-    it('skips read-claude in enabled_steps since it is hardcoded as step 1', () => {
+  describe('read-claude step rendering from enabled_steps', () => {
+    it('renders read-claude from enabled_steps and inserts task step after it', () => {
       const state = baseState({
+        task: { flow_id: 'fix' },
+        panel_a: {
+          description: 'Bug found',
+          issue_number: null,
+          pr_number: null,
+          files: [],
+        },
         steps: {
           enabled_steps: [
             {
@@ -680,17 +735,46 @@ describe('prompt-builder.js', () => {
         },
       });
       const result = buildPrompt(state);
-      // Step 1: Read @claude.md (hardcoded)
-      // Step 2: Create branch (read-claude skipped)
+      // Step 1: Read @claude.md (from enabled_steps)
+      // Step 2: understanding step (inserted after read-claude)
+      // Step 3: Create branch
       expect(result).toContain('Step 1: Read @claude.md');
-      expect(result).toContain('Step 2: Create branch');
-      // Should NOT have Read file @claude.md as a separate step
+      expect(result).toContain('Step 2:');
+      expect(result).toContain('<undesired_behavior>');
+      expect(result).toContain('Step 3: Create branch');
       expect(result).not.toContain('Read file @claude.md');
+    });
+
+    it('generates prompt without read-claude when user removes it', () => {
+      const state = baseState({
+        task: { flow_id: 'review' },
+        panel_a: {
+          description: 'Check code',
+          issue_number: null,
+          pr_number: 5,
+          files: [],
+        },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'review-pr',
+              operation: 'analyze',
+              object: 'pull_request',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).not.toContain('Read @claude.md');
+      // Task step is Step 1, review-pr is Step 2
+      expect(result).toContain('Step 1:');
+      expect(result).toContain('<review_subject>');
+      expect(result).toContain('Step 2: Analyze pull_request');
     });
   });
 
   describe('step name_provided field', () => {
-    it('includes name_provided in step output', () => {
+    it('includes name_provided in step output when user provides a name', () => {
       const state = baseState({
         steps: {
           enabled_steps: [
@@ -705,6 +789,41 @@ describe('prompt-builder.js', () => {
       });
       const result = buildPrompt(state);
       expect(result).toContain('Create branch — name it feat/my-feature');
+    });
+
+    it('omits name when name_provided is not set (default — let LLM decide)', () => {
+      const state = baseState({
+        steps: {
+          enabled_steps: [
+            {
+              id: 'create-branch',
+              operation: 'create',
+              object: 'branch',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('Create branch');
+      expect(result).not.toContain('name it');
+    });
+
+    it('omits name when name_provided is empty string', () => {
+      const state = baseState({
+        steps: {
+          enabled_steps: [
+            {
+              id: 'commit-pr',
+              operation: 'commit',
+              object: 'changes',
+              name_provided: '',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('Commit changes');
+      expect(result).not.toContain('name it');
     });
   });
 
@@ -744,6 +863,44 @@ describe('prompt-builder.js', () => {
       });
       const result = buildPrompt(state);
       expect(result).toContain('PR inline comments at relevant line numbers');
+    });
+
+    it('generates issue_comment feedback for review flow', () => {
+      const state = baseState({
+        task: { flow_id: 'review' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'provide-feedback-pr',
+              operation: 'create',
+              object: 'review_feedback',
+              output: 'issue_comment',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('feedback as a GitHub issue comment');
+      expect(result).toContain('link to issue comment');
+    });
+
+    it('generates report_file feedback for review flow', () => {
+      const state = baseState({
+        task: { flow_id: 'review' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'provide-feedback-pr',
+              operation: 'create',
+              object: 'review_feedback',
+              output: 'report_file',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('analysis report file in the repository');
+      expect(result).toContain('Commit the report file');
     });
 
     it('generates default "here" feedback for review flow with no output mode', () => {

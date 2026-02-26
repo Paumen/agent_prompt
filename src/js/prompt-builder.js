@@ -45,25 +45,46 @@ export function buildPrompt(state) {
   lines.push('  <todo>');
 
   let stepNum = 1;
-
-  // Step 1 always: Read claude.md
-  lines.push(`    Step ${stepNum}: Read @claude.md`);
-  stepNum++;
-
-  // Flow-specific task step (Step 2: understanding step with panel A/B content)
-  const taskStep = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
-  if (taskStep) {
-    lines.push(`    Step ${stepNum}: ${taskStep}`);
-    stepNum++;
-  }
-
-  // Remaining steps from enabled_steps (skip read-claude — hardcoded above)
+  let taskStepInserted = false;
   const enabledSteps = steps?.enabled_steps || [];
+
   for (const step of enabledSteps) {
-    if (step.id === 'read-claude') continue;
+    // STP-04: read-claude is a regular removable step, rendered as "Read @claude.md"
+    if (step.id === 'read-claude') {
+      lines.push(`    Step ${stepNum}: Read @claude.md`);
+      stepNum++;
+      // Insert flow-specific understanding step right after read-claude
+      const taskStep = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
+      if (taskStep) {
+        lines.push(`    Step ${stepNum}: ${taskStep}`);
+        stepNum++;
+      }
+      taskStepInserted = true;
+      continue;
+    }
+
+    // If read-claude was removed by user, insert understanding step before first regular step
+    if (!taskStepInserted) {
+      const taskStep = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
+      if (taskStep) {
+        lines.push(`    Step ${stepNum}: ${taskStep}`);
+        stepNum++;
+      }
+      taskStepInserted = true;
+    }
+
     const desc = formatStep(step);
     if (desc) {
       lines.push(`    Step ${stepNum}: ${desc}`);
+      stepNum++;
+    }
+  }
+
+  // If no enabled_steps at all, still insert the understanding step
+  if (!taskStepInserted) {
+    const taskStep = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
+    if (taskStep) {
+      lines.push(`    Step ${stepNum}: ${taskStep}`);
       stepNum++;
     }
   }
@@ -422,6 +443,24 @@ function buildReviewFeedback(outputMode) {
       '              - Issue you found.',
       '              - Severity label.',
       '              - Suggested fix.',
+    ].join('\n');
+  }
+  if (outputMode === 'issue_comment') {
+    return [
+      'Provide feedback as a GitHub issue comment include:',
+      '              - Summary of what you reviewed in one sentence.',
+      '              - Number of issues found by severity.',
+      '              - Top 3 most important findings with file/line references.',
+      '              - Provide link to issue comment to HUMAN (me) here (in this interface).',
+    ].join('\n');
+  }
+  if (outputMode === 'report_file') {
+    return [
+      'Create an analysis report file in the repository include:',
+      '              - Summary of what you reviewed in one sentence.',
+      '              - Detailed findings organized by severity.',
+      '              - Specific file/line references for each finding.',
+      '              - Commit the report file and provide the file link to HUMAN (me) here (in this interface).',
     ].join('\n');
   }
   // Default: "here" (in interface)
