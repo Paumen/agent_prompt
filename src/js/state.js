@@ -31,6 +31,7 @@ const DEFAULT_STATE = {
   },
   steps: {
     enabled_steps: [],
+    removed_step_ids: [],
   },
   improve_scope: null,
   notes: {
@@ -202,6 +203,9 @@ export function applyFlowDefaults(flowId, flowDef) {
   } else {
     state.steps.enabled_steps = [];
   }
+
+  // Clear removed step tracking on flow switch
+  state.steps.removed_step_ids = [];
 
   // Apply flow-specific default lenses to panel_b if defined
   if (flowDef?.panel_b?.fields?.lenses?.default) {

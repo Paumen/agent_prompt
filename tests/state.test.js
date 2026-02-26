@@ -47,7 +47,7 @@ describe('state.js', () => {
         acceptance_criteria: '',
         lenses: [],
       });
-      expect(s.steps).toEqual({ enabled_steps: [] });
+      expect(s.steps).toEqual({ enabled_steps: [], removed_step_ids: [] });
       expect(s.improve_scope).toBe(null);
       expect(s.notes).toEqual({ user_text: '' });
       expect(s.output).toEqual({ destination: 'clipboard' });
