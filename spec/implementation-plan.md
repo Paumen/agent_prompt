@@ -262,7 +262,7 @@ This structure covers: required groups (at least one of), conditional steps (via
 
 ---
 
-## 5. Phase 1 — State Management `To start`
+## 5. Phase 1 — State Management `To test`
 
 **Goal**: Centralized state with `setState()`, automatic prompt rebuild, session/persistent separation.
 
@@ -296,17 +296,17 @@ Pure function `buildPrompt(promptInput) → string`. Called inside `setState()` 
 
 ### Checklist
 
-- [ ] Create `src/js/state.js` with `setState()`, `getState()`, `subscribe()`, `resetSession()`
-- [ ] Implement two-layer merge strategy (DM-DEF-01): flow defaults → user overrides, applied on flow selection
-- [ ] On `setState()`: update state → call `buildPrompt()` → notify subscribers.
-- [ ] Hydrate PAT + username from `localStorage` on init; validate stored data shape before hydrating (guard against corruption)
-- [ ] `resetSession()`: clear all fields except PAT/username, reset derived prompt
-- [ ] Create `src/js/prompt-builder.js` with `buildPrompt(promptInput)` pure function
-- [ ] Prompt format per OUT-02: XML tags, repo context header, flow-specific `<task>` section with Panel A/B content, ordered `<todo>` steps, notes section. Prompt template varies per flow (fix/review/implement/improve).
-- [ ] File references use `@` prefix per OUT-04: `@src/utils/auth.js`
-- [ ] Step 1 always present (read claude.md); remaining steps are dynamic from `enabled_steps`
-- [ ] **Test**: `tests/state.test.js` — setState triggers rebuild, subscribe fires, session reset preserves PAT, corrupted localStorage handled gracefully
-- [ ] **Test**: `tests/prompt-builder.test.js` — deterministic output (snapshot test, TST-01), empty state, full state, various step combinations
+- [x] Create `src/js/state.js` with `setState()`, `getState()`, `subscribe()`, `resetSession()`
+- [x] Implement two-layer merge strategy (DM-DEF-01): flow defaults → user overrides, applied on flow selection
+- [x] On `setState()`: update state → call `buildPrompt()` → notify subscribers.
+- [x] Hydrate PAT + username from `localStorage` on init; validate stored data shape before hydrating (guard against corruption)
+- [x] `resetSession()`: clear all fields except PAT/username, reset derived prompt
+- [x] Create `src/js/prompt-builder.js` with `buildPrompt(promptInput)` pure function
+- [x] Prompt format per OUT-02: XML tags, repo context header, flow-specific `<task>` section with Panel A/B content, ordered `<todo>` steps, notes section. Prompt template varies per flow (fix/review/implement/improve).
+- [x] File references use `@` prefix per OUT-04: `@src/utils/auth.js`
+- [x] Step 1 always present (read claude.md); remaining steps are dynamic from `enabled_steps`
+- [x] **Test**: `tests/state.test.js` — setState triggers rebuild, subscribe fires, session reset preserves PAT, corrupted localStorage handled gracefully
+- [x] **Test**: `tests/prompt-builder.test.js` — deterministic output (snapshot test, TST-01), empty state, full state, various step combinations
 
 ### Output
 
