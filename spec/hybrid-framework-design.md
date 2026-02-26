@@ -74,7 +74,7 @@ prompt_input:
     spec_files: [path],             # specification/requirement documents
     guideline_files: [path],        # style guides, coding standards
     acceptance_criteria: str,       # how to know it's done (implement flow)
-    lenses: [str]                   # focus lenses (review / improve flows)
+    lenses: [str]                   # focus lenses (improve flow)
   }
 
   steps: {
@@ -83,6 +83,10 @@ prompt_input:
       operation: str,
       object: str,
       lenses: [str],                # user-adjustable focus lenses per step
+      file_name: str,
+      pr_name: str,
+      directory: str,
+      branch_name: str,
       params: {}
     }]
   }
@@ -94,7 +98,7 @@ prompt_input:
   }
 
   output: {
-    destination: 'clipboard'
+    destination: 'clipboard' | 'copy to claude'
   }
 ```
 
@@ -113,12 +117,15 @@ prompt_input:
 | `panel_b.spec_files`          |    Optional    |    Optional    |    Optional     |                —                |
 | `panel_b.guideline_files`     |    Optional    |    Optional    |        —        | Optional (as "reference files") |
 | `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —                |
-| `panel_b.lenses`              |       —        |    Optional    |        —        |            Optional             |
 | **Steps**                     |                |                |                 |                                 |
 | `steps.enabled_steps`         | Auto-generated | Auto-generated | Auto-generated  |         Auto-generated          |
-| Step lenses                   |    Per step    |    Per step    |    Per step     |            Per step             |
+| `Step lenses`                 |    Per step    |    Per step    |    Per step     |            Per step             |
+| `file_name  `                 |    Per step    |    Per step    |    Per step     |            Per step             |
+| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step             |
+| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step             |
+| `output `                     |    Per step    |    Per step    |    Per step     |            Per step             |
 | **Other**                     |                |                |                 |                                 |
-| `improve_scope`               |       —        |       —        |        —        |       Shown when 2+ files       |
+| `improve_scope`               |       —        | Shown at 2+ files |        —        |       Shown at 2+ files       |
 | `notes.user_text`             |    Optional    |    Optional    |    Optional     |            Optional             |
 
 `*` = At least one field marked `*` in Panel A must be filled (description OR issue_number).
