@@ -7,7 +7,7 @@ Steps:
 3. Read `src/config/flows.yaml` for any relevant flow/task/step configuration.
 4. **Before writing any code**: summarize your implementation plan and wait for the user to confirm. And ask clarification questions if t thing are unclear. Ask 3 extra questions to to user to make sure you are on the same page and to get direction on undersspecified requirements or items.
 5. Challenge human if requirement implementation would be complex and/or alternative might be preferred, propose but let human decide.
-6.  Write tests for the implemented feature. 
+6. Write tests for the implemented feature.
 7. Set the requirement status to `In progress` in the Implementation Status table.
 8. Implement the feature following the conventions in CLAUDE.md.
 9. Execute tests written at Step 7 + Run `npm run build` to verify no build errors.
