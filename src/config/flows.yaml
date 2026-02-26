@@ -23,6 +23,71 @@
 # - Step granularity should be moderate — assume LLM competence.
 #   Don't micro-instruct what it already knows how to do.
 
+# ==================================================
+# Anchors for reusable blocks
+# ==================================================
+_x_anchors:
+  # ---------- Steps ----------
+  read_claude: &read_claude
+    id: read-claude
+    operation: read
+    object: file
+    params: { file: 'claude.md' }
+
+  read_files_base: &read_files_base
+    operation: read
+    object: files
+
+  read_specs: &read_specs
+    <<: *read_files_base
+    id: read-specs
+    source: panel_b.spec_files
+
+  read_guidelines: &read_guidelines
+    <<: *read_files_base
+    id: read-guidelines
+    source: panel_b.guideline_files
+
+  read_a_files_base: &read_a_files_base
+    <<: *read_files_base
+    source: panel_a.files
+
+  create_branch: &create_branch
+    id: create-branch
+    operation: create
+    object: branch
+    branche_name: [let llm decide (default), text input filed (Optional)]
+
+  commit_pr: &commit_pr
+    id: commit-pr
+    operation: commit
+    object: changes
+    params: { open_draft_pr: true }
+    pr_name: [let llm decide (default), text input filed (Optional)]
+
+  # ---------- Field types ----------
+  text: &text_field
+    type: text
+
+  text_required_group: &text_field_required_group
+    type: text
+    required_group: a_required
+
+  file_picker: &file_picker
+    type: file_picker_multi
+
+  issue_picker: &issue_picker
+    type: issue_picker
+
+  pr_picker: &pr_picker
+    type: pr_picker
+
+  lens_picker: &lens_picker
+    type: lens_picker
+
+# ==================================================
+# Flows
+# ==================================================
 flows:
   fix:
     label: 'Fix / Debug'
@@ -32,58 +97,44 @@ flows:
       subtitle: "What's happening now"
       fields:
         description:
-          type: text
+          <<: *text_field_required_group
           placeholder: 'Describe the issue: error messages, unexpected behavior, what goes wrong...'
-          required_group: a_required
         issue_number:
-          type: issue_picker
+          <<: *issue_picker
           placeholder: 'Select GitHub issue'
           required_group: a_required
         files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Where does it occur?'
     panel_b:
       label: 'Expected Outcome'
       subtitle: 'How it should work after the fix'
       fields:
         description:
-          type: text
+          <<: *text_field
           placeholder: 'Describe the expected behavior after the fix is applied...'
         spec_files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Requirements or spec file'
         guideline_files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Style guides or coding standards'
     steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
+      - *read_claude
       - id: read-location
-        operation: read
-        object: files
-        source: panel_a.files # conditional: only if files selected
+        <<: *read_a_files_base
+        # conditional: only if files selected
       - id: read-issue
         operation: read
         object: issue
         source: panel_a.issue_number # conditional: only if issue selected
-      - id: read-specs
-        operation: read
-        object: files
-        source: panel_b.spec_files # conditional 
-      - id: read-guidelines
-        operation: read
-        object: files
-        source: panel_b.guideline_files  # conditional
+      - *read_specs
+      - *read_guidelines
       - id: identify-cause
         operation: analyze
         object: issue
         lenses: [error_handling, semantics]
-      - id: create-branch
-        operation: create
-        object: branch
-        branche_name: [let llm decide (default), text input filed (Optional)]
+      - *create_branch
       - id: implement-fix
         operation: edit
         object: files
@@ -91,11 +142,7 @@ flows:
       - id: run-tests
         operation: validate
         object: tests
-      - id: commit-pr
-        operation: commit
-        object: changes
-        params: { open_draft_pr: true }
-        pr_name: [let llm decide (default), text input filed (Optional)]
+      - *commit_pr
 
   review:
     label: 'Review / Analyze'
@@ -105,14 +152,14 @@ flows:
       subtitle: 'The PR, code, or document to examine'
       fields:
         description:
-          type: text
+          <<: *text_field
           placeholder: 'Background, specific questions, or areas of concern...'
         pr_number:
-          type: pr_picker
+          <<: *pr_picker
           placeholder: 'Select a pull request'
           required_group: a_required
         files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Files to review'
           required_group: a_required
     panel_b:
@@ -120,24 +167,15 @@ flows:
       subtitle: 'Standards and criteria for the review'
       fields:
         spec_files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'specs to meet'
         guideline_files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Standards to check'
     steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
-      - id: read-specs
-        operation: read
-        object: files
-        source: panel_b.spec_files
-      - id: read-guidelines
-        operation: read
-        object: files
-        source: panel_b.guideline_files
+      - *read_claude
+      - *read_specs
+      - *read_guidelines
       - id: review-pr
         operation: analyze
         object: pull_request
@@ -156,7 +194,7 @@ flows:
         operation: create
         object: review_feedback
         output: [comment on PR | comment on PR + inline comments | report back here | create analysis report file in git]
-        - id: provide-feedback-files
+      - id: provide-feedback-files
         operation: create
         object: review_feedback
         output: [comment on PR | comment on PR + inline comments | report back here | create analysis report file in git]
@@ -169,41 +207,31 @@ flows:
       subtitle: 'Existing code or context to build upon (optional)'
       fields:
         description:
-          type: text
+          <<: *text_field
           placeholder: 'Background, constraints, or existing context...'
         files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Existing files to build upon'
     panel_b:
       label: 'Requirements'
       subtitle: 'What to build and completion criteria'
       fields:
         description:
-          type: text
+          <<: *text_field
           required: true
           placeholder: 'Describe what to build: functionality, behavior, constraints, requirements/spec id...'
         spec_files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Requirement docs, user stories, technical specs'
         acceptance_criteria:
-          type: text
+          <<: *text_field
           placeholder: "How to know it's done: test cases, edge cases, quality standards..."
     steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
+      - *read_claude
       - id: read-starting
-        operation: read
-        object: files
-        source: panel_a.files
-      - id: read-specs
-        operation: read
-        object: files
-        source: panel_b.spec_files
-      - id: create-branch
-        operation: create
-        branche_name: [let llm decide (default), text input filed (Optional)]
+        <<: *read_a_files_base
+      - *read_specs
+      - *create_branch
       - id: implement
         operation: create
         object: implementation
@@ -215,11 +243,7 @@ flows:
       - id: run-tests
         operation: validate
         object: tests
-      - id: commit-pr
-        operation: commit
-        object: changes
-        params: { open_draft_pr: true }
-        pr_name: [let llm decide (default), text input filed (Optional)]
+      - *commit_pr
 
   improve:
     label: 'Improve / Modify'
@@ -229,31 +253,30 @@ flows:
       subtitle: 'What exists and what needs improvement'
       fields:
         description:
-          type: text
+          <<: *text_field_required_group
           placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...'
-          required_group: a_required
         issue_number:
-          type: issue_picker
+          <<: *issue_picker
           placeholder: 'Select a related GitHub issue'
           required_group: a_required
         files:
-          type: file_picker_multi
+          <<: *file_picker
           placeholder: 'Files to improve'
     panel_b:
       label: 'Desired Outcome'
       subtitle: 'What the improved version should look like'
       fields:
         lenses:
-          type: lens_picker
+          <<: *lens_picker
           default: []
         description:
-          type: text
+          <<: *text_field
           placeholder: 'Describe the desired improvements, goals, or constraints...'
         issue_number:
-          type: issue_picker
+          <<: *issue_picker
           placeholder: 'Issue describing the desired state'
         guideline_files:
-          type: file_picker_multi
+          <<: *file_picker
           label: 'Reference files'
           placeholder: 'Style guides, examples of desired output, or specs'
     multi_file:
@@ -264,14 +287,9 @@ flows:
           across_files: 'Across files together'
         show_when: 'panel_a.files.length >= 2'
     steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
+      - *read_claude
       - id: read-files
-        operation: read
-        object: files
-        source: panel_a.files
+        <<: *read_a_files_base
       - id: read-issue-current
         operation: read
         object: issue
@@ -280,14 +298,8 @@ flows:
         operation: read
         object: issue
         source: panel_b.issue_number
-      - id: read-references
-        operation: read
-        object: files
-        source: panel_b.guideline_files
-      - id: create-branch
-        operation: create
-        object: branch
-        branche_name: [let llm decide (default), text input filed (Optional)]
+      - *read_guidelines
+      - *create_branch
       - id: apply-improvements
         operation: edit
         object: files
@@ -295,8 +307,4 @@ flows:
       - id: verify
         operation: validate
         object: improvements
-      - id: commit-pr
-        operation: commit
-        object: changes
-        params: { open_draft_pr: true }
-        pr_name: [let llm decide (default), text input filed (Optional)]
+      - *commit_pr
