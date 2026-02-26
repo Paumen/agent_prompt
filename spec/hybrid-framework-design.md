@@ -74,7 +74,6 @@ prompt_input:
     spec_files: [path],             # specification/requirement documents
     guideline_files: [path],        # style guides, coding standards
     acceptance_criteria: str,       # how to know it's done (implement flow)
-    lenses: [str]                   # focus lenses (improve flow)
   }
 
   steps: {
@@ -82,12 +81,10 @@ prompt_input:
       id: str,
       operation: str,
       object: str,
-      lenses: [str],                # user-adjustable focus lenses per step
-      file_name: str,
-      pr_name: str,
-      branch_name: str,
-      directory: str,
-      output: str,
+      lenses: [str],                # user-adjustable focus lenses
+      name_provided: str,           # by default name for new Branch/PR/file will be up to the llm, but user has the option to provide name in input text field if they want.
+      directory: str,               # folder where to place newly created files
+      output: str,                  # user-adjustable output types, user can toggle in steps where they want output: in llm interface, pr_comment, pr_inline_comment, issue_comment, file_report, etc. Defaults per flow are selected.
       params: {}
     }]
   }
@@ -122,7 +119,7 @@ prompt_input:
 | `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —           |
 | **Steps**                     |                |                |                 |                            |
 | `steps.enabled_steps`         | Auto-generated | Auto-generated | Auto-generated  |         Auto-generated     |
-| `Step lenses`                 |    Per step    |    Per step    |    Per step     |            Per step        |
+| `lenses`                      |    Per step    |    Per step    |    Per step     |            Per step        |
 | `file_name  `                 |    Per step    |    Per step    |    Per step     |            Per step        |
 | `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step        |
 | `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step        |
@@ -270,96 +267,144 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 
 ```xml
 <prompt>
-  <context>...</context>
-  <task="review">
-    <subject>
-      {{#if pr_number}}Review PR #{{pr_number}}{{/if}}
-      {{#if files}}Review files: {{files as @-prefixed list}}{{/if}}
-      {{#if panel_a.description}}Context: {{panel_a.description}}{{/if}}
-    </subject>
-    <criteria>
-      {{#if lenses}}Focus on: [{{lenses}}]{{/if}}
-      {{#if spec_files}}Evaluate against specifications: {{spec_files as @-prefixed list}}{{/if}}
-      {{#if guideline_files}}Evaluate against guidelines: {{guideline_files as @-prefixed list}}{{/if}}
-    </criteria>
-  </task>
+  <context>
+    Please help <task="review"> {{task}} </task> by executing below 'todo' steps
+    for <repository> https://github.com/{{owner}}/{{repo}} </repository>
+    on <branch> {{branch}} </branch>.
+    Authenticate using PAT: <PAT> {{pat}} </PAT>.
+    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.
+  </context>
   <todo>
     Step 1: Read @claude.md
-    {{#if spec/guideline files}}Step N: Read specification/guideline files{{/if}}
-    {{#if pr}}Step N: Fetch and review PR #{{pr_number}} diff — focus on [{{lenses}}]{{/if}}
-    {{#if files}}Step N: Read and analyze {{files}}.{{#if lenses}} Focus on: {{lenses}}] {{/if}} {{/if}}
-    Step N: Provide structured feedback with file/line references
+    Step N: Read and investigate the `review_subject` and `review_criteria` to understand what to review:
+              <review_subject>
+                {{#if pr_number}}Review PR #{{pr_number}}. Fetch and examine the PR diff. {{/if}}
+                {{#if files}}Review files: {{files as @-prefixed list}}. Read and examine each file. {{/if}}
+                {{#if panel_a.description}}Context provided by user: {{panel_a.description}}. {{/if}}
+              </review_subject>
+              <review_criteria>
+                {{#if lenses}}Focus on: [{{lenses}}]. {{/if}}
+                {{#if spec_files}}Evaluate against specifications: {{spec_files as @-prefixed list}}. {{/if}}
+                {{#if guideline_files}}Evaluate against guidelines: {{guideline_files as @-prefixed list}}. {{/if}}
+              </review_criteria>
+             If unclear or high ambiguity about what to review or the criteria, STOP and DONOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.
+    Step N: Provide structured feedback with specific file/line references, organized by severity (critical issues, suggestions, nitpicks).
+
+ {{if output="here"}}
+       Step N: Provide concise feedback to HUMAN (me) here (in this interface) include:
+              - Summary of what you reviewed in one sentence.
+              - Number of issues found by severity.
+              - Top 3 most important findings with file/line references.
+ {{/if}}
+ {{if output="pr_comment"}}
+       Step N: Provide feedback in PR comment on PR {{PR number}} include:
+              - Summary of what you reviewed in one sentence.
+              - Number of issues found by severity label.
+              - Top 3 most important findings with file/line references.
+              - Provide link to PR commment to HUMAN (me) here (in this interface) include.
+ {{/if}}
+ {{if output="pr_inline_comments"}}
+       Step N: Provide feedback via PR inline comment at relevant line numbers and include:
+              - Issue you found.
+              - severity label.
+              - Suggested fix.
+ {{/if}}
+
+ {{/if}}
   </todo>
 </prompt>
-<notes>{{user_text}}</notes>
+<notes>
+    Critical note: {{user_text}}
+</notes>
 ```
 
 ### Implement / Build
 
 ```xml
 <prompt>
-  <context>...</context>
-  <task="implement">
-    <context>
-      {{#if panel_a.description}}{{panel_a.description}}{{/if}}
-      {{#if panel_a.files}}Build upon: {{files as @-prefixed list}}{{/if}}
-    </context>
-    <requirements>
-      {{panel_b.description}}
-      {{#if spec_files}}Specifications: {{spec_files as @-prefixed list}}{{/if}}
-      {{#if acceptance_criteria}}Acceptance criteria: {{acceptance_criteria}}{{/if}}
-    </requirements>
-  </task>
+  <context>
+    Please help <task="implement"> {{task}} </task> by executing below 'todo' steps
+    for <repository> https://github.com/{{owner}}/{{repo}} </repository>
+    on <branch> {{branch}} </branch>.
+    Authenticate using PAT: <PAT> {{pat}} </PAT>.
+    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.
+  </context>
   <todo>
     Step 1: Read @claude.md
-    {{#if starting files}}Step N: Read starting files{{/if}}
-    {{#if spec_files}}Step N: Read specification files{{/if}}
-    Step N: Create new branch
-    Step N: Implement requirements — focus on [{{lenses}}]
-    {{#if acceptance_criteria}}Step N: Verify acceptance criteria{{/if}}
-    Step N: Run tests
-    Step N: Commit changes and open PR
+    Step N: Read and investigate the `existing_context` and `requirements` to understand what to build:
+              <existing_context>
+                {{#if panel_a.description}}Context provided by user: {{panel_a.description}}. {{/if}}
+                {{#if panel_a.files}}Build upon existing files: {{files as @-prefixed list}}. {{/if}}
+              </existing_context>
+              <requirements>
+                {{panel_b.description}}
+                {{#if spec_files}}Specifications to follow: {{spec_files as @-prefixed list}}. {{/if}}
+                {{#if acceptance_criteria}}Acceptance criteria: {{acceptance_criteria}}. {{/if}}
+              </requirements>
+             If unclear or high ambiguity about what to build, STOP and DONOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.
+    Step N: Create new branch. {{#if branch_name}} Name it {{branch_name}}. {{/if}}
+    Step N: Implement requirements. {{#if lenses}} Focus on: [{{lenses}}]. {{/if}}
+    Step N: Run tests.
+    {{#if acceptance_criteria}}Step N: Verify acceptance criteria: {{acceptance_criteria}}. {{/if}}
+    Step N: Commit changes and open PR. {{#if pr_name}} Name it {{pr_name}}. {{/if}}
+    Step N: Provide concise feedback to HUMAN (me) here (in this interface) include:
+              - Summary of what you implemented in one sentence.
+              - Files created or modified with brief description of changes.
+              - Tests run and results.
+              - PR link.
   </todo>
 </prompt>
-<notes>{{user_text}}</notes>
+<notes>
+    Critical note: {{user_text}}
+</notes>
 ```
 
 ### Improve / Modify
 
 ```xml
 <prompt>
-  <context>...</context>
-  <task="improve">
-    <current_state>
-      {{panel_a.description}}
-      {{#if issue_a}}Related issue: #{{issue_number}}{{/if}}
-      {{#if files}}Files to improve: {{files as @-prefixed list}}{{/if}}
-    </current_state>
-    <desired_outcome>
-      {{#if lenses}}Focus on: [{{lenses}}]{{/if}}
-      {{#if panel_b.description}}{{panel_b.description}}{{/if}}
-      {{#if issue_b}}Desired state per issue: #{{issue_number}}{{/if}}
-      {{#if guideline_files}}Reference: {{guideline_files as @-prefixed list}}{{/if}}
-    </desired_outcome>
-    {{#if improve_scope == "across_files"}}
-    <scope>Apply improvements across all files as a unified change, considering relationships between files.</scope>
-    {{/if}}
-    {{#if improve_scope == "each_file"}}
-    <scope>Apply improvements to each file independently.</scope>
-    {{/if}}
-  </task>
+  <context>
+    Please help <task="improve"> {{task}} </task> by executing below 'todo' steps
+    for <repository> https://github.com/{{owner}}/{{repo}} </repository>
+    on <branch> {{branch}} </branch>.
+    Authenticate using PAT: <PAT> {{pat}} </PAT>.
+    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.
+  </context>
   <todo>
     Step 1: Read @claude.md
-    Step N: Read {{files to improve}}
-    {{#if issues}}Step N: Read issue(s){{/if}}
-    {{#if guideline_files}}Step N: Read reference files{{/if}}
-    Step N: Create new branch
-    Step N: Apply improvements — focus on [{{lenses}}]
-    Step N: Verify improvements
-    Step N: Commit changes and open PR
+    Step N: Read and investigate the `current_state` and `desired_outcome` to understand what to improve:
+              <current_state>
+                {{panel_a.description}}
+                {{#if issue_a}}Related issue describing current state: #{{issue_a}}. Read this issue for context. {{/if}}
+                {{#if files}}Files to improve: {{files as @-prefixed list}}. {{/if}}
+              </current_state>
+              <desired_outcome>
+                {{#if panel_b.description}}Desired improvements: {{panel_b.description}}. {{/if}}
+                {{#if issue_b}}Desired state per issue: #{{issue_b}}. Read this issue for target state. {{/if}}
+                {{#if guideline_files}}Reference files for target style: {{guideline_files as @-prefixed list}}. {{/if}}
+                {{#if lenses}}Focus on: [{{lenses}}]. {{/if}}
+              </desired_outcome>
+              {{#if improve_scope == "across_files"}}
+              <scope>Apply improvements across all files as a unified change, considering relationships between files.</scope>
+              {{/if}}
+              {{#if improve_scope == "each_file"}}
+              <scope>Apply improvements to each file independently.</scope>
+              {{/if}}
+             If unclear or high ambiguity about what improvements to make, STOP and DONOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.
+    Step N: Create new branch. {{#if branch_name}} Name it {{branch_name}}. {{/if}}
+    Step N: Apply improvements.
+    Step N: Verify improvements meet the desired outcome.
+    Step N: Commit changes and open PR. {{#if pr_name}} Name it {{pr_name}}. {{/if}}
+    Step N: Provide concise feedback to HUMAN (me) here (in this interface) include:
+              - Summary of improvements made one sentence each improvement type.
+              - Files modified with brief description of changes.
+              - How the improvements address the desired outcome.
+              - PR link.
   </todo>
 </prompt>
-<notes>{{user_text}}</notes>
+<notes>
+    Critical note: {{user_text}}
+</notes>
 ```
 
 ---
@@ -375,6 +420,8 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 | Panel A field changed      | Quality meter updates; steps update                  | Update `panel_a.*`; add/remove conditional steps     |
 | Panel B field changed      | Quality meter updates; steps update                  | Update `panel_b.*`; add/remove conditional steps     |
 | Step lens toggled          | Prompt preview updates                               | Update `steps.enabled_steps[n].lenses`               |
+| Step output toggled        | Prompt preview updates                               | Update `steps.enabled_steps[n].output`               |
+| Step name provide          | Prompt preview updates                               | Update `steps.enabled_steps[n].name_provided`        |
 | Step removed               | Step disappears; prompt updates                      | Remove from `steps.enabled_steps`                    |
 | Improve: 2+ files selected | Scope selector appears                               | —                                                    |
 | Scope selected             | Steps update with scope instruction                  | Set `improve_scope`                                  |
