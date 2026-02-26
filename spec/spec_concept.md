@@ -108,7 +108,7 @@ When `version` field is missing or older than current, apply migration:
 
 ```javascript
 function migrateState(state) {
-  const CURRENT_VERSION = "1.0";
+  const CURRENT_VERSION = '1.0';
 
   if (!state.version) {
     // v0 (legacy) → v1.0 migration
@@ -119,23 +119,23 @@ function migrateState(state) {
       configuration: state.configuration || {},
       task: state.task || {},
       panel_a: {
-        description: "",
+        description: '',
         issue_number: null,
         pr_number: null,
         files: state.context?.selected_files || [],
       },
       panel_b: {
-        description: "",
+        description: '',
         issue_number: null,
         spec_files: [],
         guideline_files: [],
-        acceptance_criteria: "",
+        acceptance_criteria: '',
         lenses: [],
       },
       steps: state.steps || { enabled_steps: [] },
       improve_scope: null,
-      notes: state.notes || { user_text: "" },
-      output: { destination: "clipboard" },
+      notes: state.notes || { user_text: '' },
+      output: { destination: 'clipboard' },
     };
     // Clear old context field
     delete state.context;
@@ -383,15 +383,15 @@ Each requirement above is its own acceptance test. The following tests add speci
 | CFG-03    | Testing     | ✅   | —   | ◻   | Repo button grid + single-tap select             |
 | CFG-04    | Testing     | ✅   | ◻   | ◻   | Branch buttons + auto-select default             |
 | CFG-05    | Testing     | ✅   | ◻   | ◻   | Background fetch branches + file tree            |
-| SCT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
-| SCT-02    | To start    | ◻    | —   | ◻   | Dual-panel layout (new)                          |
-| SCT-03    | To start    | ◻    | ◻   | ◻   |                                                  |
-| SCT-04    | To start    | ◻    | —   | ◻   |                                                  |
-| SCT-05    | To start    | ◻    | ◻   | ◻   | Quality Meter (new)                              |
-| SCT-06    | To start    | ◻    | ◻   | ◻   |                                                  |
+| SCT-01    | Testing     | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + octicon icons     |
+| SCT-02    | Testing     | ✅   | —   | ◻   | Dual-panel layout (new)                          |
+| SCT-03    | Testing     | ✅   | ◻   | ◻   | card-tasks.js renders all field types            |
+| SCT-04    | Testing     | ✅   | —   | ◻   | Panel A/B layout per flow definition             |
+| SCT-05    | Testing     | ✅   | ◻   | ◻   | Required group validation                        |
+| SCT-06    | Testing     | ✅   | ◻   | ◻   | Flat searchable file picker with pills           |
 | SCT-07    | Testing     | ✅   | —   | —   | flows.yaml validated at build-time               |
-| SCT-08    | To start    | ◻    | ◻   | ◻   | Quality Meter                                    |
-| SCT-09    | To start    | ◻    | ◻   | ◻   | Improve multi-file scope selector                |
+| SCT-08    | Testing     | ✅   | ◻   | ◻   | Quality Meter                                    |
+| SCT-09    | Testing     | ✅   | ◻   | ◻   | Improve multi-file scope selector                |
 | STP-01    | To start    | ◻    | ◻   | ◻   | Auto-generated steps + fine-tuning               |
 | STP-02    | To start    | ◻    | —   | ◻   |                                                  |
 | STP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
@@ -440,3 +440,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | 2026-02-26 | flows.yaml cleanup: fixed typos (`branche_name`→`branch_name`, `filed`→`field`), output modes as machine-readable YAML array, step lenses as arrays (not field defs), added lenses to review panel_b, conditional feedback steps, run_tests to improve flow.    | One-time PO-approved edit. Aligns YAML data format with runtime code expectations. Machine-readable output keys match prompt-builder constants.                                  |
 | 2026-02-26 | Phase 3: Cache TTL 15 min, `ap_cache_` prefix, mobile-first dropdown (no keyboard nav), auto-replace + 2s toast for background refresh. ESLint test config updated to include browser globals for jsdom tests.                                                  | PO decisions: 15min balances freshness vs API calls; mobile-first dropdown drops desktop keyboard nav to simplify; auto-replace avoids extra user click.                         |
 | 2026-02-26 | Phase 4: VIS-03 collapse-after-selection for repo/branch grids. After selecting a repo or branch, grid collapses to show only the selected item + "+N more" button. File tree stored in card-configuration.js with exported `getFileTree()` getter for Phase 5. | PO chose collapse pattern to save vertical space. Exported getter is simplest sharing mechanism; can refactor to shared module later if needed.                                  |
+| 2026-02-26 | Phase 5: Octicon SVG paths inlined in card-tasks.js for the 4 flow icons (bug, search, plus, arrow-up). No external icon library dependency.                                                                                                                    | Anti-Over-Engineering Rule: only 4 icons needed, inline SVG avoids adding a full icon library. No runtime HTTP requests, no tree-shaking issues.                                 |
+| 2026-02-26 | Phase 5: Quality meter uses hybrid-framework-design.md weights (PR=20, file=10, text=10, notes=10, lens=5, issue=5) and 6 color thresholds (Poor/Minimal/Basic/Good/Strong/Excellent).                                                                          | PO chose hybrid-design weights; 6 thresholds give finer feedback granularity than the 4 listed in implementation-plan.md (which was an earlier draft).                           |
+| 2026-02-26 | Phase 5: File picker is a flat searchable list (not a `role="tree"` folder tree). Selected files shown as removable pills.                                                                                                                                      | PO confirmed flat list. Simpler implementation, better mobile UX, sufficient for the typical repo structure. Tree nav would add complexity with little benefit.                  |
+| 2026-02-26 | Phase 5: `flowDef.panel_a.subtitle` (e.g. "What's happening now") shown as sub-label under panel name; `panel_a.label` (e.g. "Current State") is not rendered separately. Panel names "Situation"/"Target" are hardcoded.                                       | flows.yaml has both `label` and `subtitle` per panel. Subtitle is the user-facing context hint; label would duplicate the hardcoded panel name. Avoids redundant text.           |
