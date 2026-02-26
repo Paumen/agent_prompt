@@ -82,22 +82,22 @@ prompt_input (JSON-serializable, snake_case):
 
 ### Field Validation per Flow
 
-| Field                         |   Fix/Debug    | Review/Analyze | Implement/Build |         Improve/Modify          |
-| ----------------------------- | :------------: | :------------: | :-------------: | :-----------------------------: |
-| **Panel A (Situation)**       |                |                |                 |                                 |
-| `panel_a.description`         |   Required\*   |    Optional    |    Optional     |           Required\*            |
-| `panel_a.issue_number`        |   Required\*   |       —        |        —        |           Required\*            |
-| `panel_a.pr_number`           |       —        |  Required\*\*  |        —        |                —                |
-| `panel_a.files`               |    Optional    |  Required\*\*  |    Optional     |            Optional             |
-| **Panel B (Target)**          |                |                |                 |                                 |
-| `panel_b.description`         |    Optional    |       —        |    Required     |            Optional             |
-| `panel_b.issue_number`        |       —        |       —        |        —        |            Optional             |
-| `panel_b.spec_files`          |    Optional    |    Optional    |    Optional     |                —                |
-| `panel_b.guideline_files`     |    Optional    |    Optional    |        —        | Optional (as "reference files") |
-| `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —                |
-| `panel_b.lenses`              |       —        |    Optional    |        —        |            Optional             |
-| **Other**                     |                |                |                 |                                 |
-| `improve_scope`               |       —        |       —        |        —        |       Shown when 2+ files       |
+| Field                         | Fix/Debug  | Review/Analyze | Implement/Build |         Improve/Modify          |
+| ----------------------------- | :--------: | :------------: | :-------------: | :-----------------------------: |
+| **Panel A (Situation)**       |            |                |                 |                                 |
+| `panel_a.description`         | Required\* |    Optional    |    Optional     |           Required\*            |
+| `panel_a.issue_number`        | Required\* |       —        |        —        |           Required\*            |
+| `panel_a.pr_number`           |     —      |  Required\*\*  |        —        |                —                |
+| `panel_a.files`               |  Optional  |  Required\*\*  |    Optional     |            Optional             |
+| **Panel B (Target)**          |            |                |                 |                                 |
+| `panel_b.description`         |  Optional  |       —        |    Required     |            Optional             |
+| `panel_b.issue_number`        |     —      |       —        |        —        |            Optional             |
+| `panel_b.spec_files`          |  Optional  |    Optional    |    Optional     |                —                |
+| `panel_b.guideline_files`     |  Optional  |    Optional    |        —        | Optional (as "reference files") |
+| `panel_b.acceptance_criteria` |     —      |       —        |    Optional     |                —                |
+| `panel_b.lenses`              |     —      |    Optional    |        —        |            Optional             |
+| **Other**                     |            |                |                 |                                 |
+| `improve_scope`               |     —      |       —        |        —        |       Shown when 2+ files       |
 
 `\*` = At least one field marked `*` in Panel A must be filled (description OR issue_number).
 `\*\*` = Review flow: at least one of PR or files required. Either or both can be filled.
@@ -108,8 +108,8 @@ When `version` field is missing or older than current, apply migration:
 
 ```javascript
 function migrateState(state) {
-  const CURRENT_VERSION = "1.0";
-  
+  const CURRENT_VERSION = '1.0';
+
   if (!state.version) {
     // v0 (legacy) → v1.0 migration
     // Old structure had context.selected_files
@@ -122,7 +122,7 @@ function migrateState(state) {
         description: '',
         issue_number: null,
         pr_number: null,
-        files: state.context?.selected_files || []
+        files: state.context?.selected_files || [],
       },
       panel_b: {
         description: '',
@@ -130,17 +130,17 @@ function migrateState(state) {
         spec_files: [],
         guideline_files: [],
         acceptance_criteria: '',
-        lenses: []
+        lenses: [],
       },
       steps: state.steps || { enabled_steps: [] },
       improve_scope: null,
       notes: state.notes || { user_text: '' },
-      output: { destination: 'clipboard' }
+      output: { destination: 'clipboard' },
     };
     // Clear old context field
     delete state.context;
   }
-  
+
   return state;
 }
 ```
@@ -376,8 +376,8 @@ Each requirement above is its own acceptance test. The following tests add speci
 | DM-INV-02 | Testing     | ✅   | ◻   | —   | setState() auto-rebuilds prompt                  |
 | DM-INV-03 | Testing     | ✅   | ◻   | —   | Snapshot test passes (TST-01)                    |
 | DM-DEF-01 | Testing     | ✅   | ◻   | —   | deepMerge for flow defaults → user overrides     |
-| DM-DEF-02 | To start    | ◻    | —   | —   | Build-time validation                            |
-| DM-DEF-03 | To start    | ◻    | ◻   | ◻   |                                                  |
+| DM-DEF-02 | Testing     | ✅   | —   | —   | YAML→JSON + schema validation via Vite plugin    |
+| DM-DEF-03 | Testing     | ✅   | ◻   | ◻   | applyFlowDefaults() resets panels/steps fully    |
 | CFG-01    | To start    | ◻    | ◻   | ◻   |                                                  |
 | CFG-02    | To start    | ◻    | ◻   | ◻   |                                                  |
 | CFG-03    | To start    | ◻    | —   | ◻   |                                                  |
@@ -389,7 +389,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | SCT-04    | To start    | ◻    | —   | ◻   |                                                  |
 | SCT-05    | To start    | ◻    | ◻   | ◻   | Quality Meter (new)                              |
 | SCT-06    | To start    | ◻    | ◻   | ◻   |                                                  |
-| SCT-07    | To start    | ◻    | —   | —   | Build-time, covered by DM-DEF-02                 |
+| SCT-07    | Testing     | ✅   | —   | —   | flows.yaml validated at build-time               |
 | SCT-08    | To start    | ◻    | ◻   | ◻   | Quality Meter                                    |
 | SCT-09    | To start    | ◻    | ◻   | ◻   | Improve multi-file scope selector                |
 | STP-01    | To start    | ◻    | ◻   | ◻   | Auto-generated steps + fine-tuning               |
@@ -397,7 +397,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | STP-03    | To start    | ◻    | ◻   | ◻   |                                                  |
 | STP-04    | To start    | ◻    | —   | ◻   |                                                  |
 | OUT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
-| OUT-02    | To start    | ◻    | ◻   | ◻   | Flow-specific templates                          |
+| OUT-02    | Testing     | ✅   | ◻   | ◻   | Flow-specific templates in prompt-builder.js     |
 | OUT-03    | To start    | ◻    | ◻   | —   | Deterministic — DM-INV-03                        |
 | OUT-04    | To start    | ◻    | —   | —   |                                                  |
 | OUT-05    | To start    | ◻    | ◻   | ◻   |                                                  |
@@ -409,27 +409,31 @@ Each requirement above is its own acceptance test. The following tests add speci
 | VIS-03    | Testing     | —    | —   | ◻   | Phase 0: card layout CSS done                    |
 | TST-01    | Testing     | ✅   | ◻   | —   | Snapshot test in prompt-builder.test.js          |
 | TST-02    | To start    | —    | ◻   | —   | E2e test                                         |
-| TST-03    | To start    | ◻    | —   | —   | Build-time validation                            |
+| TST-03    | Testing     | ✅   | —   | —   | Schema validation errors tested in flow-loader   |
 
 ---
 
 ## Decisions Log
 
-| Date       | Decision                                                                                          | Rationale                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| 2026-02-20 | GitHub Pages for hosting                                                                          | Free for public repos, auto-deploys on merge, always-latest live URL                     |
-| 2026-02-20 | Status tracking in spec_concept.md                                                                | Avoids duplication. Status table + Decisions Log in the authoritative spec.              |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                            | Cleaner root. `config/` = how to build. `spec/` = what to build.                         |
-| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                       | Clearer UX, simpler tree logic, more background loading time, less vertical space        |
-| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                        | Investigated and verified feasible, no backup needed                                     |
-| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                   | Clearer for user                                                                         |
-| 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0.    |
-| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                             | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.        |
-| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                            | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                          |
-| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                      | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.                 |
-| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                   | State tests need `localStorage`; keeping node env for pure functions avoids overhead.    |
-| 2026-02-25 | Redesigned to 4 flows (Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify) with dual-panel layout per flow (Situation + Target). | Balances coverage with simplicity (4 vs 6). Current/desired structure gives built-in verification across all flows                    |
-| 2026-02-25 | Steps auto-generated from flow + user inputs (toggle lenses/remove steps). No auto-suggestion of files. No explicit fences/boundaries section. | Reduces effort while keeping fine-tuning. Risk of wrong file suggestions > none; Claude explores independently. Clear, specific prompts prevent drift (vagueness is root cause).                      |
-| 2026-02-25 | Quality Meter Fixed field weights + 4 color thresholds.                                                                              | Motivates thoroughness without over-engineering. Simple scoring, no word counting.                                                                                                                   |
-| 2026-02-25 | Improve flow scope selector: "each file" vs "across files".                                                      | Makes LLM intent clear for multi-file improvements; affects prompt instruction.                                                                                                                       |
-| 2026-02-25 | Spec files (WHAT to build) vs Guideline files (HOW to build).                                                | Valuable separation; UX challenge – needs tooltip for clarity.                                                                                                                                       |
+| Date       | Decision                                                                                                                                       | Rationale                                                                                                                                                                        |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-02-20 | GitHub Pages for hosting                                                                                                                       | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                             |
+| 2026-02-20 | Status tracking in spec_concept.md                                                                                                             | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                                      |
+| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                                         | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                                 |
+| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                                                                    | Clearer UX, simpler tree logic, more background loading time, less vertical space                                                                                                |
+| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                                                                     | Investigated and verified feasible, no backup needed                                                                                                                             |
+| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                                                                | Clearer for user                                                                                                                                                                 |
+| 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state                                              | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0.                                                                                            |
+| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                                                                          | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.                                                                                                |
+| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                                                                         | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                                                                                                                  |
+| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                                                                   | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.                                                                                                         |
+| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                                                                | State tests need `localStorage`; keeping node env for pure functions avoids overhead.                                                                                            |
+| 2026-02-25 | Redesigned to 4 flows (Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify) with dual-panel layout per flow (Situation + Target).       | Balances coverage with simplicity (4 vs 6). Current/desired structure gives built-in verification across all flows                                                               |
+| 2026-02-25 | Steps auto-generated from flow + user inputs (toggle lenses/remove steps). No auto-suggestion of files. No explicit fences/boundaries section. | Reduces effort while keeping fine-tuning. Risk of wrong file suggestions > none; Claude explores independently. Clear, specific prompts prevent drift (vagueness is root cause). |
+| 2026-02-25 | Quality Meter Fixed field weights + 4 color thresholds.                                                                                        | Motivates thoroughness without over-engineering. Simple scoring, no word counting.                                                                                               |
+| 2026-02-25 | Improve flow scope selector: "each file" vs "across files".                                                                                    | Makes LLM intent clear for multi-file improvements; affects prompt instruction.                                                                                                  |
+| 2026-02-25 | Spec files (WHAT to build) vs Guideline files (HOW to build).                                                                                  | Valuable separation; UX challenge – needs tooltip for clarity.                                                                                                                   |
+| 2026-02-26 | Phase 2: Custom Vite plugin for YAML→JSON with schema validation, not a pre-build script.                                                      | Cleaner integration with Vite dev server (HMR for flows.yaml). `transform` hook is straightforward for this use case.                                                            |
+| 2026-02-26 | Phase 2: Functional schema validation over JSON Schema library.                                                                                | Custom validator gives clear, path-specific error messages. No extra dependency needed. Simpler than configuring ajv for nested YAML-anchor-expanded structures.                 |
+| 2026-02-26 | Phase 2: state.js updated from `context.selected_files` to `panel_a`/`panel_b` data model.                                                     | Aligns with spec canonical data model (DM). `version` field added for future migration. `applyFlowDefaults()` added for DM-DEF-03 flow switching.                                |
+| 2026-02-26 | Phase 2: Flow-specific prompt templates in prompt-builder.js using switch on `flow_id`.                                                        | Each flow gets its own XML template (fix→undesired/expected, review→subject/criteria, implement→context/requirements, improve→current/desired). Matches hybrid-framework-design. |

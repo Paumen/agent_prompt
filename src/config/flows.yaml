@@ -77,7 +77,10 @@ _x_anchors:
   provide_feedback_base: &provide_feedback_base
     operation: create
     object: review_feedback
-    output: [comment on PR | comment on PR + inline comments | report back here | create analysis report file in git]
+    output:
+      [
+        comment on PR | comment on PR + inline comments | report back here | create analysis report file in git,
+      ]
 
   # ---------- Common field properties ----------
   required_group_a: &required_group_a
@@ -144,7 +147,7 @@ flows:
         <<: *read_a_files_base
       - id: read-issue
         <<: *read_issue_base
-        source: panel_a.issue_number # 
+        source: panel_a.issue_number #
       - *read_specs
       - *read_guidelines
       - id: identify-cause
@@ -308,4 +311,4 @@ flows:
       - id: verify
         operation: validate
         object: improvements
-      - *commit_pr    
+      - *commit_pr

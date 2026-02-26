@@ -103,15 +103,14 @@ index.html
 
 ## 3. Preconditions & Blockers
 
-| #   | Precondition                                                                                              | Needed by               | Status                                  |
-| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------- |
+| #   | Precondition                                                                                              | Needed by               | Status                                                    |
+| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------- |
 | P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | not approved, we will use all 4 flows directly, see below |
-| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | Approved by human, please validate file by reviewing |
-| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                            |
-| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)                   |
-| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)                    |
-| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)                    |
-
+| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | Approved by human, please validate file by reviewing      |
+| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                                              |
+| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)                                     |
+| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)                                      |
+| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)                                      |
 
 ---
 
@@ -222,6 +221,7 @@ A custom Vite plugin (`config/vite-plugin-yaml.js`) that:
 The schema file lives in `config/` (not `src/js/`) because it's a build-time artifact that should not be bundled into production code.
 
 ### Checklist
+
 - [ ] Check if `src/js/state.js`, `src/js/prompt-builder.js`, `tests/state.test.js`, and `tests/prompt-builder.test.js` need updates to match @spec/hybrid-framework-design.md.
 - [ ] Understand, review and validate flows.yaml
 - [ ] Install `js-yaml` as dev dependency
