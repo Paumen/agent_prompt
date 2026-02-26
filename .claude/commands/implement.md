@@ -15,6 +15,6 @@ Steps:
 11. Update the checklist items in `spec/implementation-plan.md`.
 12. Log most significant technical decisions (if any in the Decisions Log section of `spec/spec_concept.md`.
 13. Test if `https://paumen.github.io/agent_prompt/` updated and works as expected. If user testing is possible or required let user know.
-14. Create a PR using the PR template, referencing the requirement IDs.
+14. Commit Changes and draft a PR using the PR template, referencing the requirement IDs.
 
 Note: Only the PO can move a requirement to `🏁 Approved` (after UAT review).
