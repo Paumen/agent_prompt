@@ -364,7 +364,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 10. Phase 6 — Card 3: Steps (Auto-Generated) `To start`
+## 10. Phase 6 — Card 3: Steps (Auto-Generated) `Testing`
 
 **Goal**: Auto-generated step list from flow + panel inputs, with lens fine-tuning and deletion.
 
@@ -374,25 +374,27 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Checklist
 
-- [ ] Create `src/js/step-generator.js`:
-  - `generateSteps(flowDef, panelA, panelB, improveScope)` → returns ordered step array
+- [x] Create `src/js/step-generator.js`:
+  - `generateSteps(flowDef, panelA, panelB)` → returns ordered step array
   - Base steps come from flow definition in flows.yaml
   - Conditional steps (with `source` field) only included when the referenced panel field is filled
-  - Locked steps (e.g., "Read @claude.md") are always included
-  - Called from `setState()` whenever flow, panel_a, or panel_b changes — result stored in `steps.enabled_steps`
-- [ ] Create `src/js/card-steps.js`:
+  - No locked steps — all steps deletable per PO direction
+  - Called from card-steps.js subscriber whenever flow, panel_a, or panel_b changes — result stored in `steps.enabled_steps`
+- [x] Create `src/js/card-steps.js`:
   - Render ordered step list from `state.steps.enabled_steps` (STP-01)
   - Each step is a compact single row: step number, operation + object label, optional lens pills
-  - Locked steps: no trash icon, visual indicator (e.g., lock icon or dimmed trash)
-  - Lens pills: pre-selected based on flow defaults, user can toggle on/off per step (STP-03)
-  - Delete button (trash icon) on each non-locked step — single tap removes it (STP-04)
+  - All steps deletable (no locked steps per PO direction)
+  - Lens pills: show first 7 (selected first), "+N more" toggle for remainder (STP-03)
+  - Delete button (trash icon) on every step — single tap removes it (STP-04)
+  - Output mode pills for feedback steps (single-select: here, pr_comment, etc.)
+  - Optional text inputs for branch_name, pr_name, file_name fields
   - Steps cannot be reordered or manually added (STP-04)
   - All interactions call `setState()` to update `steps.enabled_steps`
-- [ ] **Click audit (GL-01)**: lens toggle = 1 click, step delete = 1 click. All within target.
-- [ ] **Mobile (GL-03)**: step list scrolls, adequate touch targets for lens pills and delete buttons
-- [ ] **Accessibility**: delete buttons have `aria-label="Remove step: [step name]"`, lens pills are `role="switch"` with `aria-checked`
-- [ ] **Test**: `tests/step-generator.test.js` — conditional step inclusion/exclusion, locked steps always present, improve_scope affects steps
-- [ ] **Test**: `tests/card-steps.test.js` — step rendering, lens toggling updates state, step deletion, locked steps not removable
+- [x] **Click audit (GL-01)**: lens toggle = 1 click, step delete = 1 click. All within target.
+- [x] **Mobile (GL-03)**: step list scrolls, adequate touch targets for lens pills and delete buttons
+- [x] **Accessibility**: delete buttons have `aria-label="Remove step: [step name]"`, lens pills are `role="switch"` with `aria-checked`, output pills are `role="radio"` with `aria-checked`
+- [x] **Test**: `tests/step-generator.test.js` — conditional step inclusion/exclusion, step ordering, deep copy safety, output array, no locked flag (24 tests)
+- [x] **Test**: `tests/card-steps.test.js` — step rendering, lens toggling, step deletion, output pills, optional text inputs (31 tests)
 
 ### Output
 

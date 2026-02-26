@@ -391,7 +391,10 @@ function buildFeedbackStep(flowId, enabledSteps) {
       s.id === 'provide-feedback-files' ||
       s.object === 'review_feedback'
   );
-  const outputMode = feedbackSteps.length > 0 ? feedbackSteps[0].output : null;
+  const outputMode =
+    feedbackSteps.length > 0
+      ? feedbackSteps[0].output_selected || feedbackSteps[0].output?.[0] || null
+      : null;
 
   switch (flowId) {
     case 'fix':
