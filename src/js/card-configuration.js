@@ -156,10 +156,13 @@ function onPatClear() {
   elPatInput.value = "";
   elPatInput.type = "password";
   elPatToggle.textContent = "Show";
-  setState("configuration.pat", "");
   cacheClear();
-  setState("configuration.repo", "");
-  setState("configuration.branch", "");
+  setState(s => {
+    s.configuration.pat = "";
+    s.configuration.repo = "";
+    s.configuration.branch = "";
+    return s;
+  });
   fileTree = [];
   renderRepoSection([]);
   renderBranchSection([]);
