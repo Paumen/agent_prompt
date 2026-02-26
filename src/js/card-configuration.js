@@ -7,7 +7,7 @@
  * Req IDs: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, APP-04
  */
 
-import { getState, setState, subscribe } from "./state.js";
+import { getState, setState } from "./state.js";
 import { fetchRepos, fetchBranches, fetchTree } from "./github-api.js";
 import { cacheGet, cacheSet, cacheClear } from "./cache.js";
 import { renderShimmer, renderError, showNotification } from "./components.js";
