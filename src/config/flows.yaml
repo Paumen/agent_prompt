@@ -79,7 +79,7 @@ flows:
       - id: identify-cause
         operation: analyze
         object: issue
-        lenses: [error_handling, semantics,...]
+        lenses: [error_handling, semantics]
       - id: create-branch
         operation: create
         object: branch
@@ -87,7 +87,7 @@ flows:
       - id: implement-fix
         operation: edit
         object: files
-        lenses: [error_handling, semantics,...]
+        lenses: []
       - id: run-tests
         operation: validate
         object: tests
@@ -95,6 +95,7 @@ flows:
         operation: commit
         object: changes
         params: { open_draft_pr: true }
+        pr_name: [let llm decide (default), text input filed (Optional)]
 
   review:
     label: 'Review / Analyze'
@@ -118,9 +119,6 @@ flows:
       label: 'Review Criteria'
       subtitle: 'Standards and criteria for the review'
       fields:
-        lenses:
-          type: lens_picker
-          default: [semantics, structure,...]
         spec_files:
           type: file_picker_multi
           placeholder: 'specs to meet'
@@ -144,15 +142,24 @@ flows:
         operation: analyze
         object: pull_request
         source: panel_a.pr_number
-        lenses: [] # populated from panel_b.lenses
+        lenses:
+          type: lens_picker
+          default: [semantics, structure]
       - id: review-files
         operation: analyze
         object: files
         source: panel_a.files
-        lenses: [] # populated from panel_b.lenses
-      - id: provide-feedback
+        lenses:
+          type: lens_picker
+          default: []
+      - id: provide-feedback-pr
         operation: create
         object: review_feedback
+        output: [comment on PR | comment on PR + inline comments | report back here | create analysis report file in git]
+        - id: provide-feedback-files
+        operation: create
+        object: review_feedback
+        output: [comment on PR | comment on PR + inline comments | report back here | create analysis report file in git]
 
   implement:
     label: 'Implement / Build'
@@ -196,11 +203,11 @@ flows:
         source: panel_b.spec_files
       - id: create-branch
         operation: create
-        object: branch
+        branche_name: [let llm decide (default), text input filed (Optional)]
       - id: implement
         operation: create
         object: implementation
-        lenses: [semantics, structure]
+        file_name: [let llm decide (default), text input filed (Optional)]
       - id: verify-criteria
         operation: validate
         object: acceptance_criteria
@@ -211,7 +218,8 @@ flows:
       - id: commit-pr
         operation: commit
         object: changes
-        params: { open_pr: true }
+        params: { open_draft_pr: true }
+        pr_name: [let llm decide (default), text input filed (Optional)]
 
   improve:
     label: 'Improve / Modify'
@@ -279,6 +287,7 @@ flows:
       - id: create-branch
         operation: create
         object: branch
+        branche_name: [let llm decide (default), text input filed (Optional)]
       - id: apply-improvements
         operation: edit
         object: files
@@ -289,4 +298,5 @@ flows:
       - id: commit-pr
         operation: commit
         object: changes
-        params: { open_pr: true }
+        params: { open_draft_pr: true }
+        pr_name: [let llm decide (default), text input filed (Optional)]
