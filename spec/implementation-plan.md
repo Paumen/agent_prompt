@@ -188,7 +188,7 @@ Pure function `buildPrompt(promptInput) → string`. Called inside `setState()` 
 - [x] Hydrate PAT + username from `localStorage` on init; validate stored data shape before hydrating (guard against corruption)
 - [x] `resetSession()`: clear all fields except PAT/username, reset derived prompt
 - [x] Create `src/js/prompt-builder.js` with `buildPrompt(promptInput)` pure function
-- [ ] Prompt format per OUT-02: XML tags, repo context header, flow-specific `<task>` section with Panel A/B content, ordered `<todo>` steps, notes section. Prompt template varies per flow (fix/review/implement/improve).
+- [x] Prompt format per OUT-02: XML tags, repo context header, flow-specific `<task>` section with Panel A/B content, ordered `<todo>` steps, notes section. Prompt template varies per flow (fix/review/implement/improve).
 - [x] File references use `@` prefix per OUT-04: `@src/utils/auth.js`
 - [x] Step 1 always present (read claude.md); remaining steps are dynamic from `enabled_steps`
 - [x] **Test**: `tests/state.test.js` — setState triggers rebuild, subscribe fires, session reset preserves PAT, corrupted localStorage handled gracefully
@@ -222,15 +222,15 @@ A custom Vite plugin (`config/vite-plugin-yaml.js`) that:
 The schema file lives in `config/` (not `src/js/`) because it's a build-time artifact that should not be bundled into production code.
 
 ### Checklist
-- [ ] Check if `src/js/state.js`, `src/js/prompt-builder.js`, `tests/state.test.js`, and `tests/prompt-builder.test.js` need updates to match @spec/hybrid-framework-design.md.
-- [ ] Understand, review and validate flows.yaml
-- [ ] Install `js-yaml` as dev dependency
-- [ ] Create `config/flow-schema.js` — JSON Schema defining valid flow structure (label, icon, panel_a/panel_b with field definitions, steps array with operation/object/lenses/params/source/locked)
-- [ ] Create `config/vite-plugin-yaml.js` — Vite plugin: `transform` hook for `.yaml` files, parse + validate + emit JSON
-- [ ] Create `src/js/flow-loader.js` — `import flows from '../config/flows.yaml'`; exports `getFlows()`, `getFlowById(id)`
-- [ ] Build fails with clear error message on malformed YAML or schema violation
-- [ ] **Test**: `tests/flow-loader.test.js` — valid flows load, invalid flows cause error, getFlowById returns correct flow
-- [ ] **Test**: TST-03 — malformed flow file causes build failure with clear error
+- [x] Check if `src/js/state.js`, `src/js/prompt-builder.js`, `tests/state.test.js`, and `tests/prompt-builder.test.js` need updates to match @spec/hybrid-framework-design.md.
+- [x] Understand, review and validate flows.yaml
+- [x] Install `js-yaml` as dev dependency
+- [x] Create `config/flow-schema.js` — JSON Schema defining valid flow structure (label, icon, panel_a/panel_b with field definitions, steps array with operation/object/lenses/params/source/locked)
+- [x] Create `config/vite-plugin-yaml.js` — Vite plugin: `transform` hook for `.yaml` files, parse + validate + emit JSON
+- [x] Create `src/js/flow-loader.js` — `import flows from '../config/flows.yaml'`; exports `getFlows()`, `getFlowById(id)`
+- [x] Build fails with clear error message on malformed YAML or schema violation
+- [x] **Test**: `tests/flow-loader.test.js` — valid flows load, invalid flows cause error, getFlowById returns correct flow
+- [x] **Test**: TST-03 — malformed flow file causes build failure with clear error
 
 ### Output
 
