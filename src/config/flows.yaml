@@ -134,10 +134,10 @@ flows:
           placeholder: 'Describe the expected behavior after the fix is applied...'
         spec_files:
           <<: *file_picker
-          placeholder: 'Requirements or spec file'
+          placeholder: 'WHAT to build — requirements, user stories, design docs'
         guideline_files:
           <<: *file_picker
-          placeholder: 'Style guides or coding standards'
+          placeholder: 'HOW to build — Style guides or coding standards'
     steps:
       - *read_claude
       - id: read-location
