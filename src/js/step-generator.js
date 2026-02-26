@@ -35,6 +35,13 @@ export function isSourceFilled(source, panelA, panelB) {
  * the referenced panel field is filled (STP-02).
  *
  */
+/**
+ * Generate steps from flow definition based on current panel state.
+ * Conditional steps (with `source` field) are only included when
+ * the referenced panel field is filled (STP-02).
+ *
+ * @returns {Array<Object>} An array of step objects.
+ */
 export function generateSteps(flowDef, panelA, panelB) {
   if (!flowDef?.steps) return [];
 
