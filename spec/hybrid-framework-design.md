@@ -228,7 +228,7 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 ```xml
 <prompt>
   <context>
-    Pleasae help <task> {{task}} </task> by executing below 'todo' steps
+    Pleasae help <task="debug"> {{task}} </task> by executing below 'todo' steps
     for <repository> https://github.com/{{owner}}/{{repo}} </repository>
     on <branch> {{branch}} </branch>.
     Authenticate using PAT: <PAT> {{pat}} </PAT>.
@@ -271,7 +271,7 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 ```xml
 <prompt>
   <context>...</context>
-  <task flow="review">
+  <task="review">
     <subject>
       {{#if pr_number}}Review PR #{{pr_number}}{{/if}}
       {{#if files}}Review files: {{files as @-prefixed list}}{{/if}}
@@ -299,7 +299,7 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 ```xml
 <prompt>
   <context>...</context>
-  <task flow="implement">
+  <task="implement">
     <context>
       {{#if panel_a.description}}{{panel_a.description}}{{/if}}
       {{#if panel_a.files}}Build upon: {{files as @-prefixed list}}{{/if}}
@@ -329,7 +329,7 @@ The meter appears as a thin horizontal bar below the flow selector, always visib
 ```xml
 <prompt>
   <context>...</context>
-  <task flow="improve">
+  <task="improve">
     <current_state>
       {{panel_a.description}}
       {{#if issue_a}}Related issue: #{{issue_number}}{{/if}}
