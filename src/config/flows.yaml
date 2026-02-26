@@ -52,6 +52,11 @@ _x_anchors:
     <<: *read_files_base
     source: panel_a.files
 
+  # Base for reading any issue
+  read_issue_base: &read_issue_base
+    operation: read
+    object: issue
+
   create_branch: &create_branch
     id: create-branch
     operation: create
@@ -61,6 +66,252 @@ _x_anchors:
   commit_pr: &commit_pr
     id: commit-pr
     operation: commit
+    object: changes
+    params: { open_draft_pr: true }
+    pr_name: [let llm decide (default), text input filed (Optional)]
+
+  run_tests: &run_tests
+    id: run-tests
+    operation: validate
+    object: tests
+
+  # Provide feedback (used in review flow)
+  provide_feedback_base: &provide_feedback_base
+    operation: create
+    object: review_feedback
+    output: [comment on PR | comment on PR + inline comments | report back here | create analysis report file in git]
+
+  # ---------- Common field properties ----------
+  required_group_a: &required_group_a
+    required_group: a_required
+
+  text_field: &text_field
+    type: text
+
+  text_field_required_group: &text_field_required_group
+    <<: [*text_field, *required_group_a]
+
+  file_picker: &file_picker
+    type: file_picker_multi
+
+  issue_picker: &issue_picker
+    type: issue_picker
+
+  pr_picker: &pr_picker
+    type: pr_picker
+
+  lens_picker: &lens_picker
+    type: lens_picker
+
+  lens_picker_default_empty: &lens_picker_default_empty
+    <<: *lens_picker
+    default: []
+
+# ==================================================
+# Flows
+# ==================================================
+flows:
+  fix:
+    label: 'Fix / Debug'
+    icon: 'bug'
+    panel_a:
+      label: 'Current State' # or per naming option chosen
+      subtitle: "What's happening now"
+      fields:
+        description:
+          <<: *text_field_required_group
+          placeholder: 'Describe the issue: error messages, unexpected behavior, what goes wrong...'
+        issue_number:
+          <<: [*issue_picker, *required_group_a]
+          placeholder: 'Select GitHub issue'
+        files:
+          <<: *file_picker
+          placeholder: 'Where does it occur?'
+    panel_b:
+      label: 'Expected Outcome'
+      subtitle: 'How it should work after the fix'
+      fields:
+        description:
+          <<: *text_field
+          placeholder: 'Describe the expected behavior after the fix is applied...'
+        spec_files:
+          <<: *file_picker
+          placeholder: 'Requirements or spec file'
+        guideline_files:
+          <<: *file_picker
+          placeholder: 'Style guides or coding standards'
+    steps:
+      - *read_claude
+      - id: read-location
+        <<: *read_a_files_base
+        # conditional: only if files selected
+      - id: read-issue
+        <<: *read_issue_base
+        source: panel_a.issue_number # conditional: only if issue selected
+      - *read_specs
+      - *read_guidelines
+      - id: identify-cause
+        operation: analyze
+        object: issue
+        lenses: [error_handling, semantics]
+      - *create_branch
+      - id: implement-fix
+        operation: edit
+        object: files
+        lenses: []
+      - *run_tests
+      - *commit_pr
+
+  review:
+    label: 'Review / Analyze'
+    icon: 'search'
+    panel_a:
+      label: 'Review Subject'
+      subtitle: 'The PR, code, or document to examine'
+      fields:
+        description:
+          <<: *text_field
+          placeholder: 'Background, specific questions, or areas of concern...'
+        pr_number:
+          <<: [*pr_picker, *required_group_a]
+          placeholder: 'Select a pull request'
+        files:
+          <<: [*file_picker, *required_group_a]
+          placeholder: 'Files to review'
+    panel_b:
+      label: 'Review Criteria'
+      subtitle: 'Standards and criteria for the review'
+      fields:
+        spec_files:
+          <<: *file_picker
+          placeholder: 'specs to meet'
+        guideline_files:
+          <<: *file_picker
+          placeholder: 'Standards to check'
+    steps:
+      - *read_claude
+      - *read_specs
+      - *read_guidelines
+      - id: review-pr
+        operation: analyze
+        object: pull_request
+        source: panel_a.pr_number
+        lenses:
+          <<: *lens_picker
+          default: [semantics, structure]
+      - id: review-files
+        operation: analyze
+        object: files
+        source: panel_a.files
+        lenses: *lens_picker_default_empty
+      - id: provide-feedback-pr
+        <<: *provide_feedback_base
+      - id: provide-feedback-files
+        <<: *provide_feedback_base
+
+  implement:
+    label: 'Implement / Build'
+    icon: 'plus'
+    panel_a:
+      label: 'Context'
+      subtitle: 'Existing code or context to build upon (optional)'
+      fields:
+        description:
+          <<: *text_field
+          placeholder: 'Background, constraints, or existing context...'
+        files:
+          <<: *file_picker
+          placeholder: 'Existing files to build upon'
+    panel_b:
+      label: 'Requirements'
+      subtitle: 'What to build and completion criteria'
+      fields:
+        description:
+          <<: *text_field
+          required: true
+          placeholder: 'Describe what to build: functionality, behavior, constraints, requirements/spec id...'
+        spec_files:
+          <<: *file_picker
+          placeholder: 'Requirement docs, user stories, technical specs'
+        acceptance_criteria:
+          <<: *text_field
+          placeholder: "How to know it's done: test cases, edge cases, quality standards..."
+    steps:
+      - *read_claude
+      - id: read-starting
+        <<: *read_a_files_base
+      - *read_specs
+      - *create_branch
+      - id: implement
+        operation: create
+        object: implementation
+        file_name: [let llm decide (default), text input filed (Optional)]
+      - id: verify-criteria
+        operation: validate
+        object: acceptance_criteria
+        source: panel_b.acceptance_criteria
+      - *run_tests
+      - *commit_pr
+
+  improve:
+    label: 'Improve / Modify'
+    icon: 'arrow-up'
+    panel_a:
+      label: 'Current State'
+      subtitle: 'What exists and what needs improvement'
+      fields:
+        description:
+          <<: *text_field_required_group
+          placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...'
+        issue_number:
+          <<: [*issue_picker, *required_group_a]
+          placeholder: 'Select a related GitHub issue'
+        files:
+          <<: *file_picker
+          placeholder: 'Files to improve'
+    panel_b:
+      label: 'Desired Outcome'
+      subtitle: 'What the improved version should look like'
+      fields:
+        lenses:
+          <<: *lens_picker_default_empty
+        description:
+          <<: *text_field
+          placeholder: 'Describe the desired improvements, goals, or constraints...'
+        issue_number:
+          <<: *issue_picker
+          placeholder: 'Issue describing the desired state'
+        guideline_files:
+          <<: *file_picker
+          label: 'Reference files'
+          placeholder: 'Style guides, examples of desired output, or specs'
+    multi_file:
+      scope_selector:
+        label: 'How should files be improved?'
+        options:
+          each_file: 'Each file separately'
+          across_files: 'Across files together'
+        show_when: 'panel_a.files.length >= 2'
+    steps:
+      - *read_claude
+      - id: read-files
+        <<: *read_a_files_base
+      - id: read-issue-current
+        <<: *read_issue_base
+        source: panel_a.issue_number
+      - id: read-issue-desired
+        <<: *read_issue_base
+        source: panel_b.issue_number
+      - *read_guidelines
+      - *create_branch
+      - id: apply-improvements
+        operation: edit
+        object: files
+        lenses: [] # populated from panel_b.lenses
+      - id: verify
+        operation: validate
+        object: improvements
+      - *commit_pr    operation: commit
     object: changes
     params: { open_draft_pr: true }
     pr_name: [let llm decide (default), text input filed (Optional)]
