@@ -105,127 +105,13 @@ index.html
 
 | #   | Precondition                                                                                              | Needed by               | Status                                  |
 | --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------- |
-| P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | **Ask PO when Phase 2 starts**          |
-| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | **Draft in hybrid-framework-design.md** |
+| P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | not approved, we will use all 4 flows directly, see below |
+| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | Approved by human, please validate file by reviewing |
 | P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                            |
 | P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)                   |
 | P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)                    |
 | P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)                    |
 
-### Mock Flow Structure (for P1)
-
-While waiting for PO-approved flows, development uses a placeholder structure based on the hybrid framework design. This exercises all field types and step variations:
-
-```yaml
-# Placeholder — 2 of 4 flows for development testing
-flows:
-  fix:
-    label: 'Fix / Debug'
-    icon: 'bug'
-    panel_a:
-      label: 'Situation'
-      subtitle: "What's happening now"
-      fields:
-        description:
-          type: text
-          placeholder: 'Describe the issue...'
-          required_group: a_required
-        issue_number:
-          type: issue_picker
-          required_group: a_required
-        files:
-          type: file_picker_multi
-    panel_b:
-      label: 'Target'
-      subtitle: 'How it should work after the fix'
-      fields:
-        description:
-          type: text
-        spec_files:
-          type: file_picker_multi
-        guideline_files:
-          type: file_picker_multi
-    steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
-        locked: true
-      - id: read-location
-        operation: read
-        object: files
-        source: panel_a.files
-      - id: read-issue
-        operation: read
-        object: issue
-        source: panel_a.issue_number
-      - id: identify-cause
-        operation: analyze
-        object: issue
-        lenses: [error_handling, semantics]
-      - id: create-branch
-        operation: create
-        object: branch
-      - id: implement-fix
-        operation: edit
-        object: files
-        lenses: [error_handling, semantics]
-      - id: run-tests
-        operation: validate
-        object: tests
-      - id: commit-pr
-        operation: commit
-        object: changes
-        params: { open_pr: true }
-
-  review:
-    label: 'Review / Analyze'
-    icon: 'search'
-    panel_a:
-      label: 'Situation'
-      subtitle: 'The PR or code to examine'
-      fields:
-        description:
-          type: text
-        pr_number:
-          type: pr_picker
-          required_group: a_required
-        files:
-          type: file_picker_multi
-          required_group: a_required
-    panel_b:
-      label: 'Target'
-      subtitle: 'Standards and criteria'
-      fields:
-        lenses:
-          type: lens_picker
-          default: [semantics, structure]
-        spec_files:
-          type: file_picker_multi
-        guideline_files:
-          type: file_picker_multi
-    steps:
-      - id: read-claude
-        operation: read
-        object: file
-        params: { file: 'claude.md' }
-        locked: true
-      - id: review-pr
-        operation: analyze
-        object: pull_request
-        source: panel_a.pr_number
-        lenses: []
-      - id: review-files
-        operation: analyze
-        object: files
-        source: panel_a.files
-        lenses: []
-      - id: provide-feedback
-        operation: create
-        object: review_feedback
-```
-
-This structure covers: required groups (at least one of), conditional steps (via `source`), locked steps, lens pills with defaults, multiple field types (text, file_picker_multi, issue_picker, pr_picker, lens_picker), and dual-panel layout. Full 4-flow YAML in `spec/hybrid-framework-design.md`.
 
 ---
 
@@ -252,7 +138,7 @@ This structure covers: required groups (at least one of), conditional steps (via
   - Card headers use `<button>` elements (not divs) for accessibility
   - `aria-expanded="true|false"` on card headers
 - [x] Mobile-first: base styles for small screens, `@media (min-width: 768px)` for larger
-- [x] **Accessibility**: card expand/collapse via keyboard (Enter/Space), focus-visible outlines
+- [x] Accessibility: card expand/collapse via keyboard (Enter/Space), focus-visible outlines
 
 ### Output
 
@@ -302,7 +188,7 @@ Pure function `buildPrompt(promptInput) → string`. Called inside `setState()` 
 - [x] Hydrate PAT + username from `localStorage` on init; validate stored data shape before hydrating (guard against corruption)
 - [x] `resetSession()`: clear all fields except PAT/username, reset derived prompt
 - [x] Create `src/js/prompt-builder.js` with `buildPrompt(promptInput)` pure function
-- [x] Prompt format per OUT-02: XML tags, repo context header, flow-specific `<task>` section with Panel A/B content, ordered `<todo>` steps, notes section. Prompt template varies per flow (fix/review/implement/improve).
+- [ ] Prompt format per OUT-02: XML tags, repo context header, flow-specific `<task>` section with Panel A/B content, ordered `<todo>` steps, notes section. Prompt template varies per flow (fix/review/implement/improve).
 - [x] File references use `@` prefix per OUT-04: `@src/utils/auth.js`
 - [x] Step 1 always present (read claude.md); remaining steps are dynamic from `enabled_steps`
 - [x] **Test**: `tests/state.test.js` — setState triggers rebuild, subscribe fires, session reset preserves PAT, corrupted localStorage handled gracefully
@@ -323,8 +209,6 @@ Pure function `buildPrompt(promptInput) → string`. Called inside `setState()` 
 
 **Req IDs**: DM-DEF-02, DM-DEF-03, SCT-07, TST-03
 
-**Blocker**: P1 — needs PO approval for placeholder flows in `flows.yaml`.
-
 ### Technical Design: Vite Plugin
 
 A custom Vite plugin (`config/vite-plugin-yaml.js`) that:
@@ -338,7 +222,8 @@ A custom Vite plugin (`config/vite-plugin-yaml.js`) that:
 The schema file lives in `config/` (not `src/js/`) because it's a build-time artifact that should not be bundled into production code.
 
 ### Checklist
-
+- [ ] Check if `src/js/state.js`, `src/js/prompt-builder.js`, `tests/state.test.js`, and `tests/prompt-builder.test.js` need updates to match @spec/hybrid-framework-design.md.
+- [ ] Understand, review and validate flows.yaml
 - [ ] Install `js-yaml` as dev dependency
 - [ ] Create `config/flow-schema.js` — JSON Schema defining valid flow structure (label, icon, panel_a/panel_b with field definitions, steps array with operation/object/lenses/params/source/locked)
 - [ ] Create `config/vite-plugin-yaml.js` — Vite plugin: `transform` hook for `.yaml` files, parse + validate + emit JSON
