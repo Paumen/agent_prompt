@@ -1,7 +1,7 @@
 # Implementation Plan
 
-> **Status**: Draft v2 — updated with PO decisions.
-> **Date**: 2026-02-24
+> **Status**: Draft v3 — updated for 4-flow dual-panel framework.
+> **Date**: 2026-02-25
 
 ---
 
@@ -68,9 +68,11 @@ index.html
 | `src/js/cache.js`              | localStorage read/write, TTL, PAT-change invalidation                                    | Phase 3    | GL-05, APP-04                    |
 | `src/js/flow-loader.js`        | Import pre-validated flow JSON, expose `getFlows()`, `getFlowById()`                     | Phase 2    | DM-DEF-02, SCT-07                |
 | `src/js/card-configuration.js` | Card 1 UI: PAT, username, repo grid, branch grid                                         | Phase 4    | CFG-01..05                       |
-| `src/js/card-tasks.js`         | Card 2 UI: flow selector + flow-specific inputs                                          | Phase 5    | SCT-01..07                       |
+| `src/js/card-tasks.js`         | Card 2 UI: flow selector + dual-panel (Situation/Target) + quality meter                 | Phase 5    | SCT-01..09                       |
 | `src/js/file-tree.js`          | Recursive file tree for file selection (flow-dependent)                                  | Phase 5    | SCT-01, SCT-06                   |
-| `src/js/card-steps.js`         | Card 3 UI: step list, lenses, params, delete                                             | Phase 6    | STP-01..04                       |
+| `src/js/quality-meter.js`      | Quality Meter: field weight scoring + color bar rendering                                | Phase 5    | SCT-08                           |
+| `src/js/step-generator.js`     | Auto-generate steps from flow definition + filled panel fields                           | Phase 6    | STP-01, STP-02                   |
+| `src/js/card-steps.js`         | Card 3 UI: auto-generated step list, lens toggles, trash icons                           | Phase 6    | STP-01..04                       |
 | `src/js/card-prompt.js`        | Card 4 UI: prompt preview, copy, notes, Open in Claude                                   | Phase 7    | OUT-01..08                       |
 
 ### Config/build files
@@ -90,8 +92,10 @@ index.html
 | `tests/github-api.test.js`         | API calls (mocked), error handling, limits                      | Phase 3    |
 | `tests/cache.test.js`              | Cache read/write, TTL, PAT invalidation cascade                 | Phase 3    |
 | `tests/card-configuration.test.js` | Card 1 behavior                                                 | Phase 4    |
-| `tests/card-tasks.test.js`         | Card 2 behavior, flow selection, flow-specific inputs           | Phase 5    |
-| `tests/card-steps.test.js`         | Card 3 behavior, lens toggling, step removal                    | Phase 6    |
+| `tests/card-tasks.test.js`         | Card 2: flow selection, dual-panel inputs, quality meter        | Phase 5    |
+| `tests/quality-meter.test.js`      | Quality meter scoring, threshold colors, per-flow weights       | Phase 5    |
+| `tests/step-generator.test.js`     | Step auto-generation from flow + panel fields                   | Phase 6    |
+| `tests/card-steps.test.js`         | Card 3: auto-generated steps, lens toggling, step removal       | Phase 6    |
 | `tests/card-prompt.test.js`        | Card 4 behavior, copy, notes                                    | Phase 7    |
 | `tests/e2e.test.js`                | Full user journey: repo → flow → steps → copy                   | Phase 9    |
 
@@ -99,102 +103,129 @@ index.html
 
 ## 3. Preconditions & Blockers
 
-| #   | Precondition                                                                                              | Needed by               | Status                         |
-| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------------ |
-| P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | **Ask PO when Phase 2 starts** |
-| P2  | **PO to author real flows** in `flows.yaml` with full step definitions for all 6 flows                    | Phase 5 (full), Phase 6 | **Blocked — PO action**        |
-| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                   |
-| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)          |
-| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)           |
-| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)           |
+| #   | Precondition                                                                                              | Needed by               | Status                                  |
+| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------- |
+| P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | **Ask PO when Phase 2 starts**          |
+| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | **Draft in hybrid-framework-design.md** |
+| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                            |
+| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)                   |
+| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)                    |
+| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)                    |
 
 ### Mock Flow Structure (for P1)
 
-While waiting for real flows, development uses this placeholder structure. Each mock flow exercises all possible step variations to ensure the UI handles every case:
+While waiting for PO-approved flows, development uses a placeholder structure based on the hybrid framework design. This exercises all field types and step variations:
 
 ```yaml
-# Placeholder flow for development — exercises all step features
+# Placeholder — 2 of 4 flows for development testing
 flows:
-  - id: review-pr
-    title: Review PR
-    icon: magnifying-glass
+  fix:
+    label: 'Fix / Debug'
+    icon: 'bug'
+    panel_a:
+      label: 'Situation'
+      subtitle: "What's happening now"
+      fields:
+        description:
+          type: text
+          placeholder: 'Describe the issue...'
+          required_group: a_required
+        issue_number:
+          type: issue_picker
+          required_group: a_required
+        files:
+          type: file_picker_multi
+    panel_b:
+      label: 'Target'
+      subtitle: 'How it should work after the fix'
+      fields:
+        description:
+          type: text
+        spec_files:
+          type: file_picker_multi
+        guideline_files:
+          type: file_picker_multi
     steps:
-      - id: read-claude-md
+      - id: read-claude
         operation: read
         object: file
-        params:
-          file: '@claude.md'
-        required: true # always-on, non-removable
-      - id: read-selected
+        params: { file: 'claude.md' }
+        locked: true
+      - id: read-location
         operation: read
         object: files
-        required: true
-      - id: checkout-pr
-        operation: checkout
-        object: pr
-        params:
-          pr_number: null # user must select — SCT-06 dropdown
-        required_input: true # shows inline picker
-      - id: review-code
-        operation: review
-        object: code
-        lenses: # STP-03 lens pills
-          - correctness
-          - security
-          - performance
-          - readability
-          - maintainability
-        default_lenses:
-          - correctness
-          - readability
-      - id: write-review
-        operation: create
-        object: review-comment
-
-  - id: implement-feature
-    title: Implement Feature
-    icon: hammer
-    steps:
-      - id: read-claude-md
+        source: panel_a.files
+      - id: read-issue
         operation: read
-        object: file
-        params:
-          file: '@claude.md'
-        required: true
-      - id: read-selected
-        operation: read
-        object: files
-        required: true
+        object: issue
+        source: panel_a.issue_number
+      - id: identify-cause
+        operation: analyze
+        object: issue
+        lenses: [error_handling, semantics]
       - id: create-branch
         operation: create
         object: branch
-        params:
-          from_branch: null # auto-filled from selected branch
-      - id: read-spec
-        operation: read
-        object: file
-        params:
-          file: null # SCT-06 file picker
-        required_input: true
-      - id: implement
+      - id: implement-fix
         operation: edit
         object: files
-        lenses:
-          - functionality
-          - error-handling
-          - testing
-          - documentation
-        default_lenses:
-          - functionality
-      - id: commit
+        lenses: [error_handling, semantics]
+      - id: run-tests
+        operation: validate
+        object: tests
+      - id: commit-pr
         operation: commit
         object: changes
-      - id: open-pr
-        operation: open
-        object: pr
+        params: { open_pr: true }
+
+  review:
+    label: 'Review / Analyze'
+    icon: 'search'
+    panel_a:
+      label: 'Situation'
+      subtitle: 'The PR or code to examine'
+      fields:
+        description:
+          type: text
+        pr_number:
+          type: pr_picker
+          required_group: a_required
+        files:
+          type: file_picker_multi
+          required_group: a_required
+    panel_b:
+      label: 'Target'
+      subtitle: 'Standards and criteria'
+      fields:
+        lenses:
+          type: lens_picker
+          default: [semantics, structure]
+        spec_files:
+          type: file_picker_multi
+        guideline_files:
+          type: file_picker_multi
+    steps:
+      - id: read-claude
+        operation: read
+        object: file
+        params: { file: 'claude.md' }
+        locked: true
+      - id: review-pr
+        operation: analyze
+        object: pull_request
+        source: panel_a.pr_number
+        lenses: []
+      - id: review-files
+        operation: analyze
+        object: files
+        source: panel_a.files
+        lenses: []
+      - id: provide-feedback
+        operation: create
+        object: review_feedback
 ```
 
-This structure covers: required steps, optional steps, lens pills with defaults, dropdown pickers (file, PR), required text inputs, and parameterized steps.
+This structure covers: required groups (at least one of), conditional steps (via `source`), locked steps, lens pills with defaults, multiple field types (text, file_picker_multi, issue_picker, pr_picker, lens_picker), and dual-panel layout. Full 4-flow YAML in `spec/hybrid-framework-design.md`.
 
 ---
 
@@ -257,7 +288,7 @@ export function resetSession()                 // clears repo/branch/prefs, keep
 **Session vs. persistent state** (per APP-04):
 
 - **Persistent** (survives page reload): `configuration.pat`, `configuration.owner` → saved to `localStorage`
-- **Session** (cleared on page reload): `configuration.repo`, `configuration.branch`, `context.*`, `task.*`, `steps.*`, `notes.*` → initialized to defaults on every page load
+- **Session** (cleared on page reload): `configuration.repo`, `configuration.branch`, `panel_a.*`, `panel_b.*`, `task.*`, `steps.*`, `improve_scope`, `notes.*` → initialized to defaults on every page load
 
 ### Prompt Builder
 
@@ -271,9 +302,9 @@ Pure function `buildPrompt(promptInput) → string`. Called inside `setState()` 
 - [ ] Hydrate PAT + username from `localStorage` on init; validate stored data shape before hydrating (guard against corruption)
 - [ ] `resetSession()`: clear all fields except PAT/username, reset derived prompt
 - [ ] Create `src/js/prompt-builder.js` with `buildPrompt(promptInput)` pure function
-- [ ] Prompt format per OUT-02: XML tags, repo context header, ordered steps, notes section
+- [ ] Prompt format per OUT-02: XML tags, repo context header, flow-specific `<task>` section with Panel A/B content, ordered `<todo>` steps, notes section. Prompt template varies per flow (fix/review/implement/improve).
 - [ ] File references use `@` prefix per OUT-04: `@src/utils/auth.js`
-- [ ] Steps 1-2 always present (read claude.md, read selected files if any); remaining steps are dynamic from `enabled_steps`
+- [ ] Step 1 always present (read claude.md); remaining steps are dynamic from `enabled_steps`
 - [ ] **Test**: `tests/state.test.js` — setState triggers rebuild, subscribe fires, session reset preserves PAT, corrupted localStorage handled gracefully
 - [ ] **Test**: `tests/prompt-builder.test.js` — deterministic output (snapshot test, TST-01), empty state, full state, various step combinations
 
@@ -309,7 +340,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 ### Checklist
 
 - [ ] Install `js-yaml` as dev dependency
-- [ ] Create `config/flow-schema.js` — JSON Schema defining valid flow structure (id, title, icon, steps array with operation/object/lenses/params/required_input)
+- [ ] Create `config/flow-schema.js` — JSON Schema defining valid flow structure (label, icon, panel_a/panel_b with field definitions, steps array with operation/object/lenses/params/source/locked)
 - [ ] Create `config/vite-plugin-yaml.js` — Vite plugin: `transform` hook for `.yaml` files, parse + validate + emit JSON
 - [ ] Create `src/js/flow-loader.js` — `import flows from '../config/flows.yaml'`; exports `getFlows()`, `getFlowById(id)`
 - [ ] Build fails with clear error message on malformed YAML or schema violation
@@ -399,70 +430,90 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 9. Phase 5 — Card 2: Super Tasks `To start`
+## 9. Phase 5 — Card 2: Task (Dual-Panel) `To start`
 
-**Goal**: Flow selector grid with flow-specific input fields.
+**Goal**: Flow selector grid with dual-panel layout (Situation/Target), flow-specific input fields, quality meter.
 
-**Req IDs**: SCT-01..07, DM-DEF-03
+**Req IDs**: SCT-01..09, DM-DEF-03
 
-**Dependency**: Phase 2 (flow loader) + Phase 3 (file tree API). Full flow definitions (P2) needed for complete implementation — use placeholders until then.
+**Dependency**: Phase 2 (flow loader) + Phase 3 (file tree API). Full flow definitions (P2) needed — draft in `spec/hybrid-framework-design.md`.
 
 ### Checklist
 
 - [ ] Create `src/js/card-tasks.js`:
   - Flow buttons: wrapping grid with icon + title per button, single row per button (VIS-01, SCT-03)
-  - 6 predefined flows per SCT-02: Review PR, Implement Feature, Fix Bug, Refactor, Write Tests, Write Documentation
-  - On flow select: `setState('task.flow_id', id)` + apply flow defaults to `steps.enabled_steps` (DM-DEF-03 — full reset, no carry-over)
-  - On flow select: expand Steps + Prompt cards, show flow-specific mandatory fields, collapse Configuration (from UJ table)
-  - Flow-specific input fields per SCT-04: e.g., "Implement Feature" shows mandatory description field + optional spec file picker; "Review PR" shows list of open PRs to select
-  - Mandatory input fields clearly marked as required (SCT-05)
-  - If flow requires PRs/issues: trigger fetch (from UJ table: "fetch PRs/issues if flow requires them")
+  - 4 flows per SCT-02: Fix / Debug, Review / Analyze, Implement / Build, Improve / Modify
+  - On flow select: `setState('task.flow_id', id)` + reset panel_a, panel_b, steps, improve_scope (DM-DEF-03 — full reset, no carry-over)
+  - On flow select: expand Steps + Prompt cards, collapse Configuration (from UJ table)
+  - **Dual-panel layout** per SCT-04: left/right on desktop (50/50 split), stacked on mobile. Panel A = "Situation" (+ flow subtitle), Panel B = "Target" (+ flow subtitle). Fields within each panel are driven by flow definition in flows.yaml.
+  - Required group validation per SCT-05: at least one field in each required group must be filled. Visual indicator when group is unsatisfied.
+  - If flow requires PRs/issues: trigger fetch (from UJ table)
   - Selected flow: accent bar + subtle background
   - Shimmer skeleton while data loads (GL-02)
-- [ ] Create `src/js/file-tree.js` (flow-dependent file selection):
+- [ ] Create `src/js/file-tree.js` (file selection for Panel A/B file pickers):
   - Render recursive file tree from API data when flow requires file selection
-  - Files update `context.selected_files` via `setState()` (SCT-01)
+  - Files update `panel_a.files`, `panel_b.spec_files`, or `panel_b.guideline_files` via `setState()` (SCT-01)
   - Full tree pre-loaded (APP-03 — within 300-file limit)
   - If tree exceeds 300 files: truncate and show warning message
-  - **Accessibility**: tree uses `role="tree"` / `role="treeitem"`, keyboard navigation (arrow keys to expand/collapse, Space to toggle checkbox)
+  - **Spec vs Guideline**: file pickers for spec_files and guideline_files display tooltip/helper text distinguishing WHAT (specs) vs HOW (guidelines) per SCT-06
+  - **Accessibility**: tree uses `role="tree"` / `role="treeitem"`, keyboard navigation
+- [ ] Create `src/js/quality-meter.js` (SCT-08):
+  - Calculate score from filled fields: each field type has a fixed weight (required text=25, required selector=20, optional text=15, file picker=15, lens picker=10, notes=5)
+  - Score = filled weights / total possible weights for the active flow
+  - Render thin horizontal bar below flow selector with 4 color thresholds (red ≤30%, orange 31-55%, yellow 56-75%, green 76-100%)
+  - Updates on every state change via subscription
+- [ ] **Improve/Modify scope selector** (SCT-09): when 2+ files selected in panel_a.files, show toggle: "Each file separately" vs "Across files together". Updates `improve_scope` in state.
 - [ ] Pre-fillable options use flat searchable dropdowns (SCT-06): file pickers (flat alphabetical list), PR/issue pickers (#number — title). Uses shared `renderSearchableDropdown()` from `components.js`
 - [ ] **Click audit (GL-01)**: flow select = 1 click, file toggle = 1 click. All within target.
-- [ ] **Mobile (GL-03)**: flow grid reflows, file tree scrolls vertically, touch targets adequate
-- [ ] **Test**: `tests/card-tasks.test.js` — flow selection resets steps, flow-specific inputs appear, card expand behavior
+- [ ] **Mobile (GL-03)**: flow grid reflows, dual-panel stacks vertically, file pickers scroll, touch targets adequate
+- [ ] **Test**: `tests/card-tasks.test.js` — flow selection resets panels + steps, dual-panel renders per flow, required groups validate
+- [ ] **Test**: `tests/quality-meter.test.js` — scoring per flow, threshold colors, updates on field change
 
 ### Output
 
 - `src/js/card-tasks.js`
 - `src/js/file-tree.js`
+- `src/js/quality-meter.js`
 - `tests/card-tasks.test.js`
+- `tests/quality-meter.test.js`
 
 ---
 
-## 10. Phase 6 — Card 3: Steps `To start`
+## 10. Phase 6 — Card 3: Steps (Auto-Generated) `To start`
 
-**Goal**: Ordered step list with lenses and deletion.
+**Goal**: Auto-generated step list from flow + panel inputs, with lens fine-tuning and deletion.
 
 **Req IDs**: STP-01..04
 
-**Dependency**: Phase 2 (flow definitions) + Phase 5 (flow selection populates steps).
+**Dependency**: Phase 2 (flow definitions) + Phase 5 (flow selection + panel fields populate steps).
 
 ### Checklist
 
+- [ ] Create `src/js/step-generator.js`:
+  - `generateSteps(flowDef, panelA, panelB, improveScope)` → returns ordered step array
+  - Base steps come from flow definition in flows.yaml
+  - Conditional steps (with `source` field) only included when the referenced panel field is filled
+  - Locked steps (e.g., "Read @claude.md") are always included
+  - Called from `setState()` whenever flow, panel_a, or panel_b changes — result stored in `steps.enabled_steps`
 - [ ] Create `src/js/card-steps.js`:
   - Render ordered step list from `state.steps.enabled_steps` (STP-01)
-  - Each step shows: operation + object label, optional lenses, optional params, optional text input
-  - Data model minimums: 1× operation, 1× object. Optional: lenses, additional objects, text input, toggles (STP-02). Defaults are pre-applied from flow — users only change what they want.
-  - Lens pills: pre-selected based on flow defaults, user can toggle on/off or add custom lenses via free-text input (STP-03)
-  - Delete button (trash icon) on each step — single tap removes it (STP-01, STP-04)
+  - Each step is a compact single row: step number, operation + object label, optional lens pills
+  - Locked steps: no trash icon, visual indicator (e.g., lock icon or dimmed trash)
+  - Lens pills: pre-selected based on flow defaults, user can toggle on/off per step (STP-03)
+  - Delete button (trash icon) on each non-locked step — single tap removes it (STP-04)
+  - Steps cannot be reordered or manually added (STP-04)
   - All interactions call `setState()` to update `steps.enabled_steps`
 - [ ] **Click audit (GL-01)**: lens toggle = 1 click, step delete = 1 click. All within target.
 - [ ] **Mobile (GL-03)**: step list scrolls, adequate touch targets for lens pills and delete buttons
 - [ ] **Accessibility**: delete buttons have `aria-label="Remove step: [step name]"`, lens pills are `role="switch"` with `aria-checked`
-- [ ] **Test**: `tests/card-steps.test.js` — step rendering, lens toggling updates state, step deletion
+- [ ] **Test**: `tests/step-generator.test.js` — conditional step inclusion/exclusion, locked steps always present, improve_scope affects steps
+- [ ] **Test**: `tests/card-steps.test.js` — step rendering, lens toggling updates state, step deletion, locked steps not removable
 
 ### Output
 
+- `src/js/step-generator.js`
 - `src/js/card-steps.js`
+- `tests/step-generator.test.js`
 - `tests/card-steps.test.js`
 
 ---
@@ -584,17 +635,19 @@ Every spec requirement mapped to its primary implementation phase and verificati
 | CFG-03    | 4                        | 4              | Repo button grid                           |
 | CFG-04    | 4                        | 4              | Branch buttons + auto-select               |
 | CFG-05    | 4                        | 4              | Background fetch on repo select            |
-| SCT-01    | 5                        | 5              | Files flagged for LLM to "read upfront"    |
-| SCT-02    | 5                        | 5              | 6 predefined flows                         |
+| SCT-01    | 5                        | 5              | Panel A files flagged for "read upfront"   |
+| SCT-02    | 5                        | 5              | 4 predefined flows (dual-panel)            |
 | SCT-03    | 5                        | 5              | Flow button grid                           |
-| SCT-04    | 5                        | 5              | Flow-specific input fields                 |
-| SCT-05    | 5                        | 5              | Mandatory input field marking              |
-| SCT-06    | 5                        | 5              | Pre-fillable dropdowns                     |
+| SCT-04    | 5                        | 5              | Dual-panel Situation/Target layout         |
+| SCT-05    | 5                        | 5              | Required group validation                  |
+| SCT-06    | 5                        | 5              | Searchable dropdowns + spec/guide tooltips |
 | SCT-07    | 2                        | 2              | flows.yaml definitions                     |
-| STP-01    | 6                        | 6              | Ordered list + delete                      |
-| STP-02    | 6                        | 6              | Step data model                            |
-| STP-03    | 6                        | 6              | Lens pills                                 |
-| STP-04    | 6                        | 6              | Step removal                               |
+| SCT-08    | 5                        | 5              | Quality Meter scoring + color bar          |
+| SCT-09    | 5                        | 5              | Improve multi-file scope selector          |
+| STP-01    | 6                        | 6              | Auto-generated steps + delete              |
+| STP-02    | 6                        | 6              | Conditional steps from panel fields        |
+| STP-03    | 6                        | 6              | Lens pills per step                        |
+| STP-04    | 6                        | 6              | Step removal (non-locked only)             |
 | OUT-01    | 7                        | 7              | XML-tagged prompt                          |
 | OUT-02    | 1, 7                     | 7, 9           | Prompt format (builder in 1, display in 7) |
 | OUT-03    | 1                        | 1, 7           | Full regeneration                          |
