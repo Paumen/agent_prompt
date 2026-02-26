@@ -60,14 +60,14 @@ _x_anchors:
     id: create-branch
     operation: create
     object: branch
-    branche_name: [let llm decide (default), text input filed (Optional)]
+    branch_name: optional_text # null = LLM decides; user can type a name
 
   commit_pr: &commit_pr
     id: commit-pr
     operation: commit
     object: changes
     params: { open_draft_pr: true }
-    pr_name: [let llm decide (default), text input filed (Optional)]
+    pr_name: optional_text # null = LLM decides; user can type a name
 
   run_tests: &run_tests
     id: run-tests
@@ -77,7 +77,7 @@ _x_anchors:
   provide_feedback_base: &provide_feedback_base
     operation: create
     object: review_feedback
-    output: [comment on PR | comment on PR + inline comments | report back here | create analysis report file in git]
+    output: [here, pr_comment, pr_inline_comments, issue_comment, report_file]
 
   # ---------- Common field properties ----------
   required_group_a: &required_group_a
@@ -113,7 +113,7 @@ flows:
     label: 'Fix / Debug'
     icon: 'bug'
     panel_a:
-      label: 'Current State' # or per naming option chosen
+      label: 'Current State'
       subtitle: "What's happening now"
       fields:
         description:
@@ -144,18 +144,18 @@ flows:
         <<: *read_a_files_base
       - id: read-issue
         <<: *read_issue_base
-        source: panel_a.issue_number # 
+        source: panel_a.issue_number
       - *read_specs
       - *read_guidelines
       - id: identify-cause
         operation: analyze
         object: issue
-        lenses: *lens_picker_default_empty
+        lenses: [] # user-adjustable via lens picker
       - *create_branch
       - id: implement-fix
         operation: edit
         object: files
-        lenses: *lens_picker_default_empty
+        lenses: [] # user-adjustable via lens picker
       - *run_tests
       - *commit_pr
 
@@ -179,6 +179,9 @@ flows:
       label: 'Review Criteria'
       subtitle: 'Standards and criteria for the review'
       fields:
+        lenses:
+          <<: *lens_picker
+          default: [semantics, structure]
         spec_files:
           <<: *file_picker
           placeholder: 'specs to meet'
@@ -193,18 +196,18 @@ flows:
         operation: analyze
         object: pull_request
         source: panel_a.pr_number
-        lenses:
-          <<: *lens_picker
-          default: [semantics, structure]
+        lenses: [semantics, structure] # defaults from panel_b.lenses
       - id: review-files
         operation: analyze
         object: files
         source: panel_a.files
-        lenses: *lens_picker_default_empty
+        lenses: [] # populated from panel_b.lenses
       - id: provide-feedback-pr
         <<: *provide_feedback_base
+        source: panel_a.pr_number
       - id: provide-feedback-files
         <<: *provide_feedback_base
+        source: panel_a.files
 
   implement:
     label: 'Implement / Build'
@@ -242,7 +245,7 @@ flows:
       - id: implement
         operation: create
         object: implementation
-        file_name: [let llm decide (default), text input filed (Optional)]
+        file_name: optional_text # null = LLM decides; user can type a name
       - id: verify-criteria
         operation: validate
         object: acceptance_criteria
@@ -305,7 +308,8 @@ flows:
         operation: edit
         object: files
         lenses: [] # populated from panel_b.lenses
+      - *run_tests
       - id: verify
         operation: validate
         object: improvements
-      - *commit_pr    
+      - *commit_pr

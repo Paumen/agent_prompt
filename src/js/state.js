@@ -2,22 +2,37 @@ import { buildPrompt } from './prompt-builder.js';
 
 // --- Default state shape (DM canonical model) ---
 
+const CURRENT_VERSION = '1.0';
+
 const DEFAULT_STATE = {
+  version: CURRENT_VERSION,
   configuration: {
     owner: '',
     repo: '',
     branch: '',
     pat: '',
   },
-  context: {
-    selected_files: [],
-  },
   task: {
     flow_id: '',
+  },
+  panel_a: {
+    description: '',
+    issue_number: null,
+    pr_number: null,
+    files: [],
+  },
+  panel_b: {
+    description: '',
+    issue_number: null,
+    spec_files: [],
+    guideline_files: [],
+    acceptance_criteria: '',
+    lenses: [],
   },
   steps: {
     enabled_steps: [],
   },
+  improve_scope: null,
   notes: {
     user_text: '',
   },
@@ -169,6 +184,38 @@ export function resetSession() {
   }
 }
 
+/**
+ * Apply flow defaults to panel_a, panel_b, steps, and improve_scope (DM-DEF-03).
+ * Called on flow selection — fully resets user overrides.
+ */
+export function applyFlowDefaults(flowId, flowDef) {
+  state.task.flow_id = flowId;
+
+  // Reset panels and steps to defaults (DM-DEF-03)
+  state.panel_a = structuredClone(DEFAULT_STATE.panel_a);
+  state.panel_b = structuredClone(DEFAULT_STATE.panel_b);
+  state.improve_scope = null;
+
+  // Populate enabled_steps from flow definition steps
+  if (Array.isArray(flowDef?.steps)) {
+    state.steps.enabled_steps = structuredClone(flowDef.steps);
+  } else {
+    state.steps.enabled_steps = [];
+  }
+
+  // Apply flow-specific default lenses to panel_b if defined
+  if (flowDef?.panel_b?.fields?.lenses?.default) {
+    state.panel_b.lenses = [...flowDef.panel_b.fields.lenses.default];
+  }
+
+  prompt = buildPrompt(state);
+
+  const snapshot = getState();
+  for (const listener of subscribers) {
+    listener(snapshot);
+  }
+}
+
 // --- Deep merge utility ---
 
 function deepMerge(target, source) {
@@ -197,4 +244,4 @@ loadPersistent();
 prompt = buildPrompt(state);
 
 // Expose for testing
-export { DEFAULT_STATE, STORAGE_KEY };
+export { DEFAULT_STATE, STORAGE_KEY, CURRENT_VERSION };

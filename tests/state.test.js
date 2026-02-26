@@ -23,17 +23,32 @@ describe('state.js', () => {
   });
 
   describe('getState()', () => {
-    it('returns the default state shape', () => {
+    it('returns the default state shape with new data model', () => {
       const s = stateModule.getState();
+      expect(s.version).toBe('1.0');
       expect(s.configuration).toEqual({
         owner: '',
         repo: '',
         branch: '',
         pat: '',
       });
-      expect(s.context).toEqual({ selected_files: [] });
       expect(s.task).toEqual({ flow_id: '' });
+      expect(s.panel_a).toEqual({
+        description: '',
+        issue_number: null,
+        pr_number: null,
+        files: [],
+      });
+      expect(s.panel_b).toEqual({
+        description: '',
+        issue_number: null,
+        spec_files: [],
+        guideline_files: [],
+        acceptance_criteria: '',
+        lenses: [],
+      });
       expect(s.steps).toEqual({ enabled_steps: [] });
+      expect(s.improve_scope).toBe(null);
       expect(s.notes).toEqual({ user_text: '' });
       expect(s.output).toEqual({ destination: 'clipboard' });
     });
@@ -76,13 +91,30 @@ describe('state.js', () => {
       expect(s._prompt).toContain('wonderland');
     });
 
-    it('handles array values', () => {
-      stateModule.setState('context.selected_files', [
-        'src/main.js',
-        'src/util.js',
-      ]);
+    it('handles panel_a.files array', () => {
+      stateModule.setState('panel_a.files', ['src/main.js', 'src/util.js']);
       const s = stateModule.getState();
-      expect(s.context.selected_files).toEqual(['src/main.js', 'src/util.js']);
+      expect(s.panel_a.files).toEqual(['src/main.js', 'src/util.js']);
+    });
+
+    it('sets panel_a.description', () => {
+      stateModule.setState('panel_a.description', 'Bug in auth module');
+      expect(stateModule.getState().panel_a.description).toBe(
+        'Bug in auth module'
+      );
+    });
+
+    it('sets panel_b.lenses', () => {
+      stateModule.setState('panel_b.lenses', ['security', 'performance']);
+      expect(stateModule.getState().panel_b.lenses).toEqual([
+        'security',
+        'performance',
+      ]);
+    });
+
+    it('sets improve_scope', () => {
+      stateModule.setState('improve_scope', 'each_file');
+      expect(stateModule.getState().improve_scope).toBe('each_file');
     });
   });
 
@@ -147,9 +179,13 @@ describe('state.js', () => {
       stateModule.setState('configuration.owner', 'myuser');
       stateModule.setState('configuration.repo', 'my-repo');
       stateModule.setState('configuration.branch', 'main');
-      stateModule.setState('task.flow_id', 'review-pr');
+      stateModule.setState('task.flow_id', 'fix');
       stateModule.setState('notes.user_text', 'some notes');
-      stateModule.setState('context.selected_files', ['a.js']);
+      stateModule.setState('panel_a.files', ['a.js']);
+      stateModule.setState('panel_a.description', 'bug description');
+      stateModule.setState('panel_b.description', 'expected behavior');
+      stateModule.setState('panel_b.lenses', ['security']);
+      stateModule.setState('improve_scope', 'each_file');
       stateModule.setState('steps.enabled_steps', [
         { id: 'test', operation: 'read', object: 'file' },
       ]);
@@ -165,7 +201,17 @@ describe('state.js', () => {
       expect(s.configuration.branch).toBe('');
       expect(s.task.flow_id).toBe('');
       expect(s.notes.user_text).toBe('');
-      expect(s.context.selected_files).toEqual([]);
+      expect(s.panel_a.files).toEqual([]);
+      expect(s.panel_a.description).toBe('');
+      expect(s.panel_a.issue_number).toBe(null);
+      expect(s.panel_a.pr_number).toBe(null);
+      expect(s.panel_b.description).toBe('');
+      expect(s.panel_b.issue_number).toBe(null);
+      expect(s.panel_b.spec_files).toEqual([]);
+      expect(s.panel_b.guideline_files).toEqual([]);
+      expect(s.panel_b.acceptance_criteria).toBe('');
+      expect(s.panel_b.lenses).toEqual([]);
+      expect(s.improve_scope).toBe(null);
       expect(s.steps.enabled_steps).toEqual([]);
     });
 
@@ -183,8 +229,115 @@ describe('state.js', () => {
 
       stateModule.resetSession();
       // After reset, no repo set, so prompt should be empty
-      // (owner is preserved but repo is cleared)
       expect(stateModule.getState()._prompt).toBe('');
+    });
+  });
+
+  describe('applyFlowDefaults() (DM-DEF-03)', () => {
+    it('sets flow_id and resets panels and steps', () => {
+      stateModule.setState('panel_a.description', 'some description');
+      stateModule.setState('panel_b.lenses', ['security']);
+      stateModule.setState('steps.enabled_steps', [
+        { id: 'test', operation: 'read', object: 'file' },
+      ]);
+      stateModule.setState('improve_scope', 'each_file');
+
+      stateModule.applyFlowDefaults('fix', {});
+
+      const s = stateModule.getState();
+      expect(s.task.flow_id).toBe('fix');
+      expect(s.panel_a.description).toBe('');
+      expect(s.panel_a.files).toEqual([]);
+      expect(s.panel_b.description).toBe('');
+      expect(s.panel_b.lenses).toEqual([]);
+      expect(s.steps.enabled_steps).toEqual([]);
+      expect(s.improve_scope).toBe(null);
+    });
+
+    it('applies flow default lenses to panel_b', () => {
+      const flowDef = {
+        panel_b: {
+          fields: {
+            lenses: { default: ['semantics', 'structure'] },
+          },
+        },
+      };
+
+      stateModule.applyFlowDefaults('review', flowDef);
+
+      const s = stateModule.getState();
+      expect(s.panel_b.lenses).toEqual(['semantics', 'structure']);
+    });
+
+    it('notifies subscribers', () => {
+      const listener = vi.fn();
+      stateModule.subscribe(listener);
+      stateModule.applyFlowDefaults('fix', {});
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
+
+    it('populates enabled_steps from flow definition steps', () => {
+      const flowDef = {
+        steps: [
+          {
+            id: 'read-claude',
+            operation: 'read',
+            object: 'file',
+            params: { file: 'claude.md' },
+          },
+          { id: 'create-branch', operation: 'create', object: 'branch' },
+          { id: 'commit-pr', operation: 'commit', object: 'changes' },
+        ],
+      };
+
+      stateModule.applyFlowDefaults('fix', flowDef);
+
+      const s = stateModule.getState();
+      expect(s.steps.enabled_steps).toHaveLength(3);
+      expect(s.steps.enabled_steps[0].id).toBe('read-claude');
+      expect(s.steps.enabled_steps[1].id).toBe('create-branch');
+      expect(s.steps.enabled_steps[2].id).toBe('commit-pr');
+    });
+
+    it('sets empty enabled_steps when flow def has no steps', () => {
+      stateModule.applyFlowDefaults('fix', {});
+      const s = stateModule.getState();
+      expect(s.steps.enabled_steps).toEqual([]);
+    });
+
+    it('deep-clones steps so mutations do not affect flow def', () => {
+      const flowDef = {
+        steps: [
+          {
+            id: 'step1',
+            operation: 'read',
+            object: 'file',
+            params: { file: 'x.md' },
+          },
+        ],
+      };
+      stateModule.applyFlowDefaults('fix', flowDef);
+
+      // Mutate the original flow def
+      flowDef.steps[0].id = 'mutated';
+
+      const s = stateModule.getState();
+      expect(s.steps.enabled_steps[0].id).toBe('step1');
+    });
+
+    it('does not carry over user overrides across flow switches', () => {
+      // Set up state for fix flow
+      stateModule.setState('task.flow_id', 'fix');
+      stateModule.setState('panel_a.description', 'bug report');
+      stateModule.setState('panel_b.spec_files', ['spec.md']);
+
+      // Switch to review flow
+      stateModule.applyFlowDefaults('review', {});
+
+      const s = stateModule.getState();
+      expect(s.task.flow_id).toBe('review');
+      expect(s.panel_a.description).toBe('');
+      expect(s.panel_b.spec_files).toEqual([]);
     });
   });
 

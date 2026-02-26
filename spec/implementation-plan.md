@@ -103,15 +103,14 @@ index.html
 
 ## 3. Preconditions & Blockers
 
-| #   | Precondition                                                                                              | Needed by               | Status                                  |
-| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------- |
+| #   | Precondition                                                                                              | Needed by               | Status                                                    |
+| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------- |
 | P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | not approved, we will use all 4 flows directly, see below |
-| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | Approved by human, please validate file by reviewing |
-| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                            |
-| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)                   |
-| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)                    |
-| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)                    |
-
+| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | Approved by human, please validate file by reviewing      |
+| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                                              |
+| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)                                     |
+| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)                                      |
+| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)                                      |
 
 ---
 

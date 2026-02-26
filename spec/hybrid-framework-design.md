@@ -102,31 +102,31 @@ prompt_input:
 
 ### Which fields appear in which flow
 
-| Field                         |   Fix/Debug    | Review/Analyze | Implement/Build |      Improve/Modify        |
-| ----------------------------- | :------------: | :------------: | :-------------: | :------------------------: |
-| **Panel A (Situation)**       |                |                |                 |                            |
-| `panel_a.description`         |   Required\*   |    Optional    |    Optional     |           Required\*       |
-| `panel_a.issue_number`        |   Required\*   |       —        |        —        |           Required\*       |
-| `panel_a.pr_number`           |       —        |  Required\*\*  |        —        |                —           |
-| `panel_a.files`               |    Optional    |  Required\*\*  |    Optional     |            Optional        |
-| **Panel B (Target)**          |                |                |                 |                            |
-| `panel_b.description`         |    Required\*  |   Required\*   |   Required\*    |            Optional        |
-| `Step lenses`                 |       —        |   Required\*   |        —        |            Required\*      |
-| `panel_b.issue_number`        |    Required\*  |       —        |Hidden required\*|        Hidden Required\*   |
-| `panel_b.user_story_template` |       —        |       —        |Hidden Required\*|        Hidden Required\*   |
-| `panel_b.spec_files`          |    Optional    |    Optional    |    Optional     |                —           |
-| `panel_b.guideline_files`     |    Optional    |    Optional    |        —        |            Optional        |
-| `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —           |
-| **Steps**                     |                |                |                 |                            |
-| `steps.enabled_steps`         | Auto-generated | Auto-generated | Auto-generated  |         Auto-generated     |
-| `lenses`                      |    Per step    |    Per step    |    Per step     |            Per step        |
-| `file_name  `                 |    Per step    |    Per step    |    Per step     |            Per step        |
-| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step        |
-| `pr_name  `                   |    Per step    |    Per step    |    Per step     |            Per step        |
-| `output `                     |    Per step    |    Per step    |    Per step     |            Per step        |
-| **Other**                     |                |                |                 |                            |
-| `improve_scope`               |       —        | Shown 2+ files |        —        |       Shown 2+ files       |
-| `notes.user_text`             |    Optional    |    Optional    |    Optional     |         Optional           |
+| Field                         |   Fix/Debug    | Review/Analyze |  Implement/Build  |  Improve/Modify   |
+| ----------------------------- | :------------: | :------------: | :---------------: | :---------------: |
+| **Panel A (Situation)**       |                |                |                   |                   |
+| `panel_a.description`         |   Required\*   |    Optional    |     Optional      |    Required\*     |
+| `panel_a.issue_number`        |   Required\*   |       —        |         —         |    Required\*     |
+| `panel_a.pr_number`           |       —        |  Required\*\*  |         —         |         —         |
+| `panel_a.files`               |    Optional    |  Required\*\*  |     Optional      |     Optional      |
+| **Panel B (Target)**          |                |                |                   |                   |
+| `panel_b.description`         |   Required\*   |   Required\*   |    Required\*     |     Optional      |
+| `Step lenses`                 |       —        |   Required\*   |         —         |    Required\*     |
+| `panel_b.issue_number`        |   Required\*   |       —        | Hidden required\* | Hidden Required\* |
+| `panel_b.user_story_template` |       —        |       —        | Hidden Required\* | Hidden Required\* |
+| `panel_b.spec_files`          |    Optional    |    Optional    |     Optional      |         —         |
+| `panel_b.guideline_files`     |    Optional    |    Optional    |         —         |     Optional      |
+| `panel_b.acceptance_criteria` |       —        |       —        |     Optional      |         —         |
+| **Steps**                     |                |                |                   |                   |
+| `steps.enabled_steps`         | Auto-generated | Auto-generated |  Auto-generated   |  Auto-generated   |
+| `lenses`                      |    Per step    |    Per step    |     Per step      |     Per step      |
+| `file_name  `                 |    Per step    |    Per step    |     Per step      |     Per step      |
+| `pr_name  `                   |    Per step    |    Per step    |     Per step      |     Per step      |
+| `pr_name  `                   |    Per step    |    Per step    |     Per step      |     Per step      |
+| `output `                     |    Per step    |    Per step    |     Per step      |     Per step      |
+| **Other**                     |                |                |                   |                   |
+| `improve_scope`               |       —        | Shown 2+ files |         —         |  Shown 2+ files   |
+| `notes.user_text`             |    Optional    |    Optional    |     Optional      |     Optional      |
 
 `*` = At least one field marked `*` in Panelmust be filled.
 `**` = Review flow: at least one of PR or files required. Either or both can be filled. In the prompt, PR input results in "review the PR diff" instruction; file input results in "review these files" instruction. When both are provided, both are included.
@@ -187,12 +187,12 @@ A visual bar showing prompt completeness. Color transitions at thresholds. No ex
 
 Each input field has a fixed weight. Score = filled weights / total possible weights for the active flow.
 
-| Flow                      | Base Weight |
-| ------------------------------- | ------ |
-| Fix / Debug                     | 30     |
-| Review / Analyse                | 40     |
-| Improve / Modify                | 40     |
-| Implement / Build               | 40     |
+| Flow              | Base Weight |
+| ----------------- | ----------- |
+| Fix / Debug       | 30          |
+| Review / Analyse  | 40          |
+| Improve / Modify  | 40          |
+| Implement / Build | 40          |
 
 | Field type                      | Weight |
 | ------------------------------- | ------ |
@@ -206,7 +206,7 @@ Each input field has a fixed weight. Score = filled weights / total possible wei
 ### Display thresholds
 
 | Score range | Color  | Label     |
-| ----------- | ------ | -------   |
+| ----------- | ------ | --------- |
 | 0-50%       | Red    | Poor      |
 | 51-60%      | Orange | Minimal   |
 | 61-70%      | Yellow | Basic     |
@@ -505,4 +505,3 @@ Two separate file pickers with tooltip/helper text to explain the distinction:
 | **Fits "new feature" task**      |      Natural      |         Good         |      Natural      |       Good       |     Natural      |    **Natural**    |
 | **Implementation complexity**    |        Low        |      Low-medium      |      Medium       |   Medium-high    |       High       |    **Medium**     |
 | **Migration from current spec**  |   Major rewrite   |    Major rewrite     |    Incremental    |  Major rewrite   |  Major rewrite   |   **Moderate**    |
-
