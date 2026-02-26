@@ -5,14 +5,14 @@
  * Enforces APP-03 limits: <15 repos, <300 files.
  */
 
-const API_BASE = 'https://api.github.com';
+const API_BASE = "https://api.github.com";
 const MAX_REPOS = 15;
 const MAX_FILES = 300;
 
 function headers(pat) {
   return {
     Authorization: `Bearer ${pat}`,
-    Accept: 'application/vnd.github+json',
+    Accept: "application/vnd.github+json",
   };
 }
 
@@ -29,7 +29,7 @@ async function apiFetch(url, pat) {
   } catch (err) {
     return {
       data: null,
-      error: `Network error: ${err.message || 'Failed to fetch'}`,
+      error: `Network error: ${err.message || "Failed to fetch"}`,
     };
   }
 }
@@ -41,7 +41,7 @@ async function apiFetch(url, pat) {
 export async function fetchRepos(owner, pat) {
   const result = await apiFetch(
     `${API_BASE}/users/${owner}/repos?per_page=100&sort=updated`,
-    pat
+    pat,
   );
   if (result.error) return result;
 
@@ -61,7 +61,7 @@ export async function fetchRepos(owner, pat) {
 export async function fetchBranches(owner, repo, pat) {
   return apiFetch(
     `${API_BASE}/repos/${owner}/${repo}/branches?per_page=100`,
-    pat
+    pat,
   );
 }
 
@@ -72,11 +72,11 @@ export async function fetchBranches(owner, repo, pat) {
 export async function fetchTree(owner, repo, branch, pat) {
   const result = await apiFetch(
     `${API_BASE}/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
-    pat
+    pat,
   );
   if (result.error) return result;
 
-  const blobs = (result.data.tree || []).filter((e) => e.type === 'blob');
+  const blobs = (result.data.tree || []).filter((e) => e.type === "blob");
   const truncatedByGitHub = result.data.truncated;
 
   let warning;
@@ -86,7 +86,7 @@ export async function fetchTree(owner, repo, branch, pat) {
     files = blobs.slice(0, MAX_FILES);
     warning = `Repository has ${blobs.length} files. Showing first ${MAX_FILES}.`;
   } else if (truncatedByGitHub) {
-    warning = 'File tree was truncated by GitHub. Some files may be missing.';
+    warning = "File tree was truncated by GitHub. Some files may be missing.";
   }
 
   return { data: files, error: null, ...(warning && { warning }) };
@@ -99,7 +99,7 @@ export async function fetchTree(owner, repo, branch, pat) {
 export async function fetchPRs(owner, repo, pat) {
   const result = await apiFetch(
     `${API_BASE}/repos/${owner}/${repo}/pulls?state=open&per_page=100`,
-    pat
+    pat,
   );
   if (result.error) return result;
 
@@ -117,7 +117,7 @@ export async function fetchPRs(owner, repo, pat) {
 export async function fetchIssues(owner, repo, pat) {
   const result = await apiFetch(
     `${API_BASE}/repos/${owner}/${repo}/issues?state=open&per_page=100`,
-    pat
+    pat,
   );
   if (result.error) return result;
 

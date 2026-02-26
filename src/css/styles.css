@@ -1,4 +1,4 @@
-@import './variables.css';
+@import "./variables.css";
 
 /* === Reset & Base === */
 *,
@@ -74,7 +74,7 @@ body {
   margin-left: var(--sp-3);
 }
 
-.card-header[aria-expanded='true'] .card-chevron {
+.card-header[aria-expanded="true"] .card-chevron {
   transform: rotate(-135deg);
 }
 
@@ -99,7 +99,7 @@ body {
 }
 
 .item-selected::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -175,7 +175,7 @@ body {
   outline-offset: 2px;
 }
 
-.pill[aria-checked='true'],
+.pill[aria-checked="true"],
 .pill.pill--on {
   background: var(--accent-subtle);
   color: var(--accent);
@@ -314,7 +314,7 @@ body {
   line-height: var(--line-height-lg);
 }
 
-.error-inline[role='alert'] {
+.error-inline[role="alert"] {
   /* role set in JS; style here as reminder */
 }
 
@@ -438,6 +438,39 @@ body {
   word-break: break-word;
   text-align: left;
   min-height: 120px;
+}
+
+/* === Configuration Card (CFG) === */
+.cfg-field-group {
+  margin-bottom: var(--sp-4);
+}
+
+.cfg-pat-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.cfg-pat-row .input-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.cfg-section {
+  margin-top: var(--sp-4);
+}
+
+.cfg-section-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-3);
+  font-weight: 600;
+}
+
+.cfg-show-more {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  border-style: dashed;
 }
 
 /* === Responsive (min-width: 768px) === */
