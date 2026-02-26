@@ -7,42 +7,42 @@
  * <todo> step list, and optional <notes>.
  */
 export function buildPrompt(state) {
-  if (!state) return "";
+  if (!state) return '';
 
   const { configuration, task, panel_a, panel_b, steps, notes, improve_scope } =
     state;
   const { owner, repo, branch, pat } = configuration || {};
 
   // Need at minimum a repo to generate a useful prompt
-  if (!owner || !repo) return "";
+  if (!owner || !repo) return '';
 
-  const flowId = task?.flow_id || "";
+  const flowId = task?.flow_id || '';
   const lines = [];
 
-  lines.push("<prompt>");
+  lines.push('<prompt>');
 
   // Context section — same across all flows
-  lines.push("  <context>");
-  const flowLabel = FLOW_LABELS[flowId] || flowId || "task";
+  lines.push('  <context>');
+  const flowLabel = FLOW_LABELS[flowId] || flowId || 'task';
   // Spec uses task="debug" for fix flow, other flows match their flow ID
-  const taskId = TASK_IDS[flowId] || flowId || "task";
+  const taskId = TASK_IDS[flowId] || flowId || 'task';
   lines.push(
-    `    Please help <task="${esc(taskId)}"> ${esc(flowLabel)} </task> by executing below 'todo' steps`,
+    `    Please help <task="${esc(taskId)}"> ${esc(flowLabel)} </task> by executing below 'todo' steps`
   );
   lines.push(
-    `    for <repository> https://github.com/${esc(owner)}/${esc(repo)} </repository>`,
+    `    for <repository> https://github.com/${esc(owner)}/${esc(repo)} </repository>`
   );
-  lines.push(`    on <branch> ${esc(branch || "main")} </branch>.`);
+  lines.push(`    on <branch> ${esc(branch || 'main')} </branch>.`);
   if (pat) {
     lines.push(`    Authenticate using PAT: <PAT> ${esc(pat)} </PAT>.`);
   }
   lines.push(
-    "    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.",
+    '    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.'
   );
-  lines.push("  </context>");
+  lines.push('  </context>');
 
   // Todo section — build step list
-  lines.push("  <todo>");
+  lines.push('  <todo>');
 
   let stepNum = 1;
   let taskStepInserted = false;
@@ -50,7 +50,7 @@ export function buildPrompt(state) {
 
   for (const step of enabledSteps) {
     // STP-04: read-claude is a regular removable step, rendered as "Read @claude.md"
-    if (step.id === "read-claude") {
+    if (step.id === 'read-claude') {
       lines.push(`    Step ${stepNum}: Read @claude.md`);
       stepNum++;
       // Insert flow-specific understanding step right after read-claude
@@ -95,48 +95,48 @@ export function buildPrompt(state) {
     lines.push(`    Step ${stepNum}: ${feedbackStep}`);
   }
 
-  lines.push("  </todo>");
-  lines.push("</prompt>");
+  lines.push('  </todo>');
+  lines.push('</prompt>');
 
   // Notes section (OUT-06)
   const userNotes = notes?.user_text?.trim();
   if (userNotes) {
-    lines.push("<notes>");
+    lines.push('<notes>');
     lines.push(`  Critical note: ${esc(userNotes)}`);
-    lines.push("</notes>");
+    lines.push('</notes>');
   }
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 // --- Flow labels ---
 
 const FLOW_LABELS = {
-  fix: "Fix / Debug",
-  review: "Review / Analyze",
-  implement: "Implement / Build",
-  improve: "Improve / Modify",
+  fix: 'Fix / Debug',
+  review: 'Review / Analyze',
+  implement: 'Implement / Build',
+  improve: 'Improve / Modify',
 };
 
 // Spec task attribute values (hybrid-framework-design.md: fix → "debug")
 const TASK_IDS = {
-  fix: "debug",
-  review: "review",
-  implement: "implement",
-  improve: "improve",
+  fix: 'debug',
+  review: 'review',
+  implement: 'implement',
+  improve: 'improve',
 };
 
 // --- Flow-specific task step builders ---
 
 function buildTaskStep(flowId, panelA, panelB, improveScope) {
   switch (flowId) {
-    case "fix":
+    case 'fix':
       return buildFixTaskStep(panelA, panelB);
-    case "review":
+    case 'review':
       return buildReviewTaskStep(panelA, panelB);
-    case "implement":
+    case 'implement':
       return buildImplementTaskStep(panelA, panelB);
-    case "improve":
+    case 'improve':
       return buildImproveTaskStep(panelA, panelB, improveScope);
     default:
       return buildGenericTaskStep(panelA, panelB);
@@ -149,48 +149,48 @@ function buildFixTaskStep(panelA, panelB) {
   ];
 
   // Panel A — undesired behavior
-  parts.push("              <undesired_behavior>");
+  parts.push('              <undesired_behavior>');
   if (panelA?.description) {
     parts.push(
-      `                Undesired behavior observed by user is: ${esc(panelA.description)}.`,
+      `                Undesired behavior observed by user is: ${esc(panelA.description)}.`
     );
   }
   if (panelA?.issue_number) {
     parts.push(
-      `                Attempt to learn more regarding the undesired behavior by reading issue #${esc(String(panelA.issue_number))}.`,
+      `                Attempt to learn more regarding the undesired behavior by reading issue #${esc(String(panelA.issue_number))}.`
     );
   }
   if (panelA?.files?.length > 0) {
     parts.push(
-      `                Attempt to learn more regarding the undesired behavior by reading files ${formatFileList(panelA.files)}.`,
+      `                Attempt to learn more regarding the undesired behavior by reading files ${formatFileList(panelA.files)}.`
     );
   }
-  parts.push("              </undesired_behavior>");
+  parts.push('              </undesired_behavior>');
 
   // Panel B — expected behavior
-  parts.push("              <expected_behavior>");
+  parts.push('              <expected_behavior>');
   if (panelB?.description) {
     parts.push(
-      `                Expected behavior after the fix: ${esc(panelB.description)}.`,
+      `                Expected behavior after the fix: ${esc(panelB.description)}.`
     );
   }
   if (panelB?.spec_files?.length > 0) {
     parts.push(
-      `                Reference specifications: ${formatFileList(panelB.spec_files)}.`,
+      `                Reference specifications: ${formatFileList(panelB.spec_files)}.`
     );
   }
   if (panelB?.guideline_files?.length > 0) {
     parts.push(
-      `                Follow guidelines: ${formatFileList(panelB.guideline_files)}.`,
+      `                Follow guidelines: ${formatFileList(panelB.guideline_files)}.`
     );
   }
-  parts.push("              </expected_behavior>");
+  parts.push('              </expected_behavior>');
 
   parts.push(
-    "             If unclear or high ambiguity, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.",
+    '             If unclear or high ambiguity, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.'
   );
 
-  return parts.join("\n");
+  return parts.join('\n');
 }
 
 function buildReviewTaskStep(panelA, panelB) {
@@ -199,48 +199,48 @@ function buildReviewTaskStep(panelA, panelB) {
   ];
 
   // Panel A — review subject
-  parts.push("              <review_subject>");
+  parts.push('              <review_subject>');
   if (panelA?.pr_number) {
     parts.push(
-      `                Review PR #${esc(String(panelA.pr_number))}. Fetch and examine the PR diff.`,
+      `                Review PR #${esc(String(panelA.pr_number))}. Fetch and examine the PR diff.`
     );
   }
   if (panelA?.files?.length > 0) {
     parts.push(
-      `                Review files: ${formatFileList(panelA.files)}. Read and examine each file.`,
+      `                Review files: ${formatFileList(panelA.files)}. Read and examine each file.`
     );
   }
   if (panelA?.description) {
     parts.push(
-      `                Context provided by user: ${esc(panelA.description)}.`,
+      `                Context provided by user: ${esc(panelA.description)}.`
     );
   }
-  parts.push("              </review_subject>");
+  parts.push('              </review_subject>');
 
   // Panel B — review criteria
-  parts.push("              <review_criteria>");
+  parts.push('              <review_criteria>');
   if (panelB?.lenses?.length > 0) {
     parts.push(
-      `                Focus on: [${panelB.lenses.map(esc).join(", ")}].`,
+      `                Focus on: [${panelB.lenses.map(esc).join(', ')}].`
     );
   }
   if (panelB?.spec_files?.length > 0) {
     parts.push(
-      `                Evaluate against specifications: ${formatFileList(panelB.spec_files)}.`,
+      `                Evaluate against specifications: ${formatFileList(panelB.spec_files)}.`
     );
   }
   if (panelB?.guideline_files?.length > 0) {
     parts.push(
-      `                Evaluate against guidelines: ${formatFileList(panelB.guideline_files)}.`,
+      `                Evaluate against guidelines: ${formatFileList(panelB.guideline_files)}.`
     );
   }
-  parts.push("              </review_criteria>");
+  parts.push('              </review_criteria>');
 
   parts.push(
-    "             If unclear or high ambiguity about what to review or the criteria, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.",
+    '             If unclear or high ambiguity about what to review or the criteria, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.'
   );
 
-  return parts.join("\n");
+  return parts.join('\n');
 }
 
 function buildImplementTaskStep(panelA, panelB) {
@@ -249,41 +249,41 @@ function buildImplementTaskStep(panelA, panelB) {
   ];
 
   // Panel A — existing context
-  parts.push("              <existing_context>");
+  parts.push('              <existing_context>');
   if (panelA?.description) {
     parts.push(
-      `                Context provided by user: ${esc(panelA.description)}.`,
+      `                Context provided by user: ${esc(panelA.description)}.`
     );
   }
   if (panelA?.files?.length > 0) {
     parts.push(
-      `                Build upon existing files: ${formatFileList(panelA.files)}.`,
+      `                Build upon existing files: ${formatFileList(panelA.files)}.`
     );
   }
-  parts.push("              </existing_context>");
+  parts.push('              </existing_context>');
 
   // Panel B — requirements
-  parts.push("              <requirements>");
+  parts.push('              <requirements>');
   if (panelB?.description) {
     parts.push(`                ${esc(panelB.description)}`);
   }
   if (panelB?.spec_files?.length > 0) {
     parts.push(
-      `                Specifications to follow: ${formatFileList(panelB.spec_files)}.`,
+      `                Specifications to follow: ${formatFileList(panelB.spec_files)}.`
     );
   }
   if (panelB?.acceptance_criteria) {
     parts.push(
-      `                Acceptance criteria: ${esc(panelB.acceptance_criteria)}.`,
+      `                Acceptance criteria: ${esc(panelB.acceptance_criteria)}.`
     );
   }
-  parts.push("              </requirements>");
+  parts.push('              </requirements>');
 
   parts.push(
-    "             If unclear or high ambiguity about what to build, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.",
+    '             If unclear or high ambiguity about what to build, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.'
   );
 
-  return parts.join("\n");
+  return parts.join('\n');
 }
 
 function buildImproveTaskStep(panelA, panelB, improveScope) {
@@ -292,62 +292,62 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
   ];
 
   // Panel A — current state
-  parts.push("              <current_state>");
+  parts.push('              <current_state>');
   if (panelA?.description) {
     parts.push(`                ${esc(panelA.description)}`);
   }
   if (panelA?.issue_number) {
     parts.push(
-      `                Related issue describing current state: #${esc(String(panelA.issue_number))}. Read this issue for context.`,
+      `                Related issue describing current state: #${esc(String(panelA.issue_number))}. Read this issue for context.`
     );
   }
   if (panelA?.files?.length > 0) {
     parts.push(
-      `                Files to improve: ${formatFileList(panelA.files)}.`,
+      `                Files to improve: ${formatFileList(panelA.files)}.`
     );
   }
-  parts.push("              </current_state>");
+  parts.push('              </current_state>');
 
   // Panel B — desired outcome
-  parts.push("              <desired_outcome>");
+  parts.push('              <desired_outcome>');
   if (panelB?.description) {
     parts.push(
-      `                Desired improvements: ${esc(panelB.description)}.`,
+      `                Desired improvements: ${esc(panelB.description)}.`
     );
   }
   if (panelB?.issue_number) {
     parts.push(
-      `                Desired state per issue: #${esc(String(panelB.issue_number))}. Read this issue for target state.`,
+      `                Desired state per issue: #${esc(String(panelB.issue_number))}. Read this issue for target state.`
     );
   }
   if (panelB?.guideline_files?.length > 0) {
     parts.push(
-      `                Reference files for target style: ${formatFileList(panelB.guideline_files)}.`,
+      `                Reference files for target style: ${formatFileList(panelB.guideline_files)}.`
     );
   }
   if (panelB?.lenses?.length > 0) {
     parts.push(
-      `                Focus on: [${panelB.lenses.map(esc).join(", ")}].`,
+      `                Focus on: [${panelB.lenses.map(esc).join(', ')}].`
     );
   }
-  parts.push("              </desired_outcome>");
+  parts.push('              </desired_outcome>');
 
   // Scope instruction for multi-file improve
-  if (improveScope === "across_files") {
+  if (improveScope === 'across_files') {
     parts.push(
-      "              <scope>Apply improvements across all files as a unified change, considering relationships between files.</scope>",
+      '              <scope>Apply improvements across all files as a unified change, considering relationships between files.</scope>'
     );
-  } else if (improveScope === "each_file") {
+  } else if (improveScope === 'each_file') {
     parts.push(
-      "              <scope>Apply improvements to each file independently.</scope>",
+      '              <scope>Apply improvements to each file independently.</scope>'
     );
   }
 
   parts.push(
-    "             If unclear or high ambiguity about what improvements to make, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.",
+    '             If unclear or high ambiguity about what improvements to make, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.'
   );
 
-  return parts.join("\n");
+  return parts.join('\n');
 }
 
 function buildGenericTaskStep(panelA, panelB) {
@@ -360,7 +360,7 @@ function buildGenericTaskStep(panelA, panelB) {
 
   if (!hasPanelContent) return null;
 
-  const parts = ["Understand the task:"];
+  const parts = ['Understand the task:'];
   if (panelA?.description) {
     parts.push(`              Context: ${esc(panelA.description)}.`);
   }
@@ -374,7 +374,7 @@ function buildGenericTaskStep(panelA, panelB) {
     parts.push(`              Specs: ${formatFileList(panelB.spec_files)}.`);
   }
 
-  return parts.join("\n");
+  return parts.join('\n');
 }
 
 // --- Feedback step builders ---
@@ -387,38 +387,38 @@ function buildFeedbackStep(flowId, enabledSteps) {
   // Find output mode from feedback-type steps if any
   const feedbackSteps = (enabledSteps || []).filter(
     (s) =>
-      s.id === "provide-feedback-pr" ||
-      s.id === "provide-feedback-files" ||
-      s.object === "review_feedback",
+      s.id === 'provide-feedback-pr' ||
+      s.id === 'provide-feedback-files' ||
+      s.object === 'review_feedback'
   );
   const outputMode = feedbackSteps.length > 0 ? feedbackSteps[0].output : null;
 
   switch (flowId) {
-    case "fix":
+    case 'fix':
       return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
-        "              - Your understanding of the issue in one sentence.",
-        "              - The root cause you identified.",
-        "              - The action you took: create branch (incl name and link), implemented fix by editing files (incl file names), ran tests (incl which ones), verified issue is solved, committed PR (incl PR name and link)",
-      ].join("\n");
-    case "review":
+        'Provide concise feedback to HUMAN (me) here (in this interface) include:',
+        '              - Your understanding of the issue in one sentence.',
+        '              - The root cause you identified.',
+        '              - The action you took: create branch (incl name and link), implemented fix by editing files (incl file names), ran tests (incl which ones), verified issue is solved, committed PR (incl PR name and link)',
+      ].join('\n');
+    case 'review':
       return buildReviewFeedback(outputMode);
-    case "implement":
+    case 'implement':
       return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
-        "              - Summary of what you implemented in one sentence.",
-        "              - Files created or modified with brief description of changes.",
-        "              - Tests run and results.",
-        "              - PR link.",
-      ].join("\n");
-    case "improve":
+        'Provide concise feedback to HUMAN (me) here (in this interface) include:',
+        '              - Summary of what you implemented in one sentence.',
+        '              - Files created or modified with brief description of changes.',
+        '              - Tests run and results.',
+        '              - PR link.',
+      ].join('\n');
+    case 'improve':
       return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
-        "              - Summary of improvements made, one sentence each improvement type.",
-        "              - Files modified with brief description of changes.",
-        "              - How the improvements address the desired outcome.",
-        "              - PR link.",
-      ].join("\n");
+        'Provide concise feedback to HUMAN (me) here (in this interface) include:',
+        '              - Summary of improvements made, one sentence each improvement type.',
+        '              - Files modified with brief description of changes.',
+        '              - How the improvements address the desired outcome.',
+        '              - PR link.',
+      ].join('\n');
     default:
       return null;
   }
@@ -428,48 +428,48 @@ function buildFeedbackStep(flowId, enabledSteps) {
  * Review flow supports multiple output modes per spec.
  */
 function buildReviewFeedback(outputMode) {
-  if (outputMode === "pr_comment") {
+  if (outputMode === 'pr_comment') {
     return [
-      "Provide feedback as a PR comment include:",
-      "              - Summary of what you reviewed in one sentence.",
-      "              - Number of issues found by severity label.",
-      "              - Top 3 most important findings with file/line references.",
-      "              - Provide link to PR comment to HUMAN (me) here (in this interface).",
-    ].join("\n");
+      'Provide feedback as a PR comment include:',
+      '              - Summary of what you reviewed in one sentence.',
+      '              - Number of issues found by severity label.',
+      '              - Top 3 most important findings with file/line references.',
+      '              - Provide link to PR comment to HUMAN (me) here (in this interface).',
+    ].join('\n');
   }
-  if (outputMode === "pr_inline_comments") {
+  if (outputMode === 'pr_inline_comments') {
     return [
-      "Provide feedback via PR inline comments at relevant line numbers include:",
-      "              - Issue you found.",
-      "              - Severity label.",
-      "              - Suggested fix.",
-    ].join("\n");
+      'Provide feedback via PR inline comments at relevant line numbers include:',
+      '              - Issue you found.',
+      '              - Severity label.',
+      '              - Suggested fix.',
+    ].join('\n');
   }
-  if (outputMode === "issue_comment") {
+  if (outputMode === 'issue_comment') {
     return [
-      "Provide feedback as a GitHub issue comment include:",
-      "              - Summary of what you reviewed in one sentence.",
-      "              - Number of issues found by severity.",
-      "              - Top 3 most important findings with file/line references.",
-      "              - Provide link to issue comment to HUMAN (me) here (in this interface).",
-    ].join("\n");
+      'Provide feedback as a GitHub issue comment include:',
+      '              - Summary of what you reviewed in one sentence.',
+      '              - Number of issues found by severity.',
+      '              - Top 3 most important findings with file/line references.',
+      '              - Provide link to issue comment to HUMAN (me) here (in this interface).',
+    ].join('\n');
   }
-  if (outputMode === "report_file") {
+  if (outputMode === 'report_file') {
     return [
-      "Create an analysis report file in the repository include:",
-      "              - Summary of what you reviewed in one sentence.",
-      "              - Detailed findings organized by severity.",
-      "              - Specific file/line references for each finding.",
-      "              - Commit the report file and provide the file link to HUMAN (me) here (in this interface).",
-    ].join("\n");
+      'Create an analysis report file in the repository include:',
+      '              - Summary of what you reviewed in one sentence.',
+      '              - Detailed findings organized by severity.',
+      '              - Specific file/line references for each finding.',
+      '              - Commit the report file and provide the file link to HUMAN (me) here (in this interface).',
+    ].join('\n');
   }
   // Default: "here" (in interface)
   return [
-    "Provide concise feedback to HUMAN (me) here (in this interface) include:",
-    "              - Summary of what you reviewed in one sentence.",
-    "              - Number of issues found by severity.",
-    "              - Top 3 most important findings with file/line references.",
-  ].join("\n");
+    'Provide concise feedback to HUMAN (me) here (in this interface) include:',
+    '              - Summary of what you reviewed in one sentence.',
+    '              - Number of issues found by severity.',
+    '              - Top 3 most important findings with file/line references.',
+  ].join('\n');
 }
 
 // --- Step formatting ---
@@ -479,35 +479,35 @@ function buildReviewFeedback(outputMode) {
  * Handles operation, object, params, lenses, name_provided, and output.
  */
 function formatStep(step) {
-  if (!step) return "";
+  if (!step) return '';
 
   const parts = [];
 
   // Operation + object (STP-02 minimum: 1x operation, 1x object)
-  const op = capitalize(esc(step.operation || ""));
-  const obj = esc(step.object || "");
+  const op = capitalize(esc(step.operation || ''));
+  const obj = esc(step.object || '');
   parts.push(`${op} ${obj}`.trim());
 
   // Params — add relevant details
   if (step.params) {
     const paramParts = [];
     for (const [key, val] of Object.entries(step.params)) {
-      if (val !== null && val !== undefined && val !== "") {
+      if (val !== null && val !== undefined && val !== '') {
         // File references get @ prefix (OUT-04)
         const escaped = esc(String(val));
-        const display = key === "file" ? `@${escaped}` : escaped;
+        const display = key === 'file' ? `@${escaped}` : escaped;
         paramParts.push(display);
       }
     }
     if (paramParts.length > 0) {
-      parts.push(paramParts.join(", "));
+      parts.push(paramParts.join(', '));
     }
   }
 
   // Lenses (STP-03)
   const lenses = step.lenses || [];
   if (Array.isArray(lenses) && lenses.length > 0) {
-    parts.push(`— focus on [${lenses.map(esc).join(", ")}]`);
+    parts.push(`— focus on [${lenses.map(esc).join(', ')}]`);
   }
 
   // User-provided name for branch/PR/file (name_provided field)
@@ -515,7 +515,7 @@ function formatStep(step) {
     parts.push(`— name it ${esc(step.name_provided)}`);
   }
 
-  return parts.join(" ");
+  return parts.join(' ');
 }
 
 // --- Helpers ---
@@ -524,24 +524,24 @@ function formatStep(step) {
  * Format a list of file paths as @-prefixed references (OUT-04).
  */
 function formatFileList(files) {
-  if (!files || files.length === 0) return "";
-  return files.map((f) => `@${esc(f)}`).join(", ");
+  if (!files || files.length === 0) return '';
+  return files.map((f) => `@${esc(f)}`).join(', ');
 }
 
 /**
  * Capitalize first letter.
  */
 function capitalize(str) {
-  return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
 
 /**
  * Escape XML-sensitive characters in user content.
  */
 function esc(str) {
-  if (!str) return "";
+  if (!str) return '';
   return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }

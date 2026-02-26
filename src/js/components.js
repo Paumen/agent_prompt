@@ -16,16 +16,16 @@
  * @param {number} [barCount=2] - number of shimmer bars to show
  */
 export function renderShimmer(container, label, barCount = 2) {
-  container.innerHTML = "";
+  container.innerHTML = '';
 
-  const labelEl = document.createElement("div");
-  labelEl.className = "shimmer-label";
+  const labelEl = document.createElement('div');
+  labelEl.className = 'shimmer-label';
   labelEl.textContent = label;
   container.appendChild(labelEl);
 
   for (let i = 0; i < barCount; i++) {
-    const bar = document.createElement("div");
-    bar.className = "shimmer shimmer-bar";
+    const bar = document.createElement('div');
+    bar.className = 'shimmer shimmer-bar';
     container.appendChild(bar);
   }
 }
@@ -39,30 +39,30 @@ export function renderShimmer(container, label, barCount = 2) {
  * @param {Function} [onRetry] - optional retry callback; shows Retry button when provided
  */
 export function renderError(container, message, onRetry) {
-  const el = document.createElement("div");
-  el.className = "error-inline";
-  el.setAttribute("role", "alert");
+  const el = document.createElement('div');
+  el.className = 'error-inline';
+  el.setAttribute('role', 'alert');
 
-  const msgSpan = document.createElement("span");
+  const msgSpan = document.createElement('span');
   msgSpan.textContent = message;
   el.appendChild(msgSpan);
 
-  const actions = document.createElement("span");
-  actions.className = "error-actions";
+  const actions = document.createElement('span');
+  actions.className = 'error-actions';
 
   if (onRetry) {
-    const retryBtn = document.createElement("button");
-    retryBtn.className = "btn-retry";
-    retryBtn.textContent = "Retry";
-    retryBtn.addEventListener("click", onRetry);
+    const retryBtn = document.createElement('button');
+    retryBtn.className = 'btn-retry';
+    retryBtn.textContent = 'Retry';
+    retryBtn.addEventListener('click', onRetry);
     actions.appendChild(retryBtn);
   }
 
-  const dismissBtn = document.createElement("button");
-  dismissBtn.className = "btn-dismiss";
-  dismissBtn.textContent = "×";
-  dismissBtn.setAttribute("aria-label", "Dismiss error");
-  dismissBtn.addEventListener("click", () => el.remove());
+  const dismissBtn = document.createElement('button');
+  dismissBtn.className = 'btn-dismiss';
+  dismissBtn.textContent = '×';
+  dismissBtn.setAttribute('aria-label', 'Dismiss error');
+  dismissBtn.addEventListener('click', () => el.remove());
   actions.appendChild(dismissBtn);
 
   el.appendChild(actions);
@@ -79,12 +79,12 @@ export function renderError(container, message, onRetry) {
  */
 export function showNotification(container, message, type) {
   // Remove existing notification in this container
-  const existing = container.querySelector(".notification");
+  const existing = container.querySelector('.notification');
   if (existing) existing.remove();
 
-  const el = document.createElement("div");
+  const el = document.createElement('div');
   el.className = `notification notification--${type}`;
-  el.setAttribute("aria-live", "polite");
+  el.setAttribute('aria-live', 'polite');
   el.textContent = message;
   container.appendChild(el);
 
@@ -102,62 +102,62 @@ export function showNotification(container, message, type) {
  * @param {string} [config.placeholder]
  */
 export function createSearchableDropdown(container, config) {
-  const { options, onSelect, placeholder = "" } = config;
+  const { options, onSelect, placeholder = '' } = config;
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "dropdown-wrapper";
+  const wrapper = document.createElement('div');
+  wrapper.className = 'dropdown-wrapper';
 
-  const input = document.createElement("input");
-  input.type = "text";
-  input.className = "input-field dropdown-input";
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'input-field dropdown-input';
   input.placeholder = placeholder;
-  input.setAttribute("autocomplete", "off");
+  input.setAttribute('autocomplete', 'off');
 
-  const list = document.createElement("div");
-  list.className = "dropdown-list";
+  const list = document.createElement('div');
+  list.className = 'dropdown-list';
 
-  function renderList(filter = "") {
-    list.innerHTML = "";
+  function renderList(filter = '') {
+    list.innerHTML = '';
     const lowerFilter = filter.toLowerCase();
     const filtered = options.filter((o) =>
-      o.label.toLowerCase().includes(lowerFilter),
+      o.label.toLowerCase().includes(lowerFilter)
     );
 
     if (filtered.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "dropdown-empty";
-      empty.textContent = "No matches";
+      const empty = document.createElement('div');
+      empty.className = 'dropdown-empty';
+      empty.textContent = 'No matches';
       list.appendChild(empty);
       return;
     }
 
     for (const opt of filtered) {
-      const item = document.createElement("div");
-      item.className = "dropdown-item";
+      const item = document.createElement('div');
+      item.className = 'dropdown-item';
       item.textContent = opt.label;
-      item.addEventListener("click", () => {
+      item.addEventListener('click', () => {
         onSelect(opt);
-        input.value = "";
-        list.classList.remove("dropdown-list--open");
+        input.value = '';
+        list.classList.remove('dropdown-list--open');
       });
       list.appendChild(item);
     }
   }
 
-  input.addEventListener("focus", () => {
+  input.addEventListener('focus', () => {
     renderList(input.value);
-    list.classList.add("dropdown-list--open");
+    list.classList.add('dropdown-list--open');
   });
 
-  input.addEventListener("input", () => {
+  input.addEventListener('input', () => {
     renderList(input.value);
-    list.classList.add("dropdown-list--open");
+    list.classList.add('dropdown-list--open');
   });
 
   // Close dropdown when clicking outside
-  document.addEventListener("click", (e) => {
+  document.addEventListener('click', (e) => {
     if (!wrapper.contains(e.target)) {
-      list.classList.remove("dropdown-list--open");
+      list.classList.remove('dropdown-list--open');
     }
   });
 
