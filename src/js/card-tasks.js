@@ -511,7 +511,6 @@ function renderFilePicker(
   statePath,
   currentSelected
 ) {
-  const helperText = getFilePickerHelperText(fieldName);
   const files = getFileTree();
 
   createFilePicker(container, {
@@ -800,15 +799,7 @@ function fieldNameToLabel(fieldName) {
   );
 }
 
-function getFilePickerHelperText(fieldName) {
-  if (fieldName === 'spec_files') {
-    return 'WHAT to build — requirements, user stories, design docs';
-  }
-  if (fieldName === 'guideline_files') {
-    return 'HOW to build — coding standards, style guides, examples';
-  }
-  return '';
-}
+
 
 function getValueByPath(state, path) {
   return path.split('.').reduce((obj, key) => obj?.[key], state);
