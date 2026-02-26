@@ -34,7 +34,6 @@ export function isSourceFilled(source, panelA, panelB) {
  * Conditional steps (with `source` field) are only included when
  * the referenced panel field is filled (STP-02).
  *
- * Returns step objects with `locked` flag added.
  */
 export function generateSteps(flowDef, panelA, panelB) {
   if (!flowDef?.steps) return [];
