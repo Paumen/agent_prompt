@@ -112,8 +112,9 @@ prompt_input:
 | `panel_a.pr_number`           |       —        |  Required\*\*  |        —        |                —                |
 | `panel_a.files`               |    Optional    |  Required\*\*  |    Optional     |            Optional             |
 | **Panel B (Target)**          |                |                |                 |                                 |
-| `panel_b.description`         |    Optional    |       —        |    Required     |            Optional             |
-| `panel_b.issue_number`        |       —        |       —        |        —        |            Optional             |
+| `panel_b.description`         |    Optional    |       —        |   Required\*      |            Optional             |
+| `panel_b.issue_number`        |       —        |       —        |   Hidden required\*    |            Optional             |
+| `panel_b.user_story_template` |       —        |       —        |   Required\*      |           Hidden Optional              |
 | `panel_b.spec_files`          |    Optional    |    Optional    |    Optional     |                —                |
 | `panel_b.guideline_files`     |    Optional    |    Optional    |        —        | Optional (as "reference files") |
 | `panel_b.acceptance_criteria` |       —        |       —        |    Optional     |                —                |
