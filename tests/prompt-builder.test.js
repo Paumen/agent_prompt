@@ -136,7 +136,7 @@ describe('prompt-builder.js', () => {
       });
       const result = buildPrompt(state);
 
-      expect(result).toContain('<task="fix">');
+      expect(result).toContain('<task="debug">');
       expect(result).toContain('Fix / Debug');
       expect(result).toContain('<undesired_behavior>');
       expect(result).toContain('Login fails with 500 error');
@@ -508,7 +508,7 @@ describe('prompt-builder.js', () => {
 
       // Verify structure
       expect(result).toContain('<prompt>');
-      expect(result).toContain('<task="fix">');
+      expect(result).toContain('<task="debug">');
       expect(result).toContain('<undesired_behavior>');
       expect(result).toContain('Login fails');
       expect(result).toContain('issue #42');
@@ -634,6 +634,124 @@ describe('prompt-builder.js', () => {
       });
       const result = buildPrompt(state);
       expect(result).toContain('&lt;div&gt; not rendered &amp; broken');
+    });
+  });
+
+  describe('task ID mapping (fix → debug)', () => {
+    it('uses task="debug" for fix flow', () => {
+      const state = baseState({ task: { flow_id: 'fix' } });
+      const result = buildPrompt(state);
+      expect(result).toContain('<task="debug">');
+      expect(result).not.toContain('<task="fix">');
+    });
+
+    it('uses task="review" for review flow', () => {
+      const state = baseState({ task: { flow_id: 'review' } });
+      const result = buildPrompt(state);
+      expect(result).toContain('<task="review">');
+    });
+
+    it('uses task="implement" for implement flow', () => {
+      const state = baseState({ task: { flow_id: 'implement' } });
+      const result = buildPrompt(state);
+      expect(result).toContain('<task="implement">');
+    });
+
+    it('uses task="improve" for improve flow', () => {
+      const state = baseState({ task: { flow_id: 'improve' } });
+      const result = buildPrompt(state);
+      expect(result).toContain('<task="improve">');
+    });
+  });
+
+  describe('read-claude step deduplication', () => {
+    it('skips read-claude in enabled_steps since it is hardcoded as step 1', () => {
+      const state = baseState({
+        steps: {
+          enabled_steps: [
+            {
+              id: 'read-claude',
+              operation: 'read',
+              object: 'file',
+              params: { file: 'claude.md' },
+            },
+            { id: 'create-branch', operation: 'create', object: 'branch' },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      // Step 1: Read @claude.md (hardcoded)
+      // Step 2: Create branch (read-claude skipped)
+      expect(result).toContain('Step 1: Read @claude.md');
+      expect(result).toContain('Step 2: Create branch');
+      // Should NOT have Read file @claude.md as a separate step
+      expect(result).not.toContain('Read file @claude.md');
+    });
+  });
+
+  describe('step name_provided field', () => {
+    it('includes name_provided in step output', () => {
+      const state = baseState({
+        steps: {
+          enabled_steps: [
+            {
+              id: 'create-branch',
+              operation: 'create',
+              object: 'branch',
+              name_provided: 'feat/my-feature',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('Create branch — name it feat/my-feature');
+    });
+  });
+
+  describe('review output modes', () => {
+    it('generates pr_comment feedback for review flow', () => {
+      const state = baseState({
+        task: { flow_id: 'review' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'provide-feedback-pr',
+              operation: 'create',
+              object: 'review_feedback',
+              output: 'pr_comment',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('Provide feedback as a PR comment');
+      expect(result).toContain('link to PR comment');
+    });
+
+    it('generates pr_inline_comments feedback for review flow', () => {
+      const state = baseState({
+        task: { flow_id: 'review' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'provide-feedback-pr',
+              operation: 'create',
+              object: 'review_feedback',
+              output: 'pr_inline_comments',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('PR inline comments at relevant line numbers');
+    });
+
+    it('generates default "here" feedback for review flow with no output mode', () => {
+      const state = baseState({ task: { flow_id: 'review' } });
+      const result = buildPrompt(state);
+      expect(result).toContain(
+        'Provide concise feedback to HUMAN (me) here (in this interface)'
+      );
     });
   });
 });

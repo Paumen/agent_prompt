@@ -24,8 +24,10 @@ export function buildPrompt(state) {
   // Context section — same across all flows
   lines.push('  <context>');
   const flowLabel = FLOW_LABELS[flowId] || flowId || 'task';
+  // Spec uses task="debug" for fix flow, other flows match their flow ID
+  const taskId = TASK_IDS[flowId] || flowId || 'task';
   lines.push(
-    `    Please help <task="${esc(flowId || 'task')}"> ${esc(flowLabel)} </task> by executing below 'todo' steps`
+    `    Please help <task="${esc(taskId)}"> ${esc(flowLabel)} </task> by executing below 'todo' steps`
   );
   lines.push(
     `    for <repository> https://github.com/${esc(owner)}/${esc(repo)} </repository>`
@@ -55,9 +57,10 @@ export function buildPrompt(state) {
     stepNum++;
   }
 
-  // Remaining steps from enabled_steps
+  // Remaining steps from enabled_steps (skip read-claude — hardcoded above)
   const enabledSteps = steps?.enabled_steps || [];
   for (const step of enabledSteps) {
+    if (step.id === 'read-claude') continue;
     const desc = formatStep(step);
     if (desc) {
       lines.push(`    Step ${stepNum}: ${desc}`);
@@ -65,8 +68,8 @@ export function buildPrompt(state) {
     }
   }
 
-  // Final feedback step
-  const feedbackStep = buildFeedbackStep(flowId);
+  // Final feedback step — uses output mode from the last feedback-type step
+  const feedbackStep = buildFeedbackStep(flowId, enabledSteps);
   if (feedbackStep) {
     lines.push(`    Step ${stepNum}: ${feedbackStep}`);
   }
@@ -92,6 +95,14 @@ const FLOW_LABELS = {
   review: 'Review / Analyze',
   implement: 'Implement / Build',
   improve: 'Improve / Modify',
+};
+
+// Spec task attribute values (hybrid-framework-design.md: fix → "debug")
+const TASK_IDS = {
+  fix: 'debug',
+  review: 'review',
+  implement: 'implement',
+  improve: 'improve',
 };
 
 // --- Flow-specific task step builders ---
@@ -347,7 +358,20 @@ function buildGenericTaskStep(panelA, panelB) {
 
 // --- Feedback step builders ---
 
-function buildFeedbackStep(flowId) {
+/**
+ * Build the final feedback step. For review flow, checks output mode
+ * from enabled_steps feedback steps (pr_comment, pr_inline_comments, or default "here").
+ */
+function buildFeedbackStep(flowId, enabledSteps) {
+  // Find output mode from feedback-type steps if any
+  const feedbackSteps = (enabledSteps || []).filter(
+    (s) =>
+      s.id === 'provide-feedback-pr' ||
+      s.id === 'provide-feedback-files' ||
+      s.object === 'review_feedback'
+  );
+  const outputMode = feedbackSteps.length > 0 ? feedbackSteps[0].output : null;
+
   switch (flowId) {
     case 'fix':
       return [
@@ -357,12 +381,7 @@ function buildFeedbackStep(flowId) {
         '              - The action you took: create branch (incl name and link), implemented fix by editing files (incl file names), ran tests (incl which ones), verified issue is solved, committed PR (incl PR name and link)',
       ].join('\n');
     case 'review':
-      return [
-        'Provide concise feedback to HUMAN (me) here (in this interface) include:',
-        '              - Summary of what you reviewed in one sentence.',
-        '              - Number of issues found by severity.',
-        '              - Top 3 most important findings with file/line references.',
-      ].join('\n');
+      return buildReviewFeedback(outputMode);
     case 'implement':
       return [
         'Provide concise feedback to HUMAN (me) here (in this interface) include:',
@@ -384,10 +403,41 @@ function buildFeedbackStep(flowId) {
   }
 }
 
+/**
+ * Review flow supports multiple output modes per spec.
+ */
+function buildReviewFeedback(outputMode) {
+  if (outputMode === 'pr_comment') {
+    return [
+      'Provide feedback as a PR comment include:',
+      '              - Summary of what you reviewed in one sentence.',
+      '              - Number of issues found by severity label.',
+      '              - Top 3 most important findings with file/line references.',
+      '              - Provide link to PR comment to HUMAN (me) here (in this interface).',
+    ].join('\n');
+  }
+  if (outputMode === 'pr_inline_comments') {
+    return [
+      'Provide feedback via PR inline comments at relevant line numbers include:',
+      '              - Issue you found.',
+      '              - Severity label.',
+      '              - Suggested fix.',
+    ].join('\n');
+  }
+  // Default: "here" (in interface)
+  return [
+    'Provide concise feedback to HUMAN (me) here (in this interface) include:',
+    '              - Summary of what you reviewed in one sentence.',
+    '              - Number of issues found by severity.',
+    '              - Top 3 most important findings with file/line references.',
+  ].join('\n');
+}
+
 // --- Step formatting ---
 
 /**
  * Format a single step object into a readable string.
+ * Handles operation, object, params, lenses, name_provided, and output.
  */
 function formatStep(step) {
   if (!step) return '';
@@ -417,8 +467,13 @@ function formatStep(step) {
 
   // Lenses (STP-03)
   const lenses = step.lenses || [];
-  if (lenses.length > 0) {
+  if (Array.isArray(lenses) && lenses.length > 0) {
     parts.push(`— focus on [${lenses.map(esc).join(', ')}]`);
+  }
+
+  // User-provided name for branch/PR/file (name_provided field)
+  if (step.name_provided) {
+    parts.push(`— name it ${esc(step.name_provided)}`);
   }
 
   return parts.join(' ');

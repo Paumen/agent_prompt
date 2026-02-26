@@ -48,6 +48,33 @@ function validateField(fieldName, field, flowId, panelName, errors) {
       `Flow "${flowId}" > ${panelName} > fields > "${fieldName}": invalid type "${field.type}". Must be one of: ${VALID_FIELD_TYPES.join(', ')}`
     );
   }
+
+  // Optional field properties
+  if ('placeholder' in field && typeof field.placeholder !== 'string') {
+    errors.push(
+      `Flow "${flowId}" > ${panelName} > fields > "${fieldName}": "placeholder" must be a string`
+    );
+  }
+  if ('required' in field && typeof field.required !== 'boolean') {
+    errors.push(
+      `Flow "${flowId}" > ${panelName} > fields > "${fieldName}": "required" must be a boolean`
+    );
+  }
+  if ('required_group' in field && typeof field.required_group !== 'string') {
+    errors.push(
+      `Flow "${flowId}" > ${panelName} > fields > "${fieldName}": "required_group" must be a string`
+    );
+  }
+  if ('label' in field && typeof field.label !== 'string') {
+    errors.push(
+      `Flow "${flowId}" > ${panelName} > fields > "${fieldName}": "label" must be a string`
+    );
+  }
+  if ('default' in field && !Array.isArray(field.default)) {
+    errors.push(
+      `Flow "${flowId}" > ${panelName} > fields > "${fieldName}": "default" must be an array`
+    );
+  }
 }
 
 /**
@@ -105,6 +132,37 @@ function validateStep(step, index, flowId, errors) {
       `Flow "${flowId}" > steps[${index}] (${step.id || '?'}): missing "object" (string)`
     );
   }
+
+  // Optional step properties
+  if ('source' in step) {
+    if (typeof step.source !== 'string') {
+      errors.push(
+        `Flow "${flowId}" > steps[${index}] (${step.id || '?'}): "source" must be a string`
+      );
+    } else if (!/^panel_[ab]\./.test(step.source)) {
+      errors.push(
+        `Flow "${flowId}" > steps[${index}] (${step.id || '?'}): "source" must reference panel_a or panel_b (got "${step.source}")`
+      );
+    }
+  }
+
+  if (
+    'params' in step &&
+    (typeof step.params !== 'object' || step.params === null)
+  ) {
+    errors.push(
+      `Flow "${flowId}" > steps[${index}] (${step.id || '?'}): "params" must be an object`
+    );
+  }
+
+  if ('lenses' in step) {
+    const l = step.lenses;
+    if (!Array.isArray(l) && (typeof l !== 'object' || l === null)) {
+      errors.push(
+        `Flow "${flowId}" > steps[${index}] (${step.id || '?'}): "lenses" must be an array or object`
+      );
+    }
+  }
 }
 
 /**
@@ -130,6 +188,26 @@ function validateFlow(flowId, flow, errors) {
 
   validatePanel(flow.panel_a, flowId, 'panel_a', errors);
   validatePanel(flow.panel_b, flowId, 'panel_b', errors);
+
+  // Optional multi_file block
+  if ('multi_file' in flow) {
+    const mf = flow.multi_file;
+    if (!mf || typeof mf !== 'object') {
+      errors.push(`Flow "${flowId}": "multi_file" must be an object`);
+    } else if (mf.scope_selector) {
+      const ss = mf.scope_selector;
+      if (!ss.label || typeof ss.label !== 'string') {
+        errors.push(
+          `Flow "${flowId}" > multi_file > scope_selector: missing "label" (string)`
+        );
+      }
+      if (!ss.options || typeof ss.options !== 'object') {
+        errors.push(
+          `Flow "${flowId}" > multi_file > scope_selector: missing "options" (object)`
+        );
+      }
+    }
+  }
 
   if (!flow.steps || !Array.isArray(flow.steps)) {
     errors.push(`Flow "${flowId}": missing "steps" (array)`);

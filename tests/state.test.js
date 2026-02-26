@@ -276,6 +276,55 @@ describe('state.js', () => {
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
+    it('populates enabled_steps from flow definition steps', () => {
+      const flowDef = {
+        steps: [
+          {
+            id: 'read-claude',
+            operation: 'read',
+            object: 'file',
+            params: { file: 'claude.md' },
+          },
+          { id: 'create-branch', operation: 'create', object: 'branch' },
+          { id: 'commit-pr', operation: 'commit', object: 'changes' },
+        ],
+      };
+
+      stateModule.applyFlowDefaults('fix', flowDef);
+
+      const s = stateModule.getState();
+      expect(s.steps.enabled_steps).toHaveLength(3);
+      expect(s.steps.enabled_steps[0].id).toBe('read-claude');
+      expect(s.steps.enabled_steps[1].id).toBe('create-branch');
+      expect(s.steps.enabled_steps[2].id).toBe('commit-pr');
+    });
+
+    it('sets empty enabled_steps when flow def has no steps', () => {
+      stateModule.applyFlowDefaults('fix', {});
+      const s = stateModule.getState();
+      expect(s.steps.enabled_steps).toEqual([]);
+    });
+
+    it('deep-clones steps so mutations do not affect flow def', () => {
+      const flowDef = {
+        steps: [
+          {
+            id: 'step1',
+            operation: 'read',
+            object: 'file',
+            params: { file: 'x.md' },
+          },
+        ],
+      };
+      stateModule.applyFlowDefaults('fix', flowDef);
+
+      // Mutate the original flow def
+      flowDef.steps[0].id = 'mutated';
+
+      const s = stateModule.getState();
+      expect(s.steps.enabled_steps[0].id).toBe('step1');
+    });
+
     it('does not carry over user overrides across flow switches', () => {
       // Set up state for fix flow
       stateModule.setState('task.flow_id', 'fix');

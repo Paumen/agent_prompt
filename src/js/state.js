@@ -194,8 +194,14 @@ export function applyFlowDefaults(flowId, flowDef) {
   // Reset panels and steps to defaults (DM-DEF-03)
   state.panel_a = structuredClone(DEFAULT_STATE.panel_a);
   state.panel_b = structuredClone(DEFAULT_STATE.panel_b);
-  state.steps.enabled_steps = [];
   state.improve_scope = null;
+
+  // Populate enabled_steps from flow definition steps
+  if (Array.isArray(flowDef?.steps)) {
+    state.steps.enabled_steps = structuredClone(flowDef.steps);
+  } else {
+    state.steps.enabled_steps = [];
+  }
 
   // Apply flow-specific default lenses to panel_b if defined
   if (flowDef?.panel_b?.fields?.lenses?.default) {
