@@ -48,16 +48,12 @@ export function renderError(container, message, onRetry) {
   el.appendChild(msgSpan);
 
   const actions = document.createElement('span');
-  actions.style.display = 'inline-flex';
-  actions.style.gap = '4px';
-  actions.style.flexShrink = '0';
+  actions.className = 'error-actions';
 
   if (onRetry) {
     const retryBtn = document.createElement('button');
     retryBtn.className = 'btn-retry';
     retryBtn.textContent = 'Retry';
-    retryBtn.style.cssText =
-      'background:none;border:none;cursor:pointer;color:inherit;text-decoration:underline;font-size:inherit;padding:0';
     retryBtn.addEventListener('click', onRetry);
     actions.appendChild(retryBtn);
   }
@@ -110,7 +106,6 @@ export function createSearchableDropdown(container, config) {
 
   const wrapper = document.createElement('div');
   wrapper.className = 'dropdown-wrapper';
-  wrapper.style.position = 'relative';
 
   const input = document.createElement('input');
   input.type = 'text';
@@ -120,10 +115,6 @@ export function createSearchableDropdown(container, config) {
 
   const list = document.createElement('div');
   list.className = 'dropdown-list';
-  list.style.cssText =
-    'display:none;position:absolute;left:0;right:0;top:100%;max-height:220px;overflow-y:auto;' +
-    'background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--radius);' +
-    'z-index:10;margin-top:2px';
 
   function renderList(filter = '') {
     list.innerHTML = '';
@@ -136,8 +127,6 @@ export function createSearchableDropdown(container, config) {
       const empty = document.createElement('div');
       empty.className = 'dropdown-empty';
       empty.textContent = 'No matches';
-      empty.style.cssText =
-        'padding:8px 12px;color:var(--text-secondary);font-size:var(--text-sm)';
       list.appendChild(empty);
       return;
     }
@@ -146,13 +135,10 @@ export function createSearchableDropdown(container, config) {
       const item = document.createElement('div');
       item.className = 'dropdown-item';
       item.textContent = opt.label;
-      item.style.cssText =
-        'padding:8px 12px;cursor:pointer;min-height:44px;display:flex;align-items:center;' +
-        'font-size:var(--text-base)';
       item.addEventListener('click', () => {
         onSelect(opt);
         input.value = '';
-        list.style.display = 'none';
+        list.classList.remove('dropdown-list--open');
       });
       list.appendChild(item);
     }
@@ -160,18 +146,18 @@ export function createSearchableDropdown(container, config) {
 
   input.addEventListener('focus', () => {
     renderList(input.value);
-    list.style.display = 'block';
+    list.classList.add('dropdown-list--open');
   });
 
   input.addEventListener('input', () => {
     renderList(input.value);
-    list.style.display = 'block';
+    list.classList.add('dropdown-list--open');
   });
 
   // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (!wrapper.contains(e.target)) {
-      list.style.display = 'none';
+      list.classList.remove('dropdown-list--open');
     }
   });
 

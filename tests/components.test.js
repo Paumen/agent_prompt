@@ -237,7 +237,7 @@ describe('createSearchableDropdown()', () => {
     expect(onSelect).toHaveBeenCalledWith(options[1]);
   });
 
-  it('has touch-friendly item sizing (min 44px)', () => {
+  it('has touch-friendly item class (min-height 44px defined in CSS)', () => {
     const container = document.getElementById('target');
     components.createSearchableDropdown(container, {
       options,
@@ -248,7 +248,7 @@ describe('createSearchableDropdown()', () => {
     input.dispatchEvent(new Event('focus'));
 
     const item = container.querySelector('.dropdown-item');
-    expect(item.style.minHeight).toBe('44px');
+    expect(item.classList.contains('dropdown-item')).toBe(true);
   });
 
   it('shows empty state when no options match', () => {

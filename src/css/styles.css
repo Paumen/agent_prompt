@@ -365,6 +365,66 @@ body {
   background: var(--surface-inset);
 }
 
+/* === Error Actions (GL-04 inline error buttons) === */
+.error-actions {
+  display: inline-flex;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+.btn-retry {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+}
+
+/* === Searchable Dropdown (SCT-06) === */
+.dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-list {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  z-index: 10;
+  margin-top: var(--sp-1);
+}
+
+.dropdown-list--open {
+  display: block;
+}
+
+.dropdown-item {
+  padding: var(--sp-3) var(--sp-4);
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: var(--text-base);
+}
+
+.dropdown-item:hover {
+  background: var(--surface-inset);
+}
+
+.dropdown-empty {
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
 /* === Prompt Output Area (OUT-01) === */
 .prompt-output {
   background: var(--surface-inset);
