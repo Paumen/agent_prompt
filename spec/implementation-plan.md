@@ -282,7 +282,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 8. Phase 4 — Card 1: Configuration `To start`
+## 8. Phase 4 — Card 1: Configuration `Testing`
 
 **Goal**: PAT input, username, repo grid, branch grid — fully wired to state and API.
 
@@ -290,7 +290,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Checklist
 
-- [ ] Create `src/js/card-configuration.js`:
+- [x] Create `src/js/card-configuration.js`:
   - PAT password field with show/hide toggle + "Clear" action (CFG-01)
   - PAT persisted to localStorage on change; clear action removes it
   - Username text input, pre-filled from localStorage (CFG-02)
@@ -304,10 +304,10 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
   - Shimmer skeletons while repos/branches load (GL-02)
   - Inline errors on API failure (GL-04)
   - All `setState()` calls for configuration fields
-- [ ] **Click audit (GL-01)**: repo select = 1 click, branch select = 1 click, PAT entry = typing only. All within target.
-- [ ] **Mobile (GL-03)**: repo/branch grids reflow on small screens, no horizontal scroll, comfortable touch targets (VIS-02)
-- [ ] **Accessibility**: buttons have visible focus states, PAT field has `autocomplete="off"`, form inputs have labels
-- [ ] **Test**: `tests/card-configuration.test.js` — PAT persistence, repo fetch on load, branch auto-select, card collapse behavior, PAT clear
+- [x] **Click audit (GL-01)**: repo select = 1 click, branch select = 1 click, PAT entry = typing only. All within target.
+- [x] **Mobile (GL-03)**: repo/branch grids reflow on small screens, no horizontal scroll, comfortable touch targets (VIS-02)
+- [x] **Accessibility**: buttons have visible focus states, PAT field has `autocomplete="off"`, form inputs have labels
+- [x] **Test**: `tests/card-configuration.test.js` — PAT persistence, repo fetch on load, branch auto-select, card collapse behavior, PAT clear (33 tests)
 
 ### Output
 
