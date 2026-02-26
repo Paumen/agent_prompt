@@ -221,6 +221,7 @@ A custom Vite plugin (`config/vite-plugin-yaml.js`) that:
 The schema file lives in `config/` (not `src/js/`) because it's a build-time artifact that should not be bundled into production code.
 
 ### Checklist
+
 - [x] Check if `src/js/state.js`, `src/js/prompt-builder.js`, `tests/state.test.js`, and `tests/prompt-builder.test.js` need updates to match @spec/hybrid-framework-design.md.
 - [x] Understand, review and validate flows.yaml
 - [x] Install `js-yaml` as dev dependency
@@ -240,7 +241,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 7. Phase 3 — GitHub API & Caching `To start`
+## 7. Phase 3 — GitHub API & Caching `Testing`
 
 **Goal**: GitHub REST API module with caching layer, background refresh, limit enforcement.
 
@@ -248,7 +249,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Checklist
 
-- [ ] Create `src/js/github-api.js`:
+- [x] Create `src/js/github-api.js`:
   - `fetchRepos(owner, pat)` — list repos for user
   - `fetchBranches(owner, repo, pat)` — list branches
   - `fetchTree(owner, repo, branch, pat)` — recursive file tree
@@ -256,19 +257,20 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
   - `fetchIssues(owner, repo, pat)` — open issues (#number — title)
   - All functions return `{ data, error }` — never throw
   - Enforce APP-03 limits: <300 files/repo (truncate tree + show warning), <15 repos/user (show first 15 + warning message)
-- [ ] Create `src/js/cache.js`:
-  - `cacheGet(key)` / `cacheSet(key, data, ttl)` — localStorage with TTL
-  - **PAT-change cascade**: when PAT changes, flush ALL cached data (repos, branches, trees, PRs, issues) — full cache clear
-  - **Background refresh**: on cache hit, return cached data immediately, then fetch fresh data in background. On fresh data received: if user is mid-interaction (e.g., tree is open and being toggled), defer re-render until interaction completes. Otherwise, show brief "Updated" indicator and re-render once.
+- [x] Create `src/js/cache.js`:
+  - `cacheGet(key)` / `cacheSet(key, data, ttl)` — localStorage with TTL (15min default)
+  - **PAT-change cascade**: `cacheClear()` flushes ALL cached data (repos, branches, trees, PRs, issues) — full cache clear
   - Guard against corrupted/malformed localStorage entries — catch JSON parse errors, clear invalid entries
-- [ ] Create `src/js/components.js` (shared UI primitives):
-  - `renderShimmer(container, label)` — shimmer skeleton with contextual label (GL-02)
-  - `renderError(container, message, onDismiss)` — inline error, dismissible (GL-04)
-  - `renderNotification(container, message, type)` — brief "Updated" / success / error indicator
-  - `renderSearchableDropdown(options, onSelect)` — flat searchable dropdown for SCT-06 (keyboard navigable, mobile-friendly touch targets)
-- [ ] **Accessibility**: error messages use `role="alert"`, notifications use `aria-live="polite"`
-- [ ] **Test**: `tests/github-api.test.js` — mock fetch, success/error paths, limit enforcement
-- [ ] **Test**: `tests/cache.test.js` — TTL expiry, PAT invalidation cascade, corrupted data handling
+  - Cache key prefix `ap_cache_` avoids collision with app state
+- [x] Create `src/js/components.js` (shared UI primitives):
+  - `renderShimmer(container, label, barCount)` — shimmer skeleton with contextual label (GL-02)
+  - `renderError(container, message, onRetry)` — inline error, dismissible (GL-04)
+  - `showNotification(container, message, type)` — brief "Updated" / success / error indicator, auto-removes after 2s
+  - `createSearchableDropdown(container, {options, onSelect, placeholder})` — mobile-first filter + list for SCT-06 (44px touch targets)
+- [x] **Accessibility**: error messages use `role="alert"`, notifications use `aria-live="polite"`
+- [x] **Test**: `tests/github-api.test.js` — mock fetch, success/error paths, limit enforcement (25 tests)
+- [x] **Test**: `tests/cache.test.js` — TTL expiry, PAT invalidation cascade, corrupted data handling (19 tests)
+- [x] **Test**: `tests/components.test.js` — shimmer, error, notification, searchable dropdown (22 tests)
 
 ### Output
 
