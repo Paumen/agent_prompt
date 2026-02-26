@@ -4,14 +4,14 @@
 
 Single-page web app that generates prompts agentic llm.
 
-**Current phase**: Repository setup complete. Implementation not yet started.
+**Current phase**: Repository setup complete. Implementation started.
 
 ## Authority Hierarchy
 
 In case of conflicts between files, the higher-ranked file is always correct:
 
 ```
-spec/spec_concept.md  >  src/config/flows.yaml  >  source code
+@spec/spec_concept.md  > @src/config/flows.yaml  >  @spec/hybrid-framework-design.md  > @spec/implementation-plan.md > @source code
 ```
 
 If a conflict exists, update the lower-ranked file to match. If unclear, ask the user.
