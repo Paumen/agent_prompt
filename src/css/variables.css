@@ -1,9 +1,9 @@
 :root {
   /* === Colors === */
-  --shell: #e8e6e1;
-  --surface: #f7f3ed;
-  --surface-raised: #faf7f2;
-  --surface-inset: #eceae5;
+--shell: oklch(96% 0.01 85);
+--surface: oklch(98.5% 0.005 85);
+--surface-raised: oklch(100% 0 0);
+--surface-inset: oklch(94% 0.015 85);
   --text-primary: #2c2926;
   --text-secondary: #6b6560;
   --text-tertiary: #9a9490;
