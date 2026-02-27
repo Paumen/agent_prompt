@@ -10,7 +10,27 @@
 import { getState, setState } from './state.js';
 import { fetchRepos, fetchBranches, fetchTree } from './github-api.js';
 import { cacheGet, cacheSet, cacheClear } from './cache.js';
-import { renderShimmer, renderError, showNotification } from './components.js';
+import {
+  renderShimmer,
+  renderError,
+  showNotification,
+  isInteracting,
+} from './components.js';
+
+// --- GL-05: Defer re-render until user is not mid-interaction ---
+
+/**
+ * Run fn immediately if not mid-interaction, otherwise retry every 2s (up to
+ * maxRetries times). Ensures background refresh does not clobber active UI.
+ */
+function deferIfInteracting(fn, maxRetries = 5) {
+  if (!isInteracting()) {
+    fn();
+    return;
+  }
+  if (maxRetries <= 0) return;
+  setTimeout(() => deferIfInteracting(fn, maxRetries - 1), 2000);
+}
 
 // --- Module-level UI data ---
 let fileTree = [];
@@ -377,8 +397,11 @@ async function loadRepos(owner, pat, isBackground = false) {
       JSON.stringify(result.data.map((r) => r.name)) !==
       JSON.stringify(cached.map((r) => r.name));
     if (changed) {
-      renderRepoSection(result.data, getState().configuration.repo);
-      showNotification(elRepoSection, 'Updated', 'success');
+      // GL-05: defer re-render if user is mid-interaction
+      deferIfInteracting(() => {
+        renderRepoSection(result.data, getState().configuration.repo);
+        showNotification(elRepoSection, 'Updated', 'success');
+      });
     }
     return;
   }
@@ -448,9 +471,12 @@ async function loadBranchesBackground(owner, repo, pat, cacheKey, cached) {
     JSON.stringify(result.data.map((b) => b.name)) !==
     JSON.stringify(cached.map((b) => b.name));
   if (changed) {
-    const selected = getState().configuration.branch;
-    renderBranchSection(result.data, selected);
-    showNotification(elBranchSection, 'Updated', 'success');
+    // GL-05: defer re-render if user is mid-interaction
+    deferIfInteracting(() => {
+      const selected = getState().configuration.branch;
+      renderBranchSection(result.data, selected);
+      showNotification(elBranchSection, 'Updated', 'success');
+    });
   }
 }
 

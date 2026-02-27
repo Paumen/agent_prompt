@@ -5,7 +5,38 @@
  * - renderError: inline dismissible error (GL-04)
  * - showNotification: brief auto-dismiss toast (GL-05)
  * - createSearchableDropdown: mobile-first filter + list (SCT-06)
+ * - setInteracting / isInteracting: mid-interaction flag for GL-05 deferral
  */
+
+// --- Mid-interaction tracking (GL-05) ---
+
+let _isInteracting = false;
+let _interactionTimer = null;
+
+/**
+ * Signal that the user is actively interacting (e.g. toggled a lens or file).
+ * Auto-clears after 2 seconds of inactivity.
+ */
+export function setInteracting() {
+  _isInteracting = true;
+  clearTimeout(_interactionTimer);
+  _interactionTimer = setTimeout(() => {
+    _isInteracting = false;
+  }, 2000);
+}
+
+/**
+ * Returns true if the user is mid-interaction:
+ * - setInteracting() was called within the last 2 seconds, OR
+ * - an input/textarea/select has active focus
+ */
+export function isInteracting() {
+  return (
+    _isInteracting ||
+    (typeof document !== 'undefined' &&
+      !!document.activeElement?.matches('input, textarea, select'))
+  );
+}
 
 /**
  * Render shimmer skeleton bars with contextual label.
