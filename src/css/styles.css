@@ -217,6 +217,8 @@ body {
 .input-icon-prefix {
   position: absolute;
   left: var(--sp-2);
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--text-tertiary);
   pointer-events: none;
   display: flex;
@@ -540,6 +542,13 @@ body {
 .cfg-pat-row .input-icon-wrap {
   flex: 1;
   min-width: 0;
+}
+
+/* Inline icon wrapper for field labels and section labels */
+.field-label-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* Section header row (Repositories / Branches label + icon) */

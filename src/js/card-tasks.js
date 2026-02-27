@@ -252,6 +252,7 @@ function renderPanelFields(panelEl, fieldsMap, panelKey) {
     const pickerIconSvg = PICKER_ICON_MAP[fieldDef.type];
     if (pickerIconSvg) {
       const ic = document.createElement('span');
+      ic.className = 'field-label-icon';
       ic.innerHTML = pickerIconSvg;
       label.appendChild(ic);
     }
