@@ -267,3 +267,66 @@ describe('createSearchableDropdown()', () => {
     expect(emptyMsg).not.toBeNull();
   });
 });
+
+// ─── setInteracting / isInteracting (GL-05) ───
+
+describe('setInteracting() / isInteracting()', () => {
+  it('isInteracting() returns false when nothing is happening', () => {
+    // Fresh module import from beforeEach
+    expect(components.isInteracting()).toBe(false);
+  });
+
+  it('isInteracting() returns true immediately after setInteracting()', () => {
+    vi.useFakeTimers();
+    components.setInteracting();
+    expect(components.isInteracting()).toBe(true);
+    vi.useRealTimers();
+  });
+
+  it('isInteracting() clears to false after 2 seconds', () => {
+    vi.useFakeTimers();
+    components.setInteracting();
+    expect(components.isInteracting()).toBe(true);
+    vi.advanceTimersByTime(2000);
+    expect(components.isInteracting()).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('setInteracting() resets the 2s timer on repeated calls', () => {
+    vi.useFakeTimers();
+    components.setInteracting();
+    vi.advanceTimersByTime(1500);
+    components.setInteracting(); // reset — should be still interacting after another 1.5s
+    vi.advanceTimersByTime(1500);
+    expect(components.isInteracting()).toBe(true);
+    vi.advanceTimersByTime(500); // now total 2s since last call
+    expect(components.isInteracting()).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('isInteracting() returns true when an input has focus', () => {
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    input.focus();
+    expect(components.isInteracting()).toBe(true);
+    input.blur();
+    document.body.removeChild(input);
+  });
+
+  it('isInteracting() returns true when a textarea has focus', () => {
+    const ta = document.createElement('textarea');
+    document.body.appendChild(ta);
+    ta.focus();
+    expect(components.isInteracting()).toBe(true);
+    ta.blur();
+    document.body.removeChild(ta);
+  });
+
+  it('isInteracting() returns false when focus is on a non-input element', () => {
+    const btn = document.createElement('button');
+    document.body.appendChild(btn);
+    btn.focus();
+    expect(components.isInteracting()).toBe(false);
+    document.body.removeChild(btn);
+  });
+});

@@ -10,6 +10,7 @@
 import { getState, setState, subscribe } from './state.js';
 import { getFlowById } from './flow-loader.js';
 import { generateSteps, reconcileSteps } from './step-generator.js';
+import { setInteracting } from './components.js';
 
 // Available lenses (from flows.yaml vocabulary)
 const ALL_LENSES = [
@@ -317,6 +318,7 @@ function onDeleteStep(stepId) {
 }
 
 function onToggleLens(stepIndex, lens) {
+  setInteracting(); // GL-05: flag mid-interaction to defer background refresh
   const state = getState();
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
 
@@ -333,6 +335,7 @@ function onToggleLens(stepIndex, lens) {
 }
 
 function onSelectOutput(stepIndex, mode) {
+  setInteracting(); // GL-05: flag mid-interaction to defer background refresh
   const state = getState();
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
 

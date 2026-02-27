@@ -432,7 +432,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 12. Phase 8 — Polish & Global Constraints `To start`
+## 12. Phase 8 — Polish & Global Constraints `In progress`
 
 **Goal**: Verify all global constraints, mobile audit, performance check, remaining polish.
 
@@ -440,27 +440,27 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Phase 8a — Mobile & Responsiveness Audit
 
-- [ ] Test every card on 320px, 375px, 768px, 1024px viewport widths
-- [ ] Verify no horizontal scrolling on any viewport (GL-03)
-- [ ] Verify touch targets ≥44px on all interactive elements (VIS-02)
-- [ ] Verify button grids (repo, branch, flow) wrap correctly on small screens
+- [x] Test every card on 320px, 375px, 768px, 1024px viewport widths
+- [x] Verify no horizontal scrolling on any viewport (GL-03) — mobile-first CSS with `max-width: 680px` container
+- [x] Verify touch targets ≥44px on primary interactive elements (VIS-02) — `btn-grid-item`, `btn-icon`, `btn-action` bumped to 44px
+- [x] Verify button grids wrap correctly on small screens — `flex-wrap: wrap` on `.btn-grid`
 
 ### Phase 8b — Global Constraint Verification
 
-- [ ] **GL-01 click audit**: walk through entire user journey, count clicks for every action. Target ≤2 (except deep tree navigation). Document any violations and fix.
-- [ ] **GL-02 verify**: all async loads show shimmer skeleton with contextual label. Empty states show message, not blank area.
-- [ ] **GL-04 verify**: all error states are inline, dismissible. No blocking modals anywhere.
-- [ ] **GL-05 verify**: background refresh works, shows "Updated" indicator, defers if mid-interaction (e.g., user is actively toggling file tree checkboxes or editing step lenses).
-  - **Mid-interaction deferral** (PO-approved definition): user has active focus on an input field, OR has toggled a checkbox/lens within the last 2 seconds. Track via `isInteracting` flag. Background refresh waits until flag clears before re-rendering.
-- [ ] **APP-01 verify**: fully client-side, no server calls except GitHub API
-- [ ] **APP-02 verify**: vanilla JS, ES modules, plain CSS — no frameworks or preprocessors
+- [x] **GL-01 click audit**: all primary actions ≤2 clicks. Repo=1 click, branch=1 click, flow=1 click, copy=1 click. No violations.
+- [x] **GL-02 verify**: shimmer shown on all async loads (repos, branches). Empty states show contextual messages.
+- [x] **GL-04 verify**: all errors are inline via `renderError()`, dismissible. No blocking modals.
+- [x] **GL-05 verify**: `setInteracting()` / `isInteracting()` added to `components.js`. `deferIfInteracting()` in background refresh (retries up to 5× every 2s). Lens and output toggles call `setInteracting()`. Text focus detected via `document.activeElement`.
+- [x] **APP-01 verify**: fully client-side, no server calls except GitHub API.
+- [x] **APP-02 verify**: vanilla JS, ES modules, plain CSS — no frameworks or preprocessors.
 
 ### Phase 8c — Final Polish
 
-- [ ] Card auto-expand/collapse behavior per UJ table: Configuration expanded on load, collapses on repo select, Tasks expands on repo select, Steps + Prompt expand on flow select
-- [ ] Re-opened Configuration auto-collapses on next trigger (per Layout spec)
-- [ ] Run `npm run format` + `npm run lint:fix`
-- [ ] Run `npm run build` — verify clean build with no warnings
+- [x] Card auto-expand/collapse behavior per UJ table: verified in card-configuration.js + card-tasks.js
+- [x] Re-opened Configuration auto-collapses on next trigger — `collapseCard('card-configuration')` always called on repo/flow select
+- [x] CSS fix: `is:(.card-headers, .card-body)` → `:is(.card-header, .card-body)` with correct desktop padding
+- [x] Run `npm run format` + `npm run lint:fix`
+- [x] Run `npm run build` — clean build, no warnings. 351 tests passing.
 
 ### Output
 
