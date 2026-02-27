@@ -262,7 +262,7 @@ See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 - OUT-04 File reference example: `@src/utils/auth.js`.
 - OUT-05 A "Copy" button copies the full prompt to clipboard — this is the primary output action.
 - OUT-06 An optional free-text field below the prompt preview lets the user append human notes (included in `<notes>` tags, stored in `notes.user_text`).
-- OUT-07 An "Prompt Claude" button opens deeplink to claude.ai and pastes prompt in claude chat.
+- OUT-07 A "Prompt Claude" button deep-links to `https://claude.ai/new?q=<encoded-prompt>`, opening Claude in a new tab with the prompt pre-filled in the chat input.
 - OUT-08 Card 4 never auto-collapses. Once visible (after flow selection), it remains visible, except if user manually collapses it.
 
 ---
@@ -396,14 +396,14 @@ Each requirement above is its own acceptance test. The following tests add speci
 | STP-02    | Testing     | ✅   | —   | ◻   | Conditional steps from panel fields              |
 | STP-03    | Testing     | ✅   | ◻   | ◻   | Lens pills per step (show 7 + "more" toggle)     |
 | STP-04    | Testing     | ✅   | —   | ◻   | All steps deletable (no locked steps per PO)     |
-| OUT-01    | To start    | ◻    | ◻   | ◻   |                                                  |
+| OUT-01    | Testing     | ✅   | ◻   | ◻   | card-prompt.js: preview area, XML output         |
 | OUT-02    | Testing     | ✅   | ◻   | ◻   | Flow-specific templates in prompt-builder.js     |
-| OUT-03    | To start    | ◻    | ◻   | —   | Deterministic — DM-INV-03                        |
-| OUT-04    | To start    | ◻    | —   | —   |                                                  |
-| OUT-05    | To start    | ◻    | ◻   | ◻   |                                                  |
-| OUT-06    | To start    | ◻    | —   | ◻   |                                                  |
-| OUT-07    | To start    | —    | —   | ◻   | Opens claude.ai only                             |
-| OUT-08    | To start    | —    | ◻   | ◻   | Behavioral constraint                            |
+| OUT-03    | Testing     | ✅   | ◻   | —   | Live re-render via state subscription            |
+| OUT-04    | Testing     | ✅   | —   | —   | @ prefix in prompt-builder.js                    |
+| OUT-05    | Testing     | ✅   | ◻   | ◻   | Copy button + Copied! feedback                   |
+| OUT-06    | Testing     | ✅   | —   | ◻   | Notes textarea → notes.user_text                 |
+| OUT-07    | Testing     | —    | —   | ◻   | Deep-links to claude.ai/new?q= with prompt       |
+| OUT-08    | Testing     | —    | ◻   | ◻   | Card stays expanded; only manual collapse        |
 | VIS-01    | Testing     | —    | —   | ◻   | Phase 0: CSS grid layout done                    |
 | VIS-02    | Testing     | —    | —   | ◻   | Phase 0: touch targets set                       |
 | VIS-03    | Testing     | —    | —   | ◻   | Phase 0: card layout CSS done                    |
@@ -448,3 +448,5 @@ Each requirement above is its own acceptance test. The following tests add speci
 | 2026-02-26 | Phase 6: `output_selected` field on feedback steps for delivery mode selection. `output` array from flows.yaml defines available options; `output_selected` stores user's choice.                                                                               | Separates available options (from flow def) from user selection (runtime state). Prompt builder reads `output_selected` or falls back to `output[0]`.                            |
 | 2026-02-26 | Phase 6: `removed_step_ids` array tracks user-deleted steps. Deletions persist across panel changes within same flow; cleared on flow switch (DM-DEF-03).                                                                                                       | Prevents re-adding steps the user explicitly removed when panel data changes. Clean slate on flow switch is consistent with DM-DEF-03 full reset.                                |
 | 2026-02-26 | Phase 6: Lens pills show first 7 (selected first, then defaults, then alphabetical), remaining behind "+N more" toggle button.                                                                                                                                  | PO chose this pattern. Keeps step rows compact while giving access to all 14 lenses. Pre-selected and defaults surface first for discoverability.                                |
+| 2026-02-27 | Phase 7: "Prompt Claude" button deep-links to `claude.ai/new?q=<encoded-prompt>`. Prompt is URL-encoded and passed as the `q` query parameter, pre-filling the Claude chat input.                                                                              | OUT-07 is a hard requirement (PO decision). Any prior notes suggesting "no prompt transfer" were incorrect and have been removed from all spec and implementation files.          |
+| 2026-02-27 | Phase 7: Prompt preview area has a fixed max-height of 300px with `overflow-y: auto`. Buttons (Copy, Prompt Claude) appear in a toolbar header attached to the top of the preview box.                                                                         | PO chose fixed height to keep UI compact (VIS-03). Toolbar at top of preview keeps actions immediately visible without scrolling past a long prompt.                             |

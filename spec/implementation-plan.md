@@ -103,14 +103,14 @@ index.html
 
 ## 3. Preconditions & Blockers
 
-| #   | Precondition                                                                                              | Needed by               | Status                                                    |
-| --- | --------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------- |
-| P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)      | Phase 2                 | not approved, we will use all 4 flows directly, see below |
-| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                 | Phase 5 (full), Phase 6 | Approved by human, please validate file by reviewing      |
-| P3  | **OUT-07 decided**: button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this. | Phase 7                 | **Resolved**                                              |
-| P4  | **PR template** exists at `.github/pull_request_template.md`                                              | All PRs                 | Done (already exists)                                     |
-| P5  | **CI pipeline** exists (lint, test, build)                                                                | All PRs                 | Done (ci.yml exists)                                      |
-| P6  | **Node 20+** available in dev environment                                                                 | Phase 0                 | Done (.nvmrc exists)                                      |
+| #   | Precondition                                                                                                                                                          | Needed by               | Status                                                    |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------- |
+| P1  | **PO approval**: placeholder flows in `flows.yaml` for development (file is protected per CLAUDE.md)                                                                  | Phase 2                 | not approved, we will use all 4 flows directly, see below |
+| P2  | **PO to review flows** in `flows.yaml` with full field + step definitions for all 4 flows                                                                             | Phase 5 (full), Phase 6 | Approved by human, please validate file by reviewing      |
+| P3  | **OUT-07 decided**: "Prompt Claude" button deep-links to `claude.ai/new?q=<encoded-prompt>` — opens Claude in a new tab with the prompt pre-filled in the chat input. | Phase 7                 | **Resolved**                                              |
+| P4  | **PR template** exists at `.github/pull_request_template.md`                                                                                                          | All PRs                 | Done (already exists)                                     |
+| P5  | **CI pipeline** exists (lint, test, build)                                                                                                                            | All PRs                 | Done (ci.yml exists)                                      |
+| P6  | **Node 20+** available in dev environment                                                                                                                             | Phase 0                 | Done (.nvmrc exists)                                      |
 
 ---
 
@@ -405,27 +405,25 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 11. Phase 7 — Card 4: Prompt Output `To start`
+## 11. Phase 7 — Card 4: Prompt Output `Testing`
 
-**Goal**: Prompt preview, copy to clipboard, user notes, Open in Claude button.
+**Goal**: Prompt preview, copy to clipboard, user notes, Prompt Claude deep-link button.
 
 **Req IDs**: OUT-01..08
 
 ### Checklist
 
-- [ ] Create `src/js/card-prompt.js`:
+- [x] Create `src/js/card-prompt.js`:
   - Prompt preview: `--surface-inset` background, `--font-mono` at `--text-sm`, left-aligned (VIS treatment, OUT-01)
   - Preview updates live as `prompt_input` changes (driven by state subscription)
   - "Copy" button: `navigator.clipboard.writeText()` — primary output action (OUT-05). On success: brief "Copied!" indicator. On failure: inline error.
-    - **Note**: requires secure context (HTTPS or localhost). GitHub Pages serves HTTPS. No fallback for HTTP — modern browsers only.
   - Free-text notes field below prompt preview (OUT-06): textarea, stored in `notes.user_text`, wrapped in `<notes>` tags in output
-  - "Open in Claude" button (OUT-07): opens `https://claude.ai` in a new tab. **Does not transfer the prompt** — user copies prompt first via the Copy button, then pastes in Claude. Button label must clearly communicate this (e.g., "Open Claude" not "Send to Claude").
+  - "Prompt Claude ↗" button (OUT-07): deep-links to `https://claude.ai/new?q=<encoded-prompt>`, opening Claude in a new tab with the prompt pre-filled in the chat input.
   - Card never auto-collapses once visible (OUT-08). Once expanded after flow selection, stays expanded, except if user manually collapses it.
   - Prompt is fully regenerated from current `prompt_input` on every change (OUT-03, DM-INV-01)
-- [ ] **Large prompt consideration**: if prompt exceeds ~10,000 characters, show character count as informational. No hard limit enforced in v1.
-- [ ] **Mobile (GL-03)**: prompt area scrolls, copy button is fixed/accessible, notes field is full-width
-- [ ] **Accessibility**: prompt preview area has `role="region"` and `aria-label="Generated prompt"`, copy button has status feedback via `aria-live`
-- [ ] **Test**: `tests/card-prompt.test.js` — prompt renders from state, copy button works (mock clipboard API), notes update state, card stays visible
+- [x] **Mobile (GL-03)**: prompt area scrolls (max-height 300px), notes field is full-width
+- [x] **Accessibility**: prompt preview area has `role="region"` and `aria-label="Generated prompt"`, copy button has status feedback via `aria-live`
+- [x] **Test**: `tests/card-prompt.test.js` — 21 tests: prompt renders from state, copy button works (mock clipboard API), notes update state, card stays expanded, deep-link URL verified
 
 ### Output
 
@@ -558,7 +556,7 @@ Every spec requirement mapped to its primary implementation phase and verificati
 | --- | ------------------------------------------------------------------------------------------------ | ------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
 | R1  | `flows.yaml` not authored by PO in time                                                          | Blocks Phase 5 (full), Phase 6 | Medium     | Use detailed mock flows (defined above in Preconditions). Design UI to handle any number of steps/lenses/params.         |
 | R2  | Searchable dropdown in vanilla JS is complex (keyboard nav, mobile touch, scroll, search filter) | Delays Phase 5                 | Medium     | Start with a simpler select-based dropdown. Enhance to searchable only if file/PR lists are long enough to warrant it.   |
-| R3  | ~~**OUT-07**: deep link feasibility~~                                                            | ~~Degrades Phase 7 feature~~   | —          | **Resolved**: PO decided button opens `claude.ai` only (no prompt transfer). Label must clearly indicate this.           |
+| R3  | ~~**OUT-07**: deep link feasibility~~                                                            | ~~Degrades Phase 7 feature~~   | —          | **Resolved**: Deep link via `claude.ai/new?q=<encoded-prompt>` — prompt pre-filled in Claude chat.                       |
 | R4  | localStorage corruption from version changes                                                     | Breaks state hydration         | Low        | Validate shape on hydration. If invalid, clear and start fresh. Log to console.                                          |
 | R5  | Large file trees (close to 300-file limit) cause slow rendering                                  | Degrades UX on large repos     | Low        | Use document fragment for batch DOM insertion. Consider virtual scrolling only if performance is measurably poor.        |
 | R6  | Prompt rebuild causes UI jank on complex prompts                                                 | Degrades UX                    | Low        | Profile first. If measurable jank (>16ms rebuild), batch via `requestAnimationFrame`. Unlikely for text-only generation. |
@@ -569,7 +567,7 @@ Every spec requirement mapped to its primary implementation phase and verificati
 
 1. **File/folder selection moved after task selection**: File selection is now optional and flow-dependent (not a separate Scope section). Clearer UX, simpler tree logic, more background loading time, less vertical space.
 
-2. **OUT-07 Deep link**: Verified feasible. Button opens `claude.ai` (no prompt transfer). Label must clearly indicate it only opens the site.
+2. **OUT-07 Deep link**: Verified feasible. "Prompt Claude" button deep-links to `claude.ai/new?q=<encoded-prompt>` — opens Claude in a new tab with the prompt pre-filled.
 
 3. **VIS-03 added**: Minimum 2 open + 2 collapsed cards visible in viewport. Tightening UI requirements to ensure minimal vertical scrolling.
 

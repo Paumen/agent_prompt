@@ -586,7 +586,10 @@ function renderScopeSelector() {
     btn.className = `btn-grid-item scope-btn ${getState().improve_scope === opt.value ? 'item-selected' : ''}`;
     btn.dataset.scope = opt.value;
     btn.textContent = opt.label;
-    btn.setAttribute('aria-selected', getState().improve_scope === opt.value ? 'true' : 'false');
+    btn.setAttribute(
+      'aria-selected',
+      getState().improve_scope === opt.value ? 'true' : 'false'
+    );
 
     btn.addEventListener('click', () => {
       setState('improve_scope', opt.value);
@@ -651,8 +654,10 @@ function updateRequiredGroupIndicators() {
     ind.style.display = isSatisfied ? 'none' : 'block';
 
     // Update dots (SCT-05 visual feedback)
-    const dots = document.querySelectorAll(`.required-group-dot[data-group="${panelKey}.${groupName}"]`);
-    dots.forEach(dot => {
+    const dots = document.querySelectorAll(
+      `.required-group-dot[data-group="${panelKey}.${groupName}"]`
+    );
+    dots.forEach((dot) => {
       dot.style.opacity = isSatisfied ? '0.2' : '1';
     });
   }
@@ -759,8 +764,12 @@ function refreshPickerFields(kind) {
         // Heuristic to match the wrapper to the field
         const group = pickerWrapper.closest('.panel-field-group');
         const label = group?.querySelector('.field-label');
-        if (label?.textContent?.startsWith(fieldDef.label || fieldNameToLabel(fieldName))) {
-           renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind);
+        if (
+          label?.textContent?.startsWith(
+            fieldDef.label || fieldNameToLabel(fieldName)
+          )
+        ) {
+          renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind);
         }
       }
     }
@@ -794,8 +803,6 @@ function fieldNameToLabel(fieldName) {
     fieldName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   );
 }
-
-
 
 function getValueByPath(state, path) {
   return path.split('.').reduce((obj, key) => obj?.[key], state);
