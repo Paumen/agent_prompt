@@ -46,6 +46,7 @@ body {
   font-weight: 600;
   background: none;
   border-radius: var(--radius) var(--radius) 0 0;
+  border: none;
 }
 
 .card-header:hover {
@@ -118,7 +119,7 @@ body {
 .flow-grid .btn-grid-item {
   justify-content: center;
   font-size: var(--text-sm);
-  padding: var(--sp-2) var(--sp-1);
+  padding: var(--sp-2);
 }
 
 .flow-icon {
@@ -136,7 +137,7 @@ body {
   border-radius: var(--radius);
   cursor: pointer;
   white-space: nowrap;
-  min-height: 40px;
+  min-height: 32px;
 }
 
 .btn-grid-item:hover {
@@ -261,8 +262,8 @@ body {
   display: inline-flex;
   align-items: center;
   line-height: 1;
-  min-width: 32px;
-  min-height: 32px;
+  min-width: 24px;
+  min-height: 24px;
   justify-content: center;
 }
 
@@ -564,7 +565,7 @@ body {
 
 /* === Quality Meter === */
 .quality-meter {
-  margin-bottom: var(--sp-2);
+  margin-bottom: var(--sp-1);
 }
 
 .quality-meter-label {
@@ -653,7 +654,7 @@ body {
 
 /* Visual separation between Situation and Target panels */
 .panel-a {
-  background: color-mix(in srgb, var(--accent-subtle) 15%, var(--surface));
+  background: color-mix(in srgb, var(--surface-inset ) 40%, var(--surface));
   border-radius: var(--radius);
   padding: var(--sp-3);
 }
@@ -680,7 +681,6 @@ body {
   grid-column: 1 / -1;
   font-size: var(--text-sm);
   color: var(--danger);
-  margin-top: 0;
   padding: var(--sp-1);
   background: color-mix(in srgb, var(--danger) 6%, var(--surface));
   border-radius: var(--radius);
@@ -743,14 +743,14 @@ body {
 .selected-file-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   padding: var(--sp-2);
   background: var(--surface-inset);
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: var(--text-sm);
   font-family: var(--font-mono);
-  max-width: 220px;
+  max-width: 200px;
 }
 
 /* === Steps Card === */
@@ -775,7 +775,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-2);
-  min-height: 28px;
+  min-height: 24px;
 }
 
 .step-label {
@@ -813,8 +813,8 @@ body {
 
 /* Optional text input — limited width */
 .step-optional-text {
-  margin-top: var(--sp-2);
-  max-width: 220px;
+  margin-top: var(--sp-1);
+  max-width: 200px;
   font-size: var(--text-sm);
 }
 
@@ -823,7 +823,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-1);
   flex-wrap: wrap;
 }
 
