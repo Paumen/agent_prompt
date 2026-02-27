@@ -654,7 +654,7 @@ body {
 
 /* Visual separation between Situation and Target panels */
 .panel-a {
-  background: color-mix(in srgb, var(--surface-inset ) 40%, var(--surface));
+  background: color-mix(in srgb, var(--surface-inset) 40%, var(--surface));
   border-radius: var(--radius);
   padding: var(--sp-3);
 }
