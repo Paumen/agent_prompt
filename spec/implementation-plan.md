@@ -518,7 +518,7 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 14. Phase 9 — End-to-End Tests `To start`
+## 14. Phase 9 — End-to-End Tests `Testing`
 
 **Goal**: Full user journey test, prompt determinism verification.
 
@@ -526,15 +526,15 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ### Checklist
 
-- [ ] Create `tests/e2e.test.js`:
+- [x] Create `tests/e2e.test.js`:
   - **TST-02**: repo select → flow select → step adjust → copied prompt matches expected output for fixed inputs
   - **TST-01**: prompt determinism — identical `prompt_input` always produces identical prompt text (snapshot test, run multiple times)
   - Test card expand/collapse transitions through the full journey
   - Test flow switch fully resets steps (DM-DEF-03)
   - Test PAT clear + re-entry flow
-- [ ] Run full test suite: `npm test`
-- [ ] Run `npm run build` — final build verification
-- [ ] Update status table in `spec/spec_concept.md` for all completed requirements
+- [x] Run full test suite: `npm test`
+- [x] Run `npm run build` — final build verification
+- [x] Update status table in `spec/spec_concept.md` for all completed requirements
 
 ### Output
 
