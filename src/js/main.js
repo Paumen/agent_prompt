@@ -2,6 +2,7 @@ import { getState } from './state.js';
 import { initConfigurationCard } from './card-configuration.js';
 import { initTasksCard } from './card-tasks.js';
 import { initStepsCard } from './card-steps.js';
+import { initPromptCard } from './card-prompt.js';
 
 // --- Card expand/collapse toggle ---
 
@@ -35,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize Card 3: Steps
   initStepsCard();
+
+  // Initialize Card 4: Prompt
+  initPromptCard();
 });
 
 export { initCardToggles };
