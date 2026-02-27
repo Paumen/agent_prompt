@@ -90,12 +90,11 @@ body {
 }
 
 /* === Active / Selected State (3px left-edge gutter bar) === */
-/* Applied to btn-grid-item buttons when selected */
 .btn-grid-item.item-selected {
   position: relative;
   background: var(--accent-subtle);
   border-color: var(--accent);
-  padding-left: (var(--sp-5);
+  padding-left: var(--sp-5);
 }
 
 .item-selected::before {
@@ -109,7 +108,7 @@ body {
   border-radius: var(--radius) 0 0 var(--radius);
 }
 
-/* === Button Grid (repo / branch / flow buttons) === */
+/* === Button Grid === */
 .btn-grid {
   display: flex;
   flex-wrap: wrap;
@@ -144,7 +143,7 @@ body {
   outline-offset: 2px;
 }
 
-/* === Pill Toggles (lens pills) === */
+/* === Pill Toggles === */
 .pill-group {
   display: flex;
   flex-wrap: wrap;
@@ -185,6 +184,7 @@ body {
 /* === Input Fields === */
 .field-label {
   display: flex;
+  align-items: center;
   font-size: var(--text-sm);
   color: var(--text-secondary);
   margin-bottom: var(--sp-2);
@@ -223,7 +223,7 @@ body {
   outline-offset: 0;
 }
 
-/* Password field wrapper (show/hide toggle) */
+/* Password field wrapper */
 .input-password-wrap {
   position: relative;
   display: flex;
@@ -262,15 +262,10 @@ body {
   right: var(--sp-2);
 }
 
-/* === Shimmer Skeleton (GL-02) === */
+/* === Shimmer Skeleton === */
 @keyframes shimmer-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
 .shimmer {
@@ -299,7 +294,7 @@ body {
   text-align: center;
 }
 
-/* === Inline Error (GL-04) === */
+/* === Inline Error === */
 .error-inline {
   display: flex;
   align-items: flex-start;
@@ -312,10 +307,6 @@ body {
   color: var(--danger);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-}
-
-.error-inline[role='alert'] {
-  /* role set in JS; style here as reminder */
 }
 
 .btn-dismiss {
@@ -334,12 +325,7 @@ body {
   opacity: 1;
 }
 
-.btn-dismiss:focus-visible {
-  outline: 2px solid currentColor;
-  border-radius: 2px;
-}
-
-/* === Notification (GL-05 "Updated" indicator) === */
+/* === Notification === */
 .notification {
   display: inline-flex;
   align-items: center;
@@ -360,29 +346,7 @@ body {
   background: color-mix(in srgb, var(--danger) 8%, var(--surface));
 }
 
-.notification--info {
-  color: var(--text-secondary);
-  background: var(--surface-inset);
-}
-
-/* === Error Actions (GL-04 inline error buttons) === */
-.error-actions {
-  display: inline-flex;
-  gap: var(--sp-1);
-  flex-shrink: 0;
-}
-
-.btn-retry {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: inherit;
-  text-decoration: underline;
-  font-size: inherit;
-  padding: 0;
-}
-
-/* === Searchable Dropdown (SCT-06) === */
+/* === Searchable Dropdown === */
 .dropdown-wrapper {
   position: relative;
 }
@@ -419,13 +383,7 @@ body {
   background: var(--surface-inset);
 }
 
-.dropdown-empty {
-  padding: var(--sp-3) var(--sp-4);
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-}
-
-/* === Prompt Output Area (OUT-01) === */
+/* === Prompt Output Area === */
 .prompt-output {
   background: var(--surface-inset);
   border-radius: var(--radius);
@@ -440,7 +398,7 @@ body {
   min-height: 120px;
 }
 
-/* === Configuration Card (CFG) === */
+/* === Configuration Card === */
 .cfg-field-group {
   margin-bottom: var(--sp-3);
 }
@@ -456,40 +414,7 @@ body {
   min-width: 0;
 }
 
-.cfg-section {
-  margin-top: var(--sp-4);
-}
-
-.cfg-section-label {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--sp-3);
-  font-weight: 600;
-}
-
-.cfg-show-more {
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  border-style: dashed;
-}
-
-/* === Task Card (SCT) === */
-
-/* Flow grid */
-.flow-grid {
-  margin-bottom: var(--sp-3);
-}
-
-.flow-btn {
-  align-items: center;
-}
-
-.flow-icon {
-  flex-shrink: 0;
-  vertical-align: middle;
-}
-
-/* === Quality Meter (SCT-08) === */
+/* === Quality Meter === */
 .quality-meter {
   margin-bottom: var(--sp-2);
 }
@@ -505,22 +430,12 @@ body {
   height: 100%;
   border-radius: 2px;
   width: 0%;
-  transition:
-    width 0.25s ease,
-    background-color 0.25s ease;
+  transition: width 0.25s ease, background-color 0.25s ease;
 }
 
-.quality-meter-label {
-  font-size: var(--text-sm);
-  color: var(--text-tertiary);
-  margin-top: var(--sp-1);
-  min-height: 1em;
-  transition: color 0.25s ease;
-}
-
-/* === Dual Panel Layout (SCT-04) === */
+/* === Dual Panel Layout (Grid Implementation) === */
 .panel-area {
-  margin-top: var(--sp-w);
+  margin-top: var(--sp-4);
 }
 
 .dual-panel {
@@ -530,12 +445,41 @@ body {
 }
 
 .panel {
-  flex: 1;
-  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(140px, max-content) 1fr;
+  column-gap: var(--sp-4);
+  row-gap: var(--sp-3);
+  align-items: start;
+}
+
+/* Forces row items to respect the .panel grid */
+.panel-field-group {
+  display: contents;
+}
+
+.field-label {
+  grid-column: 1;
+  margin-bottom: 0;
+  padding-top: var(--sp-2); /* Align with input internal padding */
+  display: flex;
+  align-items: center;
+}
+
+/* Input widgets forced to second column */
+.input-field,
+.input-password-wrap,
+.picker-wrapper,
+.pill-group,
+.file-picker-wrapper,
+.lens-picker,
+.selected-files {
+  grid-column: 2;
+  width: 100%;
 }
 
 .panel-header {
-  margin-bottom: var(--sp-w);
+  grid-column: 1 / -1; /* Spans full width */
+  margin-bottom: var(--sp-1);
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
@@ -553,11 +497,7 @@ body {
   line-height: var(--line-height-base);
 }
 
-.panel-field-group {
-  margin-bottom: var(--sp-3);
-}
-
-/* === Required group indicator (SCT-05) === */
+/* === Required Group Indicators === */
 .required-group-dot {
   display: inline-block;
   width: 5px;
@@ -570,10 +510,10 @@ body {
 }
 
 .required-group-unsatisfied {
+  grid-column: 1 / -1;
   font-size: var(--text-sm);
   color: var(--danger);
-  margin-top: calc(-1 * var(--sp-2));
-  margin-bottom: var(--sp-1);
+  margin-top: 0;
   padding: var(--sp-1);
   background: color-mix(in srgb, var(--danger) 6%, var(--surface));
   border-radius: var(--radius);
@@ -613,17 +553,7 @@ body {
   font-family: var(--font-mono);
 }
 
-.picker-clear {
-  flex-shrink: 0;
-  font-size: var(--text-base);
-  color: var(--text-secondary);
-}
-
-.picker-clear:hover {
-  color: var(--danger);
-}
-
-/* === File Picker (SCT-01, SCT-06) === */
+/* === File Picker === */
 .file-picker-wrapper {
   display: flex;
   flex-direction: column;
@@ -636,20 +566,8 @@ body {
   padding: var(--sp-1) var(--sp-2);
   background: var(--surface-inset);
   border-radius: var(--radius);
-  line-height: var(--line-height-sm);
 }
 
-.file-picker-search {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-}
-
-.file-picker-list {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-}
-
-/* === Selected file pills === */
 .selected-files {
   display: flex;
   flex-wrap: wrap;
@@ -669,43 +587,7 @@ body {
   max-width: 220px;
 }
 
-.selected-file-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-primary);
-}
-
-.selected-file-remove {
-  flex-shrink: 0;
-  font-size: var(--text-base);
-  line-height: 1;
-  min-width: 18px;
-  min-height: 18px;
-  color: var(--text-secondary);
-}
-
-.selected-file-remove:hover {
-  color: var(--danger);
-}
-
-/* === Lens Picker === */
-.lens-picker {
-  flex-wrap: wrap;
-}
-
-/* === Improve Scope Selector (SCT-09) === */
-.scope-selector {
-  margin-top: var(--sp-4);
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--border);
-}
-
-.scope-selector .field-label {
-  margin-bottom: var(--sp-2);
-}
-
-/* === Steps Card (STP-01..04) === */
+/* === Steps Card === */
 .step-list {
   list-style: none;
   counter-reset: step-counter;
@@ -715,10 +597,6 @@ body {
   counter-increment: step-counter;
   padding: var(--sp-1) var(--sp-2);
   border-bottom: 1px solid var(--border);
-}
-
-.step-row:last-child {
-  border-bottom: none;
 }
 
 .step-header {
@@ -734,84 +612,11 @@ body {
   min-width: 0;
   font-size: var(--text-base);
   color: var(--text-primary);
-  line-height: var(--line-height-base);
 }
 
 .step-label::before {
   content: counter(step-counter) '. ';
   color: var(--text-secondary);
-  font-size: var(--text-sm);
-}
-
-.step-delete {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-}
-
-.step-delete:hover {
-  color: var(--danger);
-}
-
-.step-optional-text {
-  margin-top: var(--sp-2);
-  font-size: var(--text-sm);
-  padding: var(--sp-1) var(--sp-2);
-  min-height: 28px;
-}
-
-.step-lenses {
-  margin-top: var(--sp-2);
-}
-
-.step-lens-pills {
-  gap: var(--sp-1);
-}
-
-.step-lens-pills .pill {
-  font-size: 0.625rem;
-  padding: 1px var(--sp-2);
-  min-height: 22px;
-}
-
-.step-more-lenses {
-  display: inline-block;
-  margin-top: var(--sp-1);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  text-decoration: underline;
-  padding: 0;
-}
-
-.step-more-lenses:hover {
-  color: var(--text-primary);
-}
-
-.step-lens-extra {
-  margin-top: var(--sp-1);
-}
-
-.step-output-modes {
-  margin-top: var(--sp-2);
-}
-
-.step-sub-label {
-  display: block;
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--sp-1);
-}
-
-.step-output-pills {
-  gap: var(--sp-1);
-}
-
-.step-output-pills .pill {
-  font-size: 0.625rem;
-  padding: 1px var(--sp-2);
-  min-height: 22px;
 }
 
 /* === Responsive (min-width: 768px) === */
@@ -839,9 +644,28 @@ body {
     min-width: 0;
   }
 
-  /* Subtle separator between panels on desktop */
   .dual-panel .panel-a {
     padding-right: var(--sp-4);
     border-right: 1px solid var(--border);
+  }
+}
+
+/* Mobile Alignment Fix */
+@media (max-width: 600px) {
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+  
+  .panel-field-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .field-label {
+    padding-top: 0;
+    margin-bottom: var(--sp-1);
   }
 }
