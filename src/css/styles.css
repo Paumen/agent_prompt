@@ -41,7 +41,7 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--sp-3) var(--sp-4);
+  padding: var(--sp-2);
   background: none;
   border: none;
   cursor: pointer;
@@ -95,7 +95,7 @@ body {
   position: relative;
   background: var(--accent-subtle);
   border-color: var(--accent);
-  padding-left: calc(var(--sp-4) + 3px);
+  padding-left: (var(--sp-5);
 }
 
 .item-selected::before {
@@ -120,8 +120,8 @@ body {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1) var(--sp-3);
+  gap: var(--sp-2);
+  padding: var(--sp-2);
   background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -148,13 +148,13 @@ body {
 .pill-group {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
-  padding: var(--sp-1) var(--sp-2);
+  padding: var(--sp-2);
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -184,7 +184,7 @@ body {
 
 /* === Input Fields === */
 .field-label {
-  display: block;
+  display: flex;
   font-size: var(--text-sm);
   color: var(--text-secondary);
   margin-bottom: var(--sp-2);
@@ -239,7 +239,7 @@ body {
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
-  padding: var(--sp-1);
+  padding: var(--sp-2);
   display: inline-flex;
   align-items: center;
   line-height: 1;
