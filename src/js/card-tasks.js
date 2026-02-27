@@ -517,6 +517,7 @@ function renderFilePicker(
     files,
     selected: currentSelected,
     placeholder: fieldDef.placeholder || 'Search files…',
+    helperText: fieldDef.helperText, // FIXED: SCT-01
     onChange: (selectedPaths) => {
       setState(statePath, selectedPaths);
       updateRequiredGroupIndicators();
@@ -535,12 +536,11 @@ function renderLensPicker(container, statePath, currentLenses) {
   for (const lens of ALL_LENSES) {
     const pill = document.createElement('button');
     pill.type = 'button';
-    pill.className = 'pill';
+    pill.className = `pill ${currentLenses.includes(lens) ? 'pill--on' : ''}`;
     pill.textContent = lens.replace(/_/g, ' ');
     pill.setAttribute('role', 'switch');
     const isOn = currentLenses.includes(lens);
     pill.setAttribute('aria-checked', String(isOn));
-    if (isOn) pill.classList.add('pill--on');
 
     pill.addEventListener('click', () => {
       const state = getState();
@@ -584,15 +584,10 @@ function renderScopeSelector() {
   for (const opt of options) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'btn-grid-item scope-btn';
+    btn.className = `btn-grid-item scope-btn ${getState().improve_scope === opt.value ? 'item-selected' : ''}`;
     btn.dataset.scope = opt.value;
     btn.textContent = opt.label;
-
-    const state = getState();
-    if (state.improve_scope === opt.value) {
-      btn.classList.add('item-selected');
-      btn.setAttribute('aria-selected', 'true');
-    }
+    btn.setAttribute('aria-selected', getState().improve_scope === opt.value ? 'true' : 'false');
 
     btn.addEventListener('click', () => {
       setState('improve_scope', opt.value);
@@ -655,6 +650,12 @@ function updateRequiredGroupIndicators() {
     });
 
     ind.style.display = isSatisfied ? 'none' : 'block';
+
+    // Update dots (SCT-05 visual feedback)
+    const dots = document.querySelectorAll(`.required-group-dot[data-group="${panelKey}.${groupName}"]`);
+    dots.forEach(dot => {
+      dot.style.opacity = isSatisfied ? '0.2' : '1';
+    });
   }
 }
 
@@ -754,16 +755,13 @@ function refreshPickerFields(kind) {
       if (currentValue) continue; // already selected
 
       // Find the picker-wrapper in DOM and re-render
-      const fieldGroups = elPanelArea.querySelectorAll('.panel-field-group');
-      for (const group of fieldGroups) {
-        const pickerWrapper = group.querySelector('.picker-wrapper');
-        if (!pickerWrapper) continue;
-        if (
-          group
-            .querySelector('.field-label')
-            ?.textContent?.startsWith(fieldNameToLabel(fieldName))
-        ) {
-          renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind);
+      const wrappers = elPanelArea.querySelectorAll('.picker-wrapper');
+      for (const pickerWrapper of wrappers) {
+        // Heuristic to match the wrapper to the field
+        const group = pickerWrapper.closest('.panel-field-group');
+        const label = group?.querySelector('.field-label');
+        if (label?.textContent?.startsWith(fieldDef.label || fieldNameToLabel(fieldName))) {
+           renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind);
         }
       }
     }
