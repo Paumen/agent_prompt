@@ -29,11 +29,30 @@ body {
   gap: var(--sp-3);
 }
 
+/* === Icons (Octicons, inline SVG) === */
+.icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.icon--sm {
+  width: 14px;
+  height: 14px;
+}
+
+.icon--chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+}
+
 /* === Cards === */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
 }
 
 .card-header {
@@ -59,17 +78,8 @@ body {
 }
 
 /* Expand/collapse chevron */
-.card-chevron {
-  width: 10px;
-  height: 10px;
-  border: 2px solid var(--text-secondary);
-  transform: rotate(45deg);
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.card-header[aria-expanded='true'] .card-chevron {
-  transform: rotate(-135deg);
+.card-header[aria-expanded='true'] .icon--chevron {
+  transform: rotate(180deg);
 }
 
 /* Card body hidden when collapsed */
@@ -206,6 +216,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: 32px;
+  box-shadow: var(--shadow-inset-sm);
 }
 
 /* === Input with inline prefix icon === */
