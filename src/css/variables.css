@@ -14,6 +14,7 @@
   --accent-subtle: oklch(78% 0.075 196);
   --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.1);
   --shadow-md: 0 2px 8px rgb(0 0 0 / 0.14);
+  --shadow-inset-sm: inset 0 1px 2px rgb(0 0 0 / 0.06);
   --danger: #c2553a;
   --success: #4a8c6f;
 
