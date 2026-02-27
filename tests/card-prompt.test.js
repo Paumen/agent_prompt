@@ -48,8 +48,13 @@ vi.mock('../src/js/state.js', () => ({
   subscribe: vi.fn(() => () => {}),
 }));
 
+vi.mock('../src/js/quality-meter.js', () => ({
+  renderQualityMeter: vi.fn(() => ({ update: vi.fn(), unsubscribe: vi.fn() })),
+}));
+
 import { initPromptCard } from '../src/js/card-prompt.js';
 import { getState, setState, subscribe } from '../src/js/state.js';
+import { renderQualityMeter } from '../src/js/quality-meter.js';
 
 // --- Setup helpers ---
 
@@ -74,6 +79,13 @@ afterEach(() => {
 });
 
 // --- Tests ---
+
+describe('initPromptCard — quality meter (2.3)', () => {
+  it('renders quality meter in prompt card', () => {
+    initPromptCard();
+    expect(renderQualityMeter).toHaveBeenCalled();
+  });
+});
 
 describe('initPromptCard — rendering', () => {
   it('renders prompt preview with content from state._prompt (OUT-01, OUT-02)', () => {
@@ -131,7 +143,7 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
   it('renders a Copy button', () => {
     initPromptCard();
     const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent === 'Copy'
+      (b) => b.textContent.includes('Copy')
     );
     expect(copyBtn).toBeTruthy();
   });
@@ -153,7 +165,7 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
 
     initPromptCard();
     const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent === 'Copy'
+      (b) => b.textContent.includes('Copy')
     );
     copyBtn.click();
 
@@ -170,7 +182,7 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
 
     initPromptCard();
     const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent === 'Copy'
+      (b) => b.textContent.includes('Copy')
     );
     copyBtn.click();
     await flushPromises();
@@ -190,7 +202,7 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
 
     initPromptCard();
     const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent === 'Copy'
+      (b) => b.textContent.includes('Copy')
     );
     copyBtn.click();
     await flushPromises();
@@ -211,7 +223,7 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
     getState.mockReturnValue({ ...mockState, _prompt: '' });
     initPromptCard();
     const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent === 'Copy'
+      (b) => b.textContent.includes('Copy')
     );
     copyBtn.click();
 
