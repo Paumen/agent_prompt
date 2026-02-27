@@ -112,7 +112,8 @@ describe('initConfigurationCard()', () => {
     cardConfig.initConfigurationCard();
     const toggle = document.querySelector('.cfg-pat-toggle');
     expect(toggle).not.toBeNull();
-    expect(toggle.textContent).toBe('Show');
+    // Button uses SVG icon instead of text; verify it exists and has aria-label
+    expect(toggle.getAttribute('aria-label')).toBeTruthy();
   });
 
   it('renders clear button for PAT', () => {
@@ -132,11 +133,9 @@ describe('PAT field (CFG-01)', () => {
 
     toggle.click();
     expect(pat.type).toBe('text');
-    expect(toggle.textContent).toBe('Hide');
 
     toggle.click();
     expect(pat.type).toBe('password');
-    expect(toggle.textContent).toBe('Show');
   });
 
   it('PAT input updates state', () => {
@@ -359,7 +358,7 @@ describe('repo selection (CFG-03)', () => {
     expect(tasksCard.classList.contains('card--open')).toBe(true);
   });
 
-  it('collapses Configuration card on repo select', async () => {
+  it('hides credentials row on repo select (1.5 — card stays open)', async () => {
     await setupWithRepos();
 
     const repoBtn = document.querySelector(
@@ -367,8 +366,13 @@ describe('repo selection (CFG-03)', () => {
     );
     repoBtn.click();
 
+    // Card stays open; only the credentials row is hidden
     const cfgCard = document.getElementById('card-configuration');
-    expect(cfgCard.classList.contains('card--open')).toBe(false);
+    expect(cfgCard.classList.contains('card--open')).toBe(true);
+    const credentials = document.querySelector('.credentials-row');
+    expect(credentials.classList.contains('cfg-credentials--hidden')).toBe(
+      true
+    );
   });
 });
 

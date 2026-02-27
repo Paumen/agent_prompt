@@ -212,18 +212,9 @@ function renderStepLenses(step, stepIndex) {
 
   const activeLenses = step.lenses || [];
 
-  // Sort: selected lenses first, then unselected
-  const sorted = [...ALL_LENSES].sort((a, b) => {
-    const aOn = activeLenses.includes(a);
-    const bOn = activeLenses.includes(b);
-    if (aOn && !bOn) return -1;
-    if (!aOn && bOn) return 1;
-    return 0;
-  });
-
-  // Show first INITIAL_LENS_COUNT lenses, rest behind "more" button
-  const initial = sorted.slice(0, INITIAL_LENS_COUNT);
-  const remainder = sorted.slice(INITIAL_LENS_COUNT);
+  // Fixed order (no sort) — sorting caused positions to jump on toggle (3.6)
+  const initial = ALL_LENSES.slice(0, INITIAL_LENS_COUNT);
+  const remainder = ALL_LENSES.slice(INITIAL_LENS_COUNT);
 
   const pillGroup = document.createElement('div');
   pillGroup.className = 'pill-group step-lens-pills';

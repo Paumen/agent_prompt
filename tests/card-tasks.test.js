@@ -207,6 +207,7 @@ vi.mock('../src/js/card-configuration.js', () => ({
     { path: 'src/utils.js' },
     { path: 'README.md' },
   ]),
+  setConfigCardSummary: vi.fn(),
 }));
 
 vi.mock('../src/js/github-api.js', () => ({
@@ -305,12 +306,12 @@ describe('initTasksCard', () => {
     expect(text).toContain('Improve');
   });
 
-  it('renders quality meter bar', async () => {
+  it('does not render quality meter (moved to prompt card, 2.3)', async () => {
     initTasksCard();
-    // renderQualityMeter is mocked at top of file; verify it was called during init
+    // Quality meter was moved to the prompt card; verify it is NOT called here
     const { renderQualityMeter } = await import('../src/js/quality-meter.js');
     expect(vi.isMockFunction(renderQualityMeter)).toBe(true);
-    expect(renderQualityMeter).toHaveBeenCalled();
+    expect(renderQualityMeter).not.toHaveBeenCalled();
   });
 
   it('subscribes to state changes', () => {

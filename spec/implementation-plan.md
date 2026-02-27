@@ -469,7 +469,56 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 13. Phase 9 — End-to-End Tests `To start`
+## 13. UAT Remediation `In progress`
+
+**Goal**: Address all issues raised during UAT across all 4 cards.
+
+### Configuration Card (1.x)
+
+- [x] 1.1 Credentials row: PAT + username on same horizontal row (`.credentials-row`)
+- [x] 1.2 SVG icon buttons: eye / eye-closed for toggle; X for clear (no text labels)
+- [x] 1.3 Input icons: GitHub person icon for username, key icon for PAT
+- [x] 1.4 Removed field labels — placeholders carry the label meaning
+- [x] 1.5 Conditional: hide credentials on repo select, card stays open; show on re-open
+- [x] 1.6 Fixed "Show More" bug: `reposCollapsed`/`branchesCollapsed` no longer reset inside render functions
+- [x] 1.7 Branch display limit: show first 4 branches before "more" toggle
+- [x] 1.8 Collapse config on flow select; show `owner / repo : branch` in card title
+- [x] 1.9 Section icons: repo SVG + branch SVG prepended to section labels
+
+### Task Card (2.x)
+
+- [x] 2.1 Flow icon fix: `display:block;flex-shrink:0` on SVGs prevents clipping
+- [x] 2.2 Flow grid: `grid-template-columns: repeat(4, 1fr)` forces 4-per-row layout
+- [x] 2.3 Quality meter moved to prompt card (was task card)
+- [x] 2.4 Panel visual separation: panel-a accent-tinted bg, panel-b inset bg
+- [x] 2.5 Mandatory fields: BLOCKED — requires flows.yaml edit (not permitted without PO)
+- [x] 2.6 File picker overflow: removed `overflow:hidden` from `.card`, added `border-radius` to `.card-header`
+- [x] 2.7 Panel header: horizontal flex-row (label + subtitle on same line)
+- [x] 2.8 Input contrast: `--surface-raised` background for inputs vs `--surface` card bg
+- [x] 2.9 Picker icons: PR / issue / file SVGs prepended to field labels
+
+### Steps Card (3.x)
+
+- [x] 3.1 Step block styling: each step is a distinct block with border + rounded corners
+- [x] 3.2 Compact output pills: 24px height, smaller font
+- [x] 3.3 Optional text input: max-width 220px
+- [x] 3.4 Trash icon: no button chrome (background/border stripped)
+- [x] 3.5 PR clear button: already implemented; verified
+- [x] 3.6 Lens sort removed: pills stay in fixed order (no jumping on toggle)
+
+### Prompt Card (4.x)
+
+- [x] 4.1 "Prompt" label removed from preview header (saves space)
+- [x] 4.2 Copy button: clipboard SVG icon prepended
+
+### Output
+
+- 352 tests passing, clean build
+- CSS: styles.css updated with all layout/visual changes
+
+---
+
+## 14. Phase 9 — End-to-End Tests `To start`
 
 **Goal**: Full user journey test, prompt determinism verification.
 
