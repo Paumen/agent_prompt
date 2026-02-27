@@ -622,16 +622,16 @@ body {
 /* === Responsive (min-width: 768px) === */
 @media (min-width: 768px) {
   #app {
-    padding: var(--sp-5) var(--sp-6);
+    padding: var(--sp-5);
     gap: var(--sp-4);
   }
 
   .card-header {
-    padding: var(--sp-4) var(--sp-5);
+    padding: var(--sp-4);
   }
 
   .card-body {
-    padding: var(--sp-4) var(--sp-5) var(--sp-5);
+    padding: var(--sp-4);
   }
 
   .dual-panel {
@@ -650,22 +650,3 @@ body {
   }
 }
 
-/* Mobile Alignment Fix */
-@media (max-width: 600px) {
-  .panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-1);
-  }
-  
-  .panel-field-group {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .field-label {
-    padding-top: 0;
-    margin-bottom: var(--sp-1);
-  }
-}
