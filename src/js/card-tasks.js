@@ -517,7 +517,6 @@ function renderFilePicker(
     files,
     selected: currentSelected,
     placeholder: fieldDef.placeholder || 'Search files…',
-    helperText: fieldDef.helperText, // FIXED: SCT-01
     onChange: (selectedPaths) => {
       setState(statePath, selectedPaths);
       updateRequiredGroupIndicators();
