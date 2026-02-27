@@ -42,10 +42,11 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--sp-2);
+  padding: var(--sp-3);
   cursor: pointer;
   font-weight: 600;
   background: none;
+  border: none;
 }
 
 .card-header:hover {
@@ -63,7 +64,7 @@ body {
   height: 10px;
   border: 2px solid var(--text-secondary);
   transform: rotate(45deg);
-  transition: transform 0.15s ease;
+  transition: transform 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -105,7 +106,7 @@ body {
 .btn-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
 }
 
 .btn-grid-item {
@@ -119,7 +120,7 @@ body {
   border-radius: var(--radius);
   cursor: pointer;
   white-space: nowrap;
-  min-height: 44px;
+  min-height: 40px;
 }
 
 .btn-grid-item:hover {
@@ -221,8 +222,8 @@ body {
   display: inline-flex;
   align-items: center;
   line-height: 1;
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 32px;
+  min-height: 32px;
   justify-content: center;
 }
 
@@ -374,7 +375,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  padding: var(--sp-1) var(--sp-2);
+  padding: var(--sp-2);
   background: var(--surface-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius) var(--radius) 0 0;
@@ -412,14 +413,14 @@ body {
 .btn-action {
   display: inline-flex;
   align-items: center;
-  padding: var(--sp-1) var(--sp-2);
+  padding: var(--sp-2);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: var(--text-sm);
   cursor: pointer;
   color: var(--text-primary);
-  min-height: 44px;
+  min-height: 40px;
   white-space: nowrap;
 }
 
@@ -503,7 +504,7 @@ body {
 
 /* === Dual Panel Layout (Grid Implementation) === */
 .panel-area {
-  margin-top: var(--sp-4);
+  margin-top: var(--sp-3);
 }
 
 .dual-panel {
