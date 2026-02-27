@@ -32,11 +32,13 @@ function deferIfInteracting(fn, maxRetries = 5) {
 
 const ICON_EYE = `<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.175 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.125-.967 1.955-2.095 2.366-2.717a.12.12 0 0 0 0-.136c-.411-.622-1.241-1.75-2.366-2.717C10.825 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.125.967-1.955 2.095-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>`;
 
-const ICON_EYE_CLOSED = `<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M.143 2.31a.75.75 0 0 1 1.047-.167l14.5 10.5a.75.75 0 1 1-.88 1.214l-2.248-1.628C11.346 13.19 9.792 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.619 1.619 0 0 1 0-1.798c.307-.461.794-1.111 1.457-1.766L.31 3.357A.75.75 0 0 1 .143 2.31Zm1.536 5.622a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.175 11.758 6.527 12.5 8 12.5c1.249 0 2.386-.44 3.365-1.081L4.9 10.018A6.97 6.97 0 0 1 3.179 7.932ZM8 3.5c-1.473 0-2.825.742-3.955 1.715a9.04 9.04 0 0 0-.58.509l1.138.824a2.502 2.502 0 0 1 3.313-1.073L9.16 6.216A2.5 2.5 0 0 1 8 6a2.5 2.5 0 0 1 0 5 2.5 2.5 0 0 1-2.5-2.5l1.142.826A1.5 1.5 0 0 0 8 11a1.5 1.5 0 0 0 .44-2.937L9.59 8.938a2.5 2.5 0 0 0 .41-1.438C10 6.12 9.105 5 8 3.5Z"/></svg>`;
+// Eye with diagonal slash — reuses the open-eye outline + adds a filled slash band
+const ICON_EYE_CLOSED = `<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.175 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.125-.967 1.955-2.095 2.366-2.717a.12.12 0 0 0 0-.136c-.411-.622-1.241-1.75-2.366-2.717C10.825 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.125.967-1.955 2.095-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/><path d="M1 0L3 2L15 14.5L13 12.5Z"/></svg>`;
 
 const ICON_X = `<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"/></svg>`;
 
-const ICON_KEY = `<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M10.5 0a5.5 5.5 0 0 1 1.16 10.877V13.5a.5.5 0 0 1-.5.5H8.5a.5.5 0 0 1-.5-.5V12H7a.5.5 0 0 1-.5-.5V10H5.5a.5.5 0 0 1-.5-.5V7.077A5.502 5.502 0 0 1 10.5 0zm0 1.5a4 4 0 1 0 0 8h.5v.5a.5.5 0 0 0 .5.5h1V12h1.5v-.123A4.003 4.003 0 0 0 10.5 1.5zm1 2a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>`;
+// Lock icon — properly centered in the 16×16 viewbox (replaces off-center key icon)
+const ICON_LOCK = `<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M4 4a4 4 0 0 1 8 0v2h.25c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-5.5C2 6.784 2.784 6 3.75 6H4Zm8.25 3.5h-8.5a.25.25 0 0 0-.25.25v5.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-5.5a.25.25 0 0 0-.25-.25ZM10.5 4a2.5 2.5 0 0 0-5 0v2h5Z"/></svg>`;
 
 const ICON_PERSON = `<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"/></svg>`;
 
@@ -113,7 +115,7 @@ function renderShell(container) {
 
   const patIconPrefix = document.createElement('span');
   patIconPrefix.className = 'input-icon-prefix';
-  patIconPrefix.innerHTML = ICON_KEY;
+  patIconPrefix.innerHTML = ICON_LOCK;
 
   elPatInput = document.createElement('input');
   elPatInput.type = 'password';
@@ -252,7 +254,7 @@ function renderRepoSection(repos, selectedRepo) {
 
   const label = document.createElement('div');
   label.className = 'cfg-section-label';
-  label.innerHTML = ICON_REPO + ' Repositories';
+  label.innerHTML = `<span class="field-label-icon">${ICON_REPO}</span> Repositories`;
   elRepoSection.appendChild(label);
 
   elRepoGrid = document.createElement('div');
@@ -335,7 +337,7 @@ function renderBranchSection(branches, selectedBranch) {
 
   const label = document.createElement('div');
   label.className = 'cfg-section-label';
-  label.innerHTML = ICON_BRANCH + ' Branches';
+  label.innerHTML = `<span class="field-label-icon">${ICON_BRANCH}</span> Branches`;
   elBranchSection.appendChild(label);
 
   elBranchGrid = document.createElement('div');
@@ -431,7 +433,7 @@ async function loadRepos(owner, pat, isBackground = false) {
     elRepoSection.innerHTML = '';
     const label = document.createElement('div');
     label.className = 'cfg-section-label';
-    label.innerHTML = ICON_REPO + ' Repositories';
+    label.innerHTML = `<span class="field-label-icon">${ICON_REPO}</span> Repositories`;
     elRepoSection.appendChild(label);
     const shimmerContainer = document.createElement('div');
     elRepoSection.appendChild(shimmerContainer);
@@ -489,7 +491,7 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   elBranchSection.innerHTML = '';
   const label = document.createElement('div');
   label.className = 'cfg-section-label';
-  label.innerHTML = ICON_BRANCH + ' Branches';
+  label.innerHTML = `<span class="field-label-icon">${ICON_BRANCH}</span> Branches`;
   elBranchSection.appendChild(label);
   const shimmerContainer = document.createElement('div');
   elBranchSection.appendChild(shimmerContainer);
