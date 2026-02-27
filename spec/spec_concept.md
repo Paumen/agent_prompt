@@ -18,7 +18,7 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 - APP-01: SPA; fully client-side. Direct GitHub API calls. Single-repo scope per prompt; single-user.
 - APP-02: Vanilla JS, ES modules, plain CSS.
-- APP-03: Limits: <300 files/repo, <15 repos/user. Full file tree eager loading permitted.
+- APP-03: Main target group: <300 files/repo, <15 repos/user. Full file tree eager loading permitted.
 - APP-04: Persist PAT/username in `localStorage`. Repo/branch/prefs reset per session. Cached repo data (file tree, branches) persists across sessions.
 
 ---
@@ -272,42 +272,6 @@ See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 ### Theme: Arctic Bone × Vellum
 
 Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined reading surface — like good paper under controlled light.
-
-#### Color Tokens
-
-| Token              | Value     | Usage                                                                                   |
-| ------------------ | --------- | --------------------------------------------------------------------------------------- |
-| `--shell`          | `#e8e6e1` | Page background. Smoke-grey, warm-shifted.                                              |
-| `--surface`        | `#f7f3ed` | Card backgrounds. Warm linen.                                                           |
-| `--surface-raised` | `#faf7f2` | Hovered cards, active inputs. Birch paper.                                              |
-| `--surface-inset`  | `#eceae5` | Inset wells: code preview, prompt output area.                                          |
-| `--text-primary`   | `#2c2926` | Body text. Near-black, warm.                                                            |
-| `--text-secondary` | `#6b6560` | Labels, captions, placeholders.                                                         |
-| `--text-tertiary`  | `#9a9490` | Disabled text, subtle hints.                                                            |
-| `--border`         | `#d6d2cc` | Card borders, dividers.                                                                 |
-| `--border-focus`   | `#a09a94` | Focused input borders.                                                                  |
-| `--accent`         | `#42767a` | Active-state left-edge gutter bar, selected toggles, primary buttons. Muted steel-blue. |
-| `--accent-hover`   | `#326a89` | Hover state for accent elements.                                                        |
-| `--accent-subtle`  | `#aed1d4` | Accent background tint (selected items, active flow button).                            |
-| `--danger`         | `#c2553a` | Error text, delete icon hover. Warm red.                                                |
-| `--success`        | `#4a8c6f` | Success feedback. Muted green.                                                          |
-
-#### Typography
-
-| Token                | Value                                               |
-| -------------------- | --------------------------------------------------- |
-| `--font-body`        | `system-ui, -apple-system, sans-serif`              |
-| `--font-mono`        | `"SF Mono", "Cascadia Code", "Consolas", monospace` |
-| `--text-sm`          | `0.6875rem` (11px)                                  |
-| `--text-base`        | `0.875rem` (14px)                                   |
-| `--text-lg`          | `1.125rem` (18px)                                   |
-| `--line-height-sm`   | `1`                                                 |
-| `--line-height-base` | `1.2`                                               |
-| `--line-height-lg`   | `1.4`                                               |
-
-#### Spacing Scale
-
-`--sp-1` through `--sp-6`: `2px, 4px, 8px, 12px, 16px, 24px`.
 
 #### Component Treatments
 
