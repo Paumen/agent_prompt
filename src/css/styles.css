@@ -17,7 +17,7 @@ body {
   font-size: var(--text-base);
   line-height: var(--line-height-base);
   min-height: 100vh;
-  ext-align: left; 
+  text-align: left; 
 }
 
 #app {
