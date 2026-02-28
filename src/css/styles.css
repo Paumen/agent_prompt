@@ -138,8 +138,8 @@ body {
 
 /* Flow button icons — sized for the grid */
 .btn-grid-item .icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   color: var(--text-tertiary);
 }
 
@@ -219,7 +219,7 @@ body {
 .input-field {
   width: 100%;
   padding: var(--sp-2);
-  background: var(--surface-inset);
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: 32px;
@@ -245,7 +245,7 @@ body {
 }
 
 .input-icon-wrap .input-field {
-  padding-left: calc(var(--sp-2) + 16px + var(--sp-2));
+  padding-leftr: var(--sp-2));
 }
 
 .input-field::placeholder {
@@ -298,8 +298,8 @@ body {
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
-  width: 28px;
-  height: 28px;
+  width: 16px;
+  height: 16px;
   display: grid;
   place-content: center;
   flex-shrink: 0;
@@ -370,35 +370,6 @@ body {
   text-align: center;
 }
 
-/* === Inline Error === */
-.error-inline {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
-  border: 1px solid color-mix(in srgb, var(--danger) 25%, var(--border));
-  border-radius: var(--radius);
-  color: var(--danger);
-  font-size: var(--text-sm);
-  line-height: var(--line-height-sm);
-}
-
-.btn-dismiss {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: inherit;
-  line-height: 1;
-  padding: 0;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
-
-.btn-dismiss:hover {
-  opacity: 1;
-}
 
 /* === Notification === */
 .notification {
