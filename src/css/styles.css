@@ -172,7 +172,7 @@ body {
   color: var(--text-secondary);
   font-size: var(--text-sm);
   cursor: pointer;
-  min-height: 32px;
+  min-height: 24px;
 }
 
 .pill[aria-checked="true"],
@@ -197,7 +197,7 @@ body {
   background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  min-height: 32px;
+  min-height: 24px;
   box-shadow: var(--shadow-inset-sm);
 }
 
@@ -346,26 +346,6 @@ body {
   text-align: center;
 }
 
-/* === Notification === */
-.notification {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  border-radius: var(--radius);
-  font-size: var(--text-sm);
-}
-
-.notification--success {
-  color: var(--success);
-  background: color-mix(in srgb, var(--success) 10%, var(--surface));
-}
-
-.notification--error {
-  color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
-}
-
 /* === Searchable Dropdown === */
 .dropdown-wrapper {
   position: relative;
@@ -406,30 +386,29 @@ body {
 .prompt-region {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--sp-2);
 }
 
 .prompt-preview-header {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--sp-2);
-  padding: var(--sp-2);
-  background: var(--surface-inset);
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius) var(--radius) 0 0;
 }
 
 /* === Prompt Output Area === */
 .prompt-output {
-  background: var(--surface-inset);
+  background: #ccc;
   border: 1px solid var(--border);
   border-top: none;
   border-radius: 0 0 var(--radius) var(--radius);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-  padding: var(--sp-2);
+  padding: var(--sp-1);
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 140px;
@@ -495,13 +474,13 @@ body {
   display: block;
 }
 
-/* === XML syntax highlighting (Phase 14 UAT 4.4) === */
+/* === XML syntax highlighting === */
 .xml-tag {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: 800;
 }
 
-/* === Quality meter tooltip (Phase 14 UAT 5) === */
+/* === Quality meter tooltip === */
 .quality-meter-label--with-tooltip {
   display: flex;
   align-items: center;
