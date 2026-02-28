@@ -536,7 +536,7 @@ body {
 .prompt-notes {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-1);
 }
 
 /* === Configuration Card === */
