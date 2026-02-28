@@ -1,4 +1,4 @@
-@import './variables.css';
+@import "./variables.css";
 
 /* === Reset & Base === */
 *,
@@ -78,7 +78,7 @@ body {
 }
 
 /* Expand/collapse chevron */
-.card-header[aria-expanded='true'] .icon--chevron {
+.card-header[aria-expanded="true"] .icon--chevron {
   transform: rotate(180deg);
 }
 
@@ -101,8 +101,12 @@ body {
   padding-left: var(--sp-4);
 }
 
+.btn-grid-item.item-selected .icon {
+  color: var(--accent);
+}
+
 .item-selected::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -132,8 +136,11 @@ body {
   padding: var(--sp-2);
 }
 
-.flow-icon {
-  flex-shrink: 0;
+/* Flow button icons — sized for the grid */
+.btn-grid-item .icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-tertiary);
 }
 
 .btn-grid-item {
@@ -189,7 +196,7 @@ body {
   outline-offset: 2px;
 }
 
-.pill[aria-checked='true'],
+.pill[aria-checked="true"],
 .pill.pill--on {
   background: var(--accent-subtle);
   color: var(--accent);
@@ -212,7 +219,7 @@ body {
 .input-field {
   width: 100%;
   padding: var(--sp-2);
-  background: var(--surface-raised);
+  background: var(--surface-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: 32px;
@@ -248,7 +255,7 @@ body {
 .input-field:focus {
   outline: none;
   border-color: var(--border-focus);
-  background: var(--surface-raised);
+  background: var(--surface-inset);
 }
 
 .input-field:focus-visible {
@@ -536,11 +543,11 @@ body {
   min-width: 4em;
 }
 
-.copy-status[data-type='success'] {
+.copy-status[data-type="success"] {
   color: var(--success);
 }
 
-.copy-status[data-type='error'] {
+.copy-status[data-type="error"] {
   color: var(--danger);
 }
 
@@ -681,44 +688,42 @@ body {
   font-weight: 600;
 }
 
+.panel-sep {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
 .panel-subtitle {
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
 /* Visual separation between Situation and Target panels */
-.panel-a {
-  background: color-mix(in srgb, var(--surface-inset) 40%, var(--surface));
+.panel-a,
+.panel-b {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: var(--sp-3);
+  box-shadow: var(--shadow-sm);
 }
 
-.panel-b {
-  background: color-mix(in srgb, var(--surface-inset) 40%, var(--surface));
-  border-radius: var(--radius);
-  padding: var(--sp-3);
+/* Panel A — accent left edge marks the primary input panel */
+.panel-a {
+  border-left: 3px solid var(--accent);
 }
 
 /* === Required Group Indicators === */
 .required-group-dot {
   display: inline-block;
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--danger);
   margin-left: var(--sp-1);
   vertical-align: middle;
-  opacity: 0.8;
-}
-
-.required-group-unsatisfied {
-  grid-column: 1 / -1;
-  font-size: var(--text-sm);
-  color: var(--danger);
-  padding: var(--sp-1);
-  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
-  border-radius: var(--radius);
-  border: 1px solid color-mix(in srgb, var(--danger) 20%, var(--border));
+  cursor: help;
+  transition: opacity 0.2s ease;
 }
 
 /* === Textarea field === */
@@ -819,7 +824,7 @@ body {
 }
 
 .step-label::before {
-  content: counter(step-counter) '. ';
+  content: counter(step-counter) ". ";
   color: var(--text-secondary);
 }
 
@@ -900,7 +905,6 @@ body {
   }
 
   .dual-panel .panel-a {
-    padding-right: var(--sp-4);
-    border-right: 1px solid var(--border);
+    /* Left accent border already distinguishes panels; no extra separator needed */
   }
 }

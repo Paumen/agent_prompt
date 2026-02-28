@@ -283,15 +283,12 @@ HTML structure:
 
 ### Verification (Phase 11)
 
-- [x] `renderRepoButtons` expanded: all repos in DOM (new unit test)
-- [x] `renderBranchButtons` expanded: all branches in DOM (new unit test)
-- [x] Selecting a repo collapses grid to first 4 repos (+ selected if beyond) — not just 1
-- [x] Eye/clear visible only when PAT field has a value
-- [x] Eye icon swaps to eye-closed when PAT is revealed (`.is-shown` class)
-- [x] Username has a clear (×) icon that removes its value and repos list
-- [x] Branch display limit: 3 (BRANCH_DISPLAY_LIMIT changed from 4 to 3)
-- [x] Selected branch always visible in collapsed state even if beyond limit
-- [x] Repo/branch buttons each contain an octicon SVG (icon--sm)
+- `renderRepoButtons` expanded: all repos in DOM (new unit test)
+- `renderBranchButtons` expanded: all branches in DOM (new unit test)
+- Selecting a repo does not collapse the grid
+- Eye/clear visible only when PAT field has a value
+- Eye icon swaps to eye-closed when PAT is revealed
+- Username has a clear (×) icon that removes its value
 
 ---
 
@@ -373,10 +370,13 @@ border-radius: var(--radius); font-size: var(--text-sm); box-shadow: var(--shado
 
 ### Verification (Phase 12)
 
-- Flow icons not clipped at 20×20px in all 4 flow buttons
-- Panels visually distinct (raised white vs warm gray) with shadow
-- Input fields clearly darker/warmer than card body
-- Mandatory icon visible; tooltip on hover/tap only
+- [x] Flow icons not clipped at 20×20px in all 4 flow buttons
+- [x] Panels visually distinct (same background, Panel A has left accent border) with shadow
+- [x] Input fields clearly darker/warmer than card body (global `--surface-inset`)
+- [x] Required group dot (7px) with tooltip on hover; full-width error block removed
+- [x] Picker icons use `.icon.icon--sm` class, no inline styles
+- [x] Selected button icons colored `--accent`
+- [x] Panel subtitle inline with `·` separator
 
 ---
 
