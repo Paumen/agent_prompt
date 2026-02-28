@@ -214,7 +214,7 @@ body {
 .input-field {
   width: 100%;
   padding: var(--sp-2);
-  background: var(--surface-raised);
+  background: var(--accent);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: 32px;
