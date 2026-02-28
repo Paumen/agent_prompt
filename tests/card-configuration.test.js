@@ -860,9 +860,11 @@ describe('Phase 11 — username clear button', () => {
     expect(clearBtn.hasAttribute('hidden')).toBe(false);
   });
 
-  it('username clear button clears owner state and repos list', async () => {
+  it('username clear button clears owner, repo, branch state and repos list', async () => {
     state.setState('configuration.pat', 'tok_123');
     state.setState('configuration.owner', 'alice');
+    state.setState('configuration.repo', 'my-repo');
+    state.setState('configuration.branch', 'main');
     globalThis.fetch = mockFetch(SAMPLE_REPOS);
 
     cardConfig.initConfigurationCard();
@@ -879,6 +881,8 @@ describe('Phase 11 — username clear button', () => {
     clearBtn.click();
 
     expect(state.getState().configuration.owner).toBe('');
+    expect(state.getState().configuration.repo).toBe('');
+    expect(state.getState().configuration.branch).toBe('');
     expect(document.getElementById('cfg-username').value).toBe('');
     // Repos section should be empty
     const repoBtns = document.querySelectorAll(

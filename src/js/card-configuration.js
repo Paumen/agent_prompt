@@ -282,9 +282,20 @@ function onUsernameChange() {
 function onUserClear() {
   elUsername.value = '';
   elUserClear.hidden = true;
-  setState('configuration.owner', '');
+  cacheClear();
+  setState((s) => {
+    s.configuration.owner = '';
+    s.configuration.repo = '';
+    s.configuration.branch = '';
+    return s;
+  });
+  fileTree = [];
+  elCredentials?.classList.remove('cfg-credentials--hidden');
+  reposCollapsed = false;
+  branchesCollapsed = true;
   renderRepoSection([]);
   renderBranchSection([]);
+  setConfigCardSummary('');
 }
 
 // --- Repo grid rendering ---
@@ -368,8 +379,6 @@ function onRepoSelect(repo, allRepos) {
   });
   fileTree = [];
 
-  // Collapse repos after selection (VIS-03) — Phase 11: shows first N repos, not just selected
-  reposCollapsed = true;
   renderRepoButtons(allRepos, repo.name);
   renderBranchSection([]);
 
