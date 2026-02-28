@@ -393,10 +393,7 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: var(--sp-1);
-  padding: var(--sp-1);
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius) var(--radius) 0 0;
 }
 
 /* === Prompt Output Area === */
@@ -425,21 +422,20 @@ body {
 .btn-action {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-2);
+  gap: var(--sp-1);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: var(--text-base);
   cursor: pointer;
   color: var(--text-primary);
-  min-height: 40px;
+  min-height: 32px;
+  min-width: 56px;
   white-space: nowrap;
 }
 
 .btn-action--primary {
   background: var(--accent);
-  border-color: var(--accent-subtle);
   color: #fff;
 }
 
