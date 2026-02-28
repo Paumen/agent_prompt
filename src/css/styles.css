@@ -12,8 +12,8 @@ body {
   background: var(--shell);
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: var(--line-height-base);
+  font-size: var(--text);
+  line-height: var(--line-height);
   min-height: 100vh;
   text-align: left;
 }
@@ -21,10 +21,10 @@ body {
 #app {
   max-width: 680px;
   margin: 0 auto;
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-4);
 }
 
 /* === Icons (Octicons, inline SVG) === */
@@ -42,10 +42,10 @@ body {
 
 /* === Cards === */
 .card {
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
 }
 
 .card-header {
@@ -53,7 +53,7 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--sp-4);
+  padding: var(--sp-8);
   cursor: pointer;
   font-weight: 600;
   background: none;
@@ -62,7 +62,7 @@ body {
 }
 
 .card-header:hover {
-  background: var(--surface-inset);
+  background: var(--bg-inset);
 }
 
 .card-header:focus-visible {
@@ -78,7 +78,7 @@ body {
 /* Card body hidden when collapsed */
 .card-body {
   display: none;
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   border-top: 1px solid var(--border);
 }
 
@@ -91,7 +91,7 @@ body {
   position: relative;
   background: var(--accent-subtle);
   border-color: var(--accent);
-  padding-left: var(--sp-2);
+  padding-left: var(--sp-4);
 }
 
 .btn-grid-item.item-selected .icon {
@@ -113,20 +113,20 @@ body {
 .btn-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
+  gap: var(--sp-4);
 }
 
 /* Flow selector grid: always 4 columns */
 .flow-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-2);
+  gap: var(--sp-4);
 }
 
 .flow-grid .btn-grid-item {
   justify-content: center;
-  font-size: var(--text-base);
-  padding: var(--sp-2);
+  font-size: var(--text);
+  padding: var(--sp-4);
 }
 
 /* Flow button icons — sized for the grid */
@@ -140,9 +140,9 @@ body {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-2);
-  background: var(--surface-raised);
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
@@ -159,16 +159,16 @@ body {
 .pill-group {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
+  gap: var(--sp-4);
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--bg);
   color: var(--text-secondary);
   font-size: var(--text-sm);
   cursor: pointer;
@@ -186,15 +186,15 @@ body {
 .field-label {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-4);
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
 .input-field {
   width: 100%;
-  padding: var(--sp-2);
-  background: var(--surface-raised);
+  padding: var(--sp-4);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: 24px;
@@ -210,7 +210,7 @@ body {
 
 .input-icon-prefix {
   position: absolute;
-  left: var(--sp-2);
+  left: var(--sp-4);
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-tertiary);
@@ -220,7 +220,7 @@ body {
 }
 
 .input-icon-wrap .input-field {
-  padding-left: var(--sp-2);
+  padding-left: var(--sp-4);
 }
 
 .input-field::placeholder {
@@ -231,7 +231,7 @@ body {
 .input-field:focus {
   outline: none;
   border-color: var(--border-focus);
-  background: var(--surface-inset);
+  background: var(--bg-inset);
 }
 
 .input-field:focus-visible {
@@ -247,14 +247,14 @@ body {
 }
 
 .input-password-wrap .input-field {
-  padding-right: var(--sp-2);
+  padding-right: var(--sp-4);
 }
 
 /* === Input Row (Phase 11: flat flex layout for credential fields) === */
 .input-row {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-4);
 }
 
 .input-row .input-field {
@@ -306,7 +306,7 @@ body {
 
 .input-password-wrap .btn-icon {
   position: absolute;
-  right: var(--sp-2);
+  right: var(--sp-4);
 }
 
 /* === Shimmer Skeleton === */
@@ -321,28 +321,28 @@ body {
 }
 
 .shimmer {
-  background: var(--surface-inset);
+  background: var(--bg-inset);
   border-radius: var(--radius);
   animation: shimmer-pulse 1.5s ease-in-out infinite;
 }
 
 .shimmer-bar {
-  height: var(--sp-5);
-  border-radius: var(--sp-2);
-  margin-bottom: var(--sp-2);
+  height: var(--sp-8);
+  border-radius: var(--sp-4);
+  margin-bottom: var(--sp-4);
 }
 
 .shimmer-label {
   font-size: var(--text-sm);
   color: var(--text-tertiary);
-  margin-bottom: var(--sp-2);
+  margin-bottom: var(--sp-4);
 }
 
 /* === Empty State === */
 .empty-state {
   color: var(--text-secondary);
   font-size: var(--text-sm);
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   text-align: center;
 }
 
@@ -359,7 +359,7 @@ body {
   top: 100%;
   max-height: 320px;
   overflow-y: auto;
-  background: var(--surface-raised);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   z-index: 10;
@@ -370,7 +370,7 @@ body {
 }
 
 .dropdown-item {
-  padding: var(--sp-1);
+  padding: var(--sp-2);
   cursor: pointer;
   min-height: 24px;
   display: flex;
@@ -379,7 +379,7 @@ body {
 }
 
 .dropdown-item:hover {
-  background: var(--surface-inset);
+  background: var(--bg-inset);
 }
 
 /* === Prompt Card === */
@@ -392,8 +392,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--sp-1);
-  background: var(--surface);
+  gap: var(--sp-2);
+  background: var(--bg);
 }
 
 /* === Prompt Output Area === */
@@ -405,7 +405,7 @@ body {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-  padding: var(--sp-1);
+  padding: var(--sp-2);
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 140px;
@@ -422,11 +422,11 @@ body {
 .btn-action {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
-  background: var(--surface);
+  gap: var(--sp-2);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  font-size: var(--text-base);
+  font-size: var(--text);
   cursor: pointer;
   color: var(--text-primary);
   min-height: 32px;
@@ -480,7 +480,7 @@ body {
 .quality-meter-label--with-tooltip {
   display: flex;
   align-items: center;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
 }
 
 .meter-info-wrapper {
@@ -513,18 +513,18 @@ body {
 .meter-tooltip {
   display: none;
   position: absolute;
-  bottom: calc(100% + var(--sp-2));
+  bottom: calc(100% + var(--sp-4));
   left: 0;
   min-width: 240px;
   max-width: 320px;
-  background: var(--surface-raised);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: var(--text-sm);
   color: var(--text-primary);
-  padding: var(--sp-2);
-  box-shadow: var(--shadow-md);
-  line-height: var(--line-height-base);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow);
+  line-height: var(--line-height);
   z-index: 10;
 }
 
@@ -536,12 +536,12 @@ body {
 .prompt-notes {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
 }
 
 /* === Configuration Card === */
 .cfg-field-group {
-  margin-bottom: var(--sp-2);
+  margin-bottom: var(--sp-4);
 }
 
 /* Credentials hidden after repo is selected */
@@ -552,8 +552,8 @@ body {
 /* Side-by-side token + username row */
 .credentials-row {
   display: flex;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-2);
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
 }
 
 .credentials-row .cfg-pat-col {
@@ -578,31 +578,31 @@ body {
 .cfg-section-label {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-4);
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  margin-bottom: var(--sp-2);
+  margin-bottom: var(--sp-4);
   font-weight: 500;
 }
 
 /* === Quality Meter === */
 .quality-meter {
-  margin-bottom: var(--sp-1);
+  margin-bottom: var(--sp-2);
 }
 
 .quality-meter-label {
   font-size: var(--text-sm);
   color: var(--text-tertiary);
-  margin-top: var(--sp-1);
+  margin-top: var(--sp-2);
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
 }
 
 .quality-meter-track {
   height: 4px;
-  background: var(--surface-inset);
+  background: var(--bg-inset);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -618,19 +618,19 @@ body {
 
 /* === Dual Panel Layout (Grid Implementation) === */
 .panel-area {
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-4);
 }
 
 .dual-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
+  gap: var(--sp-8);
 }
 
 .panel {
   display: grid;
   grid-template-columns: minmax(80px, max-content) 1fr;
-  gap: var(--sp-3);
+  gap: var(--sp-8);
   align-items: start;
 }
 
@@ -642,7 +642,7 @@ body {
 .field-label {
   grid-column: 1;
   margin-bottom: 0;
-  padding: var(--sp-2) 0 0 0; 
+  padding: var(--sp-4) 0 0 0; 
   display: flex;
   align-items: center;
 }
@@ -661,11 +661,11 @@ body {
 
 .panel-header {
   grid-column: 1 / -1;
-  margin-bottom: var(--sp-1);
+  margin-bottom: var(--sp-2);
   display: flex;
   flex-direction: row;
   align-items: baseline;
-  gap: var(--sp-2);
+  gap: var(--sp-4);
 }
 
 .panel-label {
@@ -685,11 +685,11 @@ body {
 /* Visual separation between Situation and Target panels */
 .panel-a,
 .panel-b {
-  background: var(--surface-inset);
+  background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--sp-2);
-  box-shadow: var(--shadow-sm);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow);
   border-left: 3px solid var(--accent);
 }
 
@@ -720,8 +720,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
+  gap: var(--sp-2);
+  padding: var(--sp-2);
   background: var(--accent-subtle);
   border: 1px solid var(--accent);
   border-radius: var(--radius);
@@ -741,28 +741,28 @@ body {
 .file-picker-wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
 }
 
 .file-picker-helper {
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  padding: var(--sp-1);
-  background: var(--surface-inset);
+  padding: var(--sp-2);
+  background: var(--bg-inset);
   border-radius: var(--radius);
 }
 
 .selected-files {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
 }
 
 .selected-file-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
+  gap: var(--sp-2);
+  padding: var(--sp-2);
   background: var(--accent-subtle);
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -776,28 +776,28 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
 }
 
 .step-row {
-  padding: var(--sp-2);
-  background: var(--surface-raised);
+  padding: var(--sp-4);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
 }
 
 .step-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   min-height: 24px;
 }
 
 .step-badge {
   background: var(--accent);
-  color: var(--surface-raised);
+  color: var(--bg-raised);
   border-radius: 50%;
   width: 16px;
   height: 16px;
@@ -825,7 +825,7 @@ body {
 .step-delete {
   background: none;
   border: none;
-  padding: var(--sp-1);
+  padding: var(--sp-2);
   cursor: pointer;
   color: var(--text-tertiary);
   display: inline-flex;
@@ -859,16 +859,16 @@ body {
 .step-files {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-1);
-  margin-top: var(--sp-1);
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
 }
 
 .step-file-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  background: var(--surface-inset);
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: var(--text-sm);
@@ -884,7 +884,7 @@ body {
   display: flex;
   align-items: center;
   line-height: 1;
-  font-size: var(--text-base);
+  font-size: var(--text);
 }
 
 .step-file-remove:hover {
@@ -895,8 +895,8 @@ body {
 .step-optional-row {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  margin-top: var(--sp-2);
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
 }
 
 .step-optional-text {
@@ -908,8 +908,8 @@ body {
 .step-output-modes {
   display: flex;
   align-items: center;
-  gap: var(--sp-1);
-  margin-top: var(--sp-1);
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
   flex-wrap: wrap;
 }
 
@@ -922,7 +922,7 @@ body {
 /* Output mode icon-toggle buttons (Phase 13) */
 .step-output-icons {
   display: flex;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   flex-wrap: wrap;
 }
 
@@ -931,9 +931,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  background: var(--surface);
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
@@ -970,7 +970,7 @@ body {
 
 .output-float {
   position: absolute;
-  bottom: calc(100% + var(--sp-1));
+  bottom: calc(100% + var(--sp-2));
   left: 50%;
   transform: translateX(-50%) translateY(0);
   font-size: var(--text-sm);
@@ -978,10 +978,10 @@ body {
   pointer-events: none;
   animation: float-up 1.5s ease-out forwards;
   color: var(--text-primary);
-  background: var(--surface-raised);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--sp-1);
+  padding: var(--sp-2);
   z-index: 10;
 }
 
@@ -1003,17 +1003,17 @@ body {
 /* === Responsive (min-width: 768px) === */
 @media (min-width: 768px) {
   #app {
-    padding: var(--sp-4);
-    gap: var(--sp-4);
+    padding: var(--sp-8);
+    gap: var(--sp-8);
   }
 
   :is(.card-header, .card-body) {
-    padding: var(--sp-4);
+    padding: var(--sp-8);
   }
 
   .dual-panel {
     flex-direction: row;
-    gap: var(--sp-4);
+    gap: var(--sp-8);
   }
 
   .dual-panel .panel {
