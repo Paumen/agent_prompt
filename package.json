@@ -16,7 +16,7 @@
     "test": "vitest run --config config/vite.config.js"
   },
   "devDependencies": {
-    "eslint": "^10.0.1",
+    "eslint": "^10.0.2",
     "globals": "^17.3.0",
     "js-yaml": "^4.1.1",
     "jsdom": "^28.1.0",
