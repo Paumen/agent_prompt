@@ -1,6 +1,7 @@
 # Implementation Plan (v4)
 
 ## Table of Contents
+
 1. [Architecture & File Map](#1-architecture--file-map)
 2. [Preconditions](#2-preconditions)
 3. [Phase 0 — CSS Foundation](#3-phase-0--css-foundation)
@@ -17,6 +18,7 @@
 ---
 
 ## 1. Architecture & File Map
+
 - **main.js**: Entry point; coordinates state and rendering.
 - **state.js**: Centralized `setState()`/`subscribe()` logic.
 - **prompt-builder.js**: Pure function for XML prompt generation.
@@ -26,55 +28,65 @@
 - **CSS**: `variables.css` (tokens) and `styles.css` (mobile-first grid, shimmers).
 
 ## 2. Preconditions
+
 - **P1/P2**: PO approval of `flows.yaml` field/step definitions.
 - **P3**: Deep-link target: `claude.ai/new?q=<prompt>`.
 - **P4/P5**: Existing CI pipeline and PR templates.
 
 ## 3. Phase 0 — CSS Foundation
+
 - **Design Tokens**: Implement all VIS section colors, typography, and spacing in `variables.css`.
 - **Base UI**: Card shell (expand/collapse), accent bars (3px left-edge), and button grids.
 - **Feedback**: `.shimmer` pulse for loading and `--danger` inline errors.
 - **A11y**: Keyboard-navigable headers (Enter/Space) and `aria-expanded` states.
 
 ## 4. Phase 1 — State Management
+
 - **setState Logic**: Use explicit `setState()` over Proxy for debuggable mutations.
 - **Persistence**: Save PAT/Owner to `localStorage`; reset all other fields on reload.
 - **Prompt Engine**: Pure `buildPrompt()` function using XML tags and `@file` prefixes.
 - **Testing**: Validate state hydration, session resets, and deterministic prompt snapshots.
 
 ## 5. Phase 2 — Build Pipeline & Flow Loading
+
 - **YAML Plugin**: Vite plugin to parse `flows.yaml` using `js-yaml`.
 - **Validation**: Strict JSON Schema check during build; fail build on malformed flows.
 - **Loader**: `flow-loader.js` to provide validated JSON to the runtime.
 
 ## 6. Phase 3 — GitHub API & Caching
+
 - **API Services**: Fetch repos, branches, trees, PRs, and issues.
 - **Constraints**: Enforce <300 files/repo and <15 repos/user limits.
 - **Cache**: `localStorage` layer with 15-min TTL; flush all keys on PAT change.
 - **Shared UI**: Searchable dropdowns (44px targets) and dismissible notifications.
 
 ## 7. Phase 4 — Card 1: Configuration
+
 - **PAT Handling**: Password field with toggle/clear; immediate cache flush on change.
 - **Workflow**: Auto-fetch repos on load; select repo → fetch branch/tree → expand Card 2.
 - **UI**: Scrollable button grids with `--accent` selection highlights.
 
 ## 8. Phase 5 — Card 2: Task (Dual-Panel)
+
 - **Flow Selection**: 4 flows (Fix, Review, Implement, Improve); full state reset on change.
 - **Dual-Panel**: Responsive Situation (A) / Target (B) layout with flow-specific fields.
 - **Quality Meter**: Weighted scoring (PR=20, File=10, etc.) with 6-tier color bar.
 - **File Selection**: Flat searchable list for specs and guidelines.
 
 ## 9. Phase 6 — Card 3: Steps (Auto-Generated)
+
 - **Generator**: Map flow definitions and panel inputs to an ordered `enabled_steps` array.
 - **Interaction**: Deletable steps (trash icon); toggleable lens pills (first 7 visible).
 - **Inputs**: Inline text fields for branch/PR names and output mode selection.
 
 ## 10. Phase 7 — Card 4: Prompt Output
+
 - **Preview**: Live-updating mono-font preview in `--surface-inset`.
 - **Actions**: `navigator.clipboard` copy button and "Prompt Claude" deep-link.
 - **Notes**: Free-text textarea appended to prompt via `<notes>` tags.
 
 ## 11. Phase 8 — Polish & Constraints
+
 - **GL-01/03**: Verify all primary actions ≤2 clicks and zero horizontal scroll on 320px viewports.
 - **GL-05**: Background refresh logic to `deferIfInteracting()` (check `document.activeElement`).
 - **Performance**: Final bundle audit; ensure vanilla JS/ESM compliance.
@@ -112,9 +124,9 @@ fully address the remaining feedback.
 
 ### Blocked / Needs PO Decision
 
-| Item | Blocker |
-|------|---------|
-| 2.5 Mandatory fields logic | Requires editing `src/config/flows.yaml` — PO must authorize |
+| Item                            | Blocker                                                              |
+| ------------------------------- | -------------------------------------------------------------------- |
+| 2.5 Mandatory fields logic      | Requires editing `src/config/flows.yaml` — PO must authorize         |
 | "Review: text input for target" | Review Panel B has no description field — requires `flows.yaml` edit |
 
 ---
@@ -125,14 +137,15 @@ fully address the remaining feedback.
 state contrast. Header padding left unchanged.
 
 #### Files
+
 - `src/css/variables.css`
 - `src/css/styles.css`
 
 #### 1. New shadow variables (`variables.css`)
 
 ```css
---shadow-sm: 0 1px 3px rgba(0,0,0,0.10);
---shadow-md: 0 2px 8px rgba(0,0,0,0.14);
+--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+--shadow-md: 0 2px 8px rgba(0, 0, 0, 0.14);
 ```
 
 #### 2. Deepen active state contrast (`variables.css`)
@@ -148,8 +161,12 @@ state contrast. Header padding left unchanged.
   the card header toggle wherever it is built in JS. Apply classes `.icon .icon--chevron`.
 - CSS:
   ```css
-  .icon--chevron { transition: transform 0.2s ease; }
-  .card--open .icon--chevron { transform: rotate(180deg); }
+  .icon--chevron {
+    transition: transform 0.2s ease;
+  }
+  .card--open .icon--chevron {
+    transform: rotate(180deg);
+  }
   ```
 - `.icon { flex-shrink: 0; display: block; }` — ensures no clipping for all icons.
 - No per-card variant class. One rule covers all card chevrons.
@@ -161,6 +178,7 @@ state contrast. Header padding left unchanged.
   no new variable needed for this specific raw value).
 
 #### Verification (Phase 10)
+
 - Chevrons animate without looking like diamonds
 - Cards have visible drop shadow
 - Selected buttons visually distinct from unselected (contrast check)
@@ -174,6 +192,7 @@ flex siblings, username clear icon, repo/branch icons per button, fill row with 
 at end.
 
 ### Files
+
 - `src/js/card-configuration.js`
 - `src/css/styles.css`
 
@@ -214,10 +233,11 @@ Layout for credential row (flex row of siblings — **no padding hacks**):
 ```
 
 HTML structure:
+
 ```html
 <div class="input-row">
   <svg class="icon icon--sm"><!-- key or github --></svg>
-  <input class="input-field" …>
+  <input class="input-field" … />
   <button class="btn-icon js-eye-btn" hidden><!-- eye svg --></button>
   <button class="btn-icon js-clear-btn" hidden><!-- × svg --></button>
 </div>
@@ -229,9 +249,24 @@ HTML structure:
   CSS uses to `display: block / none` the two pre-rendered SVG spans.
 - CSS:
   ```css
-  .input-row { display: flex; align-items: center; gap: var(--sp-2); }
-  .input-row .input-field { flex: 1; min-width: 0; }
-  .btn-icon { background: none; border: none; color: var(--text-tertiary); width: 28px; height: 28px; display: grid; place-content: center; }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+  .input-row .input-field {
+    flex: 1;
+    min-width: 0;
+  }
+  .btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-content: center;
+  }
   ```
 
 ### 6. Input icons (UAT 1.3)
@@ -247,12 +282,16 @@ HTML structure:
   prevents clipping.
 
 ### Verification (Phase 11)
-- `renderRepoButtons` expanded: all repos in DOM (new unit test)
-- `renderBranchButtons` expanded: all branches in DOM (new unit test)
-- Selecting a repo does not collapse the grid
-- Eye/clear visible only when PAT field has a value
-- Eye icon swaps to eye-closed when PAT is revealed
-- Username has a clear (×) icon that removes its value
+
+- [x] `renderRepoButtons` expanded: all repos in DOM (new unit test)
+- [x] `renderBranchButtons` expanded: all branches in DOM (new unit test)
+- [x] Selecting a repo collapses grid to first 4 repos (+ selected if beyond) — not just 1
+- [x] Eye/clear visible only when PAT field has a value
+- [x] Eye icon swaps to eye-closed when PAT is revealed (`.is-shown` class)
+- [x] Username has a clear (×) icon that removes its value and repos list
+- [x] Branch display limit: 3 (BRANCH_DISPLAY_LIMIT changed from 4 to 3)
+- [x] Selected branch always visible in collapsed state even if beyond limit
+- [x] Repo/branch buttons each contain an octicon SVG (icon--sm)
 
 ---
 
@@ -263,6 +302,7 @@ separation, input contrast, picker icons, button hierarchy, compact field labels
 inline mandatory warning icons.
 
 ### Files
+
 - `src/js/card-tasks.js`
 - `src/css/styles.css`
 
@@ -270,7 +310,11 @@ inline mandatory warning icons.
 
 - **One CSS rule** covers icons inside all `.btn-grid-item` contexts:
   ```css
-  .btn-grid-item .icon { width: 20px; height: 20px; display: block; }
+  .btn-grid-item .icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
   ```
 - Remove any `overflow: hidden` on `.btn-grid-item` or `.flow-icon` that clips SVGs.
 - Remove the dedicated `.flow-icon` class if it only duplicates this. If it serves a
@@ -284,9 +328,9 @@ Panel A and Panel B rendered as two distinct card blocks with a gap. Depth from 
 and shadow — not padding or whitespace.
 
 - Panel A: `background: var(--surface-raised); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow-sm);`
+border-radius: var(--radius); box-shadow: var(--shadow-sm);`
 - Panel B: `background: var(--surface-inset); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow-sm);`
+border-radius: var(--radius); box-shadow: var(--shadow-sm);`
 - Wrapper: `display: flex; flex-direction: column; gap: var(--sp-4);`
 
 ### 3. Input Field Contrast (UAT 2.8)
@@ -303,9 +347,9 @@ and shadow — not padding or whitespace.
 ### 5. Task Button Visual Hierarchy
 
 - Unselected: `background: var(--surface-raised); border: 1px solid var(--border);
-  color: var(--text-secondary);`
+color: var(--text-secondary);`
 - Selected: `background: var(--surface-inset); border-color: var(--accent);
-  color: var(--text-primary);` + `4px` left border `var(--accent)`.
+color: var(--text-primary);` + `4px` left border `var(--accent)`.
 - Icon color: unselected = `--text-tertiary`, selected = `--accent`. Via
   `.btn-grid-item.selected .icon { color: var(--accent); }`.
 
@@ -314,20 +358,21 @@ and shadow — not padding or whitespace.
 - Show a small `alert` octicon (`.icon.icon--sm`, `--danger` color) inline next to the
   field label when its required group is unsatisfied.
 - No error text visible at rest. On hover (desktop) / tap (mobile): a `<span
-  role="tooltip">` with the message appears adjacent to the icon.
+role="tooltip">` with the message appears adjacent to the icon.
 - Remove the full-width error block. Inline icon only.
 - CSS: `.req-icon { color: var(--danger); }` and `.req-tooltip` with
   `position: absolute; background: var(--surface-raised); border: 1px solid var(--border);
-  border-radius: var(--radius); font-size: var(--text-sm); box-shadow: var(--shadow-md);`
+border-radius: var(--radius); font-size: var(--text-sm); box-shadow: var(--shadow-md);`
 
 ### 7. Compact Task Card Labels
 
 - Field labels: `font-size: var(--text-sm)`.
 - Panel subtitle rendered inline with panel header: `Situation · What's happening now`
-  — `<span class="panel-subtitle">` separated by ` · `, not a new line.
+  — `<span class="panel-subtitle">` separated by `·`, not a new line.
 - Field row gap: `gap: var(--sp-3)`.
 
 ### Verification (Phase 12)
+
 - Flow icons not clipped at 20×20px in all 4 flow buttons
 - Panels visually distinct (raised white vs warm gray) with shadow
 - Input fields clearly darker/warmer than card body
@@ -342,6 +387,7 @@ mode icons with static labels and brief float on interaction, file step consolid
 (individual removal), lens stability, multi-select outputs.
 
 ### Files
+
 - `src/js/card-steps.js`
 - `src/js/step-generator.js`
 - `src/js/prompt-builder.js`
@@ -350,10 +396,10 @@ mode icons with static labels and brief float on interaction, file step consolid
 ### 1. Step Block Styling (UAT 3.1)
 
 - `.step-row`: `background: var(--surface-raised); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: var(--sp-3) var(--sp-4);`
+border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: var(--sp-3) var(--sp-4);`
 - Step number badge: `background: var(--accent); color: var(--surface-raised);
-  border-radius: 50%; width: 20px; height: 20px; font-size: var(--text-sm);
-  flex-shrink: 0; display: grid; place-content: center;`
+border-radius: 50%; width: 20px; height: 20px; font-size: var(--text-sm);
+flex-shrink: 0; display: grid; place-content: center;`
 
 ### 2. Step Object Icons + Operation Color
 
@@ -361,31 +407,40 @@ Each step row gets a leading icon based on **object type**, colored by **operati
 
 Object → octicon:
 
-| Object | Octicon |
-|--------|---------|
-| file / files | `file` |
-| branch | `git-branch` |
-| PR | `git-pull-request` |
-| issue | `issue-opened` |
-| tests | `beaker` |
-| commit | `git-commit` |
-| report | `file-text` |
+| Object       | Octicon            |
+| ------------ | ------------------ |
+| file / files | `file`             |
+| branch       | `git-branch`       |
+| PR           | `git-pull-request` |
+| issue        | `issue-opened`     |
+| tests        | `beaker`           |
+| commit       | `git-commit`       |
+| report       | `file-text`        |
 
 Operation → color class (applied to `.icon`):
 
-| Operation | Class | Color |
-|-----------|-------|-------|
-| read / analyze | `.icon--read` | `--text-secondary` |
-| edit / modify | `.icon--edit` | `--accent` |
-| create / commit | `.icon--create` | `--success` |
-| validate / run | `.icon--validate` | `--accent-hover` |
+| Operation       | Class             | Color              |
+| --------------- | ----------------- | ------------------ |
+| read / analyze  | `.icon--read`     | `--text-secondary` |
+| edit / modify   | `.icon--edit`     | `--accent`         |
+| create / commit | `.icon--create`   | `--success`        |
+| validate / run  | `.icon--validate` | `--accent-hover`   |
 
 CSS:
+
 ```css
-.icon--read    { color: var(--text-secondary); }
-.icon--edit    { color: var(--accent); }
-.icon--create  { color: var(--success); }
-.icon--validate { color: var(--accent-hover); }
+.icon--read {
+  color: var(--text-secondary);
+}
+.icon--edit {
+  color: var(--accent);
+}
+.icon--create {
+  color: var(--success);
+}
+.icon--validate {
+  color: var(--accent-hover);
+}
 ```
 
 ### 3. Output Mode Icons — Static Labels + Brief Float (UAT 3.2)
@@ -397,7 +452,7 @@ CSS:
   - On toggle (click/tap): brief floating text (full mode name, ~1.5s) via CSS
     `@keyframes` animation on a `<span class="output-float">` element.
 - CSS: each output button = `display: flex; flex-direction: column; align-items: center;
-  gap: var(--sp-1);`
+gap: var(--sp-1);`
 - **Multi-select**: checkbox behavior — multiple modes active simultaneously.
   State: `outputs_selected: [str]` (array) replaces `output_selected: str`.
 - Update `prompt-builder.js` to include all active modes.
@@ -435,6 +490,7 @@ CSS:
 - Update `state.js` `migrateState()` to convert existing single string to array.
 
 ### Verification (Phase 13)
+
 - Step rows visually distinct blocks with icon + number badge
 - File step: multiple files merged into one step; each file removable individually
 - Output modes: multiple can be active; static label always visible; float label on toggle
@@ -449,6 +505,7 @@ CSS:
 highlighting in prompt area, quality meter tooltip.
 
 ### Files
+
 - `src/js/card-prompt.js`
 - `src/css/styles.css`
 
@@ -466,9 +523,15 @@ highlighting in prompt area, quality meter tooltip.
 - Add `clipboard` octicon SVG and `check` octicon SVG — both pre-rendered in the button
   DOM; one hidden at a time via CSS:
   ```css
-  .btn-copy .icon-check    { display: none; }
-  .btn-copy.btn--copied .icon-clipboard { display: none; }
-  .btn-copy.btn--copied .icon-check    { display: block; }
+  .btn-copy .icon-check {
+    display: none;
+  }
+  .btn-copy.btn--copied .icon-clipboard {
+    display: none;
+  }
+  .btn-copy.btn--copied .icon-check {
+    display: block;
+  }
   ```
 - JS: adds `.btn--copied` on click; removes it after 2 seconds. No "Copied!" text span.
   No JS DOM manipulation for the icon — only the class toggle.
@@ -476,7 +539,7 @@ highlighting in prompt area, quality meter tooltip.
 ### 3. Prompt Area Polish
 
 - `.prompt-output`: `background: var(--surface-inset); border: 1px solid var(--border);
-  min-height: 140px;`
+min-height: 140px;`
 
 ### 4. XML Syntax Highlighting
 
@@ -494,10 +557,11 @@ highlighting in prompt area, quality meter tooltip.
 - On hover/focus (desktop) or tap (mobile — second tap hides): a `<div role="tooltip">`
   shows scoring criteria.
 - CSS: `position: absolute; background: var(--surface-raised); border: 1px solid
-  var(--border); border-radius: var(--radius); font-size: var(--text-sm);
-  box-shadow: var(--shadow-md);`
+var(--border); border-radius: var(--radius); font-size: var(--text-sm);
+box-shadow: var(--shadow-md);`
 
 ### Verification (Phase 14)
+
 - Buttons in header right — no extra vertical row
 - Copy: clipboard → check icon on click, reverts after 2s, no external text
 - Prompt area background warm/inset
@@ -509,6 +573,7 @@ highlighting in prompt area, quality meter tooltip.
 ## Final Regression (after Phase 14)
 
 Full manual walkthrough on 375px mobile viewport:
+
 1. `npm run lint` passes
 2. `npm run build` passes
 3. `npm test` passes (all existing + new tests green)
@@ -525,15 +590,15 @@ Full manual walkthrough on 375px mobile viewport:
 
 ## New Tests to Add
 
-| Phase | Test |
-|-------|------|
-| 11 | `renderRepoButtons` expanded → all repos in DOM |
-| 11 | `renderBranchButtons` expanded → all branches in DOM |
-| 11 | Selecting a repo does not set `reposCollapsed = true` |
-| 13 | Multiple read steps → merged into one step with `params.files` array |
-| 13 | Single file removable from merged step |
-| 13 | Two output modes can be active simultaneously in `outputs_selected` |
-| 14 | `highlightXml`: XSS-safe — `<script>` in text node becomes `&lt;script&gt;` |
-| 14 | `highlightXml`: XML tag wrapped in `.xml-tag` span |
+| Phase | Test                                                                        |
+| ----- | --------------------------------------------------------------------------- |
+| 11    | `renderRepoButtons` expanded → all repos in DOM                             |
+| 11    | `renderBranchButtons` expanded → all branches in DOM                        |
+| 11    | Selecting a repo does not set `reposCollapsed = true`                       |
+| 13    | Multiple read steps → merged into one step with `params.files` array        |
+| 13    | Single file removable from merged step                                      |
+| 13    | Two output modes can be active simultaneously in `outputs_selected`         |
+| 14    | `highlightXml`: XSS-safe — `<script>` in text node becomes `&lt;script&gt;` |
+| 14    | `highlightXml`: XML tag wrapped in `.xml-tag` span                          |
 
 ---

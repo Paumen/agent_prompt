@@ -201,74 +201,76 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ### Implementation Status
 
-| ID        | Status  | Unit | SIT | UAT | Notes                                                                    |
-| --------- | ------- | ---- | --- | --- | ------------------------------------------------------------------------ |
-| GL-01     | Testing | —    | ◻   | ◻   | Phase 8: click audit passed — all actions ≤2 clicks                      |
-| GL-02     | Testing | ✅   | ◻   | ◻   | Phase 0: shimmer CSS. Phase 3: JS component done                         |
-| GL-03     | Testing | —    | ◻   | ◻   | Phase 8: mobile-first CSS verified; no h-scroll                          |
-| GL-04     | Testing | ✅   | ◻   | ◻   | Phase 0: error CSS. Phase 3: JS component done                           |
-| GL-05     | Testing | ✅   | ◻   | ◻   | Phase 8: mid-interaction deferral added (retry ×5 every 2s)              |
-| APP-01    | Testing | —    | —   | ◻   | Phase 0: SPA shell created                                               |
-| APP-02    | Testing | —    | —   | ◻   | Phase 0: vanilla JS + plain CSS                                          |
-| APP-03    | Testing | ✅   | ◻   | ◻   | Phase 3: limit enforcement in github-api.js                              |
-| APP-04    | Testing | ✅   | —   | ◻   | PAT/owner persist; session resets on reload                              |
-| DM-INV-01 | Testing | ✅   | ◻   | —   | getState() returns derived prompt                                        |
-| DM-INV-02 | Testing | ✅   | ◻   | —   | setState() auto-rebuilds prompt                                          |
-| DM-INV-03 | Testing | ✅   | ◻   | —   | Snapshot test passes (TST-01)                                            |
-| DM-DEF-01 | Testing | ✅   | ◻   | —   | deepMerge for flow defaults → user overrides                             |
-| DM-DEF-02 | Testing | ✅   | —   | —   | YAML→JSON + schema validation via Vite plugin                            |
-| DM-DEF-03 | Testing | ✅   | ◻   | ◻   | applyFlowDefaults() resets panels/steps fully                            |
-| CFG-01    | Testing | ✅   | ◻   | ◻   | PAT field + show/hide + clear action                                     |
-| CFG-02    | Testing | ✅   | ◻   | ◻   | Username + auto-fetch repos on load                                      |
-| CFG-03    | Testing | ✅   | —   | ◻   | Repo button grid + single-tap select                                     |
-| CFG-04    | Testing | ✅   | ◻   | ◻   | Branch buttons + auto-select default                                     |
-| CFG-05    | Testing | ✅   | ◻   | ◻   | Background fetch branches + file tree                                    |
-| SCT-01    | Testing | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + octicon icons                             |
-| SCT-02    | Testing | ✅   | —   | ◻   | Dual-panel layout (new)                                                  |
-| SCT-03    | Testing | ✅   | ◻   | ◻   | card-tasks.js renders all field types                                    |
-| SCT-04    | Testing | ✅   | —   | ◻   | Panel A/B layout per flow definition                                     |
-| SCT-05    | Testing | ✅   | ◻   | ◻   | Required group validation                                                |
-| SCT-06    | Testing | ✅   | ◻   | ◻   | Flat searchable file picker with pills                                   |
-| SCT-07    | Testing | ✅   | —   | —   | flows.yaml validated at build-time                                       |
-| SCT-08    | Testing | ✅   | ◻   | ◻   | Quality Meter                                                            |
-| SCT-09    | Testing | ✅   | ◻   | ◻   | Improve multi-file scope selector                                        |
-| STP-01    | Testing | ✅   | ◻   | ◻   | Auto-generated steps + conditional inclusion                             |
-| STP-02    | Testing | ✅   | —   | ◻   | Conditional steps from panel fields                                      |
-| STP-03    | Testing | ✅   | ◻   | ◻   | Lens pills per step (show 7 + "more" toggle)                             |
-| STP-04    | Testing | ✅   | —   | ◻   | All steps deletable (no locked steps per PO)                             |
-| OUT-01    | Testing | ✅   | ◻   | ◻   | card-prompt.js: preview area, XML output                                 |
-| OUT-02    | Testing | ✅   | ◻   | ◻   | Flow-specific templates in prompt-builder.js                             |
-| OUT-03    | Testing | ✅   | ◻   | —   | Live re-render via state subscription                                    |
-| OUT-04    | Testing | ✅   | —   | —   | @ prefix in prompt-builder.js                                            |
-| OUT-05    | Testing | ✅   | ◻   | ◻   | Copy button + Copied! feedback                                           |
-| OUT-06    | Testing | ✅   | —   | ◻   | Notes textarea → notes.user_text                                         |
-| OUT-07    | Testing | —    | —   | ◻   | Deep-links to claude.ai/new?q= with prompt                               |
-| OUT-08    | Testing | —    | ◻   | ◻   | Card stays expanded; only manual collapse                                |
-| VIS-01    | Testing | —    | —   | ◻   | Phase 0: CSS grid layout done                                            |
-| VIS-02    | Testing | —    | —   | ◻   | Phase 0: touch targets set                                               |
-| VIS-03    | Testing | —    | —   | ◻   | Phase 0: card layout CSS done                                            |
-| TST-01    | Testing | ✅   | ✅  | —   | Snapshot test in prompt-builder.test.js + e2e determinism test           |
-| TST-02    | Testing | ✅   | ✅  | —   | E2e tests: Fix + Review journeys, card transitions, flow reset, PAT flow |
-| TST-03    | Testing | ✅   | —   | —   | Schema validation errors tested in flow-loader                           |
+| ID        | Status      | Unit | SIT | UAT | Notes                                                                    |
+| --------- | ----------- | ---- | --- | --- | ------------------------------------------------------------------------ |
+| GL-01     | Testing     | —    | ◻   | ◻   | Phase 8: click audit passed — all actions ≤2 clicks                      |
+| GL-02     | Testing     | ✅   | ◻   | ◻   | Phase 0: shimmer CSS. Phase 3: JS component done                         |
+| GL-03     | Testing     | —    | ◻   | ◻   | Phase 8: mobile-first CSS verified; no h-scroll                          |
+| GL-04     | Testing     | ✅   | ◻   | ◻   | Phase 0: error CSS. Phase 3: JS component done                           |
+| GL-05     | Testing     | ✅   | ◻   | ◻   | Phase 8: mid-interaction deferral added (retry ×5 every 2s)              |
+| APP-01    | Testing     | —    | —   | ◻   | Phase 0: SPA shell created                                               |
+| APP-02    | Testing     | —    | —   | ◻   | Phase 0: vanilla JS + plain CSS                                          |
+| APP-03    | Testing     | ✅   | ◻   | ◻   | Phase 3: limit enforcement in github-api.js                              |
+| APP-04    | Testing     | ✅   | —   | ◻   | PAT/owner persist; session resets on reload                              |
+| DM-INV-01 | Testing     | ✅   | ◻   | —   | getState() returns derived prompt                                        |
+| DM-INV-02 | Testing     | ✅   | ◻   | —   | setState() auto-rebuilds prompt                                          |
+| DM-INV-03 | Testing     | ✅   | ◻   | —   | Snapshot test passes (TST-01)                                            |
+| DM-DEF-01 | Testing     | ✅   | ◻   | —   | deepMerge for flow defaults → user overrides                             |
+| DM-DEF-02 | Testing     | ✅   | —   | —   | YAML→JSON + schema validation via Vite plugin                            |
+| DM-DEF-03 | Testing     | ✅   | ◻   | ◻   | applyFlowDefaults() resets panels/steps fully                            |
+| CFG-01    | Testing | ✅   | ◻   | ◻   | Phase 11: input-row layout, key icon, eye/clear buttons with hidden attr  |
+| CFG-02    | Testing | ✅   | ◻   | ◻   | Phase 11: GitHub mark icon, username clear button                         |
+| CFG-03    | Testing | ✅   | —   | ◻   | Phase 11: collapsed shows first 4 repos + selected; icon per button       |
+| CFG-04    | Testing | ✅   | ◻   | ◻   | Phase 11: branch limit 3; collapsed shows first 3 + selected; icon/btn    |
+| CFG-05    | Testing     | ✅   | ◻   | ◻   | Background fetch branches + file tree                                    |
+| SCT-01    | Testing     | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + octicon icons                             |
+| SCT-02    | Testing     | ✅   | —   | ◻   | Dual-panel layout (new)                                                  |
+| SCT-03    | Testing     | ✅   | ◻   | ◻   | card-tasks.js renders all field types                                    |
+| SCT-04    | Testing     | ✅   | —   | ◻   | Panel A/B layout per flow definition                                     |
+| SCT-05    | Testing     | ✅   | ◻   | ◻   | Required group validation                                                |
+| SCT-06    | Testing     | ✅   | ◻   | ◻   | Flat searchable file picker with pills                                   |
+| SCT-07    | Testing     | ✅   | —   | —   | flows.yaml validated at build-time                                       |
+| SCT-08    | Testing     | ✅   | ◻   | ◻   | Quality Meter                                                            |
+| SCT-09    | Testing     | ✅   | ◻   | ◻   | Improve multi-file scope selector                                        |
+| STP-01    | Testing     | ✅   | ◻   | ◻   | Auto-generated steps + conditional inclusion                             |
+| STP-02    | Testing     | ✅   | —   | ◻   | Conditional steps from panel fields                                      |
+| STP-03    | Testing     | ✅   | ◻   | ◻   | Lens pills per step (show 7 + "more" toggle)                             |
+| STP-04    | Testing     | ✅   | —   | ◻   | All steps deletable (no locked steps per PO)                             |
+| OUT-01    | Testing     | ✅   | ◻   | ◻   | card-prompt.js: preview area, XML output                                 |
+| OUT-02    | Testing     | ✅   | ◻   | ◻   | Flow-specific templates in prompt-builder.js                             |
+| OUT-03    | Testing     | ✅   | ◻   | —   | Live re-render via state subscription                                    |
+| OUT-04    | Testing     | ✅   | —   | —   | @ prefix in prompt-builder.js                                            |
+| OUT-05    | Testing     | ✅   | ◻   | ◻   | Copy button + Copied! feedback                                           |
+| OUT-06    | Testing     | ✅   | —   | ◻   | Notes textarea → notes.user_text                                         |
+| OUT-07    | Testing     | —    | —   | ◻   | Deep-links to claude.ai/new?q= with prompt                               |
+| OUT-08    | Testing     | —    | ◻   | ◻   | Card stays expanded; only manual collapse                                |
+| VIS-01    | Testing     | —    | —   | ◻   | Phase 0: CSS grid layout done                                            |
+| VIS-02    | Testing     | —    | —   | ◻   | Phase 0: touch targets set                                               |
+| VIS-03    | Testing     | —    | —   | ◻   | Phase 0: card layout CSS done                                            |
+| TST-01    | Testing     | ✅   | ✅  | —   | Snapshot test in prompt-builder.test.js + e2e determinism test           |
+| TST-02    | Testing     | ✅   | ✅  | —   | E2e tests: Fix + Review journeys, card transitions, flow reset, PAT flow |
+| TST-03    | Testing     | ✅   | —   | —   | Schema validation errors tested in flow-loader                           |
 
 ---
 
 ## Decisions
 
-| ID | Decision | Rationale | Rating |
-|:---|:---|:---|:---|
-| D01 | GitHub Pages hosting and doc-based status tracking in spec_concept.md. | Free, auto-deploying single source of truth. | 2 |
-| D02 | Root cleanup; separated build configs (config/) from specification files (spec/) and guidelines. | Separates build logic from project definitions. | 3 |
-| D03 | Selection flow moves from Task to Repo/Branch; grids collapse to summaries after selection. | Optimizes vertical space and improves UX flow. | 3 |
-| D04 | Deep-link to Claude.ai via URL-encoded query; includes 300px max-height preview with sticky toolbar. | Hard requirement; ensures compact, actionable prompt transfer. | 5 |
-| D05 | UI uses .card--open toggles, color-mix() backgrounds, and tight vertical spacing. | Simple CSS-driven patterns reduce JS overhead. | 2 |
-| D06 | Centralized setState() with derived frozen prompts and interaction-aware background retry logic. | Safer, debuggable state management; prevents UI jitter. | 4 |
-| D07 | Redesigned 4 core flows with dual-panels, auto-generated steps, and flow-specific XML prompt templates. | Balances complexity with high-quality context-aware instructions. | 5 |
-| D08 | Quality Meter uses 6 color thresholds and weighted fields from hybrid design. | Finer feedback granularity without over-engineering. | 3 |
-| D09 | Custom Vite YAML-to-JSON plugin with path-specific functional schema validation. | Seamless HMR integration; avoids heavy external dependencies. | 4 |
-| D10 | Data model uses panel A/B structure, versioning, and arrays to track deletions. | Aligns with canonical spec; ensures state persistence. | 4 |
-| D11 | Inlined Octicon SVG paths and 44px primary touch targets. | Improves mobile accessibility without external libraries. | 2 |
-| D12 | Flat searchable file list, sub-label context hints, and lens pill "+N more" toggle. | Simplified mobile UX; keeps controls compact. | 3 |
-| D13 | All steps made deletable; no locked steps permitted. | Prioritizes user control and code simplicity. | 3 |
-| D14 | UAT fixes: merged credential rows, icon-only buttons, 4-per-row grid, and distinct panel backgrounds. | Addresses all stakeholder visual feedback and layout. | 4 |
-| D15 | E2E testing covers 2 representative flows using inline snapshots. | Sufficient coverage while minimizing maintenance overhead. | 4 |
+| ID  | Decision                                                                                                | Rationale                                                         | Rating |
+| :-- | :------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------- | :----- |
+| D01 | GitHub Pages hosting and doc-based status tracking in spec_concept.md.                                  | Free, auto-deploying single source of truth.                      | 2      |
+| D02 | Root cleanup; separated build configs (config/) from specification files (spec/) and guidelines.        | Separates build logic from project definitions.                   | 3      |
+| D03 | Selection flow moves from Task to Repo/Branch; grids collapse to summaries after selection.             | Optimizes vertical space and improves UX flow.                    | 3      |
+| D04 | Deep-link to Claude.ai via URL-encoded query; includes 300px max-height preview with sticky toolbar.    | Hard requirement; ensures compact, actionable prompt transfer.    | 5      |
+| D05 | UI uses .card--open toggles, color-mix() backgrounds, and tight vertical spacing.                       | Simple CSS-driven patterns reduce JS overhead.                    | 2      |
+| D06 | Centralized setState() with derived frozen prompts and interaction-aware background retry logic.        | Safer, debuggable state management; prevents UI jitter.           | 4      |
+| D07 | Redesigned 4 core flows with dual-panels, auto-generated steps, and flow-specific XML prompt templates. | Balances complexity with high-quality context-aware instructions. | 5      |
+| D08 | Quality Meter uses 6 color thresholds and weighted fields from hybrid design.                           | Finer feedback granularity without over-engineering.              | 3      |
+| D09 | Custom Vite YAML-to-JSON plugin with path-specific functional schema validation.                        | Seamless HMR integration; avoids heavy external dependencies.     | 4      |
+| D10 | Data model uses panel A/B structure, versioning, and arrays to track deletions.                         | Aligns with canonical spec; ensures state persistence.            | 4      |
+| D11 | Inlined Octicon SVG paths and 44px primary touch targets.                                               | Improves mobile accessibility without external libraries.         | 2      |
+| D12 | Flat searchable file list, sub-label context hints, and lens pill "+N more" toggle.                     | Simplified mobile UX; keeps controls compact.                     | 3      |
+| D13 | All steps made deletable; no locked steps permitted.                                                    | Prioritizes user control and code simplicity.                     | 3      |
+| D14 | UAT fixes: merged credential rows, icon-only buttons, 4-per-row grid, and distinct panel backgrounds.   | Addresses all stakeholder visual feedback and layout.             | 4      |
+| D15 | E2E testing covers 2 representative flows using inline snapshots.                                       | Sufficient coverage while minimizing maintenance overhead.        | 4      |
+| D16 | Phase 11: collapsed repo/branch grids show first N (4/3) + selected if beyond, not just the selected.  | User clarification: collapsed state should fill a row, not hide all others. | 3 |
+| D17 | Phase 11: eye/clear buttons use `hidden` attr + `.is-shown` CSS class for icon swap; no innerHTML swap. | Matches spec requirement; simpler state tracking.                 | 3      |

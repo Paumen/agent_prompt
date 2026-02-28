@@ -319,11 +319,13 @@ describe('repo selection (CFG-03)', () => {
         '.cfg-section--repos .item-selected'
       );
       expect(selected).not.toBeNull();
-      expect(selected.textContent).toBe('alpha');
+      // Phase 11: buttons contain icon SVG + text span; use toContain for text match
+      expect(selected.textContent).toContain('alpha');
     });
   });
 
-  it('collapses repo grid after selection (VIS-03)', async () => {
+  it('collapses repo grid to first N repos after selection (VIS-03)', async () => {
+    // Phase 11: collapsed shows multiple repos (a row), not just selected
     await setupWithRepos();
 
     const firstBtn = document.querySelector(
@@ -332,18 +334,79 @@ describe('repo selection (CFG-03)', () => {
     firstBtn.click();
 
     await vi.waitFor(() => {
+      // Should show MORE than just 1 repo (first N = REPO_DISPLAY_LIMIT rows)
       const visibleRepos = document.querySelectorAll(
         '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
       );
-      expect(visibleRepos.length).toBe(1);
-      expect(visibleRepos[0].textContent).toBe('alpha');
+      // With 3 sample repos and REPO_DISPLAY_LIMIT=4, all 3 fit → no More button needed
+      // But the selected item should always be visible
+      const selectedRepo = document.querySelector(
+        '.cfg-section--repos .item-selected'
+      );
+      expect(selectedRepo).not.toBeNull();
+      expect(visibleRepos.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('shows "More" button when repos exceed display limit', async () => {
+    // Create a dataset with more repos than REPO_DISPLAY_LIMIT (4)
+    const manyRepos = [
+      { name: 'repo-a', default_branch: 'main' },
+      { name: 'repo-b', default_branch: 'main' },
+      { name: 'repo-c', default_branch: 'main' },
+      { name: 'repo-d', default_branch: 'main' },
+      { name: 'repo-e', default_branch: 'main' },
+    ];
+
+    state.setState('configuration.pat', 'tok_123');
+    state.setState('configuration.owner', 'alice');
+
+    let callCount = 0;
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(manyRepos),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_BRANCHES),
+      });
     });
 
-    // "show more" button is present
-    const showMore = document.querySelector(
-      '.cfg-section--repos .cfg-show-more'
+    cardConfig.initConfigurationCard();
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelectorAll(
+          '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+        ).length
+      ).toBe(5); // all 5 visible initially (not collapsed yet)
+    });
+
+    // Select a repo → auto-collapse
+    const repoBtn = document.querySelector(
+      '.cfg-section--repos .btn-grid-item'
     );
-    expect(showMore).not.toBeNull();
+    repoBtn.click();
+
+    await vi.waitFor(() => {
+      // Should show first 4 (REPO_DISPLAY_LIMIT) repos + selected if beyond
+      const visibleRepos = document.querySelectorAll(
+        '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+      );
+      expect(visibleRepos.length).toBeLessThanOrEqual(5);
+      expect(visibleRepos.length).toBeGreaterThan(1);
+      // "More" button present since 5 > 4
+      const moreBtn = document.querySelector(
+        '.cfg-section--repos .cfg-show-more'
+      );
+      expect(moreBtn).not.toBeNull();
+    });
   });
 
   it('expands Tasks card on repo select', async () => {
@@ -568,5 +631,341 @@ describe('accessibility', () => {
         expect(document.getElementById(forAttr)).not.toBeNull();
       }
     }
+  });
+});
+
+// ─── Phase 11: Show More / collapsed display (VIS-03) ───
+
+describe('Phase 11 — branch display limit (UAT 1.7)', () => {
+  async function setupWithManyBranches() {
+    const manyBranches = [
+      { name: 'main' },
+      { name: 'develop' },
+      { name: 'feature-a' },
+      { name: 'feature-b' },
+      { name: 'feature-c' },
+    ];
+
+    state.setState('configuration.pat', 'tok_123');
+    state.setState('configuration.owner', 'alice');
+
+    let callCount = 0;
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(SAMPLE_REPOS),
+        });
+      }
+      if (callCount === 2) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(manyBranches),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_TREE),
+      });
+    });
+
+    cardConfig.initConfigurationCard();
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelectorAll(
+          '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+        ).length
+      ).toBe(3);
+    });
+
+    // Click first repo to trigger branch load
+    const repoBtn = document.querySelector(
+      '.cfg-section--repos .btn-grid-item'
+    );
+    repoBtn.click();
+
+    await vi.waitFor(() => {
+      const branchBtns = document.querySelectorAll(
+        '.cfg-section--branches .btn-grid-item:not(.cfg-show-more)'
+      );
+      expect(branchBtns.length).toBeGreaterThan(0);
+    });
+
+    return manyBranches;
+  }
+
+  it('shows at most 3 branches by default (BRANCH_DISPLAY_LIMIT=3)', async () => {
+    await setupWithManyBranches();
+
+    const visibleBranches = document.querySelectorAll(
+      '.cfg-section--branches .btn-grid-item:not(.cfg-show-more)'
+    );
+    // 5 branches total, limit 3: shows 3 or 4 (if selected branch is beyond limit)
+    expect(visibleBranches.length).toBeLessThanOrEqual(4);
+    expect(visibleBranches.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('shows "More" button when branches exceed limit', async () => {
+    await setupWithManyBranches();
+
+    const moreBtn = document.querySelector(
+      '.cfg-section--branches .cfg-show-more'
+    );
+    expect(moreBtn).not.toBeNull();
+  });
+
+  it('expanding branch grid shows all branches', async () => {
+    await setupWithManyBranches();
+
+    const moreBtn = document.querySelector(
+      '.cfg-section--branches .cfg-show-more'
+    );
+    moreBtn.click();
+
+    const allBranches = document.querySelectorAll(
+      '.cfg-section--branches .btn-grid-item:not(.cfg-show-more)'
+    );
+    expect(allBranches.length).toBe(5);
+  });
+
+  it('selected branch visible even if beyond display limit', async () => {
+    await setupWithManyBranches();
+
+    // Click a branch that's beyond position 3 (feature-b = index 3)
+    // First expand so we can click it
+    const moreBtn = document.querySelector(
+      '.cfg-section--branches .cfg-show-more'
+    );
+    moreBtn.click();
+
+    await vi.waitFor(() => {
+      const allBranches = document.querySelectorAll(
+        '.cfg-section--branches .btn-grid-item:not(.cfg-show-more)'
+      );
+      expect(allBranches.length).toBe(5);
+    });
+
+    // Find and click the 5th branch (feature-c, index 4)
+    const branchBtns = document.querySelectorAll(
+      '.cfg-section--branches .btn-grid-item:not(.cfg-show-more)'
+    );
+    branchBtns[4].click(); // click feature-c
+
+    // Now grid should be collapsed, but feature-c should still be visible
+    await vi.waitFor(() => {
+      const selected = document.querySelector(
+        '.cfg-section--branches .item-selected'
+      );
+      expect(selected).not.toBeNull();
+      expect(selected.textContent).toContain('feature-c');
+    });
+  });
+});
+
+// ─── Phase 11: Eye / Clear visibility (UAT 1.3) ───
+
+describe('Phase 11 — eye/clear button visibility (UAT 1.3)', () => {
+  it('eye and clear buttons start hidden when PAT is empty', () => {
+    cardConfig.initConfigurationCard();
+    const eyeBtn = document.querySelector('.js-eye-btn');
+    const clearBtn = document.querySelector('.js-clear-btn');
+    expect(eyeBtn).not.toBeNull();
+    expect(clearBtn).not.toBeNull();
+    // Buttons should have hidden attribute when no value
+    expect(eyeBtn.hasAttribute('hidden')).toBe(true);
+    expect(clearBtn.hasAttribute('hidden')).toBe(true);
+  });
+
+  it('eye and clear buttons appear when PAT has a value', () => {
+    cardConfig.initConfigurationCard();
+    const pat = document.getElementById('cfg-pat');
+    pat.value = 'tok_123';
+    pat.dispatchEvent(new Event('input'));
+
+    const eyeBtn = document.querySelector('.js-eye-btn');
+    const clearBtn = document.querySelector('.js-clear-btn');
+    expect(eyeBtn.hasAttribute('hidden')).toBe(false);
+    expect(clearBtn.hasAttribute('hidden')).toBe(false);
+  });
+
+  it('eye/clear buttons hidden again after PAT is cleared', () => {
+    cardConfig.initConfigurationCard();
+    const pat = document.getElementById('cfg-pat');
+
+    pat.value = 'tok_123';
+    pat.dispatchEvent(new Event('input'));
+    pat.value = '';
+    pat.dispatchEvent(new Event('input'));
+
+    const eyeBtn = document.querySelector('.js-eye-btn');
+    expect(eyeBtn.hasAttribute('hidden')).toBe(true);
+  });
+
+  it('eye toggle adds .is-shown class when revealing PAT', () => {
+    cardConfig.initConfigurationCard();
+    const pat = document.getElementById('cfg-pat');
+    pat.value = 'tok_123';
+    pat.dispatchEvent(new Event('input'));
+
+    const eyeBtn = document.querySelector('.js-eye-btn');
+    eyeBtn.click();
+
+    expect(pat.type).toBe('text');
+    expect(eyeBtn.classList.contains('is-shown')).toBe(true);
+  });
+
+  it('eye toggle removes .is-shown class when hiding PAT', () => {
+    cardConfig.initConfigurationCard();
+    const pat = document.getElementById('cfg-pat');
+    pat.value = 'tok_123';
+    pat.dispatchEvent(new Event('input'));
+
+    const eyeBtn = document.querySelector('.js-eye-btn');
+    eyeBtn.click(); // show
+    eyeBtn.click(); // hide
+
+    expect(pat.type).toBe('password');
+    expect(eyeBtn.classList.contains('is-shown')).toBe(false);
+  });
+});
+
+// ─── Phase 11: Username clear button ───
+
+describe('Phase 11 — username clear button', () => {
+  it('renders username clear button', () => {
+    cardConfig.initConfigurationCard();
+    const clearBtn = document.querySelector('.js-user-clear-btn');
+    expect(clearBtn).not.toBeNull();
+  });
+
+  it('username clear starts hidden when field is empty', () => {
+    cardConfig.initConfigurationCard();
+    const clearBtn = document.querySelector('.js-user-clear-btn');
+    expect(clearBtn.hasAttribute('hidden')).toBe(true);
+  });
+
+  it('username clear appears when username has a value', () => {
+    state.setState('configuration.owner', 'alice');
+    cardConfig.initConfigurationCard();
+    const user = document.getElementById('cfg-username');
+    user.value = 'alice';
+    user.dispatchEvent(new Event('input'));
+
+    const clearBtn = document.querySelector('.js-user-clear-btn');
+    expect(clearBtn.hasAttribute('hidden')).toBe(false);
+  });
+
+  it('username clear button clears owner, repo, branch state and repos list', async () => {
+    state.setState('configuration.pat', 'tok_123');
+    state.setState('configuration.owner', 'alice');
+    state.setState('configuration.repo', 'my-repo');
+    state.setState('configuration.branch', 'main');
+    globalThis.fetch = mockFetch(SAMPLE_REPOS);
+
+    cardConfig.initConfigurationCard();
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelectorAll(
+          '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+        ).length
+      ).toBe(3);
+    });
+
+    const clearBtn = document.querySelector('.js-user-clear-btn');
+    clearBtn.click();
+
+    expect(state.getState().configuration.owner).toBe('');
+    expect(state.getState().configuration.repo).toBe('');
+    expect(state.getState().configuration.branch).toBe('');
+    expect(document.getElementById('cfg-username').value).toBe('');
+    // Repos section should be empty
+    const repoBtns = document.querySelectorAll(
+      '.cfg-section--repos .btn-grid-item'
+    );
+    expect(repoBtns.length).toBe(0);
+  });
+});
+
+// ─── Phase 11: Repo/branch icons on buttons ───
+
+describe('Phase 11 — icon per repo/branch button', () => {
+  it('repo buttons contain an SVG icon', async () => {
+    state.setState('configuration.pat', 'tok_123');
+    state.setState('configuration.owner', 'alice');
+    globalThis.fetch = mockFetch(SAMPLE_REPOS);
+
+    cardConfig.initConfigurationCard();
+
+    await vi.waitFor(() => {
+      const repoBtn = document.querySelector(
+        '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+      );
+      expect(repoBtn).not.toBeNull();
+      expect(repoBtn.querySelector('svg')).not.toBeNull();
+    });
+  });
+
+  async function setupReposAndBranches() {
+    state.setState('configuration.pat', 'tok_123');
+    state.setState('configuration.owner', 'alice');
+    let callCount = 0;
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(SAMPLE_REPOS),
+        });
+      }
+      if (callCount === 2) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(SAMPLE_BRANCHES),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_TREE),
+      });
+    });
+
+    cardConfig.initConfigurationCard();
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelectorAll(
+          '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+        ).length
+      ).toBe(3);
+    });
+
+    document.querySelector('.cfg-section--repos .btn-grid-item').click();
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelectorAll(
+          '.cfg-section--branches .btn-grid-item:not(.cfg-show-more)'
+        ).length
+      ).toBeGreaterThan(0);
+    });
+  }
+
+  it('branch buttons contain an SVG icon', async () => {
+    await setupReposAndBranches();
+
+    const branchBtn = document.querySelector(
+      '.cfg-section--branches .btn-grid-item:not(.cfg-show-more)'
+    );
+    expect(branchBtn).not.toBeNull();
+    expect(branchBtn.querySelector('svg')).not.toBeNull();
   });
 });

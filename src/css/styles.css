@@ -116,7 +116,7 @@ body {
 .btn-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
 }
 
 /* Flow selector grid: always 4 columns */
@@ -267,15 +267,37 @@ body {
   padding-right: var(--sp-6);
 }
 
-.btn-icon {
-  cursor: pointer;
-  color: var(--text-secondary);
+/* === Input Row (Phase 11: flat flex layout for credential fields) === */
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.input-row .input-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.input-row-icon {
   display: inline-flex;
   align-items: center;
-  line-height: 1;
-  min-width: 24px;
-  min-height: 24px;
-  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: var(--radius);
 }
 
 .btn-icon:hover {
@@ -284,7 +306,19 @@ body {
 
 .btn-icon:focus-visible {
   outline: 2px solid var(--accent);
-  border-radius: var(--sp-1);
+}
+
+/* Phase 11: Eye toggle — CSS-driven icon swap via .is-shown class */
+.js-eye-btn .icon-eye-off {
+  display: none;
+}
+
+.js-eye-btn.is-shown .icon-eye-on {
+  display: none;
+}
+
+.js-eye-btn.is-shown .icon-eye-off {
+  display: block;
 }
 
 .input-password-wrap .btn-icon {
@@ -542,17 +576,6 @@ body {
 .credentials-row .cfg-user-col {
   flex: 0 0 auto;
   width: 38%;
-  min-width: 0;
-}
-
-.cfg-pat-row {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-}
-
-.cfg-pat-row .input-icon-wrap {
-  flex: 1;
   min-width: 0;
 }
 
