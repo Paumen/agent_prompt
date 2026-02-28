@@ -667,7 +667,7 @@ body {
 /* Visual separation between Situation and Target panels */
 .panel-a,
 .panel-b {
-  background: var(--surface-raised);
+  background: var(--surface-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: var(--sp-3);
