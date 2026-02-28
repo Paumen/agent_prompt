@@ -81,9 +81,9 @@
 
 ---
 
-# UAT Feedback Remediation — Phases 10–14
+## UAT Feedback Remediation — Phases 10–14
 
-## Context
+### Context
 
 After Phase 9 (E2E tests), a UAT review surfaced broad visual, interaction, and logic
 issues across all four cards. A prior partial UAT remediation was committed on 2026-02-27
@@ -92,7 +92,7 @@ fully address the remaining feedback.
 
 ---
 
-## Ground Rules (all phases)
+### Ground Rules (all phases)
 
 - **Max 2 new CSS variables** in this plan: `--shadow-sm` and `--shadow-md`. All other
   changes reuse or tune existing variables directly in `variables.css`.
@@ -110,7 +110,7 @@ fully address the remaining feedback.
 
 ---
 
-## Blocked / Needs PO Decision
+### Blocked / Needs PO Decision
 
 | Item | Blocker |
 |------|---------|
@@ -119,29 +119,29 @@ fully address the remaining feedback.
 
 ---
 
-## Phase 10 — Global Visual Foundation
+### Phase 10 — Global Visual Foundation
 
 **Goal:** Add shadow depth system, fix diamond chevrons to octicon arrows, deepen active
 state contrast. Header padding left unchanged.
 
-### Files
+#### Files
 - `src/css/variables.css`
 - `src/css/styles.css`
 
-### 1. New shadow variables (`variables.css`)
+#### 1. New shadow variables (`variables.css`)
 
 ```css
 --shadow-sm: 0 1px 3px rgba(0,0,0,0.10);
 --shadow-md: 0 2px 8px rgba(0,0,0,0.14);
 ```
 
-### 2. Deepen active state contrast (`variables.css`)
+#### 2. Deepen active state contrast (`variables.css`)
 
 - Darken `--accent-subtle` so selected buttons are visibly distinct. Current:
   `#aed1d4` → target approximately `oklch(72% 0.06 195)` (adjust in review until
   contrast ratio ≥ 4.5:1 against `--text-primary`).
 
-### 3. Fix diamond chevrons (`styles.css` + JS)
+####3. Fix diamond chevrons (`styles.css` + JS)
 
 - Current chevron is a CSS border/transform trick producing a diamond shape.
 - Replace: inline an octicon `chevron-down` SVG (16×16, `viewBox="0 0 16 16"`) in
@@ -154,13 +154,13 @@ state contrast. Header padding left unchanged.
 - `.icon { flex-shrink: 0; display: block; }` — ensures no clipping for all icons.
 - No per-card variant class. One rule covers all card chevrons.
 
-### 4. Depth: cards and input fields (`styles.css`)
+#### 4. Depth: cards and input fields (`styles.css`)
 
 - `.card`: `box-shadow: var(--shadow-sm)`
 - `.input-field`: `box-shadow: inset 0 1px 2px rgba(0,0,0,0.06)` (recessed feel,
   no new variable needed for this specific raw value).
 
-### Verification (Phase 10)
+#### Verification (Phase 10)
 - Chevrons animate without looking like diamonds
 - Cards have visible drop shadow
 - Selected buttons visually distinct from unselected (contrast check)
