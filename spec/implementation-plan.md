@@ -1,7 +1,7 @@
 # Implementation Plan
 
-> **Status**: Draft v3 — updated for 4-flow dual-panel framework.
-> **Date**: 2026-02-25
+> **Status**: Draft v4 — updated for 4-flow dual-panel framework.
+> **Date**: 2026-02-28
 
 ---
 
@@ -543,94 +543,474 @@ The schema file lives in `config/` (not `src/js/`) because it's a build-time art
 
 ---
 
-## 14. Requirement Coverage Matrix
-
-Every spec requirement mapped to its primary implementation phase and verification phase.
-
-| Req ID    | Primary Phase            | Verified In    | Notes                                      |
-| --------- | ------------------------ | -------------- | ------------------------------------------ |
-| GL-01     | 4, 5, 6, 7 (each card)   | 8b             | Click audit per card + final audit         |
-| GL-02     | 0 (class), 3 (component) | 8b             | Shimmer class in CSS, component in JS      |
-| GL-03     | 0 (foundation)           | 4, 5, 6, 7, 8a | Mobile tested per card + final audit       |
-| GL-04     | 3 (component)            | 4, 5, 6, 7, 8b | Error component used in each card          |
-| GL-05     | 3 (cache)                | 8b             | Background refresh + deferred re-render    |
-| APP-01    | 0                        | 8b             | SPA, client-side only                      |
-| APP-02    | 0                        | 8b             | Vanilla JS, ES modules, plain CSS          |
-| APP-03    | 3                        | 3              | Limit enforcement in API module            |
-| APP-04    | 1                        | 1              | Session vs persistent state                |
-| DM-INV-01 | 1                        | 1, 9           | Derived from current state only            |
-| DM-INV-02 | 1                        | 1, 9           | setState() triggers prompt rebuild         |
-| DM-INV-03 | 1                        | 1, 9           | Deterministic output, snapshot tests       |
-| DM-DEF-01 | 1                        | 1              | Two-layer merge in setState                |
-| DM-DEF-02 | 2                        | 2              | YAML → JSON + schema validation            |
-| DM-DEF-03 | 5                        | 5, 9           | Flow selection resets steps                |
-| CFG-01    | 4                        | 4              | PAT field + clear                          |
-| CFG-02    | 4                        | 4              | Username + auto-fetch                      |
-| CFG-03    | 4                        | 4              | Repo button grid                           |
-| CFG-04    | 4                        | 4              | Branch buttons + auto-select               |
-| CFG-05    | 4                        | 4              | Background fetch on repo select            |
-| SCT-01    | 5                        | 5              | Panel A files flagged for "read upfront"   |
-| SCT-02    | 5                        | 5              | 4 predefined flows (dual-panel)            |
-| SCT-03    | 5                        | 5              | Flow button grid                           |
-| SCT-04    | 5                        | 5              | Dual-panel Situation/Target layout         |
-| SCT-05    | 5                        | 5              | Required group validation                  |
-| SCT-06    | 5                        | 5              | Searchable dropdowns + spec/guide tooltips |
-| SCT-07    | 2                        | 2              | flows.yaml definitions                     |
-| SCT-08    | 5                        | 5              | Quality Meter scoring + color bar          |
-| SCT-09    | 5                        | 5              | Improve multi-file scope selector          |
-| STP-01    | 6                        | 6              | Auto-generated steps + delete              |
-| STP-02    | 6                        | 6              | Conditional steps from panel fields        |
-| STP-03    | 6                        | 6              | Lens pills per step                        |
-| STP-04    | 6                        | 6              | Step removal (non-locked only)             |
-| OUT-01    | 7                        | 7              | XML-tagged prompt                          |
-| OUT-02    | 1, 7                     | 7, 9           | Prompt format (builder in 1, display in 7) |
-| OUT-03    | 1                        | 1, 7           | Full regeneration                          |
-| OUT-04    | 1                        | 1              | @ file references                          |
-| OUT-05    | 7                        | 7              | Copy to clipboard                          |
-| OUT-06    | 7                        | 7              | Notes textarea                             |
-| OUT-07    | 7                        | 7              | Opens claude.ai only (no prompt transfer)  |
-| OUT-08    | 7                        | 7, 8           | Card never auto-collapses                  |
-| VIS-01    | 0                        | 4, 5           | Icon + title single row                    |
-| VIS-02    | 0                        | 8a             | Thumb/scroll reach                         |
-| VIS-03    | 0                        | 8a             | Minimum 2 open + 2 collapsed cards visible |
-| TST-01    | 9                        | 9              | Prompt determinism                         |
-| TST-02    | 9                        | 9              | End-to-end journey                         |
-| TST-03    | 2                        | 2              | Schema validation failure                  |
-
----
-
 ## 15. Risk Register
 
 | #   | Risk                                                                                             | Impact                         | Likelihood | Mitigation                                                                                                               |
 | --- | ------------------------------------------------------------------------------------------------ | ------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
-| R1  | `flows.yaml` not authored by PO in time                                                          | Blocks Phase 5 (full), Phase 6 | Medium     | Use detailed mock flows (defined above in Preconditions). Design UI to handle any number of steps/lenses/params.         |
-| R2  | Searchable dropdown in vanilla JS is complex (keyboard nav, mobile touch, scroll, search filter) | Delays Phase 5                 | Medium     | Start with a simpler select-based dropdown. Enhance to searchable only if file/PR lists are long enough to warrant it.   |
-| R3  | ~~**OUT-07**: deep link feasibility~~                                                            | ~~Degrades Phase 7 feature~~   | —          | **Resolved**: Deep link via `claude.ai/new?q=<encoded-prompt>` — prompt pre-filled in Claude chat.                       |
 | R4  | localStorage corruption from version changes                                                     | Breaks state hydration         | Low        | Validate shape on hydration. If invalid, clear and start fresh. Log to console.                                          |
-| R5  | Large file trees (close to 300-file limit) cause slow rendering                                  | Degrades UX on large repos     | Low        | Use document fragment for batch DOM insertion. Consider virtual scrolling only if performance is measurably poor.        |
+Use document fragment for batch DOM insertion. Consider virtual scrolling only if performance is measurably poor.        |
 | R6  | Prompt rebuild causes UI jank on complex prompts                                                 | Degrades UX                    | Low        | Profile first. If measurable jank (>16ms rebuild), batch via `requestAnimationFrame`. Unlikely for text-only generation. |
 
----
-
-## 16. Resolved Questions (PO Decisions — 2026-02-24)
-
-1. **File/folder selection moved after task selection**: File selection is now optional and flow-dependent (not a separate Scope section). Clearer UX, simpler tree logic, more background loading time, less vertical space.
-
-2. **OUT-07 Deep link**: Verified feasible. "Prompt Claude" button deep-links to `claude.ai/new?q=<encoded-prompt>` — opens Claude in a new tab with the prompt pre-filled.
-
-3. **VIS-03 added**: Minimum 2 open + 2 collapsed cards visible in viewport. Tightening UI requirements to ensure minimal vertical scrolling.
-
-4. **GL-05 mid-interaction**: Agreed — mid-interaction defined as: user has active focus on an input field, OR has toggled a checkbox/lens within the last 2 seconds.
 
 ---
 
-## 17. Technical Decisions
+# UAT Feedback Remediation — Phases 10–14
 
-| Decision                                             | Rationale                                                                                                                                                                             |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`setState()` over Proxy** for DM-INV-02            | Simpler, more debuggable, handles nested objects/arrays without deep wrapping. Spec explicitly allows either approach. Aligns with Anti-Over-Engineering Rule.                        |
-| **Schema file in `config/`** not `src/js/`           | Build-time artifact. Should not be bundled into production code.                                                                                                                      |
-| **Shared `components.js`** for UI primitives         | Shimmer, errors, notifications, and searchable dropdowns are needed across multiple cards. Shared module prevents duplication.                                                        |
-| **Vite plugin** (not pre-build script) for YAML      | Cleaner integration with Vite's dev server (HMR support for flows.yaml changes). The `transform` hook is straightforward for this use case.                                           |
-| **No Proxy, no reactive framework**                  | The app has ~6 state fields that change independently. Explicit `setState()` calls at ~15-20 interaction points is manageable and clear. A reactive system would be over-engineering. |
-| **Modern browsers only** (Clipboard API, ES modules) | Spec targets developers using current tools. No IE11/legacy support needed. GitHub Pages serves HTTPS.                                                                                |
+## Context
+
+After Phase 9 (E2E tests), a UAT review surfaced broad visual, interaction, and logic
+issues across all four cards. A prior partial UAT remediation was committed on 2026-02-27
+but did not close all items. This plan defines five new implementation phases (10–14) to
+fully address the remaining feedback.
+
+---
+
+## Ground Rules (all phases)
+
+- **Max 2 new CSS variables** in this plan: `--shadow-sm` and `--shadow-md`. All other
+  changes reuse or tune existing variables directly in `variables.css`.
+- **No `color-mix()` in `styles.css`**. Allowed only in `variables.css` for variable
+  definitions.
+- **No inline styles** in `.html` or `.js`. All styles go in `styles.css`.
+- **No `margin`** where flex/grid gap works. Use `gap`, `place-content`, `place-items`,
+  `flex`, `grid` instead. Only use `margin` when there is no layout primitive alternative.
+- **Single-value shorthands** for spacing (e.g. `gap: var(--sp-3)`). Only deviate for
+  genuine asymmetry with real added value.
+- **One `.icon` class** for all SVG icons. Variants via modifier classes (`.icon--sm`,
+  `.icon--colored-edit`, etc.) — never a new class per icon location.
+- **No drag-and-drop** step reordering. STP-04 is authoritative; spec unchanged.
+- **No `padding-right` hacks** for icon overlap. Use flex/grid row layout.
+
+---
+
+## Blocked / Needs PO Decision
+
+| Item | Blocker |
+|------|---------|
+| 2.5 Mandatory fields logic | Requires editing `src/config/flows.yaml` — PO must authorize |
+| "Review: text input for target" | Review Panel B has no description field — requires `flows.yaml` edit |
+
+---
+
+## Phase 10 — Global Visual Foundation
+
+**Goal:** Add shadow depth system, fix diamond chevrons to octicon arrows, deepen active
+state contrast. Header padding left unchanged.
+
+### Files
+- `src/css/variables.css`
+- `src/css/styles.css`
+
+### 1. New shadow variables (`variables.css`)
+
+```css
+--shadow-sm: 0 1px 3px rgba(0,0,0,0.10);
+--shadow-md: 0 2px 8px rgba(0,0,0,0.14);
+```
+
+### 2. Deepen active state contrast (`variables.css`)
+
+- Darken `--accent-subtle` so selected buttons are visibly distinct. Current:
+  `#aed1d4` → target approximately `oklch(72% 0.06 195)` (adjust in review until
+  contrast ratio ≥ 4.5:1 against `--text-primary`).
+
+### 3. Fix diamond chevrons (`styles.css` + JS)
+
+- Current chevron is a CSS border/transform trick producing a diamond shape.
+- Replace: inline an octicon `chevron-down` SVG (16×16, `viewBox="0 0 16 16"`) in
+  the card header toggle wherever it is built in JS. Apply classes `.icon .icon--chevron`.
+- CSS:
+  ```css
+  .icon--chevron { transition: transform 0.2s ease; }
+  .card--open .icon--chevron { transform: rotate(180deg); }
+  ```
+- `.icon { flex-shrink: 0; display: block; }` — ensures no clipping for all icons.
+- No per-card variant class. One rule covers all card chevrons.
+
+### 4. Depth: cards and input fields (`styles.css`)
+
+- `.card`: `box-shadow: var(--shadow-sm)`
+- `.input-field`: `box-shadow: inset 0 1px 2px rgba(0,0,0,0.06)` (recessed feel,
+  no new variable needed for this specific raw value).
+
+### Verification (Phase 10)
+- Chevrons animate without looking like diamonds
+- Cards have visible drop shadow
+- Selected buttons visually distinct from unselected (contrast check)
+
+---
+
+## Phase 11 — Config Card Polish
+
+**Goal:** Fix Show More (render all, no auto-collapse on selection), inline eye/clear as
+flex siblings, username clear icon, repo/branch icons per button, fill row with "more"
+at end.
+
+### Files
+- `src/js/card-configuration.js`
+- `src/css/styles.css`
+
+### 1. Show More Logic fix (UAT 1.6)
+
+- `renderRepoButtons()`: when `reposCollapsed === false`, slice/filter must be removed —
+  render all repo items.
+- `renderBranchButtons()`: same, render all branches when expanded.
+- **No collapse on selection**: Remove any code that sets `reposCollapsed = true` /
+  `branchesCollapsed = true` after the user picks a repo or branch. Grid stays expanded
+  until user clicks "Less".
+- "Less" button: the **last child** in the flex row (after all items). Styled as a
+  secondary grid button with `.icon--chevron` (pointing up).
+
+### 2. Branch display limit (UAT 1.7)
+
+- Default visible (collapsed): **3** branches. Selected branch always visible even if
+  beyond limit.
+
+### 3. Fill-row layout with "More" at end
+
+- Repo and branch grids: `display: flex; flex-wrap: wrap; gap: var(--sp-2)`.
+- "More" / "Less" is a natural last flex child at end of row — no `margin-left: auto`.
+- Buttons: `width: auto`, using `min-width` from `.btn-grid-item` existing styles.
+
+### 4. Repo/branch icon on each button
+
+- Each repo button: prepend `repo` octicon SVG (`<svg class="icon icon--sm">`).
+- Each branch button: prepend `git-branch` octicon SVG.
+- Octicon paths inlined in `card-configuration.js` (same pattern as Phase 5 flow icons).
+
+### 5. Eye / Clear as flex siblings (UAT 1.3, Overall)
+
+Layout for credential row (flex row of siblings — **no padding hacks**):
+
+```
+[icon-left] [input flex:1] [eye-btn?] [clear-btn?]
+```
+
+HTML structure:
+```html
+<div class="input-row">
+  <svg class="icon icon--sm"><!-- key or github --></svg>
+  <input class="input-field" …>
+  <button class="btn-icon js-eye-btn" hidden><!-- eye svg --></button>
+  <button class="btn-icon js-clear-btn" hidden><!-- × svg --></button>
+</div>
+```
+
+- `hidden` removed by JS when input has a value.
+- PAT eye button: shows `eye` octicon when field is `type="password"`, `eye-closed`
+  when `type="text"`. Swapped by JS toggling a class (`.eye-open` / `.eye-closed`) which
+  CSS uses to `display: block / none` the two pre-rendered SVG spans.
+- CSS:
+  ```css
+  .input-row { display: flex; align-items: center; gap: var(--sp-2); }
+  .input-row .input-field { flex: 1; min-width: 0; }
+  .btn-icon { background: none; border: none; color: var(--text-tertiary); width: 28px; height: 28px; display: grid; place-content: center; }
+  ```
+
+### 6. Input icons (UAT 1.3)
+
+- Username `.input-row` left icon: GitHub mark SVG (`.icon.icon--sm`).
+- PAT `.input-row` left icon: `key` octicon (not `lock`).
+- Both use `.icon.icon--sm`; no new class.
+
+### 7. Section icons improvement (UAT 1.9)
+
+- Repos heading icon: `repo` octicon; branches heading icon: `git-branch` octicon.
+- Both use `.icon.icon--sm`. The `.icon { flex-shrink: 0; }` rule (from Phase 10)
+  prevents clipping.
+
+### Verification (Phase 11)
+- `renderRepoButtons` expanded: all repos in DOM (new unit test)
+- `renderBranchButtons` expanded: all branches in DOM (new unit test)
+- Selecting a repo does not collapse the grid
+- Eye/clear visible only when PAT field has a value
+- Eye icon swaps to eye-closed when PAT is revealed
+- Username has a clear (×) icon that removes its value
+
+---
+
+## Phase 12 — Task Card Polish
+
+**Goal:** Fix flow icon clipping with one unified icon rule, stacked-card panel
+separation, input contrast, picker icons, button hierarchy, compact field labels,
+inline mandatory warning icons.
+
+### Files
+- `src/js/card-tasks.js`
+- `src/css/styles.css`
+
+### 1. Flow Icon Fixes — one unified rule (UAT 2.1)
+
+- **One CSS rule** covers icons inside all `.btn-grid-item` contexts:
+  ```css
+  .btn-grid-item .icon { width: 20px; height: 20px; display: block; }
+  ```
+- Remove any `overflow: hidden` on `.btn-grid-item` or `.flow-icon` that clips SVGs.
+- Remove the dedicated `.flow-icon` class if it only duplicates this. If it serves a
+  semantic purpose (e.g. coloring when selected), rename to `.icon--flow` and merge with
+  `.icon`.
+- Verify `viewBox="0 0 16 16"` on all 4 inlined octicons in `card-tasks.js`.
+
+### 2. Panel Visual Separation — Two Stacked Cards (UAT 2.4)
+
+Panel A and Panel B rendered as two distinct card blocks with a gap. Depth from borders
+and shadow — not padding or whitespace.
+
+- Panel A: `background: var(--surface-raised); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm);`
+- Panel B: `background: var(--surface-inset); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm);`
+- Wrapper: `display: flex; flex-direction: column; gap: var(--sp-4);`
+
+### 3. Input Field Contrast (UAT 2.8)
+
+- All `.input-field`: `background: var(--surface-inset); border: 1px solid var(--border);`
+  (`--surface-inset = oklch(94% 0.015 85)` is noticeably warmer/darker than card body.)
+
+### 4. Picker Icons (UAT 2.9)
+
+- Verify `renderPickerField()` prepends `.icon.icon--sm` SVGs for PR, issue, file.
+- Picker label icon sizing: `.picker-label .icon { width: 14px; height: 14px; }` (added
+  as a scoped rule, not a new class — reuses `.icon` with scoped size override).
+
+### 5. Task Button Visual Hierarchy
+
+- Unselected: `background: var(--surface-raised); border: 1px solid var(--border);
+  color: var(--text-secondary);`
+- Selected: `background: var(--surface-inset); border-color: var(--accent);
+  color: var(--text-primary);` + `4px` left border `var(--accent)`.
+- Icon color: unselected = `--text-tertiary`, selected = `--accent`. Via
+  `.btn-grid-item.selected .icon { color: var(--accent); }`.
+
+### 6. Mandatory Field Visual Cues
+
+- Show a small `alert` octicon (`.icon.icon--sm`, `--danger` color) inline next to the
+  field label when its required group is unsatisfied.
+- No error text visible at rest. On hover (desktop) / tap (mobile): a `<span
+  role="tooltip">` with the message appears adjacent to the icon.
+- Remove the full-width error block. Inline icon only.
+- CSS: `.req-icon { color: var(--danger); }` and `.req-tooltip` with
+  `position: absolute; background: var(--surface-raised); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: var(--text-sm); box-shadow: var(--shadow-md);`
+
+### 7. Compact Task Card Labels
+
+- Field labels: `font-size: var(--text-sm)`.
+- Panel subtitle rendered inline with panel header: `Situation · What's happening now`
+  — `<span class="panel-subtitle">` separated by ` · `, not a new line.
+- Field row gap: `gap: var(--sp-3)`.
+
+### Verification (Phase 12)
+- Flow icons not clipped at 20×20px in all 4 flow buttons
+- Panels visually distinct (raised white vs warm gray) with shadow
+- Input fields clearly darker/warmer than card body
+- Mandatory icon visible; tooltip on hover/tap only
+
+---
+
+## Phase 13 — Steps Card Polish
+
+**Goal:** Block-styled step rows with operation-color + object icons, compact output
+mode icons with static labels and brief float on interaction, file step consolidation
+(individual removal), lens stability, multi-select outputs.
+
+### Files
+- `src/js/card-steps.js`
+- `src/js/step-generator.js`
+- `src/js/prompt-builder.js`
+- `src/css/styles.css`
+
+### 1. Step Block Styling (UAT 3.1)
+
+- `.step-row`: `background: var(--surface-raised); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: var(--sp-3) var(--sp-4);`
+- Step number badge: `background: var(--accent); color: var(--surface-raised);
+  border-radius: 50%; width: 20px; height: 20px; font-size: var(--text-sm);
+  flex-shrink: 0; display: grid; place-content: center;`
+
+### 2. Step Object Icons + Operation Color
+
+Each step row gets a leading icon based on **object type**, colored by **operation type**.
+
+Object → octicon:
+
+| Object | Octicon |
+|--------|---------|
+| file / files | `file` |
+| branch | `git-branch` |
+| PR | `git-pull-request` |
+| issue | `issue-opened` |
+| tests | `beaker` |
+| commit | `git-commit` |
+| report | `file-text` |
+
+Operation → color class (applied to `.icon`):
+
+| Operation | Class | Color |
+|-----------|-------|-------|
+| read / analyze | `.icon--read` | `--text-secondary` |
+| edit / modify | `.icon--edit` | `--accent` |
+| create / commit | `.icon--create` | `--success` |
+| validate / run | `.icon--validate` | `--accent-hover` |
+
+CSS:
+```css
+.icon--read    { color: var(--text-secondary); }
+.icon--edit    { color: var(--accent); }
+.icon--create  { color: var(--success); }
+.icon--validate { color: var(--accent-hover); }
+```
+
+### 3. Output Mode Icons — Static Labels + Brief Float (UAT 3.2)
+
+- Replace output pill row with a flex row of icon-toggle-buttons. Each has:
+  - SVG icon (`.icon.icon--sm`)
+  - Static `<span class="output-label">` (5–7 chars) below the icon, always visible
+    (like a tab bar): `Here`, `PR Com`, `Inline`, `Issue`, `File`
+  - On toggle (click/tap): brief floating text (full mode name, ~1.5s) via CSS
+    `@keyframes` animation on a `<span class="output-float">` element.
+- CSS: each output button = `display: flex; flex-direction: column; align-items: center;
+  gap: var(--sp-1);`
+- **Multi-select**: checkbox behavior — multiple modes active simultaneously.
+  State: `outputs_selected: [str]` (array) replaces `output_selected: str`.
+- Update `prompt-builder.js` to include all active modes.
+
+### 4. Optional Text Input Sizing (UAT 3.3)
+
+- `.step-optional-text`: `display: flex; align-items: center; gap: var(--sp-2);`
+  Label and input on the same flex row.
+- Input: `width: 160px; font-size: var(--text-sm);` — remove `flex-grow: 1`.
+
+### 5. PR Clear Button (UAT 3.5)
+
+- Audit `renderPickerSelection()` in `card-tasks.js`: confirm `clearBtn` click listener
+  calls `setState()` to null `pr_number` / `issue_number`.
+- Add unit test if not covered.
+
+### 6. Lens Stability (UAT 3.6)
+
+- Confirm `renderStepLenses()` has no sort logic — active lenses stay in fixed position.
+- Expanded "+more" section does **not** collapse when a lens is toggled.
+- Store per-step expanded state in a module-level `Set<stepId>` that persists across
+  re-renders; resets on flow switch.
+
+### 7. File Step Consolidation
+
+- `step-generator.js`: merge multiple "Read: @file" steps for the same flow section into
+  one: `{ operation: 'read', object: 'files', params: { files: [path1, path2, …] } }`.
+- `card-steps.js`: render file paths as removable pills inside the step row. Each pill
+  has its own `×` button removing only that file. Removing the last file removes the step.
+- `prompt-builder.js`: expand back to individual `Read: @file` lines per path in output.
+
+### 8. Output Mode State Migration
+
+- `output_selected: str` → `outputs_selected: [str]`. Default: `[output_modes[0]]`.
+- Update `state.js` `migrateState()` to convert existing single string to array.
+
+### Verification (Phase 13)
+- Step rows visually distinct blocks with icon + number badge
+- File step: multiple files merged into one step; each file removable individually
+- Output modes: multiple can be active; static label always visible; float label on toggle
+- Lens order stable on toggle; expanded section stays open
+- Optional text input on one row, constrained width
+
+---
+
+## Phase 14 — Prompt Card Polish
+
+**Goal:** Compact button row in card header, modern copy icon swap, XML syntax
+highlighting in prompt area, quality meter tooltip.
+
+### Files
+- `src/js/card-prompt.js`
+- `src/css/styles.css`
+
+### 1. Button Repositioning & Hierarchy (UAT 4.1)
+
+- Card header: `display: flex; align-items: center; justify-content: space-between;`
+- Button group (right side of header): Copy (secondary) + "Prompt Claude" (primary).
+- "Prompt Claude": `background: var(--accent); color: var(--surface-raised);` — primary.
+- "Copy": `background: transparent; border: 1px solid var(--border); color: var(--text-primary);` — ghost.
+- Remove any standalone "Prompt" heading in card body if header already labels it.
+- Quality meter stays at top of card body, immediately below the header.
+
+### 2. Copy Button Modern Feedback (UAT 4.2)
+
+- Add `clipboard` octicon SVG and `check` octicon SVG — both pre-rendered in the button
+  DOM; one hidden at a time via CSS:
+  ```css
+  .btn-copy .icon-check    { display: none; }
+  .btn-copy.btn--copied .icon-clipboard { display: none; }
+  .btn-copy.btn--copied .icon-check    { display: block; }
+  ```
+- JS: adds `.btn--copied` on click; removes it after 2 seconds. No "Copied!" text span.
+  No JS DOM manipulation for the icon — only the class toggle.
+
+### 3. Prompt Area Polish
+
+- `.prompt-output`: `background: var(--surface-inset); border: 1px solid var(--border);
+  min-height: 140px;`
+
+### 4. XML Syntax Highlighting
+
+- In `card-prompt.js`: process prompt text through `highlightXml(text)` before setting
+  `<pre>` content as `innerHTML`.
+- `highlightXml(text)`:
+  1. Escape text nodes: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;` in non-tag segments.
+  2. Regex-replace XML tag sequences with `<span class="xml-tag">…</span>`.
+- CSS: `.xml-tag { color: var(--accent); font-weight: 600; }`
+- Security: text-node content is fully HTML-escaped before injection.
+
+### 5. Quality Meter Tooltip
+
+- Append an `info` octicon button (`.btn-icon`) next to the quality meter label.
+- On hover/focus (desktop) or tap (mobile — second tap hides): a `<div role="tooltip">`
+  shows scoring criteria.
+- CSS: `position: absolute; background: var(--surface-raised); border: 1px solid
+  var(--border); border-radius: var(--radius); font-size: var(--text-sm);
+  box-shadow: var(--shadow-md);`
+
+### Verification (Phase 14)
+- Buttons in header right — no extra vertical row
+- Copy: clipboard → check icon on click, reverts after 2s, no external text
+- Prompt area background warm/inset
+- XML tags highlighted in accent color
+- Quality meter tooltip appears on hover/tap
+
+---
+
+## Final Regression (after Phase 14)
+
+Full manual walkthrough on 375px mobile viewport:
+1. `npm run lint` passes
+2. `npm run build` passes
+3. `npm test` passes (all existing + new tests green)
+4. Chevrons animate (not diamond-shaped)
+5. Show More expands all repos/branches; selection does not auto-collapse list
+6. Flow icons not clipped, colored correctly when selected
+7. Panel A/B look like two distinct stacked cards
+8. Step rows visually distinct blocks with icons
+9. Output mode icons have static short labels; float label on toggle
+10. Copy shows check icon swap; no external text
+11. Prompt XML tags highlighted; XSS-safe
+
+---
+
+## New Tests to Add
+
+| Phase | Test |
+|-------|------|
+| 11 | `renderRepoButtons` expanded → all repos in DOM |
+| 11 | `renderBranchButtons` expanded → all branches in DOM |
+| 11 | Selecting a repo does not set `reposCollapsed = true` |
+| 13 | Multiple read steps → merged into one step with `params.files` array |
+| 13 | Single file removable from merged step |
+| 13 | Two output modes can be active simultaneously in `outputs_selected` |
+| 14 | `highlightXml`: XSS-safe — `<script>` in text node becomes `&lt;script&gt;` |
+| 14 | `highlightXml`: XML tag wrapped in `.xml-tag` span |
+
+---
+
+
+
+                                                                                                                                                          
