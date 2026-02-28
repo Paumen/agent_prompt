@@ -1,4 +1,4 @@
-# Implementation Specification
+# Specification
 
 Single-page web app that fetches GitHub repo data, lets users configure agentic LLM tasks via guided flows, and outputs a structured Claude-optimized prompt copyable in one click.
 
