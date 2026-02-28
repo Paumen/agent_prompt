@@ -12,6 +12,7 @@
 9. [Phase 6 — Card 3: Steps (Auto-Generated)](#9-phase-6--card-3-steps-auto-generated)
 10. [Phase 7 — Card 4: Prompt Output](#10-phase-7--card-4-prompt-output)
 11. [Phase 8 — Polish & Constraints](#11-phase-8--polish--constraints)
+12. [UAT Feedback Remediation — Phases 10–14](#12-UAT Feedback-Remediation-—-Phases-10–14)
 
 ---
 
