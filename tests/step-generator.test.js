@@ -299,6 +299,31 @@ describe('generateSteps', () => {
     }
   });
 
+  // Phase 13: file step consolidation
+  it('populates params.files from panel_a.files for read-files steps', () => {
+    const panelA = { ...EMPTY_PANEL_A, files: ['src/app.js', 'src/utils.js'] };
+    const steps = generateSteps(FIX_FLOW, panelA, EMPTY_PANEL_B);
+    const readLocation = steps.find((s) => s.id === 'read-location');
+    expect(readLocation).toBeDefined();
+    expect(readLocation.params.files).toEqual(['src/app.js', 'src/utils.js']);
+  });
+
+  it('populates params.files from panel_b.spec_files for read-specs step', () => {
+    const panelB = { ...EMPTY_PANEL_B, spec_files: ['spec.md', 'design.md'] };
+    const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, panelB);
+    const readSpecs = steps.find((s) => s.id === 'read-specs');
+    expect(readSpecs).toBeDefined();
+    expect(readSpecs.params.files).toEqual(['spec.md', 'design.md']);
+  });
+
+  it('does not set params.files for non-read or non-files steps', () => {
+    const panelA = { ...EMPTY_PANEL_A, issue_number: 42 };
+    const steps = generateSteps(FIX_FLOW, panelA, EMPTY_PANEL_B);
+    const readIssue = steps.find((s) => s.id === 'read-issue');
+    expect(readIssue).toBeDefined();
+    expect(readIssue.params?.files).toBeUndefined();
+  });
+
   it('handles review flow conditional steps (pr_number)', () => {
     // No PR selected — review-pr and provide-feedback-pr should be excluded
     const stepsEmpty = generateSteps(REVIEW_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
@@ -375,7 +400,29 @@ describe('reconcileSteps', () => {
     expect(result[0].name_provided).toBe('feat/new-feature');
   });
 
-  it('preserves user output_selected from current steps', () => {
+  it('preserves user outputs_selected array from current steps', () => {
+    const generated = [
+      {
+        id: 'provide-feedback-pr',
+        operation: 'create',
+        object: 'review_feedback',
+        output: ['here', 'pr_comment'],
+      },
+    ];
+    const current = [
+      {
+        id: 'provide-feedback-pr',
+        operation: 'create',
+        object: 'review_feedback',
+        output: ['here', 'pr_comment'],
+        outputs_selected: ['here', 'pr_comment'],
+      },
+    ];
+    const result = reconcileSteps(generated, current, []);
+    expect(result[0].outputs_selected).toEqual(['here', 'pr_comment']);
+  });
+
+  it('migrates legacy output_selected string to outputs_selected array', () => {
     const generated = [
       {
         id: 'provide-feedback-pr',
@@ -394,7 +441,7 @@ describe('reconcileSteps', () => {
       },
     ];
     const result = reconcileSteps(generated, current, []);
-    expect(result[0].output_selected).toBe('pr_comment');
+    expect(result[0].outputs_selected).toEqual(['pr_comment']);
   });
 
   it('adds new steps that were not in current', () => {

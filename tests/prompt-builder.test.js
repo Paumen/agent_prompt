@@ -827,7 +827,7 @@ describe('prompt-builder.js', () => {
     });
   });
 
-  describe('review output modes', () => {
+  describe('review output modes (Phase 13: outputs_selected array)', () => {
     it('generates pr_comment feedback for review flow', () => {
       const state = baseState({
         task: { flow_id: 'review' },
@@ -838,14 +838,14 @@ describe('prompt-builder.js', () => {
               operation: 'create',
               object: 'review_feedback',
               output: ['here', 'pr_comment'],
-              output_selected: 'pr_comment',
+              outputs_selected: ['pr_comment'],
             },
           ],
         },
       });
       const result = buildPrompt(state);
       expect(result).toContain('Provide feedback as a PR comment');
-      expect(result).toContain('link to PR comment');
+      expect(result).toContain('link to the comment to HUMAN');
     });
 
     it('generates pr_inline_comments feedback for review flow', () => {
@@ -858,7 +858,7 @@ describe('prompt-builder.js', () => {
               operation: 'create',
               object: 'review_feedback',
               output: ['here', 'pr_inline_comments'],
-              output_selected: 'pr_inline_comments',
+              outputs_selected: ['pr_inline_comments'],
             },
           ],
         },
@@ -877,14 +877,14 @@ describe('prompt-builder.js', () => {
               operation: 'create',
               object: 'review_feedback',
               output: ['here', 'issue_comment'],
-              output_selected: 'issue_comment',
+              outputs_selected: ['issue_comment'],
             },
           ],
         },
       });
       const result = buildPrompt(state);
       expect(result).toContain('feedback as a GitHub issue comment');
-      expect(result).toContain('link to issue comment');
+      expect(result).toContain('link to the comment to HUMAN');
     });
 
     it('generates report_file feedback for review flow', () => {
@@ -897,22 +897,79 @@ describe('prompt-builder.js', () => {
               operation: 'create',
               object: 'review_feedback',
               output: ['here', 'report_file'],
-              output_selected: 'report_file',
+              outputs_selected: ['report_file'],
             },
           ],
         },
       });
       const result = buildPrompt(state);
-      expect(result).toContain('analysis report file in the repository');
+      expect(result).toContain('report file in the repository');
       expect(result).toContain('Commit the report file');
     });
 
     it('generates default "here" feedback for review flow with no output mode', () => {
       const state = baseState({ task: { flow_id: 'review' } });
       const result = buildPrompt(state);
-      expect(result).toContain(
-        'Provide concise feedback to HUMAN (me) here (in this interface)'
-      );
+      expect(result).toContain('Provide feedback here (in this interface)');
+    });
+
+    it('combines multiple output modes in one instruction (multi-select)', () => {
+      const state = baseState({
+        task: { flow_id: 'review' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'provide-feedback-pr',
+              operation: 'create',
+              object: 'review_feedback',
+              output: ['here', 'pr_comment'],
+              outputs_selected: ['here', 'pr_comment'],
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('here (in this interface) AND as a PR comment');
+    });
+
+    it('migrates legacy output_selected string when outputs_selected missing', () => {
+      const state = baseState({
+        task: { flow_id: 'review' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'provide-feedback-pr',
+              operation: 'create',
+              object: 'review_feedback',
+              output: ['here', 'pr_comment'],
+              output_selected: 'pr_comment',
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      // Legacy string should still produce PR comment feedback
+      expect(result).toContain('Provide feedback as a PR comment');
+    });
+
+    it('expands params.files into individual Read lines in prompt (Phase 13)', () => {
+      const state = baseState({
+        task: { flow_id: 'fix' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'read-location',
+              operation: 'read',
+              object: 'files',
+              source: 'panel_a.files',
+              params: { files: ['src/app.js', 'src/utils.js'] },
+            },
+          ],
+        },
+      });
+      const result = buildPrompt(state);
+      expect(result).toContain('Read @src/app.js');
+      expect(result).toContain('Read @src/utils.js');
     });
   });
 });

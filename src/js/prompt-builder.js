@@ -73,6 +73,15 @@ export function buildPrompt(state) {
       taskStepInserted = true;
     }
 
+    // Phase 13: expand params.files into individual Read lines per file
+    if (step.params?.files?.length > 0 && step.operation === 'read') {
+      for (const filePath of step.params.files) {
+        lines.push(`    Step ${stepNum}: Read @${esc(filePath)}`);
+        stepNum++;
+      }
+      continue;
+    }
+
     const desc = formatStep(step);
     if (desc) {
       lines.push(`    Step ${stepNum}: ${desc}`);
@@ -380,21 +389,30 @@ function buildGenericTaskStep(panelA, panelB) {
 // --- Feedback step builders ---
 
 /**
- * Build the final feedback step. For review flow, checks output mode
- * from enabled_steps feedback steps (pr_comment, pr_inline_comments, or default "here").
+ * Build the final feedback step. For review flow, checks output modes
+ * from enabled_steps feedback steps (outputs_selected array, Phase 13).
+ * When multiple modes are selected, the prompt combines all into one instruction.
  */
 function buildFeedbackStep(flowId, enabledSteps) {
-  // Find output mode from feedback-type steps if any
+  // Find output modes from feedback-type steps
   const feedbackSteps = (enabledSteps || []).filter(
     (s) =>
       s.id === 'provide-feedback-pr' ||
       s.id === 'provide-feedback-files' ||
       s.object === 'review_feedback'
   );
-  const outputMode =
-    feedbackSteps.length > 0
-      ? feedbackSteps[0].output_selected || feedbackSteps[0].output?.[0] || null
-      : null;
+  // Phase 13: prefer outputs_selected (array); fall back to legacy output_selected (string)
+  let outputMode = null;
+  if (feedbackSteps.length > 0) {
+    const fs = feedbackSteps[0];
+    if (fs.outputs_selected?.length > 0) {
+      outputMode = fs.outputs_selected;
+    } else if (fs.output_selected) {
+      outputMode = [fs.output_selected];
+    } else {
+      outputMode = fs.output?.[0] ? [fs.output[0]] : null;
+    }
+  }
 
   switch (flowId) {
     case 'fix':
@@ -405,7 +423,13 @@ function buildFeedbackStep(flowId, enabledSteps) {
         '              - The action you took: create branch (incl name and link), implemented fix by editing files (incl file names), ran tests (incl which ones), verified issue is solved, committed PR (incl PR name and link)',
       ].join('\n');
     case 'review':
-      return buildReviewFeedback(outputMode);
+      return buildReviewFeedback(
+        Array.isArray(outputMode)
+          ? outputMode
+          : outputMode
+            ? [outputMode]
+            : null
+      );
     case 'implement':
       return [
         'Provide concise feedback to HUMAN (me) here (in this interface) include:',
@@ -428,51 +452,56 @@ function buildFeedbackStep(flowId, enabledSteps) {
 }
 
 /**
- * Review flow supports multiple output modes per spec.
+ * Review flow supports multiple output modes (Phase 13: outputs_selected array).
+ * When multiple modes are selected, the instruction mentions all delivery methods.
+ *
+ * @param {string[]|null} outputModes - array of selected mode IDs, or null for default
  */
-function buildReviewFeedback(outputMode) {
-  if (outputMode === 'pr_comment') {
-    return [
-      'Provide feedback as a PR comment include:',
-      '              - Summary of what you reviewed in one sentence.',
-      '              - Number of issues found by severity label.',
-      '              - Top 3 most important findings with file/line references.',
-      '              - Provide link to PR comment to HUMAN (me) here (in this interface).',
-    ].join('\n');
+function buildReviewFeedback(outputModes) {
+  const modes = outputModes?.length > 0 ? outputModes : ['here'];
+
+  // Build delivery clause from all selected modes
+  const MODE_VERBS = {
+    here: 'here (in this interface)',
+    pr_comment: 'as a PR comment',
+    pr_inline_comments: 'via PR inline comments at relevant line numbers',
+    issue_comment: 'as a GitHub issue comment',
+    report_file: 'as a committed report file in the repository',
+  };
+  const deliveryParts = modes.map((m) => MODE_VERBS[m] || m);
+  const deliveryClause =
+    deliveryParts.length === 1
+      ? deliveryParts[0]
+      : deliveryParts.slice(0, -1).join(', ') +
+        ' AND ' +
+        deliveryParts[deliveryParts.length - 1];
+
+  const lines = [`Provide feedback ${deliveryClause} include:`];
+
+  // Include mode-specific instructions for each selected mode
+  if (modes.includes('pr_inline_comments')) {
+    lines.push(
+      '              - For inline comments: note the issue, severity label, and suggested fix at the relevant line.'
+    );
   }
-  if (outputMode === 'pr_inline_comments') {
-    return [
-      'Provide feedback via PR inline comments at relevant line numbers include:',
-      '              - Issue you found.',
-      '              - Severity label.',
-      '              - Suggested fix.',
-    ].join('\n');
+  if (modes.some((m) => ['pr_comment', 'issue_comment'].includes(m))) {
+    lines.push(
+      '              - Provide a link to the comment to HUMAN (me) here (in this interface).'
+    );
   }
-  if (outputMode === 'issue_comment') {
-    return [
-      'Provide feedback as a GitHub issue comment include:',
-      '              - Summary of what you reviewed in one sentence.',
-      '              - Number of issues found by severity.',
-      '              - Top 3 most important findings with file/line references.',
-      '              - Provide link to issue comment to HUMAN (me) here (in this interface).',
-    ].join('\n');
+  if (modes.includes('report_file')) {
+    lines.push(
+      '              - Commit the report file and provide the file link to HUMAN (me) here (in this interface).'
+    );
   }
-  if (outputMode === 'report_file') {
-    return [
-      'Create an analysis report file in the repository include:',
-      '              - Summary of what you reviewed in one sentence.',
-      '              - Detailed findings organized by severity.',
-      '              - Specific file/line references for each finding.',
-      '              - Commit the report file and provide the file link to HUMAN (me) here (in this interface).',
-    ].join('\n');
-  }
-  // Default: "here" (in interface)
-  return [
-    'Provide concise feedback to HUMAN (me) here (in this interface) include:',
+
+  lines.push(
     '              - Summary of what you reviewed in one sentence.',
     '              - Number of issues found by severity.',
-    '              - Top 3 most important findings with file/line references.',
-  ].join('\n');
+    '              - Top 3 most important findings with file/line references.'
+  );
+
+  return lines.join('\n');
 }
 
 // --- Step formatting ---
