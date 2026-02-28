@@ -163,19 +163,24 @@ export function renderQualityMeter(container) {
   const label = document.createElement('div');
   label.className = 'quality-meter-label';
 
+  // Use a child span for the text so external elements (e.g., tooltip button)
+  // can be appended to `label` without being wiped by update()
+  const labelTextEl = document.createElement('span');
+  label.appendChild(labelTextEl);
+
   track.appendChild(bar);
   container.appendChild(track);
   container.appendChild(label);
 
   function update(state) {
     const score = calculateScore(state);
-    const { color, label: labelText } = getThresholdColor(score);
+    const { color, label: thresholdLabel } = getThresholdColor(score);
     bar.style.width = `${score}%`;
     bar.style.backgroundColor = color;
     track.setAttribute('aria-valuenow', String(score));
-    track.setAttribute('aria-valuetext', `${score}% — ${labelText}`);
-    label.textContent = score > 0 ? labelText : '';
-    label.style.color = color;
+    track.setAttribute('aria-valuetext', `${score}% — ${thresholdLabel}`);
+    labelTextEl.textContent = score > 0 ? thresholdLabel : '';
+    labelTextEl.style.color = color;
   }
 
   // Initialize with current state
@@ -184,5 +189,5 @@ export function renderQualityMeter(container) {
   // Subscribe to future state changes
   const unsubscribe = subscribe((state) => update(state));
 
-  return { update, unsubscribe };
+  return { update, unsubscribe, labelEl: label };
 }

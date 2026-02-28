@@ -2,6 +2,7 @@
 /**
  * Tests for card-prompt.js
  * OUT-01..08: Prompt rendering, copy button, notes, Prompt Claude deep-link.
+ * Phase 14: highlightXml, copy icon swap, quality meter tooltip.
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -48,11 +49,19 @@ vi.mock('../src/js/state.js', () => ({
   subscribe: vi.fn(() => () => {}),
 }));
 
+// Quality meter mock: returns a real labelEl so tooltip tests work
+let mockLabelEl = null;
 vi.mock('../src/js/quality-meter.js', () => ({
-  renderQualityMeter: vi.fn(() => ({ update: vi.fn(), unsubscribe: vi.fn() })),
+  renderQualityMeter: vi.fn((container) => {
+    container.className = 'quality-meter';
+    mockLabelEl = document.createElement('div');
+    mockLabelEl.className = 'quality-meter-label';
+    container.appendChild(mockLabelEl);
+    return { update: vi.fn(), unsubscribe: vi.fn(), labelEl: mockLabelEl };
+  }),
 }));
 
-import { initPromptCard } from '../src/js/card-prompt.js';
+import { initPromptCard, highlightXml } from '../src/js/card-prompt.js';
 import { getState, setState, subscribe } from '../src/js/state.js';
 import { renderQualityMeter } from '../src/js/quality-meter.js';
 
@@ -70,12 +79,65 @@ function createPromptCard() {
 beforeEach(() => {
   createPromptCard();
   vi.clearAllMocks();
+  mockLabelEl = null;
   getState.mockReturnValue(structuredClone(mockState));
   subscribe.mockReturnValue(() => {});
 });
 
 afterEach(() => {
   document.body.innerHTML = '';
+});
+
+// --- Phase 14: highlightXml unit tests ---
+
+describe('highlightXml (Phase 14 UAT 4.4)', () => {
+  it('wraps XML open tags in xml-tag spans', () => {
+    const result = highlightXml('<prompt>');
+    expect(result).toContain('<span class="xml-tag">');
+    expect(result).toContain('&lt;prompt&gt;');
+  });
+
+  it('wraps XML closing tags in xml-tag spans', () => {
+    const result = highlightXml('</task>');
+    expect(result).toContain('<span class="xml-tag">&lt;/task&gt;</span>');
+  });
+
+  it('escapes text nodes (no HTML injection)', () => {
+    const result = highlightXml('hello & <world>');
+    // & escaped to &amp;
+    expect(result).toContain('&amp;');
+    // The < > around "world" form an XML tag and get wrapped, but escaped
+    expect(result).not.toContain('<world>');
+  });
+
+  it('leaves plain text unchanged (except HTML escaping)', () => {
+    const result = highlightXml('Step 1: Read @file.js');
+    expect(result).toBe('Step 1: Read @file.js');
+    expect(result).not.toContain('<span');
+  });
+
+  it('handles tags with attributes', () => {
+    const result = highlightXml('<task flow="fix">');
+    expect(result).toContain('<span class="xml-tag">');
+    expect(result).toContain('&lt;task flow=');
+    expect(result).toContain('&gt;</span>');
+  });
+
+  it('textContent of highlighted output equals original string', () => {
+    // Create a temp element to verify round-trip
+    const el = document.createElement('span');
+    el.innerHTML = highlightXml(MOCK_PROMPT);
+    expect(el.textContent).toBe(MOCK_PROMPT);
+  });
+
+  it('escapes ampersands in text nodes', () => {
+    const result = highlightXml('a & b');
+    expect(result).toBe('a &amp; b');
+  });
+
+  it('handles empty string', () => {
+    expect(highlightXml('')).toBe('');
+  });
 });
 
 // --- Tests ---
@@ -87,12 +149,20 @@ describe('initPromptCard — quality meter (2.3)', () => {
   });
 });
 
-describe('initPromptCard — rendering', () => {
-  it('renders prompt preview with content from state._prompt (OUT-01, OUT-02)', () => {
+describe('initPromptCard — rendering (Phase 14: uses innerHTML for XML highlight)', () => {
+  it('renders prompt preview with correct text content from state._prompt (OUT-01, OUT-02)', () => {
     initPromptCard();
     const preview = document.querySelector('.prompt-output');
     expect(preview).toBeTruthy();
+    // textContent equals original since span wrappers don't add text
     expect(preview.textContent).toBe(MOCK_PROMPT);
+  });
+
+  it('prompt preview uses innerHTML (XML highlighting active)', () => {
+    initPromptCard();
+    const preview = document.querySelector('.prompt-output');
+    // The preview should contain xml-tag spans wrapping the XML tags
+    expect(preview.innerHTML).toContain('<span class="xml-tag">');
   });
 
   it('shows empty-state message when _prompt is empty', () => {
@@ -121,7 +191,7 @@ describe('initPromptCard — rendering', () => {
     expect(subscribe).toHaveBeenCalled();
   });
 
-  it('updates preview when subscriber fires with new prompt', () => {
+  it('updates preview textContent when subscriber fires with new prompt', () => {
     let subscribedCallback = null;
     subscribe.mockImplementation((cb) => {
       subscribedCallback = cb;
@@ -142,17 +212,24 @@ describe('initPromptCard — rendering', () => {
 describe('initPromptCard — Copy button (OUT-05)', () => {
   it('renders a Copy button', () => {
     initPromptCard();
-    const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent.includes('Copy')
-    );
-    expect(copyBtn).toBeTruthy();
+    const btn = document.querySelector('.btn-copy');
+    expect(btn).toBeTruthy();
+    expect(btn.textContent).toContain('Copy');
   });
 
-  it('copy status span has aria-live=polite (a11y)', () => {
+  it('copy button has clipboard and check icons pre-rendered in DOM (Phase 14 UAT 4.2)', () => {
+    initPromptCard();
+    const btn = document.querySelector('.btn-copy');
+    expect(btn.querySelector('.icon-clipboard')).toBeTruthy();
+    expect(btn.querySelector('.icon-check')).toBeTruthy();
+  });
+
+  it('copy status span has aria-live=polite and sr-only class (a11y)', () => {
     initPromptCard();
     const status = document.querySelector('.copy-status');
     expect(status).toBeTruthy();
     expect(status.getAttribute('aria-live')).toBe('polite');
+    expect(status.classList.contains('sr-only')).toBe(true);
   });
 
   it('calls clipboard.writeText with the current prompt on copy click', async () => {
@@ -164,15 +241,12 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
     });
 
     initPromptCard();
-    const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent.includes('Copy')
-    );
-    copyBtn.click();
+    document.querySelector('.btn-copy').click();
 
     expect(writeText).toHaveBeenCalledWith(MOCK_PROMPT);
   });
 
-  it('shows Copied! feedback on successful copy', async () => {
+  it('adds btn--copied class on successful copy (Phase 14 UAT 4.2)', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText },
@@ -181,10 +255,23 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
     });
 
     initPromptCard();
-    const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent.includes('Copy')
-    );
-    copyBtn.click();
+    const btn = document.querySelector('.btn-copy');
+    btn.click();
+    await flushPromises();
+
+    expect(btn.classList.contains('btn--copied')).toBe(true);
+  });
+
+  it('updates aria-live status span on successful copy (screen reader feedback)', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      writable: true,
+      configurable: true,
+    });
+
+    initPromptCard();
+    document.querySelector('.btn-copy').click();
     await flushPromises();
 
     const status = document.querySelector('.copy-status');
@@ -201,10 +288,7 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
     });
 
     initPromptCard();
-    const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent.includes('Copy')
-    );
-    copyBtn.click();
+    document.querySelector('.btn-copy').click();
     await flushPromises();
 
     const status = document.querySelector('.copy-status');
@@ -222,22 +306,20 @@ describe('initPromptCard — Copy button (OUT-05)', () => {
 
     getState.mockReturnValue({ ...mockState, _prompt: '' });
     initPromptCard();
-    const copyBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent.includes('Copy')
-    );
-    copyBtn.click();
+    document.querySelector('.btn-copy').click();
 
     expect(writeText).not.toHaveBeenCalled();
   });
 });
 
 describe('initPromptCard — Prompt Claude deep-link (OUT-07)', () => {
-  it('renders a Prompt Claude button', () => {
+  it('renders a Prompt Claude button with primary class', () => {
     initPromptCard();
-    const openBtn = Array.from(document.querySelectorAll('.btn-action')).find(
-      (b) => b.textContent.includes('Prompt Claude')
+    const btn = Array.from(document.querySelectorAll('.btn-action')).find((b) =>
+      b.textContent.includes('Prompt Claude')
     );
-    expect(openBtn).toBeTruthy();
+    expect(btn).toBeTruthy();
+    expect(btn.classList.contains('btn-action--primary')).toBe(true);
   });
 
   it('opens claude.ai/new?q= with encoded prompt on click', () => {
@@ -336,6 +418,64 @@ describe('initPromptCard — Notes textarea (OUT-06)', () => {
       get: () => document.body,
       configurable: true,
     });
+  });
+});
+
+describe('initPromptCard — Quality meter tooltip (Phase 14 UAT 5)', () => {
+  it('renders an info button next to the quality meter label', () => {
+    initPromptCard();
+    const infoBtn = document.querySelector('.meter-info-btn');
+    expect(infoBtn).toBeTruthy();
+  });
+
+  it('info button has aria-label for accessibility', () => {
+    initPromptCard();
+    const infoBtn = document.querySelector('.meter-info-btn');
+    expect(infoBtn.getAttribute('aria-label')).toBeTruthy();
+  });
+
+  it('tooltip is hidden by default', () => {
+    initPromptCard();
+    const tooltip = document.querySelector('.meter-tooltip');
+    expect(tooltip).toBeTruthy();
+    expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(false);
+    expect(tooltip.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('shows tooltip when info button is clicked', () => {
+    initPromptCard();
+    const infoBtn = document.querySelector('.meter-info-btn');
+    infoBtn.click();
+    const tooltip = document.querySelector('.meter-tooltip');
+    expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(true);
+    expect(tooltip.getAttribute('aria-hidden')).toBe('false');
+  });
+
+  it('hides tooltip on second click (toggle)', () => {
+    initPromptCard();
+    const infoBtn = document.querySelector('.meter-info-btn');
+    infoBtn.click();
+    infoBtn.click();
+    const tooltip = document.querySelector('.meter-tooltip');
+    expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(false);
+  });
+
+  it('hides tooltip when clicking elsewhere on the document', () => {
+    initPromptCard();
+    const infoBtn = document.querySelector('.meter-info-btn');
+    infoBtn.click();
+    // Simulate document-level click
+    document.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const tooltip = document.querySelector('.meter-tooltip');
+    expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(false);
+  });
+
+  it('tooltip contains a plain-language description', () => {
+    initPromptCard();
+    const infoBtn = document.querySelector('.meter-info-btn');
+    infoBtn.click();
+    const tooltip = document.querySelector('.meter-tooltip');
+    expect(tooltip.textContent.length).toBeGreaterThan(20);
   });
 });
 
