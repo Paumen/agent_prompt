@@ -7,7 +7,6 @@
   box-sizing: border-box;
 }
 
-/* === Page === */
 body {
   background: var(--shell);
   color: var(--text-primary);
@@ -15,24 +14,55 @@ body {
   font-size: var(--text-base);
   line-height: var(--line-height-base);
   min-height: 100vh;
-  text-align: left;
+}
+
+#app,
+.dual-panel,
+.step-list,
+.prompt-region,
+.file-picker-wrapper,
+.prompt-notes,
+.shimmer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
 }
 
 #app {
   max-width: 680px;
   margin: 0 auto;
   padding: var(--sp-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
 }
 
-/* === Icons (Octicons, inline SVG) === */
-.icon {
-  display: block;
-  flex-shrink: 0;
+/* === Shared Interactive Base === */
+.btn-grid-item,
+.pill,
+.input-field,
+.btn-action,
+.output-mode-btn,
+.step-row,
+.dropdown-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.btn-grid-item:hover,
+.pill:hover,
+.input-field:focus,
+.btn-action:hover,
+.output-mode-btn:hover {
+  border-color: var(--border-focus);
+}
+
+/* === Icons & Badges === */
+.icon,
+.btn-icon,
+.step-badge,
+.btn-grid-item .icon {
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
 }
 
 .icon--chevron {
@@ -48,131 +78,117 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+:is(.card-header, .card-body, .panel-a, .panel-b) {
+  padding: var(--sp-4);
+}
+
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--sp-4);
   cursor: pointer;
   font-weight: 600;
   background: none;
-  border-radius: var(--radius) var(--radius) 0 0;
   border: none;
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 
 .card-header:hover {
   background: var(--surface-inset);
 }
 
-.card-header:focus-visible {
+.card-header:focus-visible,
+.btn-action:focus-visible,
+.pill:focus-visible,
+.input-field:focus-visible,
+.output-mode-btn:focus-visible,
+.btn-icon:focus-visible,
+.step-delete:focus-visible,
+.meter-info-btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 
-/* Expand/collapse chevron */
 .card-header[aria-expanded="true"] .icon--chevron {
   transform: rotate(180deg);
 }
 
-/* Card body hidden when collapsed */
 .card-body {
   display: none;
-  padding: var(--sp-3);
   border-top: 1px solid var(--border);
+  flex-direction: column;
+  gap: var(--sp-2);
 }
 
 .card--open .card-body {
-  display: block;
+  display: flex;
 }
 
-/* === Active / Selected State === */
-.btn-grid-item.item-selected {
-  position: relative;
+/* === Active / Selected State (Re-ordered for Specificity) === */
+.btn-grid-item.item-selected,
+.pill[aria-checked="true"],
+.pill.pill--on,
+.output-mode-btn[aria-checked="true"] {
   background: var(--accent-subtle);
   border-color: var(--accent);
+  color: var(--accent);
+}
+
+.item-selected {
+  position: relative;
   padding-left: var(--sp-3);
 }
 
-.btn-grid-item.item-selected .icon {
+.item-selected .icon {
   color: var(--accent);
 }
 
 .item-selected::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
+  inset: 0 auto 0 0;
   width: 4px;
   background: var(--accent-subtle);
   border-radius: var(--radius) 0 0 var(--radius);
 }
 
-/* === Button Grid === */
-.btn-grid {
+/* === Grids & Groups === */
+.btn-grid,
+.pill-group,
+.selected-files,
+.step-output-icons,
+.step-output-modes,
+.step-files,
+.input-row,
+.credentials-row {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
 }
 
-/* Flow selector grid: always 4 columns */
 .flow-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--sp-2);
 }
 
-.flow-grid .btn-grid-item {
-  justify-content: center;
-  font-size: var(--text-base);
-  padding: var(--sp-2);
-}
-
-/* Flow button icons — sized for the grid */
-.btn-grid-item .icon {
-  width: 16px;
-  height: 16px;
-  color: var(--accent);
-}
-
 .btn-grid-item {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
   padding: var(--sp-2);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   cursor: pointer;
   white-space: nowrap;
   min-height: 32px;
 }
 
-.btn-grid-item:hover {
-  border-color: var(--border-focus);
-  filter: brightness(1.015);
-}
-
-.btn-grid-item:focus-visible {
-  outline: 2px solid var(--accent-subtle);
-  outline-offset: 2px;
-}
-
 /* === Pill Toggles === */
-.pill-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-}
-
 .pill {
   display: inline-flex;
   align-items: center;
   padding: var(--sp-2);
   border-radius: 999px;
-  border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-secondary);
   font-size: var(--text-sm);
@@ -180,43 +196,16 @@ body {
   min-height: 32px;
 }
 
-.pill:hover {
-  border-color: var(--border-focus);
-}
-
-.pill:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.pill[aria-checked="true"],
-.pill.pill--on {
-  background: var(--accent-subtle);
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
 /* === Input Fields === */
-.field-label {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
 .input-field {
   width: 100%;
   padding: var(--sp-2);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   min-height: 32px;
   box-shadow: var(--shadow-inset-sm);
 }
 
-/* === Input with inline prefix icon === */
-.input-icon-wrap {
+.input-icon-wrap,
+.input-password-wrap {
   position: relative;
   display: flex;
   align-items: center;
@@ -225,97 +214,11 @@ body {
 .input-icon-prefix {
   position: absolute;
   left: var(--sp-2);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-tertiary);
   pointer-events: none;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon-wrap .input-field {
-  padding-left: var(--sp-2);
-}
-
-.input-field::placeholder {
-  color: var(--text-tertiary);
-  font-size: var(--text-sm);
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: var(--border-focus);
-  background: var(--surface-inset);
-}
-
-.input-field:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 0;
-}
-
-/* Password field wrapper */
-.input-password-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
 }
 
 .input-password-wrap .input-field {
   padding-right: var(--sp-6);
-}
-
-/* === Input Row (Phase 11: flat flex layout for credential fields) === */
-.input-row {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
-
-.input-row .input-field {
-  flex: 1;
-  min-width: 0;
-}
-
-.input-row-icon {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-}
-
-.btn-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  width: 16px;
-  height: 16px;
-  display: grid;
-  place-content: center;
-  flex-shrink: 0;
-  padding: 0;
-  border-radius: var(--radius);
-}
-
-.btn-icon:hover {
-  color: var(--text-primary);
-}
-
-.btn-icon:focus-visible {
-  outline: 2px solid var(--accent);
-}
-
-/* Phase 11: Eye toggle — CSS-driven icon swap via .is-shown class */
-.js-eye-btn .icon-eye-off {
-  display: none;
-}
-
-.js-eye-btn.is-shown .icon-eye-on {
-  display: none;
-}
-
-.js-eye-btn.is-shown .icon-eye-off {
-  display: block;
 }
 
 .input-password-wrap .btn-icon {
@@ -323,45 +226,33 @@ body {
   right: var(--sp-2);
 }
 
+.btn-icon,
+.step-badge {
+  display: grid;
+  place-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 /* === Shimmer Skeleton === */
 @keyframes shimmer-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
 .shimmer {
-  background: var(--surface-inset);
-  border-radius: var(--radius);
   animation: shimmer-pulse 1.5s ease-in-out infinite;
+  gap: var(--sp-2);
 }
 
 .shimmer-bar {
   height: var(--sp-5);
   border-radius: var(--sp-1);
-  margin-bottom: var(--sp-2);
+  background: var(--surface-inset);
 }
 
-.shimmer-label {
-  font-size: var(--text-sm);
-  color: var(--text-tertiary);
-  margin-bottom: var(--sp-2);
-}
-
-/* === Empty State === */
-.empty-state {
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  padding: var(--sp-2);
-  text-align: center;
-}
-
-
-/* === Notification === */
+/* === Notification & Dropdown === */
 .notification {
   display: inline-flex;
   align-items: center;
@@ -376,27 +267,12 @@ body {
   background: color-mix(in srgb, var(--success) 10%, var(--surface));
 }
 
-.notification--error {
-  color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
-}
-
-/* === Searchable Dropdown === */
-.dropdown-wrapper {
-  position: relative;
-}
-
 .dropdown-list {
   display: none;
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
+  inset: 100% 0 auto 0;
   max-height: 320px;
   overflow-y: auto;
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   z-index: 10;
 }
 
@@ -404,26 +280,7 @@ body {
   display: block;
 }
 
-.dropdown-item {
-  padding: var(--sp-1);
-  cursor: pointer;
-  min-height: 24px;
-  display: flex;
-  align-items: center;
-  font-size: var(--text-sm);
-}
-
-.dropdown-item:hover {
-  background: var(--surface-inset);
-}
-
-/* === Prompt Card === */
-.prompt-region {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--sp-2);
-}
-
+/* === Prompt Output Area === */
 .prompt-preview-header {
   display: flex;
   align-items: center;
@@ -435,8 +292,6 @@ body {
   border-radius: var(--radius) var(--radius) 0 0;
 }
 
-
-/* === Prompt Output Area === */
 .prompt-output {
   background: var(--surface-inset);
   border: 1px solid var(--border);
@@ -453,35 +308,15 @@ body {
   overflow-y: auto;
 }
 
-.prompt-output--empty {
-  color: var(--text-tertiary);
-  font-family: var(--font-body);
-}
-
-/* === Action buttons (Copy / Prompt Claude) === */
 .btn-action {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-1);
   padding: var(--sp-2);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   font-size: var(--text-base);
   cursor: pointer;
   color: var(--text-primary);
   min-height: 40px;
-  white-space: nowrap;
-}
-
-.btn-action:hover {
-  border-color: var(--border-focus);
-  filter: brightness(1.015);
-}
-
-.btn-action:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 .btn-action--primary {
@@ -490,195 +325,7 @@ body {
   color: #fff;
 }
 
-.btn-action--primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-
-/* === Copy button icon swap (Phase 14 UAT 4.2) === */
-
-/* Visually hide aria-live status (screen readers still read it) */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.btn-copy .icon-check {
-  display: none;
-}
-
-.btn-copy.btn--copied .icon-clipboard {
-  display: none;
-}
-
-.btn-copy.btn--copied .icon-check {
-  display: block;
-}
-
-/* === XML syntax highlighting (Phase 14 UAT 4.4) === */
-.xml-tag {
-  color: var(--accent);
-  font-weight: 600;
-}
-
-/* === Quality meter tooltip (Phase 14 UAT 5) === */
-.quality-meter-label--with-tooltip {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-}
-
-.meter-info-wrapper {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.meter-info-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  line-height: 1;
-}
-
-.meter-info-btn:hover {
-  color: var(--text-secondary);
-}
-
-.meter-info-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-.meter-tooltip {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + var(--sp-2));
-  left: 0;
-  min-width: 220px;
-  max-width: 280px;
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  padding: var(--sp-3) var(--sp-4);
-  box-shadow: var(--shadow-md);
-  line-height: var(--line-height-lg);
-  z-index: 10;
-}
-
-.meter-tooltip--visible {
-  display: block;
-}
-
-/* === Notes section === */
-.prompt-notes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-}
-
-/* === Configuration Card === */
-.cfg-field-group {
-  margin-bottom: var(--sp-2);
-}
-
-/* Credentials hidden after repo is selected */
-.cfg-credentials--hidden {
-  display: none;
-}
-
-/* Side-by-side token + username row */
-.credentials-row {
-  display: flex;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-2);
-}
-
-.credentials-row .cfg-pat-col {
-  flex: 1;
-  min-width: 0;
-}
-
-.credentials-row .cfg-user-col {
-  flex: 0 0 auto;
-  width: 38%;
-  min-width: 0;
-}
-
-/* Inline icon wrapper for field labels and section labels */
-.field-label-icon {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-/* Section header row (Repositories / Branches label + icon) */
-.cfg-section-label {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--sp-2);
-  font-weight: 500;
-}
-
-/* === Quality Meter === */
-.quality-meter {
-  margin-bottom: var(--sp-1);
-}
-
-.quality-meter-label {
-  font-size: var(--text-sm);
-  color: var(--text-tertiary);
-  margin-top: var(--sp-1);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-}
-
-.quality-meter-track {
-  height: 4px;
-  background: var(--surface-inset);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.quality-meter-bar {
-  height: 100%;
-  border-radius: 2px;
-  width: 0%;
-  transition:
-    width 0.25s ease,
-    background-color 0.25s ease;
-}
-
-/* === Dual Panel Layout (Grid Implementation) === */
-.panel-area {
-  margin-top: var(--sp-3);
-}
-
-.dual-panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-}
-
+/* === Dual Panel Layout === */
 .panel {
   display: grid;
   grid-template-columns: minmax(80px, max-content) 1fr;
@@ -686,20 +333,23 @@ body {
   align-items: start;
 }
 
-/* Forces row items to respect the .panel grid */
-.panel-field-group {
-  display: contents;
+.panel-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
 }
 
 .field-label {
   grid-column: 1;
-  margin-bottom: 0;
-  padding-top: var(--sp-2); /* Align with input internal padding */
+  padding-top: var(--sp-2);
   display: flex;
   align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
-/* Input widgets forced to second column */
 .input-field,
 .input-password-wrap,
 .picker-wrapper,
@@ -708,280 +358,35 @@ body {
 .lens-picker,
 .selected-files {
   grid-column: 2;
-  width: 100%;
 }
 
-.panel-header {
-  grid-column: 1 / -1; /* Spans full width */
-  margin-bottom: var(--sp-1);
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  gap: var(--sp-2);
-}
-
-.panel-label {
-  font-weight: 600;
-}
-
-.panel-sep {
-  color: var(--text-tertiary);
-  font-weight: 400;
-}
-
-.panel-subtitle {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
-/* Visual separation between Situation and Target panels */
 .panel-a,
 .panel-b {
   background: var(--surface-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--sp-2);
-  box-shadow: var(--shadow-sm);
   border-left: 3px solid var(--accent);
+  box-shadow: var(--shadow-sm);
 }
 
-/* === Required Group Indicators === */
-.required-group-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--danger);
-  vertical-align: middle;
-  cursor: help;
-  transition: opacity 0.3s ease;
-}
-
-/* === Textarea field === */
-.field-textarea {
-  resize: vertical;
-  min-height: 48px;
-}
-
-/* === Picker (PR / Issue) === */
-.picker-wrapper {
-  position: relative;
-}
-
-.picker-selected-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  background: var(--accent-subtle);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  font-size: var(--text-sm);
-}
-
-.picker-selected-value {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-mono);
-}
-
-/* === File Picker === */
-.file-picker-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-}
-
-.file-picker-helper {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  padding: var(--sp-1);
-  background: var(--surface-inset);
-  border-radius: var(--radius);
-}
-
-.selected-files {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-1);
-}
-
-.selected-file-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  background: var(--accent-subtle);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: var(--text-sm);
-  font-family: var(--font-mono);
-  max-width: 150px;
-}
-
-/* === Steps Card === */
-.step-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-}
-
+/* === Steps === */
 .step-row {
   padding: var(--sp-2);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
 }
 
 .step-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--sp-1);
-  min-height: 24px;
 }
 
-/* Step number badge — replaces CSS counter (Phase 13) */
 .step-badge {
   background: var(--accent);
   color: var(--surface-raised);
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
   font-size: var(--text-sm);
-  flex-shrink: 0;
-  display: grid;
-  place-content: center;
   font-weight: 700;
-}
-
-/* Step object icon wrapper */
-.step-object-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.step-label {
-  flex: 1;
-  min-width: 0;
-  font-size: var(--text-sm);
-}
-
-/* Trash button — icon only, no button chrome */
-.step-delete {
-  background: none;
-  border: none;
-  padding: var(--sp-1);
-  cursor: pointer;
-  color: var(--text-tertiary);
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--radius);
-  flex-shrink: 0;
-}
-
-.step-delete:hover {
-  color: var(--danger);
-}
-
-.step-delete:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* Operation color classes for step icons (Phase 13) */
-.icon--read {
-  color: var(--text-secondary);
-}
-
-.icon--edit {
-  color: var(--accent);
-}
-
-.icon--create {
-  color: var(--success);
-}
-
-.icon--validate {
-  color: var(--accent-hover);
-}
-
-/* File pills inside consolidated read steps (Phase 13) */
-.step-files {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-1);
-  margin-top: var(--sp-1);
-}
-
-.step-file-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1);
-  background: var(--surface-inset);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: var(--text-sm);
-  font-family: var(--font-mono);
-}
-
-.step-file-remove {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  padding: 0;
-  display: flex;
-  align-items: center;
-  line-height: 1;
-  font-size: var(--text-base);
-}
-
-.step-file-remove:hover {
-  color: var(--danger);
-}
-
-/* Optional text input row — label + constrained input on one line (Phase 13) */
-.step-optional-row {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  margin-top: var(--sp-2);
-}
-
-.step-optional-text {
-  width: 160px;
-  font-size: var(--text-sm);
-}
-
-/* Output mode row */
-.step-output-modes {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  margin-top: var(--sp-1);
-  flex-wrap: wrap;
-}
-
-.step-sub-label {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-/* Output mode icon-toggle buttons (Phase 13) */
-.step-output-icons {
-  display: flex;
-  gap: var(--sp-1);
-  flex-wrap: wrap;
 }
 
 .output-mode-btn {
@@ -991,86 +396,14 @@ body {
   align-items: center;
   gap: var(--sp-1);
   padding: var(--sp-1);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   cursor: pointer;
   min-width: 48px;
   color: var(--text-secondary);
 }
 
-.output-mode-btn:hover {
-  border-color: var(--border-focus);
-}
-
-.output-mode-btn[aria-checked="true"],
-.output-mode-btn.output-mode-btn--on {
-  background: var(--accent-subtle);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.output-mode-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.output-label {
-  font-size: var(--text-sm);
-  white-space: nowrap;
-}
-
-/* Float-up toast on output mode toggle (Phase 13) */
-@keyframes float-up {
-  0% {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-  70% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-50%) translateY(-24px);
-    opacity: 0;
-  }
-}
-
-.output-float {
-  position: absolute;
-  bottom: calc(100% + var(--sp-1));
-  left: 50%;
-  transform: translateX(-50%) translateY(0);
-  font-size: var(--text-sm);
-  white-space: nowrap;
-  pointer-events: none;
-  animation: float-up 1.5s ease-out forwards;
-  color: var(--text-primary);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--sp-1) var(--sp-2);
-  z-index: 10;
-}
-
-/* === Responsive (min-width: 768px) === */
+/* === Responsive === */
 @media (min-width: 768px) {
-  #app {
-    padding: var(--sp-4);
-    gap: var(--sp-4);
-  }
-
-  :is(.card-header, .card-body) {
-    padding: var(--sp-4);
-  }
-
-  .dual-panel {
-    flex-direction: row;
-    gap: var(--sp-4);
-  }
-
-  .dual-panel .panel {
-    flex: 1;
-    min-width: 0;
-  }
-
+  #app, .dual-panel { gap: var(--sp-4); }
+  .dual-panel { flex-direction: row; }
+  .dual-panel .panel { flex: 1; min-width: 0; }
 }
