@@ -1,41 +1,52 @@
 :root {
-  /* === Colors === */
-  --shell: oklch(96% 0.01 85);
-  --surface: oklch(98.5% 0.005 85);
-  --surface-raised: oklch(100% 0 0);
-  --surface-inset: oklch(94% 0.015 85);
-  --text-primary: #2c2926;
-  --text-secondary: #6b6560;
-  --text-tertiary: #9a9490;
-  --border: #d6d2cc;
-  --border-focus: #a09a94;
-  --accent: #42767a;
-  --accent-hover: #326a89;
-  --accent-subtle: oklch(78% 0.075 196);
-  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 2px 8px rgb(0 0 0 / 0.14);
-  --shadow-inset-sm: inset 0 1px 2px rgb(0 0 0 / 0.06);
-  --danger: #c2553a;
-  --success: #4a8c6f;
+  /* === The Primer Color System === */
+  /* Using light-dark(light-value, dark-value) for seamless native integration */
+  
+  --shell: light-dark(#f6f8fa, #010409);          /* canvas.subtle */
+  --surface: light-dark(#ffffff, #0d1117);        /* canvas.default */
+  --surface-raised: light-dark(#ffffff, #161b22); /* canvas.overlay */
+  --surface-inset: light-dark(#f6f8fa, #010409);  /* canvas.inset */
 
-  /* === Typography === */
-  --font-body: system-ui, -apple-system, sans-serif;
-  --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
-  --text-sm: 0.6875rem;
-  --text-base: 0.875rem;
-  --text-lg: 1.125rem;
-  --line-height-sm: 1;
-  --line-height-base: 1.2;
-  --line-height-lg: 1.4;
+  --text-primary: light-dark(#1f2328, #e6edf3);   /* fg.default */
+  --text-secondary: light-dark(#656d76, #848d97); /* fg.muted */
+  --text-tertiary: light-dark(#8c959f, #7d8590);  /* fg.subtle */
 
-  /* === Spacing === */
-  --sp-1: 2px;
-  --sp-2: 4px;
-  --sp-3: 8px;
-  --sp-4: 12px;
-  --sp-5: 16px;
-  --sp-6: 24px;
+  --border: light-dark(#d0d7de, #30363d);         /* border.default */
+  --border-focus: light-dark(#0969da, #1f6feb);   /* accent.emphasis */
 
-  /* === Border radius === */
-  --radius: 6px;
+  --accent: light-dark(#0969da, #2f81f7);         /* accent.fg */
+  --accent-hover: light-dark(#0860ca, #4493f8);   /* accent.emphasis */
+  --accent-subtle: light-dark(#ddf4ff, rgba(56, 139, 253, 0.1)); 
+
+  --danger: light-dark(#cf222e, #f85149);         /* danger.fg */
+  --success: light-dark(#1a7f37, #3fb950);        /* success.fg */
+
+  /* === Shadows (Primer-optimized) === */
+  --shadow-sm: 0 1px 0 rgba(31, 35, 40, 0.04);
+  --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  /* === Typography (The GitHub Stack) === */
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  
+  /* GitHub's standard 12px/14px/16px scale */
+  --text-sm: 0.75rem;    /* 12px */
+  --text-base: 0.875rem; /* 14px */
+  --text-lg: 1rem;       /* 16px */
+  
+  --line-height-sm: 1.66;
+  --line-height-base: 1.5;
+  --line-height-lg: 1.5;
+
+  /* === Spacing (Primer 4px-base Scale) === */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* === Geometry === */
+  --radius: 6px; /* GitHub's standard component radius */
 }
