@@ -29,7 +29,6 @@ body {
 
 /* === Icons (Octicons, inline SVG) === */
 .icon {
-  display: block;
   flex-shrink: 0;
   width: 16px;
   height: 16px;
@@ -129,10 +128,7 @@ body {
   padding: var(--sp-4);
 }
 
-/* Flow button icons — sized for the grid */
 .btn-grid-item .icon {
-  width: 16px;
-  height: 16px;
   color: var(--accent);
 }
 
@@ -201,7 +197,6 @@ body {
   box-shadow: var(--shadow-inset-sm);
 }
 
-/* === Input with inline prefix icon === */
 .input-icon-wrap {
   position: relative;
   display: flex;
@@ -291,7 +286,6 @@ body {
   outline: 2px solid var(--accent);
 }
 
-/* Eye toggle — CSS-driven icon swap via .is-shown class */
 .js-eye-btn .icon-eye-off {
   display: none;
 }
@@ -444,7 +438,7 @@ body {
   border-color: var(--accent-hover);
 }
 
-/* === Copy button icon swap === */
+/* === Copy button swap === */
 
 .sr-only {
   position: absolute;
@@ -567,14 +561,13 @@ body {
   min-width: 0;
 }
 
-/* Inline icon wrapper for field and section labels */
 .field-label-icon {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-/* Section header row (Repositories / Branches + icon) */
+/* Section header row (Repositories / Branches ) */
 .cfg-section-label {
   display: flex;
   align-items: center;
@@ -808,7 +801,6 @@ body {
   font-weight: 700;
 }
 
-/* Step object icon wrapper */
 .step-object-icon {
   flex-shrink: 0;
   display: flex;
@@ -821,7 +813,7 @@ body {
   font-size: var(--text-sm);
 }
 
-/* Trash button — icon only, no button chrome */
+/* Trash button */
 .step-delete {
   background: none;
   border: none;
@@ -838,22 +830,6 @@ body {
   color: var(--danger);
 }
 
-/* Operation color classes for step icons (Phase 13) */
-.icon--read {
-  color: var(--text-secondary);
-}
-
-.icon--edit {
-  color: var(--accent);
-}
-
-.icon--create {
-  color: var(--success);
-}
-
-.icon--validate {
-  color: var(--accent-hover);
-}
 
 /* File pills inside consolidated read steps (Phase 13) */
 .step-files {
@@ -919,7 +895,7 @@ body {
   white-space: nowrap;
 }
 
-/* Output mode icon-toggle buttons (Phase 13) */
+/* Output mode  */
 .step-output-icons {
   display: flex;
   gap: var(--sp-2);
