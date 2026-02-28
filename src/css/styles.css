@@ -107,7 +107,7 @@ body {
   top: 0;
   bottom: 0;
   width: 4px;
-  background: var(--accent);
+  background: var(--accent-subtle);
   border-radius: var(--radius) 0 0 var(--radius);
 }
 
@@ -214,7 +214,7 @@ body {
 .input-field {
   width: 100%;
   padding: var(--sp-2);
-  background: var(--accent);
+  background: var(--accent-subtle);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: 32px;
