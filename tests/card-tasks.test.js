@@ -6,149 +6,149 @@
  * Tests use JSDOM environment.
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
 // --- Mock dependencies ---
 
-vi.mock("../src/js/state.js", () => ({
+vi.mock('../src/js/state.js', () => ({
   getState: vi.fn(() => ({
-    task: { flow_id: "" },
-    configuration: { owner: "user", repo: "repo", branch: "main", pat: "tok" },
+    task: { flow_id: '' },
+    configuration: { owner: 'user', repo: 'repo', branch: 'main', pat: 'tok' },
     panel_a: {
-      description: "",
+      description: '',
       issue_number: null,
       pr_number: null,
       files: [],
     },
     panel_b: {
-      description: "",
+      description: '',
       issue_number: null,
       spec_files: [],
       guideline_files: [],
-      acceptance_criteria: "",
+      acceptance_criteria: '',
       lenses: [],
     },
     steps: { enabled_steps: [] },
     improve_scope: null,
-    notes: { user_text: "" },
-    _prompt: "",
+    notes: { user_text: '' },
+    _prompt: '',
   })),
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
   applyFlowDefaults: vi.fn(),
 }));
 
-vi.mock("../src/js/flow-loader.js", () => ({
+vi.mock('../src/js/flow-loader.js', () => ({
   getFlows: vi.fn(() => ({
     fix: {
-      label: "Fix / Debug",
-      icon: "bug",
+      label: 'Fix / Debug',
+      icon: 'bug',
       panel_a: {
-        label: "Current State",
+        label: 'Current State',
         subtitle: "What's happening now",
         fields: {
           description: {
-            type: "text",
-            required_group: "a_required",
-            placeholder: "Describe the issue...",
+            type: 'text',
+            required_group: 'a_required',
+            placeholder: 'Describe the issue...',
           },
           issue_number: {
-            type: "issue_picker",
-            required_group: "a_required",
-            placeholder: "Select GitHub issue",
+            type: 'issue_picker',
+            required_group: 'a_required',
+            placeholder: 'Select GitHub issue',
           },
           files: {
-            type: "file_picker_multi",
-            placeholder: "Where does it occur?",
+            type: 'file_picker_multi',
+            placeholder: 'Where does it occur?',
           },
         },
       },
       panel_b: {
-        label: "Expected Outcome",
-        subtitle: "How it should work after the fix",
+        label: 'Expected Outcome',
+        subtitle: 'How it should work after the fix',
         fields: {
           description: {
-            type: "text",
-            placeholder: "Describe expected behavior...",
+            type: 'text',
+            placeholder: 'Describe expected behavior...',
           },
           spec_files: {
-            type: "file_picker_multi",
-            placeholder: "Requirements or spec file",
+            type: 'file_picker_multi',
+            placeholder: 'Requirements or spec file',
           },
           guideline_files: {
-            type: "file_picker_multi",
-            placeholder: "Style guides",
+            type: 'file_picker_multi',
+            placeholder: 'Style guides',
           },
         },
       },
       steps: [],
     },
     review: {
-      label: "Review / Analyze",
-      icon: "search",
+      label: 'Review / Analyze',
+      icon: 'search',
       panel_a: {
-        label: "Review Subject",
-        subtitle: "The PR, code, or document to examine",
+        label: 'Review Subject',
+        subtitle: 'The PR, code, or document to examine',
         fields: {
-          description: { type: "text", placeholder: "Background..." },
+          description: { type: 'text', placeholder: 'Background...' },
           pr_number: {
-            type: "pr_picker",
-            required_group: "a_required",
-            placeholder: "Select a pull request",
+            type: 'pr_picker',
+            required_group: 'a_required',
+            placeholder: 'Select a pull request',
           },
           files: {
-            type: "file_picker_multi",
-            required_group: "a_required",
-            placeholder: "Files to review",
+            type: 'file_picker_multi',
+            required_group: 'a_required',
+            placeholder: 'Files to review',
           },
         },
       },
       panel_b: {
-        label: "Review Criteria",
-        subtitle: "Standards and criteria for the review",
+        label: 'Review Criteria',
+        subtitle: 'Standards and criteria for the review',
         fields: {
-          lenses: { type: "lens_picker", default: ["semantics", "structure"] },
+          lenses: { type: 'lens_picker', default: ['semantics', 'structure'] },
           spec_files: {
-            type: "file_picker_multi",
-            placeholder: "specs to meet",
+            type: 'file_picker_multi',
+            placeholder: 'specs to meet',
           },
           guideline_files: {
-            type: "file_picker_multi",
-            placeholder: "Standards to check",
+            type: 'file_picker_multi',
+            placeholder: 'Standards to check',
           },
         },
       },
       steps: [],
     },
     implement: {
-      label: "Implement / Build",
-      icon: "plus",
+      label: 'Implement / Build',
+      icon: 'plus',
       panel_a: {
-        label: "Context",
-        subtitle: "Existing code or context to build upon (optional)",
+        label: 'Context',
+        subtitle: 'Existing code or context to build upon (optional)',
         fields: {
-          description: { type: "text", placeholder: "Background..." },
+          description: { type: 'text', placeholder: 'Background...' },
           files: {
-            type: "file_picker_multi",
-            placeholder: "Existing files to build upon",
+            type: 'file_picker_multi',
+            placeholder: 'Existing files to build upon',
           },
         },
       },
       panel_b: {
-        label: "Requirements",
-        subtitle: "What to build and completion criteria",
+        label: 'Requirements',
+        subtitle: 'What to build and completion criteria',
         fields: {
           description: {
-            type: "text",
+            type: 'text',
             required: true,
-            placeholder: "Describe what to build...",
+            placeholder: 'Describe what to build...',
           },
           spec_files: {
-            type: "file_picker_multi",
-            placeholder: "Requirement docs",
+            type: 'file_picker_multi',
+            placeholder: 'Requirement docs',
           },
           acceptance_criteria: {
-            type: "text",
+            type: 'text',
             placeholder: "How to know it's done...",
           },
         },
@@ -156,42 +156,42 @@ vi.mock("../src/js/flow-loader.js", () => ({
       steps: [],
     },
     improve: {
-      label: "Improve / Modify",
-      icon: "arrow-up",
+      label: 'Improve / Modify',
+      icon: 'arrow-up',
       panel_a: {
-        label: "Current State",
-        subtitle: "What exists and what needs improvement",
+        label: 'Current State',
+        subtitle: 'What exists and what needs improvement',
         fields: {
           description: {
-            type: "text",
-            required_group: "a_required",
-            placeholder: "What to enhance...",
+            type: 'text',
+            required_group: 'a_required',
+            placeholder: 'What to enhance...',
           },
           issue_number: {
-            type: "issue_picker",
-            required_group: "a_required",
-            placeholder: "Select a related GitHub issue",
+            type: 'issue_picker',
+            required_group: 'a_required',
+            placeholder: 'Select a related GitHub issue',
           },
-          files: { type: "file_picker_multi", placeholder: "Files to improve" },
+          files: { type: 'file_picker_multi', placeholder: 'Files to improve' },
         },
       },
       panel_b: {
-        label: "Desired Outcome",
-        subtitle: "What the improved version should look like",
+        label: 'Desired Outcome',
+        subtitle: 'What the improved version should look like',
         fields: {
-          lenses: { type: "lens_picker", default: [] },
+          lenses: { type: 'lens_picker', default: [] },
           description: {
-            type: "text",
-            placeholder: "Describe the desired improvements...",
+            type: 'text',
+            placeholder: 'Describe the desired improvements...',
           },
           issue_number: {
-            type: "issue_picker",
-            placeholder: "Issue describing the desired state",
+            type: 'issue_picker',
+            placeholder: 'Issue describing the desired state',
           },
           guideline_files: {
-            type: "file_picker_multi",
-            label: "Reference files",
-            placeholder: "Style guides...",
+            type: 'file_picker_multi',
+            label: 'Reference files',
+            placeholder: 'Style guides...',
           },
         },
       },
@@ -201,60 +201,60 @@ vi.mock("../src/js/flow-loader.js", () => ({
   getFlowById: vi.fn((id) => null),
 }));
 
-vi.mock("../src/js/card-configuration.js", () => ({
+vi.mock('../src/js/card-configuration.js', () => ({
   getFileTree: vi.fn(() => [
-    { path: "src/index.js" },
-    { path: "src/utils.js" },
-    { path: "README.md" },
+    { path: 'src/index.js' },
+    { path: 'src/utils.js' },
+    { path: 'README.md' },
   ]),
   setConfigCardSummary: vi.fn(),
 }));
 
-vi.mock("../src/js/github-api.js", () => ({
+vi.mock('../src/js/github-api.js', () => ({
   fetchPRs: vi.fn(() =>
-    Promise.resolve({ data: [{ number: 1, title: "Fix bug" }], error: null }),
+    Promise.resolve({ data: [{ number: 1, title: 'Fix bug' }], error: null })
   ),
   fetchIssues: vi.fn(() =>
-    Promise.resolve({ data: [{ number: 2, title: "Issue" }], error: null }),
+    Promise.resolve({ data: [{ number: 2, title: 'Issue' }], error: null })
   ),
 }));
 
-vi.mock("../src/js/cache.js", () => ({
+vi.mock('../src/js/cache.js', () => ({
   cacheGet: vi.fn(() => null),
   cacheSet: vi.fn(),
 }));
 
-vi.mock("../src/js/components.js", () => ({
+vi.mock('../src/js/components.js', () => ({
   renderShimmer: vi.fn(),
   renderError: vi.fn(),
   showNotification: vi.fn(),
   createSearchableDropdown: vi.fn((container, config) => {
-    const input = document.createElement("input");
-    input.className = "dropdown-input";
+    const input = document.createElement('input');
+    input.className = 'dropdown-input';
     container.appendChild(input);
   }),
 }));
 
-vi.mock("../src/js/quality-meter.js", () => ({
+vi.mock('../src/js/quality-meter.js', () => ({
   renderQualityMeter: vi.fn(() => ({ update: vi.fn() })),
 }));
 
-vi.mock("../src/js/file-tree.js", () => ({
+vi.mock('../src/js/file-tree.js', () => ({
   createFilePicker: vi.fn((container) => {
-    const div = document.createElement("div");
-    div.className = "file-picker";
+    const div = document.createElement('div');
+    div.className = 'file-picker';
     container.appendChild(div);
   }),
 }));
 
-import { initTasksCard, getCardTasksEl } from "../src/js/card-tasks.js";
+import { initTasksCard, getCardTasksEl } from '../src/js/card-tasks.js';
 import {
   getState,
   setState,
   subscribe,
   applyFlowDefaults,
-} from "../src/js/state.js";
-import { getFlows } from "../src/js/flow-loader.js";
+} from '../src/js/state.js';
+import { getFlows } from '../src/js/flow-loader.js';
 
 // --- Setup ---
 
@@ -283,225 +283,225 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  document.body.innerHTML = "";
+  document.body.innerHTML = '';
 });
 
 // --- Tests ---
 
-describe("initTasksCard", () => {
-  it("renders flow selector buttons", () => {
+describe('initTasksCard', () => {
+  it('renders flow selector buttons', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const buttons = body.querySelectorAll(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const buttons = body.querySelectorAll('.flow-btn');
     expect(buttons.length).toBe(4);
   });
 
-  it("renders all 4 flow labels", () => {
+  it('renders all 4 flow labels', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
+    const body = document.getElementById('bd-tasks');
     const text = body.textContent;
-    expect(text).toContain("Fix");
-    expect(text).toContain("Review");
-    expect(text).toContain("Implement");
-    expect(text).toContain("Improve");
+    expect(text).toContain('Fix');
+    expect(text).toContain('Review');
+    expect(text).toContain('Implement');
+    expect(text).toContain('Improve');
   });
 
-  it("does not render quality meter (moved to prompt card, 2.3)", async () => {
+  it('does not render quality meter (moved to prompt card, 2.3)', async () => {
     initTasksCard();
     // Quality meter was moved to the prompt card; verify it is NOT called here
-    const { renderQualityMeter } = await import("../src/js/quality-meter.js");
+    const { renderQualityMeter } = await import('../src/js/quality-meter.js');
     expect(vi.isMockFunction(renderQualityMeter)).toBe(true);
     expect(renderQualityMeter).not.toHaveBeenCalled();
   });
 
-  it("subscribes to state changes", () => {
+  it('subscribes to state changes', () => {
     initTasksCard();
     expect(subscribe).toHaveBeenCalled();
   });
 
-  it("does nothing if bd-tasks element is missing", () => {
-    document.body.innerHTML = "";
+  it('does nothing if bd-tasks element is missing', () => {
+    document.body.innerHTML = '';
     expect(() => initTasksCard()).not.toThrow();
   });
 });
 
-describe("flow button click", () => {
-  it("calls applyFlowDefaults on flow button click", () => {
+describe('flow button click', () => {
+  it('calls applyFlowDefaults on flow button click', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const firstBtn = body.querySelector(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const firstBtn = body.querySelector('.flow-btn');
     firstBtn.click();
     expect(applyFlowDefaults).toHaveBeenCalled();
   });
 
-  it("marks clicked flow button as selected", () => {
+  it('marks clicked flow button as selected', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const buttons = body.querySelectorAll(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const buttons = body.querySelectorAll('.flow-btn');
     buttons[0].click();
-    expect(buttons[0].classList.contains("item-selected")).toBe(true);
+    expect(buttons[0].classList.contains('item-selected')).toBe(true);
   });
 
-  it("deselects previously selected flow button on new selection", () => {
+  it('deselects previously selected flow button on new selection', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const buttons = body.querySelectorAll(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const buttons = body.querySelectorAll('.flow-btn');
     buttons[0].click();
     buttons[1].click();
-    expect(buttons[0].classList.contains("item-selected")).toBe(false);
-    expect(buttons[1].classList.contains("item-selected")).toBe(true);
+    expect(buttons[0].classList.contains('item-selected')).toBe(false);
+    expect(buttons[1].classList.contains('item-selected')).toBe(true);
   });
 
-  it("expands Steps and Prompt cards on flow select", () => {
+  it('expands Steps and Prompt cards on flow select', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const firstBtn = body.querySelector(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const firstBtn = body.querySelector('.flow-btn');
     firstBtn.click();
-    const stepsCard = document.getElementById("card-steps");
-    const promptCard = document.getElementById("card-prompt");
-    expect(stepsCard.classList.contains("card--open")).toBe(true);
-    expect(promptCard.classList.contains("card--open")).toBe(true);
+    const stepsCard = document.getElementById('card-steps');
+    const promptCard = document.getElementById('card-prompt');
+    expect(stepsCard.classList.contains('card--open')).toBe(true);
+    expect(promptCard.classList.contains('card--open')).toBe(true);
   });
 
-  it("collapses Configuration card on flow select", () => {
+  it('collapses Configuration card on flow select', () => {
     // Expand config card first
-    const configCard = document.getElementById("card-configuration");
-    configCard.classList.add("card--open");
+    const configCard = document.getElementById('card-configuration');
+    configCard.classList.add('card--open');
 
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const firstBtn = body.querySelector(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const firstBtn = body.querySelector('.flow-btn');
     firstBtn.click();
 
-    expect(configCard.classList.contains("card--open")).toBe(false);
+    expect(configCard.classList.contains('card--open')).toBe(false);
   });
 
-  it("renders dual panels after flow is selected", () => {
+  it('renders dual panels after flow is selected', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const firstBtn = body.querySelector(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const firstBtn = body.querySelector('.flow-btn');
     firstBtn.click();
-    const panels = body.querySelector(".dual-panel");
+    const panels = body.querySelector('.dual-panel');
     expect(panels).not.toBeNull();
   });
 });
 
-describe("dual-panel layout", () => {
-  it("renders Panel A and Panel B", () => {
+describe('dual-panel layout', () => {
+  it('renders Panel A and Panel B', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const firstBtn = body.querySelector(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const firstBtn = body.querySelector('.flow-btn');
     firstBtn.click();
 
-    const panelA = body.querySelector(".panel-a");
-    const panelB = body.querySelector(".panel-b");
+    const panelA = body.querySelector('.panel-a');
+    const panelB = body.querySelector('.panel-b');
     expect(panelA).not.toBeNull();
     expect(panelB).not.toBeNull();
   });
 
-  it("shows Situation label for Panel A", () => {
+  it('shows Situation label for Panel A', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click();
-    const panelA = body.querySelector(".panel-a");
-    expect(panelA.textContent).toContain("Situation");
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click();
+    const panelA = body.querySelector('.panel-a');
+    expect(panelA.textContent).toContain('Situation');
   });
 
-  it("shows Target label for Panel B", () => {
+  it('shows Target label for Panel B', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click();
-    const panelB = body.querySelector(".panel-b");
-    expect(panelB.textContent).toContain("Target");
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click();
+    const panelB = body.querySelector('.panel-b');
+    expect(panelB.textContent).toContain('Target');
   });
 
-  it("renders flow-specific subtitle in Panel A", () => {
+  it('renders flow-specific subtitle in Panel A', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click(); // fix flow
-    const panelA = body.querySelector(".panel-a");
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click(); // fix flow
+    const panelA = body.querySelector('.panel-a');
     expect(panelA.textContent).toContain("What's happening now");
   });
 });
 
-describe("required group validation (SCT-05)", () => {
-  it("shows required group dot indicator when group is not satisfied", () => {
+describe('required group validation (SCT-05)', () => {
+  it('shows required group dot indicator when group is not satisfied', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click(); // fix flow — has required group on description + issue
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click(); // fix flow — has required group on description + issue
     // Dot indicators appear on labels for fields in a required group
-    const dot = body.querySelector(".required-group-dot");
+    const dot = body.querySelector('.required-group-dot');
     expect(dot).not.toBeNull();
   });
 
-  it("required group dot has tooltip text", () => {
+  it('required group dot has tooltip text', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click();
-    const dot = body.querySelector(".required-group-dot");
-    expect(dot.title).toContain("required");
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click();
+    const dot = body.querySelector('.required-group-dot');
+    expect(dot.title).toContain('required');
   });
 
-  it("does not render full-width required-group-unsatisfied block", () => {
+  it('does not render full-width required-group-unsatisfied block', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click();
-    const block = body.querySelector(".required-group-unsatisfied");
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click();
+    const block = body.querySelector('.required-group-unsatisfied');
     expect(block).toBeNull();
   });
 });
 
-describe("improve scope selector (SCT-09)", () => {
-  it("does not show scope selector by default for improve flow", () => {
+describe('improve scope selector (SCT-09)', () => {
+  it('does not show scope selector by default for improve flow', () => {
     // State has panel_a.files = [] (empty)
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const buttons = body.querySelectorAll(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const buttons = body.querySelectorAll('.flow-btn');
     const improveBtn = Array.from(buttons).find((b) =>
-      b.textContent.includes("Improve"),
+      b.textContent.includes('Improve')
     );
     improveBtn.click();
 
-    const scopeSelector = body.querySelector(".scope-selector");
+    const scopeSelector = body.querySelector('.scope-selector');
     // Scope selector hidden when < 2 files
-    expect(scopeSelector?.style.display).not.toBe("flex");
+    expect(scopeSelector?.style.display).not.toBe('flex');
   });
 
-  it("shows scope selector when state has 2+ files in improve flow", () => {
+  it('shows scope selector when state has 2+ files in improve flow', () => {
     // Override state mock to have 2 files
     getState.mockReturnValue({
-      task: { flow_id: "improve" },
+      task: { flow_id: 'improve' },
       configuration: {
-        owner: "user",
-        repo: "repo",
-        branch: "main",
-        pat: "tok",
+        owner: 'user',
+        repo: 'repo',
+        branch: 'main',
+        pat: 'tok',
       },
       panel_a: {
-        description: "",
+        description: '',
         issue_number: null,
         pr_number: null,
-        files: ["a.js", "b.js"],
+        files: ['a.js', 'b.js'],
       },
       panel_b: {
-        description: "",
+        description: '',
         issue_number: null,
         spec_files: [],
         guideline_files: [],
-        acceptance_criteria: "",
+        acceptance_criteria: '',
         lenses: [],
       },
       steps: { enabled_steps: [] },
       improve_scope: null,
-      notes: { user_text: "" },
-      _prompt: "",
+      notes: { user_text: '' },
+      _prompt: '',
     });
 
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const buttons = body.querySelectorAll(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const buttons = body.querySelectorAll('.flow-btn');
     const improveBtn = Array.from(buttons).find((b) =>
-      b.textContent.includes("Improve"),
+      b.textContent.includes('Improve')
     );
     improveBtn.click();
 
@@ -509,16 +509,16 @@ describe("improve scope selector (SCT-09)", () => {
     const subscriberCb = subscribe.mock.calls[0][0];
     subscriberCb(getState());
 
-    const scopeSelector = body.querySelector(".scope-selector");
+    const scopeSelector = body.querySelector('.scope-selector');
     expect(scopeSelector).not.toBeNull();
   });
 });
 
-describe("DM-DEF-03: flow switch fully resets panels", () => {
-  it("calls applyFlowDefaults on every flow switch", () => {
+describe('DM-DEF-03: flow switch fully resets panels', () => {
+  it('calls applyFlowDefaults on every flow switch', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const buttons = body.querySelectorAll(".flow-btn");
+    const body = document.getElementById('bd-tasks');
+    const buttons = body.querySelectorAll('.flow-btn');
 
     buttons[0].click();
     buttons[1].click();
@@ -528,56 +528,109 @@ describe("DM-DEF-03: flow switch fully resets panels", () => {
   });
 });
 
-describe("Phase 12: Task Card Polish", () => {
+describe('Phase 12: Task Card Polish', () => {
   it('flow icons use class="icon" instead of "flow-icon"', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const flowIcons = body.querySelectorAll(".flow-btn .icon");
-    const legacyIcons = body.querySelectorAll(".flow-btn .flow-icon");
+    const body = document.getElementById('bd-tasks');
+    const flowIcons = body.querySelectorAll('.flow-btn .icon');
+    const legacyIcons = body.querySelectorAll('.flow-btn .flow-icon');
     expect(flowIcons.length).toBe(4);
     expect(legacyIcons.length).toBe(0);
   });
 
-  it("flow icons have no inline style attribute", () => {
+  it('flow icons have no inline style attribute', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    const icons = body.querySelectorAll(".flow-btn .icon");
+    const body = document.getElementById('bd-tasks');
+    const icons = body.querySelectorAll('.flow-btn .icon');
     for (const icon of icons) {
-      expect(icon.getAttribute("style")).toBeNull();
+      expect(icon.getAttribute('style')).toBeNull();
     }
   });
 
   it('picker field icons use class="icon icon--sm"', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click(); // fix flow has issue_picker + file_picker
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click(); // fix flow has issue_picker + file_picker
 
-    const labelIcons = body.querySelectorAll(".field-label-icon .icon");
+    const labelIcons = body.querySelectorAll('.field-label-icon .icon');
     expect(labelIcons.length).toBeGreaterThan(0);
     for (const icon of labelIcons) {
-      expect(icon.classList.contains("icon--sm")).toBe(true);
-      expect(icon.getAttribute("style")).toBeNull();
+      expect(icon.classList.contains('icon--sm')).toBe(true);
+      expect(icon.getAttribute('style')).toBeNull();
     }
   });
 
-  it("panel subtitle uses · separator", () => {
+  it('panel subtitle uses · separator', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click();
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click();
 
-    const sep = body.querySelector(".panel-sep");
+    const sep = body.querySelector('.panel-sep');
     expect(sep).not.toBeNull();
-    expect(sep.textContent).toBe("·");
+    expect(sep.textContent).toBe('·');
   });
 
-  it("panel header renders label · subtitle inline", () => {
+  it('panel header renders label · subtitle inline', () => {
     initTasksCard();
-    const body = document.getElementById("bd-tasks");
-    body.querySelector(".flow-btn").click();
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn').click();
 
-    const header = body.querySelector(".panel-header");
+    const header = body.querySelector('.panel-header');
     const children = [...header.children];
     const classes = children.map((c) => c.className);
-    expect(classes).toEqual(["panel-label", "panel-sep", "panel-subtitle"]);
+    expect(classes).toEqual(['panel-label', 'panel-sep', 'panel-subtitle']);
+  });
+});
+
+describe('Phase 13: PR clear button (UAT 3.5)', () => {
+  function createReviewState(prNumber) {
+    return {
+      task: { flow_id: 'review' },
+      configuration: {
+        owner: 'user',
+        repo: 'repo',
+        branch: 'main',
+        pat: 'tok',
+      },
+      panel_a: {
+        description: '',
+        issue_number: null,
+        pr_number: prNumber,
+        files: [],
+      },
+      panel_b: {
+        description: '',
+        issue_number: null,
+        spec_files: [],
+        guideline_files: [],
+        acceptance_criteria: '',
+        lenses: [],
+      },
+      steps: { enabled_steps: [] },
+      improve_scope: null,
+      notes: { user_text: '' },
+      _prompt: '',
+    };
+  }
+
+  it('renders a clear button when PR is selected', () => {
+    getState.mockReturnValue(createReviewState(42));
+    initTasksCard();
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn:nth-child(2)').click(); // Review flow
+    const clearBtn = body.querySelector('.picker-clear');
+    expect(clearBtn).not.toBeNull();
+  });
+
+  it('clear button calls setState with null to deselect PR', () => {
+    getState.mockReturnValue(createReviewState(42));
+    initTasksCard();
+    const body = document.getElementById('bd-tasks');
+    body.querySelector('.flow-btn:nth-child(2)').click(); // Review flow
+    const clearBtn = body.querySelector('.picker-clear');
+    if (clearBtn) {
+      clearBtn.click();
+      expect(setState).toHaveBeenCalledWith('panel_a.pr_number', null);
+    }
   });
 });

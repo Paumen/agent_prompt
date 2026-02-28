@@ -34,11 +34,9 @@ export function isSourceFilled(source, panelA, panelB) {
  * Conditional steps (with `source` field) are only included when
  * the referenced panel field is filled (STP-02).
  *
- */
-/**
- * Generate steps from flow definition based on current panel state.
- * Conditional steps (with `source` field) are only included when
- * the referenced panel field is filled (STP-02).
+ * Phase 13: For file-sourced steps (object === 'files' with an array source),
+ * params.files is populated from the panel data so individual files can be
+ * rendered as removable pills in the UI.
  *
  * @returns {Array<Object>} An array of step objects.
  */
@@ -69,6 +67,22 @@ export function generateSteps(flowDef, panelA, panelB) {
     if (stepDef.pr_name !== undefined) step.pr_name = stepDef.pr_name;
     if (stepDef.file_name !== undefined) step.file_name = stepDef.file_name;
 
+    // Phase 13 — File step consolidation:
+    // For steps that read files from a panel array source, populate params.files
+    // so the UI can render individual removable file pills.
+    if (
+      stepDef.source &&
+      stepDef.object === 'files' &&
+      stepDef.operation === 'read'
+    ) {
+      const [panel, field] = stepDef.source.split('.');
+      const data = panel === 'panel_a' ? panelA : panelB;
+      const files = data?.[field];
+      if (Array.isArray(files) && files.length > 0) {
+        step.params = { ...(step.params || {}), files: [...files] };
+      }
+    }
+
     steps.push(step);
   }
 
@@ -80,6 +94,9 @@ export function generateSteps(flowDef, panelA, panelB) {
  * Preserves user lens customizations and name_provided values.
  * Respects user deletions (removedIds) — deleted steps stay deleted
  * until flow switch clears removedIds.
+ *
+ * Phase 13: Also preserves outputs_selected (array). If existing step
+ * has old-format output_selected (string), migrates it to array format.
  */
 export function reconcileSteps(generated, currentSteps, removedIds) {
   const currentMap = new Map((currentSteps || []).map((s) => [s.id, s]));
@@ -90,12 +107,18 @@ export function reconcileSteps(generated, currentSteps, removedIds) {
     .map((step) => {
       const existing = currentMap.get(step.id);
       if (existing) {
-        // Preserve user modifications (lens toggling, name_provided, output_selected)
+        // Migrate output_selected (string) → outputs_selected (array)
+        let outputsSelected = existing.outputs_selected;
+        if (!outputsSelected && existing.output_selected) {
+          outputsSelected = [existing.output_selected];
+        }
+
+        // Preserve user modifications (lens toggling, name_provided, outputs_selected)
         return {
           ...step,
           lenses: existing.lenses ?? step.lenses,
           name_provided: existing.name_provided,
-          output_selected: existing.output_selected,
+          outputs_selected: outputsSelected,
         };
       }
       return step;

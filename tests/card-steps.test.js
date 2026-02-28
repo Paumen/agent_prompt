@@ -322,6 +322,72 @@ describe('lens pills (STP-03)', () => {
   });
 });
 
+describe('step badge (Phase 13)', () => {
+  it('renders a step-badge element for each step', () => {
+    initStepsCard();
+    const badges = document.querySelectorAll('.step-badge');
+    expect(badges.length).toBe(6);
+  });
+
+  it('step-badge shows the correct 1-based step number', () => {
+    initStepsCard();
+    const badges = document.querySelectorAll('.step-badge');
+    expect(badges[0].textContent).toBe('1');
+    expect(badges[1].textContent).toBe('2');
+    expect(badges[5].textContent).toBe('6');
+  });
+});
+
+describe('file pills (Phase 13)', () => {
+  const stepsWithFiles = [
+    {
+      id: 'read-location',
+      operation: 'read',
+      object: 'files',
+      source: 'panel_a.files',
+      params: { files: ['src/app.js', 'src/utils.js'] },
+    },
+  ];
+
+  beforeEach(() => {
+    getState.mockReturnValue({
+      ...mockState,
+      panel_a: { ...mockState.panel_a, files: ['src/app.js', 'src/utils.js'] },
+      steps: { enabled_steps: stepsWithFiles, removed_step_ids: [] },
+    });
+  });
+
+  it('renders file pills for steps with params.files', () => {
+    initStepsCard();
+    const row = document.querySelector('[data-step-id="read-location"]');
+    const pills = row.querySelectorAll('.step-file-pill');
+    expect(pills.length).toBe(2);
+  });
+
+  it('each file pill shows the filename', () => {
+    initStepsCard();
+    const row = document.querySelector('[data-step-id="read-location"]');
+    const pills = row.querySelectorAll('.step-file-pill');
+    expect(pills[0].textContent).toContain('@app.js');
+    expect(pills[1].textContent).toContain('@utils.js');
+  });
+
+  it('each file pill has a remove button', () => {
+    initStepsCard();
+    const row = document.querySelector('[data-step-id="read-location"]');
+    const removeBtns = row.querySelectorAll('.step-file-remove');
+    expect(removeBtns.length).toBe(2);
+  });
+
+  it('clicking a file pill remove button calls setState on the source panel field', () => {
+    initStepsCard();
+    const row = document.querySelector('[data-step-id="read-location"]');
+    const removeBtns = row.querySelectorAll('.step-file-remove');
+    removeBtns[0].click(); // Remove 'src/app.js'
+    expect(setState).toHaveBeenCalledWith('panel_a.files', ['src/utils.js']);
+  });
+});
+
 describe('optional text inputs', () => {
   it('renders text input for steps with branch_name', () => {
     initStepsCard();
@@ -362,7 +428,7 @@ describe('optional text inputs', () => {
   });
 });
 
-describe('output mode pills', () => {
+describe('output mode icon buttons (Phase 13 multi-select)', () => {
   const stepsWithOutput = [
     {
       id: 'provide-feedback-pr',
@@ -384,23 +450,21 @@ describe('output mode pills', () => {
     });
   });
 
-  it('renders output pills for steps with output array', () => {
+  it('renders output icon buttons for steps with output array', () => {
     initStepsCard();
     const feedbackRow = document.querySelector(
       '[data-step-id="provide-feedback-pr"]'
     );
-    const outputPills = feedbackRow.querySelectorAll(
-      '.step-output-pills .pill'
-    );
-    expect(outputPills.length).toBe(3);
+    const outputBtns = feedbackRow.querySelectorAll('.output-mode-btn');
+    expect(outputBtns.length).toBe(3);
   });
 
-  it('shows "Deliver feedback via:" label', () => {
+  it('shows "Deliver via:" label', () => {
     initStepsCard();
     const feedbackRow = document.querySelector(
       '[data-step-id="provide-feedback-pr"]'
     );
-    expect(feedbackRow.textContent).toContain('Deliver feedback via:');
+    expect(feedbackRow.textContent).toContain('Deliver via:');
   });
 
   it('pre-selects the first output option', () => {
@@ -408,44 +472,69 @@ describe('output mode pills', () => {
     const feedbackRow = document.querySelector(
       '[data-step-id="provide-feedback-pr"]'
     );
-    const pills = feedbackRow.querySelectorAll('.step-output-pills .pill');
-    expect(pills[0].getAttribute('aria-checked')).toBe('true');
-    expect(pills[0].classList.contains('pill--on')).toBe(true);
-    expect(pills[1].getAttribute('aria-checked')).toBe('false');
+    const btns = feedbackRow.querySelectorAll('.output-mode-btn');
+    expect(btns[0].getAttribute('aria-checked')).toBe('true');
+    expect(btns[0].classList.contains('output-mode-btn--on')).toBe(true);
+    expect(btns[1].getAttribute('aria-checked')).toBe('false');
   });
 
-  it('uses role="radio" for output pills (single-select)', () => {
+  it('uses role="checkbox" for output buttons (multi-select)', () => {
     initStepsCard();
     const feedbackRow = document.querySelector(
       '[data-step-id="provide-feedback-pr"]'
     );
-    const pills = feedbackRow.querySelectorAll('.step-output-pills .pill');
-    for (const pill of pills) {
-      expect(pill.getAttribute('role')).toBe('radio');
+    const btns = feedbackRow.querySelectorAll('.output-mode-btn');
+    for (const btn of btns) {
+      expect(btn.getAttribute('role')).toBe('checkbox');
     }
   });
 
-  it('calls setState when output pill is clicked', () => {
+  it('calls setState when output button is clicked', () => {
     initStepsCard();
     const feedbackRow = document.querySelector(
       '[data-step-id="provide-feedback-pr"]'
     );
-    const pills = feedbackRow.querySelectorAll('.step-output-pills .pill');
-    pills[1].click(); // Click "PR comment"
+    const btns = feedbackRow.querySelectorAll('.output-mode-btn');
+    btns[1].click(); // Click "PR comment"
     expect(setState).toHaveBeenCalledWith(
       'steps.enabled_steps',
       expect.any(Array)
     );
   });
 
-  it('renders human-readable labels for output modes', () => {
+  it('renders short labels for output modes inside .output-label', () => {
     initStepsCard();
     const feedbackRow = document.querySelector(
       '[data-step-id="provide-feedback-pr"]'
     );
-    const pills = feedbackRow.querySelectorAll('.step-output-pills .pill');
-    expect(pills[0].textContent).toBe('Here (in chat)');
-    expect(pills[1].textContent).toBe('PR comment');
-    expect(pills[2].textContent).toBe('PR inline comments');
+    const labels = feedbackRow.querySelectorAll('.output-label');
+    expect(labels[0].textContent).toBe('Here');
+    expect(labels[1].textContent).toBe('PR Com');
+    expect(labels[2].textContent).toBe('Inline');
+  });
+
+  it('allows multiple output modes to be selected simultaneously', () => {
+    // Step already has outputs_selected with two modes
+    getState.mockReturnValue({
+      ...mockState,
+      task: { flow_id: 'review' },
+      steps: {
+        enabled_steps: [
+          {
+            ...stepsWithOutput[0],
+            outputs_selected: ['here', 'pr_comment'],
+          },
+        ],
+        removed_step_ids: [],
+      },
+    });
+    initStepsCard();
+    const feedbackRow = document.querySelector(
+      '[data-step-id="provide-feedback-pr"]'
+    );
+    const btns = feedbackRow.querySelectorAll('.output-mode-btn');
+    expect(btns[0].getAttribute('aria-checked')).toBe('true');
+    expect(btns[1].getAttribute('aria-checked')).toBe('true');
+    expect(btns[2].getAttribute('aria-checked')).toBe('false');
   });
 });
