@@ -214,7 +214,7 @@ body {
 .input-field {
   width: 100%;
   padding: var(--sp-2);
-  background: var(--accent-subtle);
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: 32px;
@@ -240,7 +240,7 @@ body {
 }
 
 .input-icon-wrap .input-field {
-  padding-leftr: var(--sp-2));
+  padding-left: var(--sp-2));
 }
 
 .input-field::placeholder {
