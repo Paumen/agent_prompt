@@ -27,59 +27,6 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 All UI cards read and write a single shared state object (`prompt_input`). This is the single source of truth for prompt generation.
 
-```
-prompt_input (JSON-serializable, snake_case):
-
-  version: str,                    // schema version, e.g., "1.0" — enables migration
-
-  configuration: {
-    owner: str,              // GitHub username
-    repo: str,               // selected repository name
-    branch: str,             // selected branch
-    pat: str                 // GitHub personal access token
-  }
-
-  task: {
-    flow_id: str             // "fix" | "review" | "implement" | "improve"
-  }
-
-  panel_a: {                 // "Situation" panel — what exists / what to examine
-    description: str,        // free-text description
-    issue_number: int|null,  // GitHub issue selector (fix, improve flows)
-    pr_number: int|null,     // GitHub PR selector (review flow only)
-    files: [path]            // file picker: location / supporting / starting files
-  }
-
-  panel_b: {                 // "Target" panel — desired outcome / criteria
-    description: str,        // free-text desired outcome / build spec
-    issue_number: int|null,  // GitHub issue (improve flow — desired state)
-    spec_files: [path],      // specification/requirement documents
-    guideline_files: [path], // style guides, coding standards
-    acceptance_criteria: str, // how to know it's done (implement flow)
-    lenses: [str]            // focus lenses (review / improve flows)
-  }
-
-  steps: {
-    enabled_steps: [{        // auto-generated from flow, user can fine-tune
-      id: str,
-      operation: str,        // e.g., read, create, edit, commit, analyze, validate
-      object: str,           // e.g., file, branch, PR, issue, tests
-      lenses: [str],         // user-adjustable focus lenses per step
-      params: {}             // step-specific parameters
-    }]
-  }
-
-  improve_scope: str|null,   // "each_file" | "across_files" (improve flow, 2+ files)
-
-  notes: {
-    user_text: str                  // optional free-text appended to prompt
-  }
-
-  output: {
-    destination: 'clipboard'
-  }
-```
-
 ### Field Validation per Flow
 
 | Field                         | Fix/Debug  | Review/Analyze | Implement/Build |         Improve/Modify          |
@@ -101,49 +48,6 @@ prompt_input (JSON-serializable, snake_case):
 
 `\*` = At least one field marked `*` in Panel A must be filled (description OR issue_number).
 `\*\*` = Review flow: at least one of PR or files required. Either or both can be filled.
-
-### State Migration
-
-When `version` field is missing or older than current, apply migration:
-
-```javascript
-function migrateState(state) {
-  const CURRENT_VERSION = '1.0';
-
-  if (!state.version) {
-    // v0 (legacy) → v1.0 migration
-    // Old structure had context.selected_files
-    // New structure uses panel_a.files
-    state = {
-      version: CURRENT_VERSION,
-      configuration: state.configuration || {},
-      task: state.task || {},
-      panel_a: {
-        description: '',
-        issue_number: null,
-        pr_number: null,
-        files: state.context?.selected_files || [],
-      },
-      panel_b: {
-        description: '',
-        issue_number: null,
-        spec_files: [],
-        guideline_files: [],
-        acceptance_criteria: '',
-        lenses: [],
-      },
-      steps: state.steps || { enabled_steps: [] },
-      improve_scope: null,
-      notes: state.notes || { user_text: '' },
-      output: { destination: 'clipboard' },
-    };
-    // Clear old context field
-    delete state.context;
-  }
-
-  return state;
-}
-```
 
 ### DM-INV — Data Model Invariants
 
@@ -227,34 +131,6 @@ Purpose: Final output and extraction.
 
 - OUT-01 The generated prompt is structured using XML tags. It opens with repo context, then a flow-specific `<task>` section (with Panel A/B content), then a `<todo>` step list.
 - OUT-02 Prompt format varies per flow. Each flow has a `<task flow="...">` section with flow-specific XML tags for Panel A and Panel B content, followed by a `<todo>` step list. Example (Fix/Debug flow):
-
-```xml
-<prompt>
-  <context>
-    Execute the following task for <repository> https://github.com/{{owner}}/{{repo}} </repository> on <branch> {{branch}} </branch>.
-    Authenticate using PAT: <PAT> {{pat}} </PAT>.
-  </context>
-  <task flow="fix">
-    <current_state>
-      [Panel A: description, issue reference, location files]
-    </current_state>
-    <expected_outcome>
-      [Panel B: expected behavior, spec files, guideline files]
-    </expected_outcome>
-  </task>
-  <todo>
-    Step 1: Read: @claude.md
-    Step 2: Read: @src/utils/auth.js
-    Step 3: Read issue #42
-    Step 4: Identify root cause — focus on [error_handling, semantics]
-    Step 5: Create new branch
-    Step 6: Implement fix — focus on [error_handling, semantics]
-    Step 7: Run tests
-    Step 8: Commit changes and open PR
-  </todo>
-</prompt>
-<notes>{{user_text}}</notes>
-```
 
 See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 
@@ -377,46 +253,22 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ---
 
-## Decisions Log
+## Decisions
 
-| Date       | Decision                                                                                                                                                                                                                                                                                                                                                                   | Rationale                                                                                                                                                                        |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-02-20 | GitHub Pages for hosting                                                                                                                                                                                                                                                                                                                                                   | Free for public repos, auto-deploys on merge, always-latest live URL                                                                                                             |
-| 2026-02-20 | Status tracking in spec_concept.md                                                                                                                                                                                                                                                                                                                                         | Avoids duplication. Status table + Decisions Log in the authoritative spec.                                                                                                      |
-| 2026-02-21 | Tool configs moved to `config/`, spec files to `spec/`                                                                                                                                                                                                                                                                                                                     | Cleaner root. `config/` = how to build. `spec/` = what to build.                                                                                                                 |
-| 2026-02-24 | File/folder selection moved after task selection (optional, flow-dependent)                                                                                                                                                                                                                                                                                                | Clearer UX, simpler tree logic, more background loading time, less vertical space                                                                                                |
-| 2026-02-24 | Deep link to claude.ai is hard requirement for first build                                                                                                                                                                                                                                                                                                                 | Investigated and verified feasible, no backup needed                                                                                                                             |
-| 2026-02-24 | Tightening UI requirements to ensure minimal vertical scrolling                                                                                                                                                                                                                                                                                                            | Clearer for user                                                                                                                                                                 |
-| 2026-02-24 | Phase 0: `.card--open` class drives card body visibility; `aria-expanded` on button mirrors state                                                                                                                                                                                                                                                                          | Simple toggle pattern; CSS class is set by JS in Phase 1. No redundant JS in Phase 0.                                                                                            |
-| 2026-02-24 | Phase 0: `color-mix()` used for error/notification tinted backgrounds                                                                                                                                                                                                                                                                                                      | Modern browsers only per spec; avoids adding extra color tokens for subtle tints.                                                                                                |
-| 2026-02-24 | Phase 1: `setState()` over Proxy for centralized state                                                                                                                                                                                                                                                                                                                     | Simpler, debuggable, array-safe. No deep Proxy wrapping needed.                                                                                                                  |
-| 2026-02-24 | Phase 1: `_prompt` as derived field on frozen state snapshot                                                                                                                                                                                                                                                                                                               | Always in sync via auto-rebuild in `setState()`. Satisfies DM-INV-01/02.                                                                                                         |
-| 2026-02-24 | Phase 1: jsdom test environment for state.js only; prompt-builder stays in node                                                                                                                                                                                                                                                                                            | State tests need `localStorage`; keeping node env for pure functions avoids overhead.                                                                                            |
-| 2026-02-25 | Redesigned to 4 flows (Fix/Debug, Review/Analyze, Implement/Build, Improve/Modify) with dual-panel layout per flow (Situation + Target).                                                                                                                                                                                                                                   | Balances coverage with simplicity (4 vs 6). Current/desired structure gives built-in verification across all flows                                                               |
-| 2026-02-25 | Steps auto-generated from flow + user inputs (toggle lenses/remove steps). No auto-suggestion of files. No explicit fences/boundaries section.                                                                                                                                                                                                                             | Reduces effort while keeping fine-tuning. Risk of wrong file suggestions > none; Claude explores independently. Clear, specific prompts prevent drift (vagueness is root cause). |
-| 2026-02-25 | Quality Meter Fixed field weights + 4 color thresholds.                                                                                                                                                                                                                                                                                                                    | Motivates thoroughness without over-engineering. Simple scoring, no word counting.                                                                                               |
-| 2026-02-25 | Improve flow scope selector: "each file" vs "across files".                                                                                                                                                                                                                                                                                                                | Makes LLM intent clear for multi-file improvements; affects prompt instruction.                                                                                                  |
-| 2026-02-25 | Spec files (WHAT to build) vs Guideline files (HOW to build).                                                                                                                                                                                                                                                                                                              | Valuable separation; UX challenge – needs tooltip for clarity.                                                                                                                   |
-| 2026-02-26 | Phase 2: Custom Vite plugin for YAML→JSON with schema validation, not a pre-build script.                                                                                                                                                                                                                                                                                  | Cleaner integration with Vite dev server (HMR for flows.yaml). `transform` hook is straightforward for this use case.                                                            |
-| 2026-02-26 | Phase 2: Functional schema validation over JSON Schema library.                                                                                                                                                                                                                                                                                                            | Custom validator gives clear, path-specific error messages. No extra dependency needed. Simpler than configuring ajv for nested YAML-anchor-expanded structures.                 |
-| 2026-02-26 | Phase 2: state.js updated from `context.selected_files` to `panel_a`/`panel_b` data model.                                                                                                                                                                                                                                                                                 | Aligns with spec canonical data model (DM). `version` field added for future migration. `applyFlowDefaults()` added for DM-DEF-03 flow switching.                                |
-| 2026-02-26 | Phase 2: Flow-specific prompt templates in prompt-builder.js using switch on `flow_id`.                                                                                                                                                                                                                                                                                    | Each flow gets its own XML template (fix→undesired/expected, review→subject/criteria, implement→context/requirements, improve→current/desired). Matches hybrid-framework-design. |
-| 2026-02-26 | flows.yaml cleanup: fixed typos (`branche_name`→`branch_name`, `filed`→`field`), output modes as machine-readable YAML array, step lenses as arrays (not field defs), added lenses to review panel_b, conditional feedback steps, run_tests to improve flow.                                                                                                               | One-time PO-approved edit. Aligns YAML data format with runtime code expectations. Machine-readable output keys match prompt-builder constants.                                  |
-| 2026-02-26 | Phase 3: Cache TTL 15 min, `ap_cache_` prefix, mobile-first dropdown (no keyboard nav), auto-replace + 2s toast for background refresh. ESLint test config updated to include browser globals for jsdom tests.                                                                                                                                                             | PO decisions: 15min balances freshness vs API calls; mobile-first dropdown drops desktop keyboard nav to simplify; auto-replace avoids extra user click.                         |
-| 2026-02-26 | Phase 4: VIS-03 collapse-after-selection for repo/branch grids. After selecting a repo or branch, grid collapses to show only the selected item + "+N more" button. File tree stored in card-configuration.js with exported `getFileTree()` getter for Phase 5.                                                                                                            | PO chose collapse pattern to save vertical space. Exported getter is simplest sharing mechanism; can refactor to shared module later if needed.                                  |
-| 2026-02-26 | Phase 5: Octicon SVG paths inlined in card-tasks.js for the 4 flow icons (bug, search, plus, arrow-up). No external icon library dependency.                                                                                                                                                                                                                               | Anti-Over-Engineering Rule: only 4 icons needed, inline SVG avoids adding a full icon library. No runtime HTTP requests, no tree-shaking issues.                                 |
-| 2026-02-26 | Phase 5: Quality meter uses hybrid-framework-design.md weights (PR=20, file=10, text=10, notes=10, lens=5, issue=5) and 6 color thresholds (Poor/Minimal/Basic/Good/Strong/Excellent).                                                                                                                                                                                     | PO chose hybrid-design weights; 6 thresholds give finer feedback granularity than the 4 listed in implementation-plan.md (which was an earlier draft).                           |
-| 2026-02-26 | Phase 5: File picker is a flat searchable list (not a `role="tree"` folder tree). Selected files shown as removable pills.                                                                                                                                                                                                                                                 | PO confirmed flat list. Simpler implementation, better mobile UX, sufficient for the typical repo structure. Tree nav would add complexity with little benefit.                  |
-| 2026-02-26 | Phase 5: `flowDef.panel_a.subtitle` (e.g. "What's happening now") shown as sub-label under panel name; `panel_a.label` (e.g. "Current State") is not rendered separately. Panel names "Situation"/"Target" are hardcoded.                                                                                                                                                  | flows.yaml has both `label` and `subtitle` per panel. Subtitle is the user-facing context hint; label would duplicate the hardcoded panel name. Avoids redundant text.           |
-| 2026-02-26 | Phase 6: No locked steps — all steps (including "Read @claude.md") are deletable per STP-04 and PO direction.                                                                                                                                                                                                                                                              | PO explicitly requested no locking. Users can always re-add steps by changing panel fields. Simpler code, more user control.                                                     |
-| 2026-02-26 | Phase 6: `output_selected` field on feedback steps for delivery mode selection. `output` array from flows.yaml defines available options; `output_selected` stores user's choice.                                                                                                                                                                                          | Separates available options (from flow def) from user selection (runtime state). Prompt builder reads `output_selected` or falls back to `output[0]`.                            |
-| 2026-02-26 | Phase 6: `removed_step_ids` array tracks user-deleted steps. Deletions persist across panel changes within same flow; cleared on flow switch (DM-DEF-03).                                                                                                                                                                                                                  | Prevents re-adding steps the user explicitly removed when panel data changes. Clean slate on flow switch is consistent with DM-DEF-03 full reset.                                |
-| 2026-02-26 | Phase 6: Lens pills show first 7 (selected first, then defaults, then alphabetical), remaining behind "+N more" toggle button.                                                                                                                                                                                                                                             | PO chose this pattern. Keeps step rows compact while giving access to all 14 lenses. Pre-selected and defaults surface first for discoverability.                                |
-| 2026-02-27 | Phase 7: "Prompt Claude" button deep-links to `claude.ai/new?q=<encoded-prompt>`. Prompt is URL-encoded and passed as the `q` query parameter, pre-filling the Claude chat input.                                                                                                                                                                                          | OUT-07 is a hard requirement (PO decision). Any prior notes suggesting "no prompt transfer" were incorrect and have been removed from all spec and implementation files.         |
-| 2026-02-27 | Phase 7: Prompt preview area has a fixed max-height of 300px with `overflow-y: auto`. Buttons (Copy, Prompt Claude) appear in a toolbar header attached to the top of the preview box.                                                                                                                                                                                     | PO chose fixed height to keep UI compact (VIS-03). Toolbar at top of preview keeps actions immediately visible without scrolling past a long prompt.                             |
-| 2026-02-27 | Phase 8: `setInteracting()` / `isInteracting()` added to `components.js`. Called in `onToggleLens()` and `onSelectOutput()` in `card-steps.js`. Background refresh wraps re-render in `deferIfInteracting()` — retries up to 5× every 2s.                                                                                                                                  | PO chose retry-after-2s over skip-silently. `isInteracting()` also checks `document.activeElement` for text inputs, so no explicit call needed on text focus.                    |
-| 2026-02-27 | Phase 8: Touch targets bumped to 44px (`btn-grid-item`, `btn-icon`, `btn-action`). Pills kept at 32px — dense secondary controls.                                                                                                                                                                                                                                          | PO chose "primary buttons only" to avoid excessive vertical height from bumping all pill/dropdown rows.                                                                          |
-| 2026-02-27 | Phase 8: CSS fix — `is:(.card-headers, .card-body)` corrected to `:is(.card-header, .card-body)` with desktop padding applied. Eliminates build warning.                                                                                                                                                                                                                   | PO: fix it (apply the padding) rather than remove it.                                                                                                                            |
-| 2026-02-27 | UAT Remediation: credentials row merged to single horizontal row; SVG icon buttons replace text labels on toggle/clear; section icons added to repo/branch labels; `reposCollapsed`/`branchesCollapsed` reset bug fixed; config card stays open on repo select (only credentials hidden), collapses on flow select with `owner/repo:branch` summary.                       | Matches UJ table spec; hide-credentials-not-card keeps the repo/branch visible after selection while reducing visual noise.                                                      |
-| 2026-02-27 | UAT Remediation: flow grid forced to 4-per-row via `grid-template-columns`; quality meter moved from task card to prompt card; panel headers changed to horizontal flex; distinct panel-a/panel-b backgrounds; picker icons (PR/issue/file) added to field labels; `overflow:hidden` removed from `.card` to fix dropdown clipping.                                        | All visual and layout fixes from PO UAT review. Lens sort removed from steps card to prevent position jumping on toggle.                                                         |
-| 2026-02-27 | Phase 9: E2E tests cover 2 representative flows (Fix/Debug + Review/Analyze) per PO direction. Inline snapshot for TST-01 determinism (not .snap file). DOM interaction for PAT clear/re-entry. 18 tests total: 2 full journeys, 1 determinism (10 runs), 4 card transitions, 2 flow switch resets, 3 PAT flow, 4 prompt preview/copy, 1 notes, 1 different-inputs-differ. | PO chose 2 flows over 4 to balance coverage vs. maintenance. Inline snapshot chosen for readability. DOM interaction for PAT tests the real user path.                           |
+| ID | Decision | Rationale | Rating |
+|:---|:---|:---|:---|
+| D01 | GitHub Pages hosting and doc-based status tracking in spec_concept.md. | Free, auto-deploying single source of truth. | 2 |
+| D02 | Root cleanup; separated build configs (config/) from specification files (spec/) and guidelines. | Separates build logic from project definitions. | 3 |
+| D03 | Selection flow moves from Task to Repo/Branch; grids collapse to summaries after selection. | Optimizes vertical space and improves UX flow. | 3 |
+| D04 | Deep-link to Claude.ai via URL-encoded query; includes 300px max-height preview with sticky toolbar. | Hard requirement; ensures compact, actionable prompt transfer. | 5 |
+| D05 | UI uses .card--open toggles, color-mix() backgrounds, and tight vertical spacing. | Simple CSS-driven patterns reduce JS overhead. | 2 |
+| D06 | Centralized setState() with derived frozen prompts and interaction-aware background retry logic. | Safer, debuggable state management; prevents UI jitter. | 4 |
+| D07 | Redesigned 4 core flows with dual-panels, auto-generated steps, and flow-specific XML prompt templates. | Balances complexity with high-quality context-aware instructions. | 5 |
+| D08 | Quality Meter uses 6 color thresholds and weighted fields from hybrid design. | Finer feedback granularity without over-engineering. | 3 |
+| D09 | Custom Vite YAML-to-JSON plugin with path-specific functional schema validation. | Seamless HMR integration; avoids heavy external dependencies. | 4 |
+| D10 | Data model uses panel A/B structure, versioning, and arrays to track deletions. | Aligns with canonical spec; ensures state persistence. | 4 |
+| D11 | Inlined Octicon SVG paths and 44px primary touch targets. | Improves mobile accessibility without external libraries. | 2 |
+| D12 | Flat searchable file list, sub-label context hints, and lens pill "+N more" toggle. | Simplified mobile UX; keeps controls compact. | 3 |
+| D13 | All steps made deletable; no locked steps permitted. | Prioritizes user control and code simplicity. | 3 |
+| D14 | UAT fixes: merged credential rows, icon-only buttons, 4-per-row grid, and distinct panel backgrounds. | Addresses all stakeholder visual feedback and layout. | 4 |
+| D15 | E2E testing covers 2 representative flows using inline snapshots. | Sufficient coverage while minimizing maintenance overhead. | 4 |
