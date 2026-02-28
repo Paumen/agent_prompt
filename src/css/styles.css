@@ -427,6 +427,7 @@ body {
 .prompt-preview-header {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--sp-2);
   padding: var(--sp-2);
   background: var(--surface-inset);
@@ -447,7 +448,7 @@ body {
   padding: var(--sp-2);
   white-space: pre-wrap;
   word-break: break-word;
-  min-height: 120px;
+  min-height: 140px;
   max-height: 300px;
   overflow-y: auto;
 }
@@ -490,17 +491,97 @@ body {
 }
 
 .btn-action--primary:hover {
-  background: color-mix(in srgb, var(--accent) 20%, var(--surface));
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
-/* === Copy status feedback === */
+/* === Copy button icon swap (Phase 14 UAT 4.2) === */
 
-.copy-status[data-type="success"] {
-  color: var(--success);
+/* Visually hide aria-live status (screen readers still read it) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.copy-status[data-type="error"] {
-  color: var(--danger);
+.btn-copy .icon-check {
+  display: none;
+}
+
+.btn-copy.btn--copied .icon-clipboard {
+  display: none;
+}
+
+.btn-copy.btn--copied .icon-check {
+  display: block;
+}
+
+/* === XML syntax highlighting (Phase 14 UAT 4.4) === */
+.xml-tag {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* === Quality meter tooltip (Phase 14 UAT 5) === */
+.quality-meter-label--with-tooltip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.meter-info-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.meter-info-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.meter-info-btn:hover {
+  color: var(--text-secondary);
+}
+
+.meter-info-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.meter-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + var(--sp-2));
+  left: 0;
+  min-width: 220px;
+  max-width: 280px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  padding: var(--sp-3) var(--sp-4);
+  box-shadow: var(--shadow-md);
+  line-height: var(--line-height-lg);
+  z-index: 10;
+}
+
+.meter-tooltip--visible {
+  display: block;
 }
 
 /* === Notes section === */
@@ -566,6 +647,9 @@ body {
   color: var(--text-tertiary);
   margin-top: var(--sp-1);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
 }
 
 .quality-meter-track {
