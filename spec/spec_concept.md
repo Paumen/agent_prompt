@@ -223,11 +223,11 @@ Each requirement above is its own acceptance test. The following tests add speci
 | CFG-03    | Testing | ✅   | —   | ◻   | Repo button grid + single-tap select                                     |
 | CFG-04    | Testing | ✅   | ◻   | ◻   | Branch buttons + auto-select default                                     |
 | CFG-05    | Testing | ✅   | ◻   | ◻   | Background fetch branches + file tree                                    |
-| SCT-01    | Testing | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + octicon icons                             |
+| SCT-01    | Testing | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + unified `.icon` class (Phase 12)          |
 | SCT-02    | Testing | ✅   | —   | ◻   | Dual-panel layout (new)                                                  |
 | SCT-03    | Testing | ✅   | ◻   | ◻   | card-tasks.js renders all field types                                    |
 | SCT-04    | Testing | ✅   | —   | ◻   | Panel A/B layout per flow definition                                     |
-| SCT-05    | Testing | ✅   | ◻   | ◻   | Required group validation                                                |
+| SCT-05    | Testing | ✅   | ◻   | ◻   | Required group dot (7px) + tooltip; error block removed (Phase 12)       |
 | SCT-06    | Testing | ✅   | ◻   | ◻   | Flat searchable file picker with pills                                   |
 | SCT-07    | Testing | ✅   | —   | —   | flows.yaml validated at build-time                                       |
 | SCT-08    | Testing | ✅   | ◻   | ◻   | Quality Meter                                                            |
@@ -244,7 +244,7 @@ Each requirement above is its own acceptance test. The following tests add speci
 | OUT-06    | Testing | ✅   | —   | ◻   | Notes textarea → notes.user_text                                         |
 | OUT-07    | Testing | —    | —   | ◻   | Deep-links to claude.ai/new?q= with prompt                               |
 | OUT-08    | Testing | —    | ◻   | ◻   | Card stays expanded; only manual collapse                                |
-| VIS-01    | Testing | —    | —   | ◻   | Phase 0: CSS grid layout done                                            |
+| VIS-01    | Testing | —    | —   | ◻   | Phase 12: unified icon rule, panel accent border, · subtitle separator   |
 | VIS-02    | Testing | —    | —   | ◻   | Phase 0: touch targets set                                               |
 | VIS-03    | Testing | —    | —   | ◻   | Phase 0: card layout CSS done                                            |
 | TST-01    | Testing | ✅   | ✅  | —   | Snapshot test in prompt-builder.test.js + e2e determinism test           |
@@ -255,20 +255,22 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ## Decisions
 
-| ID | Decision | Rationale | Rating |
-|:---|:---|:---|:---|
-| D01 | GitHub Pages hosting and doc-based status tracking in spec_concept.md. | Free, auto-deploying single source of truth. | 2 |
-| D02 | Root cleanup; separated build configs (config/) from specification files (spec/) and guidelines. | Separates build logic from project definitions. | 3 |
-| D03 | Selection flow moves from Task to Repo/Branch; grids collapse to summaries after selection. | Optimizes vertical space and improves UX flow. | 3 |
-| D04 | Deep-link to Claude.ai via URL-encoded query; includes 300px max-height preview with sticky toolbar. | Hard requirement; ensures compact, actionable prompt transfer. | 5 |
-| D05 | UI uses .card--open toggles, color-mix() backgrounds, and tight vertical spacing. | Simple CSS-driven patterns reduce JS overhead. | 2 |
-| D06 | Centralized setState() with derived frozen prompts and interaction-aware background retry logic. | Safer, debuggable state management; prevents UI jitter. | 4 |
-| D07 | Redesigned 4 core flows with dual-panels, auto-generated steps, and flow-specific XML prompt templates. | Balances complexity with high-quality context-aware instructions. | 5 |
-| D08 | Quality Meter uses 6 color thresholds and weighted fields from hybrid design. | Finer feedback granularity without over-engineering. | 3 |
-| D09 | Custom Vite YAML-to-JSON plugin with path-specific functional schema validation. | Seamless HMR integration; avoids heavy external dependencies. | 4 |
-| D10 | Data model uses panel A/B structure, versioning, and arrays to track deletions. | Aligns with canonical spec; ensures state persistence. | 4 |
-| D11 | Inlined Octicon SVG paths and 44px primary touch targets. | Improves mobile accessibility without external libraries. | 2 |
-| D12 | Flat searchable file list, sub-label context hints, and lens pill "+N more" toggle. | Simplified mobile UX; keeps controls compact. | 3 |
-| D13 | All steps made deletable; no locked steps permitted. | Prioritizes user control and code simplicity. | 3 |
-| D14 | UAT fixes: merged credential rows, icon-only buttons, 4-per-row grid, and distinct panel backgrounds. | Addresses all stakeholder visual feedback and layout. | 4 |
-| D15 | E2E testing covers 2 representative flows using inline snapshots. | Sufficient coverage while minimizing maintenance overhead. | 4 |
+| ID  | Decision                                                                                                                | Rationale                                                         | Rating |
+| :-- | :---------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------- | :----- |
+| D01 | GitHub Pages hosting and doc-based status tracking in spec_concept.md.                                                  | Free, auto-deploying single source of truth.                      | 2      |
+| D02 | Root cleanup; separated build configs (config/) from specification files (spec/) and guidelines.                        | Separates build logic from project definitions.                   | 3      |
+| D03 | Selection flow moves from Task to Repo/Branch; grids collapse to summaries after selection.                             | Optimizes vertical space and improves UX flow.                    | 3      |
+| D04 | Deep-link to Claude.ai via URL-encoded query; includes 300px max-height preview with sticky toolbar.                    | Hard requirement; ensures compact, actionable prompt transfer.    | 5      |
+| D05 | UI uses .card--open toggles, color-mix() backgrounds, and tight vertical spacing.                                       | Simple CSS-driven patterns reduce JS overhead.                    | 2      |
+| D06 | Centralized setState() with derived frozen prompts and interaction-aware background retry logic.                        | Safer, debuggable state management; prevents UI jitter.           | 4      |
+| D07 | Redesigned 4 core flows with dual-panels, auto-generated steps, and flow-specific XML prompt templates.                 | Balances complexity with high-quality context-aware instructions. | 5      |
+| D08 | Quality Meter uses 6 color thresholds and weighted fields from hybrid design.                                           | Finer feedback granularity without over-engineering.              | 3      |
+| D09 | Custom Vite YAML-to-JSON plugin with path-specific functional schema validation.                                        | Seamless HMR integration; avoids heavy external dependencies.     | 4      |
+| D10 | Data model uses panel A/B structure, versioning, and arrays to track deletions.                                         | Aligns with canonical spec; ensures state persistence.            | 4      |
+| D11 | Inlined Octicon SVG paths and 44px primary touch targets.                                                               | Improves mobile accessibility without external libraries.         | 2      |
+| D12 | Flat searchable file list, sub-label context hints, and lens pill "+N more" toggle.                                     | Simplified mobile UX; keeps controls compact.                     | 3      |
+| D13 | All steps made deletable; no locked steps permitted.                                                                    | Prioritizes user control and code simplicity.                     | 3      |
+| D14 | UAT fixes: merged credential rows, icon-only buttons, 4-per-row grid, and distinct panel backgrounds.                   | Addresses all stakeholder visual feedback and layout.             | 4      |
+| D15 | E2E testing covers 2 representative flows using inline snapshots.                                                       | Sufficient coverage while minimizing maintenance overhead.        | 4      |
+| D16 | Phase 12: Panels share same background; Panel A distinguished by 3px left accent border instead of color difference.    | PO preference for same color; accent border is minimal and clear. | 3      |
+| D17 | Phase 12: Required group indicator uses enlarged 7px dot with native tooltip; no alert icon, no full-width error block. | PO chose simplest approach — dot + hover tooltip is sufficient.   | 2      |
