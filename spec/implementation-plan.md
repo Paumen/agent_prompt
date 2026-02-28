@@ -1,4 +1,4 @@
-# Implementation Plan (Condensed v4)
+# Implementation Plan (v4)
 
 ## Table of Contents
 1. [Architecture & File Map](#1-architecture--file-map)
