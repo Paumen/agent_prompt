@@ -35,14 +35,7 @@ body {
   flex-shrink: 0;
 }
 
-.icon--sm {
-  width: 14px;
-  height: 14px;
-}
-
 .icon--chevron {
-  width: 16px;
-  height: 16px;
   color: var(--text-tertiary);
   transition: transform 0.2s ease;
 }
@@ -648,7 +641,7 @@ body {
 
 .panel-header {
   grid-column: 1 / -1; /* Spans full width */
-  margin-bottom: var(--sp-1);
+  margin-bottom: var(--sp-2);
   display: flex;
   flex-direction: row;
   align-items: baseline;
@@ -677,10 +670,6 @@ body {
   border-radius: var(--radius);
   padding: var(--sp-3);
   box-shadow: var(--shadow-sm);
-}
-
-/* Panel A — accent left edge marks the primary input panel */
-.panel-a {
   border-left: 3px solid var(--accent);
 }
 
