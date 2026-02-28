@@ -150,11 +150,6 @@ body {
   min-height: 32px;
 }
 
-.btn-grid-item:hover {
-  border-color: var(--border-focus);
-  filter: brightness(1.015);
-}
-
 .btn-grid-item:focus-visible {
   outline: 2px solid var(--accent-subtle);
   outline-offset: 2px;
@@ -178,15 +173,6 @@ body {
   font-size: var(--text-sm);
   cursor: pointer;
   min-height: 32px;
-}
-
-.pill:hover {
-  border-color: var(--border-focus);
-}
-
-.pill:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 .pill[aria-checked="true"],
@@ -305,7 +291,7 @@ body {
   outline: 2px solid var(--accent);
 }
 
-/* Phase 11: Eye toggle — CSS-driven icon swap via .is-shown class */
+/* Eye toggle — CSS-driven icon swap via .is-shown class */
 .js-eye-btn .icon-eye-off {
   display: none;
 }
@@ -359,7 +345,6 @@ body {
   padding: var(--sp-2);
   text-align: center;
 }
-
 
 /* === Notification === */
 .notification {
@@ -435,7 +420,6 @@ body {
   border-radius: var(--radius) var(--radius) 0 0;
 }
 
-
 /* === Prompt Output Area === */
 .prompt-output {
   background: var(--surface-inset);
@@ -474,16 +458,6 @@ body {
   white-space: nowrap;
 }
 
-.btn-action:hover {
-  border-color: var(--border-focus);
-  filter: brightness(1.015);
-}
-
-.btn-action:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 .btn-action--primary {
   background: var(--accent);
   border-color: var(--accent-subtle);
@@ -497,7 +471,6 @@ body {
 
 /* === Copy button icon swap (Phase 14 UAT 4.2) === */
 
-/* Visually hide aria-live status (screen readers still read it) */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -619,14 +592,14 @@ body {
   min-width: 0;
 }
 
-/* Inline icon wrapper for field labels and section labels */
+/* Inline icon wrapper for field and section labels */
 .field-label-icon {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-/* Section header row (Repositories / Branches label + icon) */
+/* Section header row (Repositories / Branches + icon) */
 .cfg-section-label {
   display: flex;
   align-items: center;
@@ -694,7 +667,7 @@ body {
 .field-label {
   grid-column: 1;
   margin-bottom: 0;
-  padding-top: var(--sp-2); /* Align with input internal padding */
+  padding: var(--sp-2) 0 0 0; 
   display: flex;
   align-items: center;
 }
@@ -712,7 +685,7 @@ body {
 }
 
 .panel-header {
-  grid-column: 1 / -1; /* Spans full width */
+  grid-column: 1 / -1;
   margin-bottom: var(--sp-1);
   display: flex;
   flex-direction: row;
@@ -847,7 +820,6 @@ body {
   min-height: 24px;
 }
 
-/* Step number badge — replaces CSS counter (Phase 13) */
 .step-badge {
   background: var(--accent);
   color: var(--surface-raised);
@@ -889,11 +861,6 @@ body {
 
 .step-delete:hover {
   color: var(--danger);
-}
-
-.step-delete:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 /* Operation color classes for step icons (Phase 13) */
@@ -949,7 +916,7 @@ body {
   color: var(--danger);
 }
 
-/* Optional text input row — label + constrained input on one line (Phase 13) */
+/* Optional text input row */
 .step-optional-row {
   display: flex;
   align-items: center;
@@ -999,20 +966,11 @@ body {
   color: var(--text-secondary);
 }
 
-.output-mode-btn:hover {
-  border-color: var(--border-focus);
-}
-
 .output-mode-btn[aria-checked="true"],
 .output-mode-btn.output-mode-btn--on {
   background: var(--accent-subtle);
   border-color: var(--accent);
   color: var(--accent);
-}
-
-.output-mode-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 .output-label {
@@ -1052,6 +1010,21 @@ body {
   z-index: 10;
 }
 
+/* === Interactive States (grouped hover/focus) === */
+:is(.pill, .output-mode-btn):hover {
+  border-color: var(--border-focus);
+}
+
+:is(.btn-grid-item, .btn-action):hover {
+  border-color: var(--border-focus);
+  filter: brightness(1.015);
+}
+
+:is(.pill, .btn-action, .step-delete, .output-mode-btn):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* === Responsive (min-width: 768px) === */
 @media (min-width: 768px) {
   #app {
@@ -1072,5 +1045,4 @@ body {
     flex: 1;
     min-width: 0;
   }
-
 }
