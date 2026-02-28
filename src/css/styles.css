@@ -240,7 +240,7 @@ body {
 }
 
 .input-icon-wrap .input-field {
-  padding-left: var(--sp-2));
+  padding-left: var(--sp-2);
 }
 
 .input-field::placeholder {
