@@ -178,6 +178,8 @@ body {
   justify-content: center;
   font-size: var(--text-sm);
   padding: var(--sp-4);
+  color: #fff;
+  background: var(--accent);
 }
 
 .btn-grid-item {
@@ -186,8 +188,6 @@ body {
   align-items: center;
   gap: var(--sp-4);
   padding: var(--sp-4);
-  color: #fff;
-  background: var(--accent);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
