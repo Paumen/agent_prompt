@@ -12,6 +12,50 @@
 
 import { icon } from './icons.js';
 
+// Code file extensions → use file-code icon; everything else → file icon
+const CODE_EXTENSIONS = new Set([
+  'js',
+  'mjs',
+  'cjs',
+  'ts',
+  'tsx',
+  'jsx',
+  'css',
+  'scss',
+  'html',
+  'vue',
+  'svelte',
+  'py',
+  'rb',
+  'go',
+  'rs',
+  'java',
+  'c',
+  'cpp',
+  'h',
+  'cs',
+  'php',
+  'sh',
+  'bash',
+  'zsh',
+  'sql',
+  'json',
+  'xml',
+  'swift',
+  'kt',
+  'lua',
+  'r',
+  'pl',
+  'ex',
+  'exs',
+  'elm',
+]);
+
+function fileIconName(path) {
+  const ext = path.split('.').pop()?.toLowerCase() || '';
+  return CODE_EXTENSIONS.has(ext) ? 'file-code' : 'file';
+}
+
 /**
  * Create a multi-select file picker widget.
  *
@@ -54,13 +98,18 @@ export function createFilePicker(container, config) {
     wrapper.appendChild(helper);
   }
 
-  // Search input
+  // Search input with icon
+  const inputRow = document.createElement('div');
+  inputRow.className = 'input-row';
+  inputRow.appendChild(icon('file', 'icon-btn'));
+
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
   searchInput.className = 'input-field file-picker-search';
   searchInput.placeholder = placeholder;
   searchInput.setAttribute('autocomplete', 'off');
   searchInput.setAttribute('aria-label', placeholder);
+  inputRow.appendChild(searchInput);
 
   // Dropdown list
   const dropdownList = document.createElement('div');
@@ -68,7 +117,7 @@ export function createFilePicker(container, config) {
 
   const searchWrapper = document.createElement('div');
   searchWrapper.className = 'dropdown-wrapper';
-  searchWrapper.appendChild(searchInput);
+  searchWrapper.appendChild(inputRow);
   searchWrapper.appendChild(dropdownList);
   wrapper.appendChild(searchWrapper);
 
@@ -87,6 +136,8 @@ export function createFilePicker(container, config) {
       const pill = document.createElement('div');
       pill.className = 'selected-file-pill';
       pill.title = path;
+
+      pill.appendChild(icon(fileIconName(path), 'icon-btn'));
 
       const name = document.createElement('span');
       name.className = 'selected-file-name';

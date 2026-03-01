@@ -36,20 +36,41 @@ const INITIAL_LENS_COUNT = 7;
 
 import { icon } from './icons.js';
 
-// Object type → Octicon name (for step icons)
-const OBJECT_ICON_MAP = {
-  file: 'file',
-  files: 'file',
-  branch: 'git-branch',
-  pull_request: 'git-pull-request',
-  issue: 'issue-opened',
-  tests: 'checklist',
-  changes: 'diff',
-  review_feedback: 'comment',
-  implementation: 'rocket',
-  acceptance_criteria: 'check',
-  improvements: 'compose',
-};
+// Code file extensions — file-code icon; everything else → file icon
+const CODE_EXT = new Set([
+  'js',
+  'mjs',
+  'cjs',
+  'ts',
+  'tsx',
+  'jsx',
+  'css',
+  'scss',
+  'html',
+  'vue',
+  'svelte',
+  'py',
+  'rb',
+  'go',
+  'rs',
+  'java',
+  'c',
+  'cpp',
+  'h',
+  'cs',
+  'php',
+  'sh',
+  'sql',
+  'json',
+  'xml',
+  'swift',
+  'kt',
+]);
+
+function fileIconName(path) {
+  const ext = path.split('.').pop()?.toLowerCase() || '';
+  return CODE_EXT.has(ext) ? 'file-code' : 'file';
+}
 
 // Output mode full labels
 const OUTPUT_LABELS = {
@@ -179,10 +200,6 @@ function renderStepRow(step, index) {
   badge.setAttribute('aria-hidden', 'true');
   header.appendChild(badge);
 
-  // Object icon
-  const iconName = OBJECT_ICON_MAP[step.object] || 'file';
-  header.appendChild(icon(iconName, 'icon-btn'));
-
   const label = document.createElement('span');
   label.className = 'step-label';
   label.textContent = formatStepLabel(step);
@@ -199,6 +216,18 @@ function renderStepRow(step, index) {
   header.appendChild(deleteBtn);
 
   li.appendChild(header);
+
+  // PR pill — show when step references a pull request
+  if (step.object === 'pull_request' && step.source) {
+    const prPill = renderSourcePill(step.source, 'git-pull-request', 'PR');
+    if (prPill) li.appendChild(prPill);
+  }
+
+  // Issue pill — show when step references an issue
+  if (step.object === 'issue' && step.source) {
+    const issuePill = renderSourcePill(step.source, 'issue-opened', 'Issue');
+    if (issuePill) li.appendChild(issuePill);
+  }
 
   // File pills — for consolidated file steps (Phase 13)
   if (step.params?.files?.length > 0) {
@@ -247,6 +276,27 @@ function renderStepRow(step, index) {
   return li;
 }
 
+function renderSourcePill(source, iconName, labelPrefix) {
+  const state = getState();
+  const [panel, field] = source.split('.');
+  const value = state[panel]?.[field];
+  if (!value) return null;
+
+  const container = document.createElement('div');
+  container.className = 'step-source-pill-row';
+
+  const pill = document.createElement('span');
+  pill.className = 'step-source-pill';
+  pill.appendChild(icon(iconName, 'icon-btn'));
+
+  const text = document.createElement('span');
+  text.textContent = `${labelPrefix} #${value}`;
+  pill.appendChild(text);
+
+  container.appendChild(pill);
+  return container;
+}
+
 function renderFilePills(step) {
   const container = document.createElement('div');
   container.className = 'step-files';
@@ -254,6 +304,8 @@ function renderFilePills(step) {
   for (const filePath of step.params.files) {
     const pill = document.createElement('span');
     pill.className = 'step-file-pill';
+
+    pill.appendChild(icon(fileIconName(filePath), 'icon-btn'));
 
     const nameSpan = document.createElement('span');
     // Show last path segment; full path on hover
