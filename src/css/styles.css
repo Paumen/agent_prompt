@@ -176,12 +176,8 @@ body {
 
 .flow-grid .btn-grid-item {
   justify-content: center;
-  font-size: var(--text);
+  font-size: var(--text-sm);
   padding: var(--sp-4);
-}
-
-.btn-grid-item .icon {
-  color: var(--accent);
 }
 
 .btn-grid-item {
@@ -190,7 +186,8 @@ body {
   align-items: center;
   gap: var(--sp-4);
   padding: var(--sp-4);
-  background: var(--bg-raised);
+  color: #fff;
+  background: var(--accent);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
@@ -276,7 +273,7 @@ body {
   padding-right: var(--sp-4);
 }
 
-/* === Input Row (Phase 11: flat flex layout for credential fields) === */
+/* === Input Row (flat flex layout credential fields) === */
 .input-row {
   display: flex;
   align-items: center;
@@ -427,7 +424,7 @@ body {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 140px;
@@ -794,7 +791,7 @@ body {
   gap: var(--sp-2);
   padding: 0;
   margin: 0;
-  background: var(--surface-inset);
+  background: var(--bg-inset);
   width: 100%; 
 }
 
@@ -815,7 +812,6 @@ body {
 .step-header {
   display: contents; 
 }
-
 
 .step-badge {
   background: var(--accent);
