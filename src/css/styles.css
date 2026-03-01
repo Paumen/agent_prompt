@@ -800,6 +800,11 @@ body {
 
 
 .step-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-4);
+  
   padding: var(--sp-4);
   background: var(--bg-raised);
   border: 1px solid var(--border);
@@ -808,12 +813,9 @@ body {
 }
 
 .step-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  min-height: 24px;
+  display: contents; 
 }
+
 
 .step-badge {
   background: var(--accent);
