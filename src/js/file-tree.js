@@ -10,6 +10,8 @@
  *   - guideline_files: "HOW to build (coding standards, style guides)"
  */
 
+import { icon } from './icons.js';
+
 /**
  * Create a multi-select file picker widget.
  *
@@ -94,7 +96,7 @@ export function createFilePicker(container, config) {
       removeBtn.type = 'button';
       removeBtn.className = 'selected-file-remove btn-icon';
       removeBtn.setAttribute('aria-label', `Remove ${path}`);
-      removeBtn.innerHTML = '&times;';
+      removeBtn.appendChild(icon('x', 'icon-remove'));
       removeBtn.addEventListener('click', () => {
         selectedPaths = selectedPaths.filter((p) => p !== path);
         renderPills();

@@ -15,21 +15,7 @@ import { cacheGet, cacheSet } from './cache.js';
 import { renderShimmer } from './components.js';
 import { createFilePicker } from './file-tree.js';
 
-// --- Octicon SVG paths (inline, no extra dependency) ---
-
-const ICONS = {
-  bug: `<svg aria-hidden="true" class="icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M3.25 3.75A3.75 3.75 0 0 1 7 0h2a3.75 3.75 0 0 1 3.75 3.75v.25h1.5a.75.75 0 0 1 0 1.5H12.7l.43 4.73A3.751 3.751 0 0 1 15 13.75a.75.75 0 0 1-1.5 0 2.25 2.25 0 0 0-2.25-2.25h-6.5A2.25 2.25 0 0 0 2.5 13.75a.75.75 0 0 1-1.5 0A3.751 3.751 0 0 1 2.87 10.23L3.3 5.5H1.75a.75.75 0 0 1 0-1.5h1.5Zm1.5.25v.25h6.5V4a2.25 2.25 0 0 0-2.25-2.25H7A2.25 2.25 0 0 0 4.75 4ZM5.2 6 4.7 11.5h6.6L10.8 6Z"/></svg>`,
-  search: `<svg aria-hidden="true" class="icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11Z"/></svg>`,
-  plus: `<svg aria-hidden="true" class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M7.75 2a.75.75 0 0 1 .75.75V7h4.25a.75.75 0 0 1 0 1.5H8.5v4.25a.75.75 0 0 1-1.5 0V8.5H2.75a.75.75 0 0 1 0-1.5H7V2.75A.75.75 0 0 1 7.75 2Z"/></svg>`,
-  'arrow-up': `<svg aria-hidden="true" class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3.47 7.78a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0l4.25 4.25a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L9 4.81v7.44a.75.75 0 0 1-1.5 0V4.81L4.53 7.78a.75.75 0 0 1-1.06 0Z"/></svg>`,
-};
-
-// Picker field icons
-const ICON_PR = `<svg class="icon icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>`;
-
-const ICON_ISSUE = `<svg class="icon icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>`;
-
-const ICON_FILE = `<svg class="icon icon" viewBox="0 0 16 16"  fill="currentColor" aria-hidden="true"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/></svg>`;
+import { icon } from './icons.js';
 
 // All available lenses (from flows.yaml vocabulary)
 const ALL_LENSES = [
@@ -98,8 +84,11 @@ function renderFlowSelector() {
     btn.setAttribute('role', 'option');
     btn.setAttribute('aria-selected', 'false');
 
-    const iconHtml = ICONS[flowDef.icon] || '';
-    btn.innerHTML = `${iconHtml}<span class="flow-btn-label">${flowDef.label}</span>`;
+    if (flowDef.icon) btn.appendChild(icon(flowDef.icon, 'icon-btn'));
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'flow-btn-label';
+    labelSpan.textContent = flowDef.label;
+    btn.appendChild(labelSpan);
 
     btn.addEventListener('click', () => onFlowSelect(flowId, flowDef));
     elFlowGrid.appendChild(btn);
@@ -222,11 +211,11 @@ function renderPanelHeader(genericLabel, flowSubtitle) {
   return header;
 }
 
-// Picker field icon map (2.9)
+// Picker field icon name map
 const PICKER_ICON_MAP = {
-  pr_picker: ICON_PR,
-  issue_picker: ICON_ISSUE,
-  file_picker_multi: ICON_FILE,
+  pr_picker: 'git-pull-request',
+  issue_picker: 'issue-opened',
+  file_picker_multi: 'file',
 };
 
 function renderPanelFields(panelEl, fieldsMap, panelKey) {
@@ -253,13 +242,10 @@ function renderPanelFields(panelEl, fieldsMap, panelKey) {
 
     const labelText = fieldDef.label || fieldNameToLabel(fieldName);
 
-    // Picker icon prepended to label (2.9)
-    const pickerIconSvg = PICKER_ICON_MAP[fieldDef.type];
-    if (pickerIconSvg) {
-      const ic = document.createElement('span');
-      ic.className = 'field-label-icon';
-      ic.innerHTML = pickerIconSvg;
-      label.appendChild(ic);
+    // Picker icon prepended to label
+    const pickerIconName = PICKER_ICON_MAP[fieldDef.type];
+    if (pickerIconName) {
+      label.appendChild(icon(pickerIconName, 'icon-btn'));
     }
     label.appendChild(document.createTextNode(labelText));
 
@@ -496,7 +482,7 @@ function renderPickerSelection(
     'aria-label',
     `Clear ${kind === 'pr' ? 'PR' : 'issue'} selection`
   );
-  clearBtn.textContent = '×';
+  clearBtn.appendChild(icon('x', 'icon-remove'));
   clearBtn.addEventListener('click', () => {
     setState(statePath, null);
     updateRequiredGroupIndicators();

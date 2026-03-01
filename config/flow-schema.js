@@ -30,7 +30,7 @@ const VALID_OPERATIONS = [
   'open',
 ];
 
-const VALID_ICONS = ['bug', 'search', 'plus', 'arrow-up'];
+const VALID_ICONS = ['bug', 'codescan', 'rocket', 'compose'];
 
 /**
  * Validate a single field definition within a panel.

@@ -39,21 +39,21 @@ describe('flow-loader.js', () => {
       const flow = getFlowById('review');
       expect(flow).toBeDefined();
       expect(flow.label).toBe('Review / Analyze');
-      expect(flow.icon).toBe('search');
+      expect(flow.icon).toBe('codescan');
     });
 
     it('returns the implement flow', () => {
       const flow = getFlowById('implement');
       expect(flow).toBeDefined();
       expect(flow.label).toBe('Implement / Build');
-      expect(flow.icon).toBe('plus');
+      expect(flow.icon).toBe('rocket');
     });
 
     it('returns the improve flow', () => {
       const flow = getFlowById('improve');
       expect(flow).toBeDefined();
       expect(flow.label).toBe('Improve / Modify');
-      expect(flow.icon).toBe('arrow-up');
+      expect(flow.icon).toBe('compose');
     });
 
     it('returns null for unknown flow ID', () => {

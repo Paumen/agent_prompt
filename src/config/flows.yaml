@@ -161,7 +161,7 @@ flows:
 
   review:
     label: 'Review / Analyze'
-    icon: 'search'
+    icon: 'codescan'
     panel_a:
       label: 'Review Subject'
       subtitle: 'The PR, code, or document to examine'
@@ -211,7 +211,7 @@ flows:
 
   implement:
     label: 'Implement / Build'
-    icon: 'plus'
+    icon: 'rocket'
     panel_a:
       label: 'Context'
       subtitle: 'Existing code or context to build upon (optional)'
@@ -255,7 +255,7 @@ flows:
 
   improve:
     label: 'Improve / Modify'
-    icon: 'arrow-up'
+    icon: 'compose'
     panel_a:
       label: 'Current State'
       subtitle: 'What exists and what needs improvement'

@@ -1,4 +1,4 @@
-@import "./variables.css";
+@import './variables.css';
 
 /* === Base === */
 *,
@@ -28,10 +28,50 @@ body {
 }
 
 /* === Icons (Octicons, inline SVG) === */
+
+/* 1. Base — all icons get this */
 .icon {
-  flex-shrink: 0;
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* 2. Remove — trash/x icons */
+.icon-remove {
+  color: var(--icon-neutral);
+}
+.icon-remove:hover {
+  color: var(--icon-neutral-dark);
+}
+
+/* 3. Info — tooltip triggers */
+.icon-info {
+  color: var(--icon-neutral);
+}
+.icon-info:hover {
+  color: var(--icon-neutral-dark);
+}
+
+/* 4. Error — caution state */
+.icon-error {
+  color: var(--icon-caution);
+}
+.icon-error:hover {
+  color: var(--icon-caution-dark);
+}
+
+/* 5. Warning — attention state */
+.icon-warning {
+  color: var(--icon-attention);
+}
+.icon-warning:hover {
+  color: var(--icon-attention-dark);
+}
+
+/* 6. Button/label — inherits parent text color */
+.icon-btn {
+  color: inherit;
 }
 
 .icon--chevron {
@@ -70,7 +110,7 @@ body {
 }
 
 /* Expand/collapse chevron */
-.card-header[aria-expanded="true"] .icon--chevron {
+.card-header[aria-expanded='true'] .icon--chevron {
   transform: rotate(180deg);
 }
 
@@ -98,7 +138,7 @@ body {
 }
 
 .item-selected::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 0;
@@ -171,7 +211,7 @@ body {
   min-height: 24px;
 }
 
-.pill[aria-checked="true"],
+.pill[aria-checked='true'],
 .pill.pill--on {
   background: var(--accent-subtle);
   color: var(--accent);
@@ -195,27 +235,6 @@ body {
   border-radius: var(--radius);
   min-height: 24px;
   box-shadow: var(--shadow-inset-sm);
-}
-
-.input-icon-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon-prefix {
-  position: absolute;
-  left: var(--sp-4);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-tertiary);
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon-wrap .input-field {
-  padding-left: var(--sp-4);
 }
 
 .input-field::placeholder {
@@ -255,13 +274,6 @@ body {
 .input-row .input-field {
   flex: 1;
   min-width: 0;
-}
-
-.input-row-icon {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  color: var(--text-tertiary);
 }
 
 .btn-icon {
@@ -561,12 +573,6 @@ body {
   min-width: 0;
 }
 
-.field-label-icon {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 /* Section header row (Repositories / Branches ) */
 .cfg-section-label {
   display: flex;
@@ -635,7 +641,7 @@ body {
 .field-label {
   grid-column: 1;
   margin-bottom: 0;
-  padding: var(--sp-4) 0 0 0; 
+  padding: var(--sp-4) 0 0 0;
   display: flex;
   align-items: center;
 }
@@ -801,12 +807,6 @@ body {
   font-weight: 700;
 }
 
-.step-object-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
 .step-label {
   flex: 1;
   min-width: 0;
@@ -829,7 +829,6 @@ body {
 .step-delete:hover {
   color: var(--danger);
 }
-
 
 /* File pills inside consolidated read steps (Phase 13) */
 .step-files {
@@ -917,7 +916,7 @@ body {
   color: var(--text-secondary);
 }
 
-.output-mode-btn[aria-checked="true"],
+.output-mode-btn[aria-checked='true'],
 .output-mode-btn.output-mode-btn--on {
   background: var(--accent-subtle);
   border-color: var(--accent);
