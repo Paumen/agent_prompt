@@ -29,27 +29,7 @@ function deferIfInteracting(fn, maxRetries = 5) {
   setTimeout(() => deferIfInteracting(fn, maxRetries - 1), 2000);
 }
 
-// --- SVG icon constants (Octicons, inline) ---
-
-// Key icon (for PAT field — Phase 11)
-const ICON_KEY = `<svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.5 0a5.499 5.499 0 1 1-1.288 10.851l-.552.552a.749.749 0 0 1-.53.22H7.75a.75.75 0 0 1-.75-.75V9.999a.748.748 0 0 1 .22-.53l3.83-3.832A5.5 5.5 0 0 1 10.5 0Zm-3.5 9.25v1h1l2.897-2.897a.748.748 0 0 1 .604-.195 4 4 0 1 0-3.409-3.409.748.748 0 0 1-.195.604L4 7.25v1h1a.75.75 0 0 1 .75.75v1h1a.75.75 0 0 1 .75.75ZM10.5 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>`;
-
-// GitHub mark icon (for username field — Phase 11)
-const ICON_GITHUB = `<svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>`;
-
-// Eye (show password)
-const ICON_EYE = `<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="display:block"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.175 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.125-.967 1.955-2.095 2.366-2.717a.12.12 0 0 0 0-.136c-.411-.622-1.241-1.75-2.366-2.717C10.825 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.125.967-1.955 2.095-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>`;
-
-// Eye with diagonal slash (hide password)
-const ICON_EYE_CLOSED = `<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="display:block"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.175 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.125-.967 1.955-2.095 2.366-2.717a.12.12 0 0 0 0-.136c-.411-.622-1.241-1.75-2.366-2.717C10.825 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.125.967-1.955 2.095-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/><path d="M1 0L3 2L15 14.5L13 12.5Z"/></svg>`;
-
-const ICON_X = `<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="display:block"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"/></svg>`;
-
-// Repo icon for section headings and buttons (with icon class — Phase 11)
-const ICON_REPO = `<svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/></svg>`;
-
-// Branch icon for section headings and buttons (with icon class — Phase 11)
-const ICON_BRANCH = `<svg class="icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.492 2.492 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z"/></svg>`;
+import { icon } from './icons.js';
 
 // --- Display limits (Phase 11) ---
 
@@ -125,11 +105,8 @@ function renderShell(container) {
   const patRow = document.createElement('div');
   patRow.className = 'input-row';
 
-  // Left icon: key (Phase 11)
-  const patIcon = document.createElement('span');
-  patIcon.className = 'input-row-icon';
-  patIcon.innerHTML = ICON_KEY;
-  patRow.appendChild(patIcon);
+  // Left icon: key
+  patRow.appendChild(icon('key', 'icon-btn'));
 
   elPatInput = document.createElement('input');
   elPatInput.type = 'password';
@@ -139,13 +116,20 @@ function renderShell(container) {
   elPatInput.setAttribute('autocomplete', 'off');
   patRow.appendChild(elPatInput);
 
-  // Eye toggle (Phase 11: class-based, two pre-rendered spans, starts hidden)
+  // Eye toggle (class-based, two pre-rendered spans, starts hidden)
   elPatToggle = document.createElement('button');
   elPatToggle.className = 'btn-icon cfg-pat-toggle js-eye-btn';
   elPatToggle.type = 'button';
   elPatToggle.setAttribute('aria-label', 'Show token');
   elPatToggle.hidden = true;
-  elPatToggle.innerHTML = `<span class="icon-eye-on">${ICON_EYE}</span><span class="icon-eye-off">${ICON_EYE_CLOSED}</span>`;
+  const eyeOn = document.createElement('span');
+  eyeOn.className = 'icon-eye-on';
+  eyeOn.appendChild(icon('eye', 'icon-btn'));
+  const eyeOff = document.createElement('span');
+  eyeOff.className = 'icon-eye-off';
+  eyeOff.appendChild(icon('eye-closed', 'icon-btn'));
+  elPatToggle.appendChild(eyeOn);
+  elPatToggle.appendChild(eyeOff);
   patRow.appendChild(elPatToggle);
 
   // Clear button (starts hidden)
@@ -154,7 +138,7 @@ function renderShell(container) {
   elPatClear.type = 'button';
   elPatClear.setAttribute('aria-label', 'Clear token');
   elPatClear.hidden = true;
-  elPatClear.innerHTML = ICON_X;
+  elPatClear.appendChild(icon('x', 'icon-remove'));
   patRow.appendChild(elPatClear);
 
   patCol.appendChild(patRow);
@@ -166,11 +150,8 @@ function renderShell(container) {
   const userRow = document.createElement('div');
   userRow.className = 'input-row';
 
-  // Left icon: GitHub mark (Phase 11)
-  const userIcon = document.createElement('span');
-  userIcon.className = 'input-row-icon';
-  userIcon.innerHTML = ICON_GITHUB;
-  userRow.appendChild(userIcon);
+  // Left icon: GitHub mark
+  userRow.appendChild(icon('mark-github', 'icon-btn'));
 
   elUsername = document.createElement('input');
   elUsername.type = 'text';
@@ -180,13 +161,13 @@ function renderShell(container) {
   elUsername.setAttribute('autocomplete', 'off');
   userRow.appendChild(elUsername);
 
-  // Username clear button (Phase 11, starts hidden)
+  // Username clear button (starts hidden)
   elUserClear = document.createElement('button');
   elUserClear.className = 'btn-icon js-user-clear-btn';
   elUserClear.type = 'button';
   elUserClear.setAttribute('aria-label', 'Clear username');
   elUserClear.hidden = true;
-  elUserClear.innerHTML = ICON_X;
+  elUserClear.appendChild(icon('x', 'icon-remove'));
   userRow.appendChild(elUserClear);
 
   userCol.appendChild(userRow);
@@ -306,7 +287,7 @@ function renderRepoSection(repos, selectedRepo) {
 
   const label = document.createElement('div');
   label.className = 'cfg-section-label';
-  label.innerHTML = `${ICON_REPO} Repositories`;
+  label.textContent = 'Repositories';
   elRepoSection.appendChild(label);
 
   elRepoGrid = document.createElement('div');
@@ -346,8 +327,10 @@ function renderRepoButtons(repos, selectedRepo) {
     btn.setAttribute('role', 'option');
     btn.setAttribute('aria-selected', String(repo.name === selectedRepo));
     if (repo.name === selectedRepo) btn.classList.add('item-selected');
-    // Phase 11: prepend repo octicon SVG
-    btn.innerHTML = `${ICON_REPO}<span>${repo.name}</span>`;
+    btn.appendChild(icon('repo', 'icon-btn'));
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = repo.name;
+    btn.appendChild(nameSpan);
 
     btn.addEventListener('click', () => onRepoSelect(repo, repos));
     elRepoGrid.appendChild(btn);
@@ -400,7 +383,7 @@ function renderBranchSection(branches, selectedBranch) {
 
   const label = document.createElement('div');
   label.className = 'cfg-section-label';
-  label.innerHTML = `${ICON_BRANCH} Branches`;
+  label.textContent = 'Branches';
   elBranchSection.appendChild(label);
 
   elBranchGrid = document.createElement('div');
@@ -440,8 +423,10 @@ function renderBranchButtons(branches, selectedBranch) {
     btn.setAttribute('role', 'option');
     btn.setAttribute('aria-selected', String(branch.name === selectedBranch));
     if (branch.name === selectedBranch) btn.classList.add('item-selected');
-    // Phase 11: prepend branch octicon SVG
-    btn.innerHTML = `${ICON_BRANCH}<span>${branch.name}</span>`;
+    btn.appendChild(icon('git-branch', 'icon-btn'));
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = branch.name;
+    btn.appendChild(nameSpan);
 
     btn.addEventListener('click', () => onBranchSelect(branch, branches));
     elBranchGrid.appendChild(btn);
@@ -489,7 +474,7 @@ async function loadRepos(owner, pat, isBackground = false) {
     elRepoSection.innerHTML = '';
     const label = document.createElement('div');
     label.className = 'cfg-section-label';
-    label.innerHTML = `${ICON_REPO} Repositories`;
+    label.textContent = 'Repositories';
     elRepoSection.appendChild(label);
     const shimmerContainer = document.createElement('div');
     elRepoSection.appendChild(shimmerContainer);
@@ -547,7 +532,7 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   elBranchSection.innerHTML = '';
   const label = document.createElement('div');
   label.className = 'cfg-section-label';
-  label.innerHTML = `${ICON_BRANCH} Branches`;
+  label.textContent = 'Branches';
   elBranchSection.appendChild(label);
   const shimmerContainer = document.createElement('div');
   elBranchSection.appendChild(shimmerContainer);

@@ -3,12 +3,18 @@ import { initConfigurationCard } from './card-configuration.js';
 import { initTasksCard } from './card-tasks.js';
 import { initStepsCard } from './card-steps.js';
 import { initPromptCard } from './card-prompt.js';
+import { icon } from './icons.js';
 
 // --- Card expand/collapse toggle ---
 
 function initCardToggles() {
   const headers = document.querySelectorAll('.card-header');
   for (const header of headers) {
+    // Append chevron icon to each card header
+    const chevron = icon('chevron-down', 'icon-btn');
+    chevron.classList.add('icon--chevron');
+    header.appendChild(chevron);
+
     header.addEventListener('click', () => {
       const card = header.closest('.card');
       const isOpen = card.classList.toggle('card--open');

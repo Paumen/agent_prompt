@@ -85,7 +85,7 @@ vi.mock('../src/js/flow-loader.js', () => ({
     },
     review: {
       label: 'Review / Analyze',
-      icon: 'search',
+      icon: 'codescan',
       panel_a: {
         label: 'Review Subject',
         subtitle: 'The PR, code, or document to examine',
@@ -122,7 +122,7 @@ vi.mock('../src/js/flow-loader.js', () => ({
     },
     implement: {
       label: 'Implement / Build',
-      icon: 'plus',
+      icon: 'rocket',
       panel_a: {
         label: 'Context',
         subtitle: 'Existing code or context to build upon (optional)',
@@ -157,7 +157,7 @@ vi.mock('../src/js/flow-loader.js', () => ({
     },
     improve: {
       label: 'Improve / Modify',
-      icon: 'arrow-up',
+      icon: 'compose',
       panel_a: {
         label: 'Current State',
         subtitle: 'What exists and what needs improvement',
@@ -547,15 +547,15 @@ describe('Phase 12: Task Card Polish', () => {
     }
   });
 
-  it('picker field icons use class="icon icon--sm"', () => {
+  it('picker field icons use class="icon icon-btn"', () => {
     initTasksCard();
     const body = document.getElementById('bd-tasks');
     body.querySelector('.flow-btn').click(); // fix flow has issue_picker + file_picker
 
-    const labelIcons = body.querySelectorAll('.field-label-icon .icon');
+    const labelIcons = body.querySelectorAll('.field-label .icon');
     expect(labelIcons.length).toBeGreaterThan(0);
     for (const icon of labelIcons) {
-      expect(icon.classList.contains('icon--sm')).toBe(true);
+      expect(icon.classList.contains('icon-btn')).toBe(true);
       expect(icon.getAttribute('style')).toBeNull();
     }
   });
