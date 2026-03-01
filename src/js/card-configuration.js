@@ -51,7 +51,41 @@ export function getFileTree() {
 export function setConfigCardSummary(text) {
   const titleEl = document.querySelector('#card-configuration .card-title');
   if (!titleEl) return;
-  titleEl.textContent = text || 'Configuration';
+
+  if (!text) {
+    titleEl.textContent = 'Configuration';
+    return;
+  }
+
+  // Show icons for owner / repo : branch
+  titleEl.textContent = '';
+  const state = getState();
+  const { owner, repo, branch } = state.configuration;
+
+  if (owner) {
+    titleEl.appendChild(icon('mark-github', 'icon-btn'));
+    const ownerSpan = document.createElement('span');
+    ownerSpan.textContent = ` ${owner}`;
+    titleEl.appendChild(ownerSpan);
+  }
+
+  if (repo) {
+    const sep = document.createTextNode(' / ');
+    titleEl.appendChild(sep);
+    titleEl.appendChild(icon('repo', 'icon-btn'));
+    const repoSpan = document.createElement('span');
+    repoSpan.textContent = ` ${repo}`;
+    titleEl.appendChild(repoSpan);
+  }
+
+  if (branch) {
+    const sep = document.createTextNode(' : ');
+    titleEl.appendChild(sep);
+    titleEl.appendChild(icon('git-branch', 'icon-btn'));
+    const branchSpan = document.createElement('span');
+    branchSpan.textContent = ` ${branch}`;
+    titleEl.appendChild(branchSpan);
+  }
 }
 
 // --- DOM references (set during init) ---

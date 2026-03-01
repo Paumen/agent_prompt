@@ -211,13 +211,6 @@ function renderPanelHeader(genericLabel, flowSubtitle) {
   return header;
 }
 
-// Picker field icon name map
-const PICKER_ICON_MAP = {
-  pr_picker: 'git-pull-request',
-  issue_picker: 'issue-opened',
-  file_picker_multi: 'file',
-};
-
 function renderPanelFields(panelEl, fieldsMap, panelKey) {
   if (!fieldsMap) return;
 
@@ -242,11 +235,6 @@ function renderPanelFields(panelEl, fieldsMap, panelKey) {
 
     const labelText = fieldDef.label || fieldNameToLabel(fieldName);
 
-    // Picker icon prepended to label
-    const pickerIconName = PICKER_ICON_MAP[fieldDef.type];
-    if (pickerIconName) {
-      label.appendChild(icon(pickerIconName, 'icon-btn'));
-    }
     label.appendChild(document.createTextNode(labelText));
 
     // Required group indicator (SCT-05)
@@ -387,6 +375,13 @@ function renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind) {
     label: `#${number} — ${title}`,
   }));
 
+  const inputRow = document.createElement('div');
+  inputRow.className = 'input-row';
+
+  // Prepend picker icon inside the input row
+  const pickerIconName = kind === 'pr' ? 'git-pull-request' : 'issue-opened';
+  inputRow.appendChild(icon(pickerIconName, 'icon-btn'));
+
   const input = document.createElement('input');
   input.type = 'text';
   input.className = 'input-field dropdown-input';
@@ -397,6 +392,7 @@ function renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind) {
     'aria-label',
     fieldDef.placeholder || `Select ${kind === 'pr' ? 'PR' : 'issue'}`
   );
+  inputRow.appendChild(input);
 
   const list = document.createElement('div');
   list.className = 'dropdown-list';
@@ -454,7 +450,7 @@ function renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind) {
 
   const wrapper = document.createElement('div');
   wrapper.className = 'dropdown-wrapper';
-  wrapper.appendChild(input);
+  wrapper.appendChild(inputRow);
   wrapper.appendChild(list);
   pickerWrapper.appendChild(wrapper);
 }

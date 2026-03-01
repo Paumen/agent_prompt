@@ -547,17 +547,14 @@ describe('Phase 12: Task Card Polish', () => {
     }
   });
 
-  it('picker field icons use class="icon icon-btn"', () => {
+  it('picker field labels do not contain icons (icons moved to input rows)', () => {
     initTasksCard();
     const body = document.getElementById('bd-tasks');
     body.querySelector('.flow-btn').click(); // fix flow has issue_picker + file_picker
 
+    // Icons should NOT be inside field labels — they moved to input rows
     const labelIcons = body.querySelectorAll('.field-label .icon');
-    expect(labelIcons.length).toBeGreaterThan(0);
-    for (const icon of labelIcons) {
-      expect(icon.classList.contains('icon-btn')).toBe(true);
-      expect(icon.getAttribute('style')).toBeNull();
-    }
+    expect(labelIcons.length).toBe(0);
   });
 
   it('panel subtitle uses · separator', () => {

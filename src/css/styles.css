@@ -100,6 +100,18 @@ body {
   border: none;
 }
 
+.card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-sm);
+}
+
+.card-title .icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .card-header:hover {
   background: var(--bg-inset);
 }
@@ -355,6 +367,10 @@ body {
 /* === Searchable Dropdown === */
 .dropdown-wrapper {
   position: relative;
+}
+
+.dropdown-wrapper .input-row {
+  width: 100%;
 }
 
 .dropdown-list {
@@ -834,7 +850,25 @@ body {
   color: var(--danger);
 }
 
-/* File pills inside consolidated read steps */
+/* PR / Issue source pill in steps */
+.step-source-pill-row {
+  margin-top: var(--sp-2);
+}
+
+.step-source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+
+/* File pills inside consolidated read steps (Phase 13) */
 .step-files {
   display: flex;
   flex-wrap: wrap;
@@ -907,8 +941,8 @@ body {
 
 .output-mode-btn {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: var(--sp-2);
   padding: var(--sp-2);
