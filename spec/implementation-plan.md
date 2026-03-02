@@ -122,15 +122,6 @@ fully address the remaining feedback.
 
 ---
 
-### Blocked / Needs PO Decision
-
-| Item                            | Blocker                                                              |
-| ------------------------------- | -------------------------------------------------------------------- |
-| 2.5 Mandatory fields logic      | Requires editing `src/config/flows.yaml` — PO must authorize         |
-| "Review: text input for target" | Review Panel B has no description field — requires `flows.yaml` edit |
-
----
-
 ### Phase 10 — Global Visual Foundation
 
 **Goal:** Add shadow depth system, fix diamond chevrons to octicon arrows, deepen active
@@ -247,27 +238,6 @@ HTML structure:
 - PAT eye button: shows `eye` octicon when field is `type="password"`, `eye-closed`
   when `type="text"`. Swapped by JS toggling a class (`.eye-open` / `.eye-closed`) which
   CSS uses to `display: block / none` the two pre-rendered SVG spans.
-- CSS:
-  ```css
-  .input-row {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-  }
-  .input-row .input-field {
-    flex: 1;
-    min-width: 0;
-  }
-  .btn-icon {
-    background: none;
-    border: none;
-    color: var(--text-tertiary);
-    width: 28px;
-    height: 28px;
-    display: grid;
-    place-content: center;
-  }
-  ```
 
 ### 6. Input icons (UAT 1.3)
 
@@ -588,17 +558,3 @@ Full manual walkthrough on 375px mobile viewport:
 
 ---
 
-## New Tests to Add
-
-| Phase | Test                                                                        |
-| ----- | --------------------------------------------------------------------------- |
-| 11    | `renderRepoButtons` expanded → all repos in DOM                             |
-| 11    | `renderBranchButtons` expanded → all branches in DOM                        |
-| 11    | Selecting a repo does not set `reposCollapsed = true`                       |
-| 13    | Multiple read steps → merged into one step with `params.files` array        |
-| 13    | Single file removable from merged step                                      |
-| 13    | Two output modes can be active simultaneously in `outputs_selected`         |
-| 14    | `highlightXml`: XSS-safe — `<script>` in text node becomes `&lt;script&gt;` |
-| 14    | `highlightXml`: XML tag wrapped in `.xml-tag` span                          |
-
----
