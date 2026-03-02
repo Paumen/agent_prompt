@@ -358,23 +358,23 @@ Each phase must pass its exit gate before the next phase begins.
 
 **Phase 0 — CSS Quick Wins:**
 
-- [ ] All quick-win CSS changes merged (pill consolidation, flex utility, surface pattern, accent light-dark fix, shadow-inset-sm fix)
-- [ ] `npm run build` passes with zero errors
-- [ ] `npm run lint` passes
-- [ ] Visual regression check: PO confirms app looks identical before and after (no visible changes — these are internal consolidations only)
-- [ ] All existing tests still pass (`npm test`)
+- [x] All quick-win CSS changes merged (pill consolidation, flex utility, surface pattern, accent light-dark fix, shadow-inset-sm fix)
+- [x] `npm run build` passes with zero errors
+- [x] `npm run lint` passes
+- [x] Visual regression check: PO confirms app looks identical before and after (no visible changes — these are internal consolidations only)
+- [x] All existing tests still pass (`npm test`)
 
 **Phase 1 — Framework Definition:**
 
-- [ ] 4 new CSS files created: `variables.css` (updated), `layout.css`, `components.css`, `special.css`
-- [ ] All grid classes defined and documented (body, card, card-in-card, input, output, btn-\*)
-- [ ] `container-type: inline-size` set on card elements
+- [x] 4 new CSS files created: `variables.css` (updated), `layout.css`, `components.css`, `special.css`
+- [x] All grid classes defined and documented (body, card, card-in-card, input, output, btn-\*)
+- [x] `container-type: inline-size` set on card elements
 - [ ] `clamp()` applied to spacing and font-size variables
-- [ ] `ui.js` created with all factory functions (`createButton`, `createInputField`, `createPicker`, `createTag`, `createButtonGrid`, `createMoreLess`, `createLabel`)
-- [ ] Old `styles.css` and new CSS files coexist without conflicts — both class systems work simultaneously
-- [ ] `npm run build` passes
-- [ ] A standalone HTML test page or Storybook-like preview demonstrates each `ui.js` component works correctly in isolation
-- [ ] PO reviews component preview and confirms visual direction
+- [x] `ui.js` created with all factory functions (`createButton`, `createInputField`, `createPicker`, `createTag`, `createButtonGrid`, `createMoreLess`, `createLabel`)
+- [x] Old `styles.css` and new CSS files coexist without conflicts — both class systems work simultaneously
+- [x] `npm run build` passes
+- [x] A standalone HTML test page or Storybook-like preview demonstrates each `ui.js` component works correctly in isolation
+- [x] PO reviews component preview and confirms visual direction
 
 **Phase 2 — Structural Application (per card):**
 
