@@ -11,7 +11,7 @@
   --text-tertiary: light-dark(#8c959f, #7d8590);
 
   --border: light-dark(#d0d7de, #30363d);
-  --border-focus: light-dark(#0969da, #1f6feb);
+  --border-focus: light-dark(#326a89, #326a89);
 
   --accent: #42767a;
   --accent-subtle: oklch(78% 0.075 196);
