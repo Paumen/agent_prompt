@@ -1,6 +1,7 @@
 # Agent Prompt — DOM Tree
 
 ## Overview
+
 Single-page web app with 4 collapsible cards stacked vertically. All cards are JavaScript-populated from a static HTML skeleton.
 
 ---
@@ -189,6 +190,7 @@ html
 ## Key Structural Patterns
 
 ### 1. Card Layout
+
 - **Static skeleton**: All 4 cards defined in HTML with empty bodies
 - **JS population**: Each card's body is populated by its corresponding module:
   - `card-configuration.js` → `#bd-configuration`
@@ -198,12 +200,15 @@ html
 - **Toggle**: `.card-header` button toggles `.card--open` class on parent `.card`
 
 ### 2. State-Driven Updates
+
 - All rendered content is derived from centralized state object (`prompt_input`)
 - State changes trigger automatic re-renders via subscription system
 - DOM updates are deferred if user is mid-interaction (GL-05)
 
 ### 3. Form Fields (Panel A/B)
+
 Multiple input types, all populated from `flows.yaml` field definitions:
+
 - **text**: `textarea`
 - **number**: `input[type="number"]`
 - **select**: Custom picker component with search
@@ -212,6 +217,7 @@ Multiple input types, all populated from `flows.yaml` field definitions:
 - All selections displayed as removable `.pill` elements
 
 ### 4. Steps
+
 - Auto-generated list from step-generator.js
 - Each step has:
   - Badge (operation index)
@@ -223,12 +229,14 @@ Multiple input types, all populated from `flows.yaml` field definitions:
   - Delete button
 
 ### 5. Prompt Output
+
 - Live preview with XML syntax highlighting
 - Copy button (icon swap on success)
 - "Prompt Claude" deep-link button
 - Optional notes textarea
 
 ### 6. Icons
+
 - All icons are inline SVG elements generated via `icons.js` utility
 - Common icons: `chevron-down`, `repo`, `git-branch`, `mark-github`, `file`, `file-code`, etc.
 
@@ -256,4 +264,3 @@ State Update → [back to render]
 - **ARIA**: `role="listbox"`, `role="option"`, `aria-expanded`, `aria-selected`, `aria-controls`, `aria-live`
 - **Screen reader support**: Hidden status messages (`.sr-only`), descriptive labels, tooltips
 - **Keyboard navigation**: Standard form inputs + button grid focus management (delegated to browser)
-
