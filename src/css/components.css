@@ -1,0 +1,414 @@
+@import './variables.css';
+
+/**
+ * components.css — Component styles
+ *
+ * Button taxonomy (5 types), input fields, field-picker, tags, icons.
+ * Surface colors, text colors, borders, interaction states.
+ *
+ * Import order: variables.css → layout.css → components.css → special.css
+ *
+ * NOTE: These classes coexist with old styles.css during migration.
+ * All new component classes use the v2- prefix to avoid collisions.
+ */
+
+/* ============================================================
+   BUTTONS — 5 types
+   ============================================================ */
+
+/* --- Shared button reset --- */
+
+.v2-btn-primary,
+.v2-btn-select,
+.v2-btn-action,
+.v2-btn-pill,
+.v2-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: var(--line-height);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* --- 1. btn-primary: accent bg, white text, main action --- */
+
+.v2-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--text);
+  font-weight: 600;
+  min-height: 32px;
+}
+
+.v2-btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+/* --- 2. btn-select: single-select from options --- */
+
+.v2-btn-select {
+  position: relative;
+  background: var(--bg-inset);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: var(--sp-2) var(--sp-4);
+  min-height: 24px;
+}
+
+.v2-btn-select[aria-selected='true'],
+.v2-btn-select.v2-btn-select--selected {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  padding-left: var(--sp-8);
+}
+
+.v2-btn-select[aria-selected='true']::before,
+.v2-btn-select.v2-btn-select--selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent-subtle);
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.v2-btn-select[aria-selected='true'] .icon,
+.v2-btn-select.v2-btn-select--selected .icon {
+  color: var(--accent);
+}
+
+/* --- 3. btn-action: one-shot stateless action --- */
+
+.v2-btn-action {
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--text);
+  min-height: 32px;
+  min-width: 56px;
+}
+
+/* --- 4. btn-pill: multi-select toggle (pill shape) --- */
+
+.v2-btn-pill {
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: 999px;
+  min-height: 24px;
+}
+
+.v2-btn-pill[aria-checked='true'],
+.v2-btn-pill.v2-btn-pill--on {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* --- 5. btn-icon: transparent, icon-only or icon+label tertiary --- */
+
+.v2-btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 0;
+  min-width: 16px;
+  min-height: 16px;
+  display: grid;
+  place-content: center;
+}
+
+/* btn-icon with label */
+.v2-btn-icon--labeled {
+  display: inline-flex;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  font-weight: 700;
+}
+
+/* ============================================================
+   HOVER & FOCUS STATES
+   ============================================================ */
+
+.v2-btn-select:hover,
+.v2-btn-action:hover {
+  border-color: var(--border-focus);
+  filter: brightness(1.015);
+}
+
+.v2-btn-pill:hover {
+  border-color: var(--border-focus);
+}
+
+.v2-btn-icon:hover {
+  color: var(--text-primary);
+}
+
+:is(
+  .v2-btn-primary,
+  .v2-btn-select,
+  .v2-btn-action,
+  .v2-btn-pill,
+  .v2-btn-icon
+):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   INPUT FIELD
+   ============================================================ */
+
+.v2-input-field {
+  width: 100%;
+  padding: var(--sp-2);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 24px;
+  font-family: inherit;
+  font-size: var(--text);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-inset-sm);
+}
+
+.v2-input-field::placeholder {
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+}
+
+.v2-input-field:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--bg-inset);
+}
+
+.v2-input-field:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+
+/* Textarea variant */
+.v2-input-field--textarea {
+  resize: vertical;
+  min-height: 40px;
+}
+
+/* ============================================================
+   FIELD PICKER (search input + dropdown + tags)
+   ============================================================ */
+
+.v2-field-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  position: relative;
+}
+
+.v2-field-picker-search {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.v2-field-picker-search .v2-input-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.v2-field-picker-dropdown {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  z-index: 10;
+}
+
+.v2-field-picker-dropdown--open {
+  display: block;
+}
+
+.v2-field-picker-item {
+  padding: var(--sp-2);
+  cursor: pointer;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.v2-field-picker-item:hover {
+  background: var(--bg-inset);
+}
+
+.v2-field-picker-empty {
+  padding: var(--sp-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.v2-field-picker-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* ============================================================
+   TAG (selected items with remove button)
+   ============================================================ */
+
+.v2-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  background: var(--bg-inset-darker);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  max-width: 200px;
+}
+
+.v2-tag-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.v2-tag .v2-btn-icon {
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   ICON (standardized size)
+   ============================================================ */
+
+.v2-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ============================================================
+   SURFACES (card, card-in-card, output backgrounds)
+   ============================================================ */
+
+.v2-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--sp-4);
+}
+
+.v2-card-in-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-left: 3px solid var(--accent);
+  padding: var(--sp-4);
+}
+
+.v2-output {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+}
+
+.v2-output--darker {
+  background: var(--bg-inset-darker);
+}
+
+/* ============================================================
+   CARD HEADER (btn-icon variant for collapse/expand)
+   ============================================================ */
+
+.v2-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--sp-8);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--text);
+  background: none;
+  border: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  color: inherit;
+}
+
+.v2-card-header:hover {
+  background: var(--bg-inset);
+}
+
+.v2-card-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.v2-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text);
+}
+
+/* Chevron rotation when open */
+.v2-card-header[aria-expanded='true'] .v2-icon--chevron {
+  transform: rotate(180deg);
+}
+
+.v2-icon--chevron {
+  color: var(--text-tertiary);
+  transition: transform 0.4s ease;
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+
+.v2-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.v2-empty-state {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  padding: var(--sp-2);
+  text-align: center;
+}

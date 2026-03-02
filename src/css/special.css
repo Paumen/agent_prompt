@@ -1,0 +1,170 @@
+@import './variables.css';
+
+/**
+ * special.css — One-off component styles
+ *
+ * Quality meter, shimmer/loader, notifications.
+ * These have unique DOM structures that don't repeat across cards.
+ * Goal: keep this file small and shrinking.
+ *
+ * Import order: variables.css → layout.css → components.css → special.css
+ *
+ * NOTE: These classes coexist with old styles.css during migration.
+ * All new classes use the v2- prefix to avoid collisions.
+ */
+
+/* ============================================================
+   QUALITY METER
+   ============================================================ */
+
+.v2-quality-meter {
+  margin-bottom: var(--sp-2);
+}
+
+.v2-quality-meter-track {
+  height: 4px;
+  background: var(--bg-inset);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.v2-quality-meter-bar {
+  height: 100%;
+  border-radius: 2px;
+  width: 0%;
+  transition:
+    width 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.v2-quality-meter-label {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--sp-2);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* Info button (reuses btn-icon pattern) */
+.v2-meter-info-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.v2-meter-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + var(--sp-4));
+  left: 0;
+  min-width: 240px;
+  max-width: 320px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow);
+  line-height: var(--line-height);
+  z-index: 10;
+}
+
+.v2-meter-tooltip--visible {
+  display: block;
+}
+
+/* ============================================================
+   SHIMMER / LOADER
+   ============================================================ */
+
+@keyframes v2-shimmer-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.v2-shimmer {
+  background: var(--bg-inset);
+  border-radius: var(--radius);
+  animation: v2-shimmer-pulse 1.5s ease-in-out infinite;
+}
+
+.v2-shimmer-bar {
+  height: var(--sp-8);
+  border-radius: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.v2-shimmer-label {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--sp-4);
+}
+
+/* ============================================================
+   NOTIFICATIONS
+   ============================================================ */
+
+.v2-notification {
+  padding: var(--sp-4);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  margin-top: var(--sp-4);
+}
+
+.v2-notification--success {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.v2-notification--error {
+  background: light-dark(#fff0f0, #2d0000);
+  color: var(--caution);
+}
+
+.v2-notification--info {
+  background: var(--bg-inset);
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   OUTPUT FLOAT ANIMATION (step output mode feedback)
+   ============================================================ */
+
+.v2-output-float {
+  position: absolute;
+  bottom: calc(100% + var(--sp-2));
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: v2-float-up 1.5s ease-out forwards;
+  color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-2);
+  z-index: 10;
+}
+
+@keyframes v2-float-up {
+  0% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-24px);
+    opacity: 0;
+  }
+}
