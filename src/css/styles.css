@@ -176,7 +176,7 @@ body {
   align-items: start;
   gap: var(--sp-4);
   padding: var(--sp-4);
-  background: var(--bg-raised);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
