@@ -203,7 +203,7 @@ body {
   flex: 1;
   min-width: 0;
   font-size: var(--text);
-  place-self: flex-start;
+  place-self: start;
 }
 
 .step-delete {
@@ -944,3 +944,4 @@ body {
   outline-offset: -2px;
 }
 
+ 
