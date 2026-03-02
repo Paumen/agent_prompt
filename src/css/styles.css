@@ -21,7 +21,7 @@ body {
   margin: 0 auto;
   padding: var(--sp-4);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: var(--sp-4);
 }
 
@@ -64,7 +64,7 @@ body {
 }
 
 .card--open .card-body {
-  display: flex;
+  display: block;
 }
 
 /* === Configuration Card === */
