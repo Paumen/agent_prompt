@@ -27,28 +27,6 @@ Single-page web app that fetches GitHub repo data, lets users configure agentic 
 
 All UI cards read and write a single shared state object (`prompt_input`). This is the single source of truth for prompt generation.
 
-### Field Validation per Flow
-
-| Field                         | Fix/Debug  | Review/Analyze | Implement/Build |         Improve/Modify          |
-| ----------------------------- | :--------: | :------------: | :-------------: | :-----------------------------: |
-| **Panel A (Situation)**       |            |                |                 |                                 |
-| `panel_a.description`         | Required\* |    Optional    |    Optional     |           Required\*            |
-| `panel_a.issue_number`        | Required\* |       —        |        —        |           Required\*            |
-| `panel_a.pr_number`           |     —      |  Required\*\*  |        —        |                —                |
-| `panel_a.files`               |  Optional  |  Required\*\*  |    Optional     |            Optional             |
-| **Panel B (Target)**          |            |                |                 |                                 |
-| `panel_b.description`         |  Optional  |       —        |    Required     |            Optional             |
-| `panel_b.issue_number`        |     —      |       —        |        —        |            Optional             |
-| `panel_b.spec_files`          |  Optional  |    Optional    |    Optional     |                —                |
-| `panel_b.guideline_files`     |  Optional  |    Optional    |        —        | Optional (as "reference files") |
-| `panel_b.acceptance_criteria` |     —      |       —        |    Optional     |                —                |
-| `panel_b.lenses`              |     —      |    Optional    |        —        |            Optional             |
-| **Other**                     |            |                |                 |                                 |
-| `improve_scope`               |     —      |       —        |        —        |       Shown when 2+ files       |
-
-`\*` = At least one field marked `*` in Panel A must be filled (description OR issue_number).
-`\*\*` = Review flow: at least one of PR or files required. Either or both can be filled.
-
 ### DM-INV — Data Model Invariants
 
 - DM-INV-01 Outputs are derived only from current `prompt_input` — never cached or stale fragments.
@@ -104,10 +82,10 @@ Define the task using a dual-panel layout: **Situation** (what exists) → **Tar
 
 - SCT-01 Files selected in Panel A are flagged in the prompt for the LLM to "read upfront."
 - SCT-02 The app presents 4 predefined flows:
-  1. **Fix / Debug** — identify and resolve issues by capturing current state vs expected outcome.
-  2. **Review / Analyze** — examine PRs, code, or documents against specified criteria and lenses.
-  3. **Implement / Build** — create something new from requirements, description, and/or acceptance criteria.
-  4. **Improve / Modify** — enhance or refine existing work with configurable focus lenses.
+  1. **Debug** — identify and resolve issues by capturing current state vs expected outcome.
+  2. **Review** — examine PRs, code, or documents against specified criteria and lenses.
+  3. **Implement** — create something new from requirements, description, and/or acceptance criteria.
+  4. **Improve** — enhance or refine existing work with configurable focus lenses.
 - SCT-03 Flows are displayed as a button grid with icon and title per button, fitting multiple buttons per row.
 - SCT-04 Flow selection shows a dual-panel layout (left/right on desktop, stacked on mobile). Each panel has a generic label ("Situation" / "Target") plus a flow-specific subtitle. Fields within each panel are flow-specific (defined in flows.yaml). Examples: "Fix / Debug" Situation panel shows description field + issue picker + location file picker; Target panel shows expected behavior field + spec file picker + guideline file picker. "Review / Analyze" Situation panel shows context field + PR picker + file picker. See `spec/hybrid-framework-design.md` for full field mapping per flow.
 - SCT-05 Where a flow requires mandatory user input, the field is clearly marked as required. Required group logic: at least one field in a required group must be filled (e.g., description OR issue for Fix/Debug).
@@ -146,17 +124,6 @@ See `spec/hybrid-framework-design.md` for prompt templates for all 4 flows.
 ## VIS — Visual Design & Interaction
 
 ### Theme: Arctic Bone × Vellum
-
-Warm-shifted backgrounds with smoke and ivory treatments. The feel is a refined reading surface — like good paper under controlled light.
-
-#### Component Treatments
-
-- **Cards** use `--surface` (or none) with `1px` or no `--border`, `6px` border-radius. Card header uses `--text-primary` at `--text-base` weight 600.
-- **Active/selected items** (selected repo, selected flow, selected branch) display a `3px` left-edge `--accent` bar — like a code editor gutter marker. Background shifts to `--accent-subtle`.
-- **Buttons** (repo grid, flow grid, branch grid) use `--surface-raised` background, `--border`, and `--text-primary`. On hover: `--surface-raised` brightens slightly, border becomes `--border-focus`.
-- **Toggles** use pill-shaped containers. Off state: `--surface` bg, `--text-secondary`. On state: `--accent-subtle` bg, `--accent` text, `--accent` border.
-- **Prompt output area** uses `--surface-inset` with `--font-mono` at `--text-sm`. Left-aligned, no syntax highlighting.
-- **Skeleton loading** Single reusable shimmer-bar class on `--surface-inset` with opacity pulse.
 
 ### Layout Rules
 
@@ -205,11 +172,11 @@ Each requirement above is its own acceptance test. The following tests add speci
 | --------- | ------- | ---- | --- | --- | ------------------------------------------------------------------------ |
 | GL-01     | Testing | —    | ◻   | ◻   | Phase 8: click audit passed — all actions ≤2 clicks                      |
 | GL-02     | Testing | ✅   | ◻   | ◻   | Phase 0: shimmer CSS. Phase 3: JS component done                         |
-| GL-03     | Testing | —    | ◻   | ◻   | Phase 8: mobile-first CSS verified; no h-scroll                          |
+| GL-03     | 🏁 Approved | —    | ◻   | ◻   | Phase 8: mobile-first CSS verified; no h-scroll                          |
 | GL-04     | Testing | ✅   | ◻   | ◻   | Phase 0: error CSS. Phase 3: JS component done                           |
 | GL-05     | Testing | ✅   | ◻   | ◻   | Phase 8: mid-interaction deferral added (retry ×5 every 2s)              |
 | APP-01    | Testing | —    | —   | ◻   | Phase 0: SPA shell created                                               |
-| APP-02    | Testing | —    | —   | ◻   | Phase 0: vanilla JS + plain CSS                                          |
+| APP-02    | 🏁 Approved | —    | —   | ◻   | Phase 0: vanilla JS + plain CSS                                          |
 | APP-03    | Testing | ✅   | ◻   | ◻   | Phase 3: limit enforcement in github-api.js                              |
 | APP-04    | Testing | ✅   | —   | ◻   | PAT/owner persist; session resets on reload                              |
 | DM-INV-01 | Testing | ✅   | ◻   | —   | getState() returns derived prompt                                        |
@@ -219,37 +186,37 @@ Each requirement above is its own acceptance test. The following tests add speci
 | DM-DEF-02 | Testing | ✅   | —   | —   | YAML→JSON + schema validation via Vite plugin                            |
 | DM-DEF-03 | Testing | ✅   | ◻   | ◻   | applyFlowDefaults() resets panels/steps fully                            |
 | CFG-01    | Testing | ✅   | ◻   | ◻   | PAT field + show/hide + clear action                                     |
-| CFG-02    | Testing | ✅   | ◻   | ◻   | Username + auto-fetch repos on load                                      |
-| CFG-03    | Testing | ✅   | —   | ◻   | Repo button grid + single-tap select                                     |
-| CFG-04    | Testing | ✅   | ◻   | ◻   | Branch buttons + auto-select default                                     |
-| CFG-05    | Testing | ✅   | ◻   | ◻   | Background fetch branches + file tree                                    |
+| CFG-02    | 🏁 Approved | ✅   | ◻   | ◻   | Username + auto-fetch repos on load                                      |
+| CFG-03    | 🏁 Approved | ✅   | —   | ◻   | Repo button grid + single-tap select                                     |
+| CFG-04    | 🏁 Approved | ✅   | ◻   | ◻   | Branch buttons + auto-select default                                     |
+| CFG-05    | 🏁 Approved | ✅   | ◻   | ◻   | Background fetch branches + file tree                                    |
 | SCT-01    | Testing | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + unified `.icon` class (Phase 12)          |
 | SCT-02    | Testing | ✅   | —   | ◻   | Dual-panel layout (new)                                                  |
-| SCT-03    | Testing | ✅   | ◻   | ◻   | card-tasks.js renders all field types                                    |
-| SCT-04    | Testing | ✅   | —   | ◻   | Panel A/B layout per flow definition                                     |
+| SCT-03    | 🏁 Approved | ✅   | ◻   | ◻   | card-tasks.js renders all field types                                    |
+| SCT-04    | 🏁 Approved | ✅   | —   | ◻   | Panel A/B layout per flow definition                                     |
 | SCT-05    | Testing | ✅   | ◻   | ◻   | Required group dot (7px) + tooltip; error block removed (Phase 12)       |
-| SCT-06    | Testing | ✅   | ◻   | ◻   | Flat searchable file picker with pills                                   |
+| SCT-06    | 🏁 Approved | ✅   | ◻   | ◻   | Flat searchable file picker with pills                                   |
 | SCT-07    | Testing | ✅   | —   | —   | flows.yaml validated at build-time                                       |
-| SCT-08    | Testing | ✅   | ◻   | ◻   | Quality Meter                                                            |
-| SCT-09    | Testing | ✅   | ◻   | ◻   | Improve multi-file scope selector                                        |
+| SCT-08    | 🏁 Approved | ✅   | ◻   | ◻   | Quality Meter                                                            |
+| SCT-09    | 🏁 Approved | ✅   | ◻   | ◻   | Improve multi-file scope selector                                        |
 | STP-01    | Testing | ✅   | ◻   | ◻   | Phase 13: step badge, object icons, file step consolidation              |
 | STP-02    | Testing | ✅   | —   | ◻   | Phase 13: params.files populated from panel data                         |
 | STP-03    | Testing | ✅   | ◻   | ◻   | Phase 13: lens stability via module-level Map; expanded state persists   |
 | STP-04    | Testing | ✅   | —   | ◻   | Phase 13: file pill removal (panel + step); output mode multi-select     |
 | OUT-01    | Testing | ✅   | ◻   | ◻   | Phase 13: prompt-builder handles params.files + outputs_selected array   |
-| OUT-02    | Testing | ✅   | ◻   | ◻   | Phase 13: multi-mode feedback combines all selected output modes         |
+| OUT-02    | 🏁 Approved | ✅   | ◻   | ◻   | Phase 13: multi-mode feedback combines all selected output modes         |
 | OUT-03    | Testing | ✅   | ◻   | —   | Live re-render via state subscription                                    |
-| OUT-04    | Testing | ✅   | —   | —   | @ prefix in prompt-builder.js                                            |
+| OUT-04    | 🏁 Approved | ✅   | —   | —   | @ prefix in prompt-builder.js                                            |
 | OUT-05    | Testing | ✅   | ◻   | ◻   | Phase 14: copy icon swap (clipboard→check), aria-live kept hidden        |
-| OUT-06    | Testing | ✅   | —   | ◻   | Phase 14: notes textarea (no change)                                     |
-| OUT-07    | Testing | ✅   | —   | ◻   | Phase 14: Prompt Claude solid-accent primary button                      |
-| OUT-08    | Testing | —    | ◻   | ◻   | Phase 14: card stays expanded; only manual collapse                      |
+| OUT-06    | 🏁 Approved | ✅   | —   | ◻   | Phase 14: notes textarea (no change)                                     |
+| OUT-07    | 🏁 Approved | ✅   | —   | ◻   | Phase 14: Prompt Claude solid-accent primary button                      |
+| OUT-08    | 🏁 Approved | —    | ◻   | ◻   | Phase 14: card stays expanded; only manual collapse                      |
 | VIS-01    | Testing | —    | —   | ◻   | Phase 12: unified icon rule, panel accent border, · subtitle separator   |
 | VIS-02    | Testing | —    | —   | ◻   | Phase 0: touch targets set                                               |
 | VIS-03    | Testing | —    | —   | ◻   | Phase 0: card layout CSS done                                            |
-| TST-01    | Testing | ✅   | ✅  | —   | Snapshot test in prompt-builder.test.js + e2e determinism test           |
-| TST-02    | Testing | ✅   | ✅  | —   | E2e tests: Fix + Review journeys, card transitions, flow reset, PAT flow |
-| TST-03    | Testing | ✅   | —   | —   | Schema validation errors tested in flow-loader                           |
+| TST-01    | 🏁 Approved | ✅   | ✅  | —   | Snapshot test in prompt-builder.test.js + e2e determinism test           |
+| TST-02    | 🏁 Approved | ✅   | ✅  | —   | E2e tests: Fix + Review journeys, card transitions, flow reset, PAT flow |
+| TST-03    | 🏁 Approved | ✅   | —   | —   | Schema validation errors tested in flow-loader                           |
 
 ---
 
