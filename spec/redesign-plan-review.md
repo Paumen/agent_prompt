@@ -53,7 +53,7 @@
 | **output-field** | Grid: 5 cols × 2 rows                | —                      | Columns: step#, label, content, content, trash. For step rows.                                                                                          |
 | **output-block** | Flex                                 | —                      | Prompt code-block display.                                                                                                                              |
 
-### Button Taxonomy (Target: 5 types, challenge to 4)
+### Button Taxonomy (5 types — final)
 
 | Type            | Look                                                | Behavior                         | Current equivalent                  | Used for                                      |
 | :-------------- | :-------------------------------------------------- | :------------------------------- | :---------------------------------- | :-------------------------------------------- |
@@ -63,7 +63,7 @@
 | **btn-pill**    | Pill shape, neutral border, darker bg when selected | Multi-select toggle              | `.pill` + `.pill--on`               | Lenses, output modes                          |
 | **btn-icon**    | No bg (transparent/inherit), icon ± label           | Tertiary action, collapse/expand | `.btn-icon`, `.card-header`         | Clear, remove, info, card headers, eye toggle |
 
-**Can we reach 4?** Merge `btn-action` into `btn-select` (a select that's never "selected" is effectively an action button). This works if Copy just uses `btn-select` styling without a selected state. Trade-off: semantically muddier. PO to decide.
+**Decision: keep 5 types.** The semantic distinction between `btn-select` (has selected state, announced by screen readers via `aria-selected`/`aria-checked`) and `btn-action` (stateless, fires-and-forgets) matters for both accessibility and maintainability. Merging them saves one class name but loses a meaningful distinction that screen readers and keyboard users rely on. 5 types is already a simplification from the current 6+ variants with inconsistent naming.
 
 ### Other Elements
 
@@ -273,6 +273,27 @@ createLabel(text, { required });
 
 Each function returns a DOM element with the correct framework class names already applied. Card files never write `className = 'btn-pill'` directly — they call `createButton('pill', {...})`. This means if class names ever change again, only `ui.js` needs updating.
 
+#### `ui.js` — Scope Boundaries
+
+**IN scope** (belongs in `ui.js`):
+
+- DOM element creation for reusable components (buttons, inputs, pickers, tags, grids)
+- Applying the correct CSS class names from the framework
+- Setting ARIA attributes (`role`, `aria-checked`, `aria-expanded`, `aria-label`)
+- Wiring event callbacks passed in as parameters (`onClick`, `onInput`, `onRemove`, `onToggle`)
+- Returning a ready-to-append DOM element or fragment
+
+**OUT of scope** (does NOT belong in `ui.js`):
+
+- **Card-specific composition logic** — which components appear in which card, in what order, wired to which state fields. This stays in card files. `ui.js` builds a picker; `card-tasks.js` decides that card 2 has a file picker in panel A wired to `state.selectedFiles`.
+- **Business logic** — API calls, validation, caching, data transforms, scoring. Never in `ui.js`. Example: PAT validation stays in `card-configuration.js`, step regeneration stays in `card-steps.js`, quality scoring stays in `quality-meter.js`.
+- **State management** — `getState()`, `setState()`, `subscribe()` are never called inside `ui.js`. Card files read state and pass values into `ui.js` factory functions. Card files subscribe to state changes and call `ui.js` to update or re-render.
+- **One-off / special components** — Quality meter bar+track, shimmer animations, notification floats. These have unique DOM structures that don't repeat. They use local DOM creation in their own files (`quality-meter.js`, `components.js`) or get removed if unused. Adding them to `ui.js` would bloat it with single-use functions.
+- **Layout decisions** — `ui.js` does not decide grid column counts, container widths, or responsive breakpoints. That's CSS (`layout.css`). `ui.js` creates elements; CSS places them.
+- **Icons** — `icons.js` already handles SVG creation. `ui.js` calls `icon()` but doesn't own it.
+
+**Litmus test:** If a function would only be called from one card file, it does NOT belong in `ui.js`. If it's called from 2+ card files (or reasonably could be), it does.
+
 #### Summary: JS line count impact
 
 |                 | Current   | Target           | Reduction                 |
@@ -331,18 +352,74 @@ The reduction is modest in raw lines because business logic doesn't shrink — i
 
 **Key principle (from PO):** We build the framework first, then cards conform to it. NOT the other way around. Each component sits in its grid; it should not matter which card it's in. This IS the maintainability fix.
 
+### Phase Validation Criteria (Exit Gates)
+
+Each phase must pass its exit gate before the next phase begins.
+
+**Phase 0 — CSS Quick Wins:**
+
+- [ ] All quick-win CSS changes merged (pill consolidation, flex utility, surface pattern, accent light-dark fix, shadow-inset-sm fix)
+- [ ] `npm run build` passes with zero errors
+- [ ] `npm run lint` passes
+- [ ] Visual regression check: PO confirms app looks identical before and after (no visible changes — these are internal consolidations only)
+- [ ] All existing tests still pass (`npm test`)
+
+**Phase 1 — Framework Definition:**
+
+- [ ] 4 new CSS files created: `variables.css` (updated), `layout.css`, `components.css`, `special.css`
+- [ ] All grid classes defined and documented (body, card, card-in-card, input, output, btn-\*)
+- [ ] `container-type: inline-size` set on card elements
+- [ ] `clamp()` applied to spacing and font-size variables
+- [ ] `ui.js` created with all factory functions (`createButton`, `createInputField`, `createPicker`, `createTag`, `createButtonGrid`, `createMoreLess`, `createLabel`)
+- [ ] Old `styles.css` and new CSS files coexist without conflicts — both class systems work simultaneously
+- [ ] `npm run build` passes
+- [ ] A standalone HTML test page or Storybook-like preview demonstrates each `ui.js` component works correctly in isolation
+- [ ] PO reviews component preview and confirms visual direction
+
+**Phase 2 — Structural Application (per card):**
+
+Exit gate applies _after each card migration_, not just at the end:
+
+- [ ] Card uses only new framework classes — zero card-specific CSS classes remain for that card
+- [ ] Card DOM is flatter: no `dual-panel`, `panel-area`, `input-row`, or `dropdown-wrapper` wrappers
+- [ ] Card JS uses `ui.js` factory functions — no direct `className` or `classList.add` for framework components
+- [ ] All functional tests for that card pass (state changes, user interactions produce correct results)
+- [ ] Accessibility spot-check: ARIA attributes preserved, keyboard navigation works, focus outlines visible
+- [ ] `npm run build` passes
+- [ ] PO visual review: card looks correct at mobile (375px), tablet (768px), and desktop (1200px) widths
+
+Card migration order: card-prompt → card-steps → card-configuration → card-tasks
+
+**Phase 3 — Pattern Cleanup:**
+
+- [ ] Zero card-specific CSS classes remain across entire app
+- [ ] Core class count < 50 (excluding special.css)
+- [ ] Old `styles.css` deleted entirely — all styles live in 4 new files
+- [ ] No orphaned CSS rules (every rule is referenced by at least one element)
+- [ ] `ALL_LENSES` and other duplicated constants extracted to shared module
+- [ ] `npm run build` + `npm run lint` + `npm test` all pass
+
+**Phase 4 — Test Simplification:**
+
+- [ ] DOM-structure tests replaced with behavior tests (test what the user sees, not what classes exist)
+- [ ] Low-value tests removed (framework wiring, header text assertions)
+- [ ] Test count in range ~200-250 (down from 432)
+- [ ] All remaining tests pass
+- [ ] No test references old class names or removed DOM wrappers
+- [ ] `npm test` passes with zero failures
+
 ---
 
 ## k. Open Items / Decisions Required
 
-| #   | Item                                                                                                                                                                                                                                                                                                                                         | Status                        |
-| :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
-| 1   | **btn-action vs btn-select merge → reach 4 button types?** PO: semantically muddier but simpler. Decide before Phase 2.                                                                                                                                                                                                                      | Open                          |
-| 2   | **Input grid: fixed 20%/80% vs subgrid for flexibility?** If subgrid can keep labels consistent across cards while adapting to content, it's the best of both worlds.                                                                                                                                                                        | Open — will prototype both    |
-| 3   | **Shimmer/loader/notifications: working?** PO hasn't seen them. Verify if functional before including in framework. If unused, remove.                                                                                                                                                                                                       | Open — needs verification     |
-| 4   | **Test reduction target: ~200-250 acceptable?** PO confirmed desire for efficiency over coverage.                                                                                                                                                                                                                                            | Approved in principle         |
-| 5   | **CSS file split: `layout.css` + `components.css` + `special.css`?** PO proposed this split. Adopted in plan. Confirm naming convention before Phase 2.                                                                                                                                                                                      | Adopted — naming TBD          |
-| 6   | **`ui.js` scope: just DOM creation or also event wiring?** If `ui.js` only creates elements, card files still wire events. If `ui.js` also wires events (via callback params), card files shrink more but `ui.js` grows. Recommendation: include callback params in factory functions (like `onClick`, `onInput`) — this is the natural API. | Open — prototype will clarify |
+| #   | Item                                                                                                                                                                                                                                                                                                                                         | Status                                                                                                                                                                              |
+| :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **btn-action vs btn-select merge → reach 4 button types?**                                                                                                                                                                                                                                                                                   | **Closed — keep 5.** The semantic distinction aids accessibility (screen readers announce selected state for `btn-select` but not `btn-action`) and maintainability. See section c. |
+| 2   | **Input grid: fixed 20%/80% vs subgrid for flexibility?** If subgrid can keep labels consistent across cards while adapting to content, it's the best of both worlds.                                                                                                                                                                        | Open — will prototype both                                                                                                                                                          |
+| 3   | **Shimmer/loader/notifications: working?** PO hasn't seen them. Verify if functional before including in framework. If unused, remove.                                                                                                                                                                                                       | Open — needs verification                                                                                                                                                           |
+| 4   | **Test reduction target: ~200-250 acceptable?** PO confirmed desire for efficiency over coverage.                                                                                                                                                                                                                                            | Approved in principle                                                                                                                                                               |
+| 5   | **CSS file split: `layout.css` + `components.css` + `special.css`?** PO proposed this split. Adopted in plan. Confirm naming convention before Phase 2.                                                                                                                                                                                      | Adopted — naming TBD                                                                                                                                                                |
+| 6   | **`ui.js` scope: just DOM creation or also event wiring?** If `ui.js` only creates elements, card files still wire events. If `ui.js` also wires events (via callback params), card files shrink more but `ui.js` grows. Recommendation: include callback params in factory functions (like `onClick`, `onInput`) — this is the natural API. | Open — prototype will clarify                                                                                                                                                       |
 
 ---
 
