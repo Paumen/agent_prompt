@@ -1,26 +1,33 @@
 :root {
   color-scheme: light dark;
 
+  /* === Surfaces === */
   --shell: light-dark(#f6f8fa, #010409);
   --bg: light-dark(#f1f1f1, #0d1117);
   --bg-raised: light-dark(#ffffff, #161b22);
   --bg-inset: light-dark(#ddd, #010409);
+  --bg-inset-darker: light-dark(#ccc, #000000);
 
+  /* === Text === */
   --text-primary: light-dark(#1f2328, #dddddd);
   --text-secondary: light-dark(#656d76, #848d97);
   --text-tertiary: light-dark(#8c959f, #7d8590);
 
+  /* === Borders === */
   --border: light-dark(#d0d7de, #30363d);
   --border-focus: light-dark(#326a89, #326a89);
 
-  --accent: #42767a;
-  --accent-subtle: oklch(78% 0.075 196);
-  --accent-hover: #326a89;
+  /* === Accent (fixed: all use light-dark()) === */
+  --accent: light-dark(#42767a, #42767a);
+  --accent-subtle: light-dark(oklch(78% 0.075 196), oklch(78% 0.075 196));
+  --accent-hover: light-dark(#326a89, #326a89);
 
+  /* === Shadows === */
   --shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
   --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --shadow-inset-sm: inset 0 1px 2px rgba(31, 35, 40, 0.075);
 
-  /* Icon colors */
+  /* === Icon colors === */
   --neutral: light-dark(#656d76, #848d97);
   --neutral-dark: light-dark(#1f2328, #e6edf3);
   --caution: light-dark(#bc4c00, #bc4c00);
@@ -36,17 +43,19 @@
     ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
     monospace;
 
-  --text-sm: 0.6875rem;
-  --text: 0.875rem;
-  --text-lg: 1.125rem;
+  --text-sm: clamp(0.625rem, 0.6rem + 0.15vw, 0.75rem);
+  --text: clamp(0.8125rem, 0.775rem + 0.2vw, 0.9375rem);
+  --text-lg: clamp(1rem, 0.95rem + 0.25vw, 1.1875rem);
 
   --line-height-sm: 1.1;
   --line-height: 1.4;
 
-  /* === Spacing === */
-  --sp-2: 2px;
-  --sp-4: 4px;
-  --sp-8: 8px;
+  /* === Spacing (clamp for responsive) === */
+  --sp-2: clamp(2px, 1px + 0.1vw, 3px);
+  --sp-4: clamp(4px, 3px + 0.15vw, 6px);
+  --sp-8: clamp(6px, 5px + 0.25vw, 10px);
+  --sp-12: clamp(8px, 6px + 0.4vw, 14px);
+  --sp-16: clamp(12px, 10px + 0.5vw, 18px);
 
   /* === Border radius === */
   --radius: 6px;

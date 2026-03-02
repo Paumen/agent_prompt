@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Component Preview — v2 Framework</title>
+    <link rel="stylesheet" href="./css/variables.css" />
+    <link rel="stylesheet" href="./css/layout.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/special.css" />
+    <style>
+      body {
+        font-family: var(--font-body);
+        font-size: var(--text);
+        color: var(--text-primary);
+        background: var(--shell);
+        margin: 0;
+        padding: var(--sp-16);
+        line-height: var(--line-height);
+      }
+
+      .preview-app {
+        max-width: 800px;
+        margin: 0 auto;
+        display: grid;
+        gap: var(--sp-16);
+      }
+
+      .preview-section {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: var(--sp-16);
+      }
+
+      .preview-section h2 {
+        margin: 0 0 var(--sp-4);
+        font-size: var(--text-lg);
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: var(--sp-4);
+      }
+
+      .preview-section h3 {
+        margin: var(--sp-8) 0 var(--sp-4);
+        font-size: var(--text);
+        color: var(--text-secondary);
+      }
+
+      .preview-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sp-4);
+        align-items: center;
+        margin-bottom: var(--sp-8);
+      }
+
+      .preview-label {
+        font-size: var(--text-sm);
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        min-width: 100px;
+      }
+
+      .preview-spacer {
+        height: var(--sp-4);
+      }
+
+      #log {
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+        background: var(--bg-inset);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: var(--sp-4);
+        max-height: 120px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-app">
+      <h1 style="margin: 0; font-size: var(--text-lg)">v2 Component Preview</h1>
+      <p
+        style="
+          margin: 0;
+          color: var(--text-secondary);
+          font-size: var(--text-sm);
+        "
+      >
+        Each section below demonstrates a <code>ui.js</code> factory function.
+        Click any interactive component — events log at the bottom.
+      </p>
+
+      <!-- Buttons -->
+      <section class="preview-section" id="section-buttons"></section>
+
+      <!-- Input Fields -->
+      <section class="preview-section" id="section-inputs"></section>
+
+      <!-- Labels -->
+      <section class="preview-section" id="section-labels"></section>
+
+      <!-- Tags -->
+      <section class="preview-section" id="section-tags"></section>
+
+      <!-- Button Grid -->
+      <section class="preview-section" id="section-button-grid"></section>
+
+      <!-- More/Less Toggle -->
+      <section class="preview-section" id="section-more-less"></section>
+
+      <!-- Picker -->
+      <section class="preview-section" id="section-picker"></section>
+
+      <!-- Layout Grid Demo -->
+      <section class="preview-section" id="section-layout"></section>
+
+      <!-- Event Log -->
+      <section class="preview-section">
+        <h2>Event Log</h2>
+        <div id="log">Ready.\n</div>
+      </section>
+    </div>
+
+    <script type="module" src="./js/preview.js"></script>
+  </body>
+</html>
