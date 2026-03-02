@@ -17,7 +17,7 @@ body {
 }
 
 #app {
-  max-width: 800px;
+  max-width: 640px;
   margin: 0 auto;
   padding: var(--sp-4);
   display: flex;
@@ -942,24 +942,3 @@ body {
   outline-offset: -2px;
 }
 
-/* === Responsiveness === */
-@media (min-width: 768px) {
-  #app {
-    padding: var(--sp-8);
-    gap: var(--sp-8);
-  }
-
-  :is(.card-header, .card-body) {
-    padding: var(--sp-8);
-  }
-
-  .dual-panel {
-    flex-direction: row;
-    gap: var(--sp-8);
-  }
-
-  .dual-panel .panel {
-    flex: 1;
-    min-width: 0;
-  }
-}
