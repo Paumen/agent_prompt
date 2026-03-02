@@ -3,6 +3,9 @@
 ## Table of Contents
 
 1. [Architecture & File Map](#1-architecture--file-map)
+## Table of Contents
+
+1. [Architecture & File Map](#1-architecture--file-map)
 2. [Preconditions](#2-preconditions)
 3. [Phase 0 — CSS Foundation](#3-phase-0--css-foundation)
 4. [Phase 1 — State Management](#4-phase-1--state-management)
@@ -13,7 +16,12 @@
 9. [Phase 6 — Card 3: Steps (Auto-Generated)](#9-phase-6--card-3-steps-auto-generated)
 10. [Phase 7 — Card 4: Prompt Output](#10-phase-7--card-4-prompt-output)
 11. [Phase 8 — Polish & Constraints](#11-phase-8--polish--constraints)
-12. [UAT Feedback Remediation — Phases 10–14](#12-UAT-Feedback-Remediation-Phases-10-till-14)
+12. [Phase 9 — Global Visual Foundation](#12-phase-9--global-visual-foundation)
+13. [Phase 10 — Config Card Refinement](#13-phase-10--config-card-refinement)
+14. [Phase 11 — Task Card (Dual-Panel)](#14-phase-11--task-card-dual-panel)
+15. [Phase 12 — Steps Card & Output Logic](#15-phase-12--steps-card--output-logic)
+16. [Phase 13 — Prompt Card & Action Header](#16-phase-13--prompt-card--action-header)
+17. [Phase 14 — Final UAT & Regression](#17-phase-14--final-uat--regression)
 
 ---
 
@@ -93,7 +101,7 @@
 
 ---
 
-## 12. UAT Feedback Remediation Phases 10 till 14
+## UAT Feedback Remediation Phases 10 till 14
 
 ### Context
 
@@ -122,439 +130,45 @@ fully address the remaining feedback.
 
 ---
 
-### Phase 10 — Global Visual Foundation
+ ## 12. Phase 9 — Global Visual Foundation
 
-**Goal:** Add shadow depth system, fix diamond chevrons to octicon arrows, deepen active
-state contrast. Header padding left unchanged.
+[x] **Shadow System**: Implement `--shadow-sm` and `--shadow-md` for elevation; apply to cards and modals for improved cognitive mapping of layers.
+[x] **Icon Migration**: Replace CSS-transform "diamonds" with inline Octicon SVGs; unify all iconography under a single `.icon` class with standard scaling.
+[x] **Contrast & State**: Refine `--accent-subtle` for ≥4.5:1 contrast; use `oklch` for perceptually uniform selection states.
+[x] **Field Depth**: Add internal shadows to `.input-field` to create a "recessed" affordance, distinguishing interactive areas from surface containers.
 
-#### Files
 
-- `src/css/variables.css`
-- `src/css/styles.css`
 
-#### 1. New shadow variables (`variables.css`)
+## 13. Phase 10 — Config Card Refinement
 
-```css
---shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
---shadow-md: 0 2px 8px rgba(0, 0, 0, 0.14);
-```
+[x] **Expansion Logic**: Refactor `renderButtons()` to prevent auto-collapse on selection; ensure "Show More" persistence for user context.
+[x] **Credential UI**: Implement flex-sibling layout `[icon][input][eye][clear]` for PAT/Username; toggle actions based on input state without layout shift.
+[x] **Iconography**: Prepend context-specific Octicons (repo/git-branch) to all grid items; utilize flex-wrap for natural "More/Less" button placement.
+[x] **Affordance**: Ensure PAT field uses `type="password"` by default with high-contrast visibility toggles.
 
-#### 2. Deepen active state contrast (`variables.css`)
+## 14. Phase 11 — Task Card (Dual-Panel)
 
-- Darken `--accent-subtle` so selected buttons are visibly distinct. Current:
-  `#aed1d4` → target approximately `oklch(72% 0.06 195)` (adjust in review until
-  contrast ratio ≥ 4.5:1 against `--text-primary`).
+[x] **Visual Separation**: Redefine Situation/Target panels as stacked cards with distinct `--surface` tokens and 1px borders for depth.
+[x] **Validation UI**: Replace disruptive error blocks with inline `alert` icons and hover-based tooltips; reduce visual noise while maintaining mandatory cues.
+[x] **Hierarchy**: Implement 2-tier button system; selected flows use `--surface-inset` and `--accent` left-borders for immediate state feedback.
+[x] **Compact Layout**: Inline panel subtitles with `·` separators; reduce field labels to `var(--text-sm)` for mobile-first density.
 
-####3. Fix diamond chevrons (`styles.css` + JS)
+## 15. Phase 12 — Steps Card & Output Logic
 
-- Current chevron is a CSS border/transform trick producing a diamond shape.
-- Replace: inline an octicon `chevron-down` SVG (16×16, `viewBox="0 0 16 16"`) in
-  the card header toggle wherever it is built in JS. Apply classes `.icon .icon--chevron`.
-- CSS:
-  ```css
-  .icon--chevron {
-    transition: transform 0.2s ease;
-  }
-  .card--open .icon--chevron {
-    transform: rotate(180deg);
-  }
-  ```
-- `.icon { flex-shrink: 0; display: block; }` — ensures no clipping for all icons.
-- No per-card variant class. One rule covers all card chevrons.
+[x] **Step Styling**: Render steps as distinct blocks with operation-coded icons (e.g., Green/Create, Blue/Edit) and circular number badges.
+[x] **Multi-select Outputs**: Migrate output selection to an array-based checkbox behavior; implement "Tab Bar" toggles with static labels.
+[x] **File Consolidation**: Merge redundant "Read" steps into single blocks with removable file pills; maintain individual file paths in the prompt engine.
+[x] **Lens Stability**: Prevent layout "jumping" by fixing lens order; store expanded states in local module state to persist through re-renders.
 
-#### 4. Depth: cards and input fields (`styles.css`)
+## 16. Phase 13 — Prompt Card & Action Header
 
-- `.card`: `box-shadow: var(--shadow-sm)`
-- `.input-field`: `box-shadow: inset 0 1px 2px rgba(0,0,0,0.06)` (recessed feel,
-  no new variable needed for this specific raw value).
+[x] **Header Actions**: Move "Copy" and "Prompt Claude" to the card header; establish clear Primary vs. Ghost visual hierarchy.
+[x] **Feedback Loops**: Implement "Swap-and-Revert" icon animation for Copy (Clipboard → Check); avoid text labels to maintain UI cleanliness.
+[x] **Syntax Highlighting**: Process preview through `highlightXml` utility to wrap tags in `.xml-tag` spans using `--accent` color tokens.
+[x] **Quality Meter**: Append an `info` icon with a detailed scoring tooltip; ensure the color bar reflects weighted state changes reactively.
 
-#### Verification (Phase 10)
+## 17. Phase 14 — Final UAT & Regression
 
-- Chevrons animate without looking like diamonds
-- Cards have visible drop shadow
-- Selected buttons visually distinct from unselected (contrast check)
-
----
-
-## Phase 11 — Config Card Polish
-
-**Goal:** Fix Show More (render all, no auto-collapse on selection), inline eye/clear as
-flex siblings, username clear icon, repo/branch icons per button, fill row with "more"
-at end.
-
-### Files
-
-- `src/js/card-configuration.js`
-- `src/css/styles.css`
-
-### 1. Show More Logic fix (UAT 1.6)
-
-- `renderRepoButtons()`: when `reposCollapsed === false`, slice/filter must be removed —
-  render all repo items.
-- `renderBranchButtons()`: same, render all branches when expanded.
-- **No collapse on selection**: Remove any code that sets `reposCollapsed = true` /
-  `branchesCollapsed = true` after the user picks a repo or branch. Grid stays expanded
-  until user clicks "Less".
-- "Less" button: the **last child** in the flex row (after all items). Styled as a
-  secondary grid button with `.icon--chevron` (pointing up).
-
-### 2. Branch display limit (UAT 1.7)
-
-- Default visible (collapsed): **3** branches. Selected branch always visible even if
-  beyond limit.
-
-### 3. Fill-row layout with "More" at end
-
-- Repo and branch grids: `display: flex; flex-wrap: wrap; gap: var(--sp-2)`.
-- "More" / "Less" is a natural last flex child at end of row — no `margin-left: auto`.
-- Buttons: `width: auto`, using `min-width` from `.btn-grid-item` existing styles.
-
-### 4. Repo/branch icon on each button
-
-- Each repo button: prepend `repo` octicon SVG (`<svg class="icon icon--sm">`).
-- Each branch button: prepend `git-branch` octicon SVG.
-- Octicon paths inlined in `card-configuration.js` (same pattern as Phase 5 flow icons).
-
-### 5. Eye / Clear as flex siblings (UAT 1.3, Overall)
-
-Layout for credential row (flex row of siblings — **no padding hacks**):
-
-```
-[icon-left] [input flex:1] [eye-btn?] [clear-btn?]
-```
-
-HTML structure:
-
-```html
-<div class="input-row">
-  <svg class="icon icon--sm"><!-- key or github --></svg>
-  <input class="input-field" … />
-  <button class="btn-icon js-eye-btn" hidden><!-- eye svg --></button>
-  <button class="btn-icon js-clear-btn" hidden><!-- × svg --></button>
-</div>
-```
-
-- `hidden` removed by JS when input has a value.
-- PAT eye button: shows `eye` octicon when field is `type="password"`, `eye-closed`
-  when `type="text"`. Swapped by JS toggling a class (`.eye-open` / `.eye-closed`) which
-  CSS uses to `display: block / none` the two pre-rendered SVG spans.
-
-### 6. Input icons (UAT 1.3)
-
-- Username `.input-row` left icon: GitHub mark SVG (`.icon.icon--sm`).
-- PAT `.input-row` left icon: `key` octicon (not `lock`).
-- Both use `.icon.icon--sm`; no new class.
-
-### 7. Section icons improvement (UAT 1.9)
-
-- Repos heading icon: `repo` octicon; branches heading icon: `git-branch` octicon.
-- Both use `.icon.icon--sm`. The `.icon { flex-shrink: 0; }` rule (from Phase 10)
-  prevents clipping.
-
-### Verification (Phase 11)
-
-- `renderRepoButtons` expanded: all repos in DOM (new unit test)
-- `renderBranchButtons` expanded: all branches in DOM (new unit test)
-- Selecting a repo does not collapse the grid
-- Eye/clear visible only when PAT field has a value
-- Eye icon swaps to eye-closed when PAT is revealed
-- Username has a clear (×) icon that removes its value
-
----
-
-## Phase 12 — Task Card Polish
-
-**Goal:** Fix flow icon clipping with one unified icon rule, stacked-card panel
-separation, input contrast, picker icons, button hierarchy, compact field labels,
-inline mandatory warning icons.
-
-### Files
-
-- `src/js/card-tasks.js`
-- `src/css/styles.css`
-
-### 1. Flow Icon Fixes — one unified rule (UAT 2.1)
-
-- **One CSS rule** covers icons inside all `.btn-grid-item` contexts:
-  ```css
-  .btn-grid-item .icon {
-    width: 20px;
-    height: 20px;
-    display: block;
-  }
-  ```
-- Remove any `overflow: hidden` on `.btn-grid-item` or `.flow-icon` that clips SVGs.
-- Remove the dedicated `.flow-icon` class if it only duplicates this. If it serves a
-  semantic purpose (e.g. coloring when selected), rename to `.icon--flow` and merge with
-  `.icon`.
-- Verify `viewBox="0 0 16 16"` on all 4 inlined octicons in `card-tasks.js`.
-
-### 2. Panel Visual Separation — Two Stacked Cards (UAT 2.4)
-
-Panel A and Panel B rendered as two distinct card blocks with a gap. Depth from borders
-and shadow — not padding or whitespace.
-
-- Panel A: `background: var(--surface-raised); border: 1px solid var(--border);
-border-radius: var(--radius); box-shadow: var(--shadow-sm);`
-- Panel B: `background: var(--surface-inset); border: 1px solid var(--border);
-border-radius: var(--radius); box-shadow: var(--shadow-sm);`
-- Wrapper: `display: flex; flex-direction: column; gap: var(--sp-4);`
-
-### 3. Input Field Contrast (UAT 2.8)
-
-- All `.input-field`: `background: var(--surface-inset); border: 1px solid var(--border);`
-  (`--surface-inset = oklch(94% 0.015 85)` is noticeably warmer/darker than card body.)
-
-### 4. Picker Icons (UAT 2.9)
-
-- Verify `renderPickerField()` prepends `.icon.icon--sm` SVGs for PR, issue, file.
-- Picker label icon sizing: `.picker-label .icon { width: 14px; height: 14px; }` (added
-  as a scoped rule, not a new class — reuses `.icon` with scoped size override).
-
-### 5. Task Button Visual Hierarchy
-
-- Unselected: `background: var(--surface-raised); border: 1px solid var(--border);
-color: var(--text-secondary);`
-- Selected: `background: var(--surface-inset); border-color: var(--accent);
-color: var(--text-primary);` + `4px` left border `var(--accent)`.
-- Icon color: unselected = `--text-tertiary`, selected = `--accent`. Via
-  `.btn-grid-item.selected .icon { color: var(--accent); }`.
-
-### 6. Mandatory Field Visual Cues
-
-- Show a small `alert` octicon (`.icon.icon--sm`, `--danger` color) inline next to the
-  field label when its required group is unsatisfied.
-- No error text visible at rest. On hover (desktop) / tap (mobile): a `<span
-role="tooltip">` with the message appears adjacent to the icon.
-- Remove the full-width error block. Inline icon only.
-- CSS: `.req-icon { color: var(--danger); }` and `.req-tooltip` with
-  `position: absolute; background: var(--surface-raised); border: 1px solid var(--border);
-border-radius: var(--radius); font-size: var(--text-sm); box-shadow: var(--shadow-md);`
-
-### 7. Compact Task Card Labels
-
-- Field labels: `font-size: var(--text-sm)`.
-- Panel subtitle rendered inline with panel header: `Situation · What's happening now`
-  — `<span class="panel-subtitle">` separated by `·`, not a new line.
-- Field row gap: `gap: var(--sp-3)`.
-
-### Verification (Phase 12)
-
-- [x] Flow icons not clipped at 20×20px in all 4 flow buttons
-- [x] Panels visually distinct (same background, Panel A has left accent border) with shadow
-- [x] Input fields clearly darker/warmer than card body (global `--surface-inset`)
-- [x] Required group dot (7px) with tooltip on hover; full-width error block removed
-- [x] Picker icons use `.icon.icon--sm` class, no inline styles
-- [x] Selected button icons colored `--accent`
-- [x] Panel subtitle inline with `·` separator
-
----
-
-## Phase 13 — Steps Card Polish
-
-**Goal:** Block-styled step rows with operation-color + object icons, compact output
-mode icons with static labels and brief float on interaction, file step consolidation
-(individual removal), lens stability, multi-select outputs.
-
-### Files
-
-- `src/js/card-steps.js`
-- `src/js/step-generator.js`
-- `src/js/prompt-builder.js`
-- `src/css/styles.css`
-
-### 1. Step Block Styling (UAT 3.1)
-
-- `.step-row`: `background: var(--surface-raised); border: 1px solid var(--border);
-border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: var(--sp-3) var(--sp-4);`
-- Step number badge: `background: var(--accent); color: var(--surface-raised);
-border-radius: 50%; width: 20px; height: 20px; font-size: var(--text-sm);
-flex-shrink: 0; display: grid; place-content: center;`
-
-### 2. Step Object Icons + Operation Color
-
-Each step row gets a leading icon based on **object type**, colored by **operation type**.
-
-Object → octicon:
-
-| Object       | Octicon            |
-| ------------ | ------------------ |
-| file / files | `file`             |
-| branch       | `git-branch`       |
-| PR           | `git-pull-request` |
-| issue        | `issue-opened`     |
-| tests        | `beaker`           |
-| commit       | `git-commit`       |
-| report       | `file-text`        |
-
-Operation → color class (applied to `.icon`):
-
-| Operation       | Class             | Color              |
-| --------------- | ----------------- | ------------------ |
-| read / analyze  | `.icon--read`     | `--text-secondary` |
-| edit / modify   | `.icon--edit`     | `--accent`         |
-| create / commit | `.icon--create`   | `--success`        |
-| validate / run  | `.icon--validate` | `--accent-hover`   |
-
-CSS:
-
-```css
-.icon--read {
-  color: var(--text-secondary);
-}
-.icon--edit {
-  color: var(--accent);
-}
-.icon--create {
-  color: var(--success);
-}
-.icon--validate {
-  color: var(--accent-hover);
-}
-```
-
-### 3. Output Mode Icons — Static Labels + Brief Float (UAT 3.2)
-
-- Replace output pill row with a flex row of icon-toggle-buttons. Each has:
-  - SVG icon (`.icon.icon--sm`)
-  - Static `<span class="output-label">` (5–7 chars) below the icon, always visible
-    (like a tab bar): `Here`, `PR Com`, `Inline`, `Issue`, `File`
-  - On toggle (click/tap): brief floating text (full mode name, ~1.5s) via CSS
-    `@keyframes` animation on a `<span class="output-float">` element.
-- CSS: each output button = `display: flex; flex-direction: column; align-items: center;
-gap: var(--sp-1);`
-- **Multi-select**: checkbox behavior — multiple modes active simultaneously.
-  State: `outputs_selected: [str]` (array) replaces `output_selected: str`.
-- Update `prompt-builder.js` to include all active modes.
-
-### 4. Optional Text Input Sizing (UAT 3.3)
-
-- `.step-optional-text`: `display: flex; align-items: center; gap: var(--sp-2);`
-  Label and input on the same flex row.
-- Input: `width: 160px; font-size: var(--text-sm);` — remove `flex-grow: 1`.
-
-### 5. PR Clear Button (UAT 3.5)
-
-- Audit `renderPickerSelection()` in `card-tasks.js`: confirm `clearBtn` click listener
-  calls `setState()` to null `pr_number` / `issue_number`.
-- Add unit test if not covered.
-
-### 6. Lens Stability (UAT 3.6)
-
-- Confirm `renderStepLenses()` has no sort logic — active lenses stay in fixed position.
-- Expanded "+more" section does **not** collapse when a lens is toggled.
-- Store per-step expanded state in a module-level `Set<stepId>` that persists across
-  re-renders; resets on flow switch.
-
-### 7. File Step Consolidation
-
-- `step-generator.js`: merge multiple "Read: @file" steps for the same flow section into
-  one: `{ operation: 'read', object: 'files', params: { files: [path1, path2, …] } }`.
-- `card-steps.js`: render file paths as removable pills inside the step row. Each pill
-  has its own `×` button removing only that file. Removing the last file removes the step.
-- `prompt-builder.js`: expand back to individual `Read: @file` lines per path in output.
-
-### 8. Output Mode State Migration
-
-- `output_selected: str` → `outputs_selected: [str]`. Default: `[output_modes[0]]`.
-- Update `state.js` `migrateState()` to convert existing single string to array.
-
-### Verification (Phase 13)
-
-- Step rows visually distinct blocks with icon + number badge
-- File step: multiple files merged into one step; each file removable individually
-- Output modes: multiple can be active; static label always visible; float label on toggle
-- Lens order stable on toggle; expanded section stays open
-- Optional text input on one row, constrained width
-
----
-
-## Phase 14 — Prompt Card Polish
-
-**Goal:** Compact button row in card header, modern copy icon swap, XML syntax
-highlighting in prompt area, quality meter tooltip.
-
-### Files
-
-- `src/js/card-prompt.js`
-- `src/css/styles.css`
-
-### 1. Button Repositioning & Hierarchy (UAT 4.1)
-
-- Card header: `display: flex; align-items: center; justify-content: space-between;`
-- Button group (right side of header): Copy (secondary) + "Prompt Claude" (primary).
-- "Prompt Claude": `background: var(--accent); color: var(--surface-raised);` — primary.
-- "Copy": `background: transparent; border: 1px solid var(--border); color: var(--text-primary);` — ghost.
-- Remove any standalone "Prompt" heading in card body if header already labels it.
-- Quality meter stays at top of card body, immediately below the header.
-
-### 2. Copy Button Modern Feedback (UAT 4.2)
-
-- Add `clipboard` octicon SVG and `check` octicon SVG — both pre-rendered in the button
-  DOM; one hidden at a time via CSS:
-  ```css
-  .btn-copy .icon-check {
-    display: none;
-  }
-  .btn-copy.btn--copied .icon-clipboard {
-    display: none;
-  }
-  .btn-copy.btn--copied .icon-check {
-    display: block;
-  }
-  ```
-- JS: adds `.btn--copied` on click; removes it after 2 seconds. No "Copied!" text span.
-  No JS DOM manipulation for the icon — only the class toggle.
-
-### 3. Prompt Area Polish
-
-- `.prompt-output`: `background: var(--surface-inset); border: 1px solid var(--border);
-min-height: 140px;`
-
-### 4. XML Syntax Highlighting
-
-- In `card-prompt.js`: process prompt text through `highlightXml(text)` before setting
-  `<pre>` content as `innerHTML`.
-- `highlightXml(text)`:
-  1. Escape text nodes: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;` in non-tag segments.
-  2. Regex-replace XML tag sequences with `<span class="xml-tag">…</span>`.
-- CSS: `.xml-tag { color: var(--accent); font-weight: 600; }`
-- Security: text-node content is fully HTML-escaped before injection.
-
-### 5. Quality Meter Tooltip
-
-- Append an `info` octicon button (`.btn-icon`) next to the quality meter label.
-- On hover/focus (desktop) or tap (mobile — second tap hides): a `<div role="tooltip">`
-  shows scoring criteria.
-- CSS: `position: absolute; background: var(--surface-raised); border: 1px solid
-var(--border); border-radius: var(--radius); font-size: var(--text-sm);
-box-shadow: var(--shadow-md);`
-
-### Verification (Phase 14)
-
-- Buttons in header right — no extra vertical row
-- Copy: clipboard → check icon on click, reverts after 2s, no external text
-- Prompt area background warm/inset
-- XML tags highlighted in accent color
-- Quality meter tooltip appears on hover/tap
-
----
-
-## Final Regression (after Phase 14)
-
-Full manual walkthrough on 375px mobile viewport:
-
-1. `npm run lint` passes
-2. `npm run build` passes
-3. `npm test` passes (all existing + new tests green)
-4. Chevrons animate (not diamond-shaped)
-5. Show More expands all repos/branches; selection does not auto-collapse list
-6. Flow icons not clipped, colored correctly when selected
-7. Panel A/B look like two distinct stacked cards
-8. Step rows visually distinct blocks with icons
-9. Output mode icons have static short labels; float label on toggle
-10. Copy shows check icon swap; no external text
-11. Prompt XML tags highlighted; XSS-safe
-
----
-
+[x] **Viewport Audit**: Verify zero horizontal scroll at 320px; ensure all touch targets (buttons/icons) meet 44px minimum height requirements.
+[x] **Performance**: Final bundle audit for vanilla JS/ESM compliance; remove redundant event listeners and unused CSS tokens.
+[x] **A11y Pass**: Validate `aria-expanded` states and ensure keyboard focus remains trapped in active input flows during credential entry.
