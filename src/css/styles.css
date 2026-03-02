@@ -172,7 +172,7 @@ body {
 .step-row {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  align-items: flex-start;
+  align-items: start;
   gap: var(--sp-4);
   padding: var(--sp-4);
   background: var(--bg-raised);
