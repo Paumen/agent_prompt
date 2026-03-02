@@ -20,16 +20,13 @@
   --shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
   --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
-  --danger: light-dark(#cf222e, #f85149);
-  --success: light-dark(#1a7f37, #3fb950);
-
   /* Icon colors */
-  --icon-neutral: light-dark(#656d76, #848d97);
-  --icon-neutral-dark: light-dark(#1f2328, #e6edf3);
-  --icon-caution: light-dark(#bc4c00, #bc4c00);
-  --icon-caution-dark: light-dark(#953800, #e68431);
-  --icon-attention: light-dark(#9d8700, #9d8700);
-  --icon-attention-dark: light-dark(#7c6c00, #c4a800);
+  --neutral: light-dark(#656d76, #848d97);
+  --neutral-dark: light-dark(#1f2328, #e6edf3);
+  --caution: light-dark(#bc4c00, #bc4c00);
+  --caution-dark: light-dark(#953800, #e68431);
+  --attention: light-dark(#9d8700, #9d8700);
+  --attention-dark: light-dark(#7c6c00, #c4a800);
 
   /* === Typography === */
   --font-body:

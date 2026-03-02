@@ -221,7 +221,7 @@ body {
 }
 
 .step-delete:hover {
-  color: var(--danger);
+  color: var(--caution);
 }
 
 .step-optional-row {
@@ -563,7 +563,7 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--danger);
+  background: var(--caution-dark);
   vertical-align: middle;
   cursor: help;
   transition: opacity 0.3s ease;
@@ -670,7 +670,7 @@ body {
 }
 
 .step-file-remove:hover {
-  color: var(--danger);
+  color: var(--caution-dark);
 }
 
 /* Specific Grid Placements for Panels */
@@ -696,28 +696,28 @@ body {
 }
 
 .icon-remove {
-  color: var(--icon-neutral);
+  color: var(--neutral);
 }
 .icon-remove:hover {
-  color: var(--icon-neutral-dark);
+  color: var(--neutral-dark);
 }
 .icon-info {
-  color: var(--icon-neutral);
+  color: var(--neutral);
 }
 .icon-info:hover {
-  color: var(--icon-neutral-dark);
+  color: var(--neutral-dark);
 }
 .icon-error {
-  color: var(--icon-caution);
+  color: var(--caution);
 }
 .icon-error:hover {
-  color: var(--icon-caution-dark);
+  color: var(--caution-dark);
 }
 .icon-warning {
-  color: var(--icon-attention);
+  color: var(--attention);
 }
 .icon-warning:hover {
-  color: var(--icon-attention-dark);
+  color: var(--attention-dark);
 }
 .icon-btn {
   color: inherit;
