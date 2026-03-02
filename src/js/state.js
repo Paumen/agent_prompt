@@ -107,6 +107,18 @@ function setByPath(obj, path, value) {
   target[last] = value;
 }
 
+/**
+ * Get a value from state by dot-notation path.
+ * Shared helper used by card-tasks.js and quality-meter.js.
+ *
+ * @param {object} obj - state object
+ * @param {string} path - dot-notation path (e.g., 'panel_a.description')
+ * @returns {*} value at path, or undefined if not found
+ */
+export function getValueByPath(obj, path) {
+  return path.split('.').reduce((o, key) => o?.[key], obj);
+}
+
 // --- Public API ---
 
 /**

@@ -10,6 +10,7 @@
 
 import { getState, setState, subscribe } from './state.js';
 import { renderQualityMeter } from './quality-meter.js';
+import { icon } from './icons.js';
 
 // --- Module-level references ---
 
@@ -116,8 +117,6 @@ function onPromptClaude() {
 function onNotesChange(value) {
   setState('notes.user_text', value);
 }
-
-import { icon } from './icons.js';
 
 // --- Quality Meter Tooltip (Phase 14, UAT 5) ---
 

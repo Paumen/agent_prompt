@@ -6,7 +6,36 @@
  * - showNotification: brief auto-dismiss toast (GL-05)
  * - createSearchableDropdown: mobile-first filter + list (SCT-06)
  * - setInteracting / isInteracting: mid-interaction flag for GL-05 deferral
+ * - expandCard / collapseCard: card expand/collapse helpers
  */
+
+// --- Card expand/collapse helpers (shared) ---
+
+/**
+ * Expand a card by ID.
+ * Shared helper used by card-configuration.js and card-tasks.js.
+ *
+ * @param {string} id - card element ID (e.g., 'card-steps')
+ */
+export function expandCard(id) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  card.classList.add('card--open');
+  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'true');
+}
+
+/**
+ * Collapse a card by ID.
+ * Shared helper used by card-configuration.js and card-tasks.js.
+ *
+ * @param {string} id - card element ID (e.g., 'card-configuration')
+ */
+export function collapseCard(id) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  card.classList.remove('card--open');
+  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'false');
+}
 
 // --- Mid-interaction tracking (GL-05) ---
 

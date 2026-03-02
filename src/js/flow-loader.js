@@ -28,3 +28,24 @@ export function getFlowById(id) {
 export function getFlowIds() {
   return Object.keys(flows);
 }
+
+/**
+ * All available lenses (from flows.yaml vocabulary).
+ * Shared constant used by card-steps.js and card-tasks.js.
+ */
+export const ALL_LENSES = [
+  'semantics',
+  'syntax',
+  'security',
+  'performance',
+  'structure',
+  'dependencies',
+  'duplications',
+  'redundancies',
+  'error_handling',
+  'naming_conventions',
+  'test_coverage',
+  'type_safety',
+  'documentation_completeness',
+  'accessibility',
+];

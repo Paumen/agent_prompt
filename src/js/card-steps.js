@@ -9,68 +9,13 @@
  */
 
 import { getState, setState, subscribe } from './state.js';
-import { getFlowById } from './flow-loader.js';
+import { getFlowById, ALL_LENSES } from './flow-loader.js';
 import { generateSteps, reconcileSteps } from './step-generator.js';
 import { setInteracting } from './components.js';
-
-// Available lenses (from flows.yaml vocabulary)
-const ALL_LENSES = [
-  'semantics',
-  'syntax',
-  'security',
-  'performance',
-  'structure',
-  'dependencies',
-  'duplications',
-  'redundancies',
-  'error_handling',
-  'naming_conventions',
-  'test_coverage',
-  'type_safety',
-  'documentation_completeness',
-  'accessibility',
-];
+import { icon, fileIconName } from './icons.js';
 
 // Show first 7 lenses. Rest behind "more" button.
 const INITIAL_LENS_COUNT = 7;
-
-import { icon } from './icons.js';
-
-// Code file extensions — file-code icon; everything else → file icon
-const CODE_EXT = new Set([
-  'js',
-  'mjs',
-  'cjs',
-  'ts',
-  'tsx',
-  'jsx',
-  'css',
-  'scss',
-  'html',
-  'vue',
-  'svelte',
-  'py',
-  'rb',
-  'go',
-  'rs',
-  'java',
-  'c',
-  'cpp',
-  'h',
-  'cs',
-  'php',
-  'sh',
-  'sql',
-  'json',
-  'xml',
-  'swift',
-  'kt',
-]);
-
-function fileIconName(path) {
-  const ext = path.split('.').pop()?.toLowerCase() || '';
-  return CODE_EXT.has(ext) ? 'file-code' : 'file';
-}
 
 // Output mode full labels
 const OUTPUT_LABELS = {

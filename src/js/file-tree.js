@@ -10,51 +10,7 @@
  *   - guideline_files: "HOW to build (coding standards, style guides)"
  */
 
-import { icon } from './icons.js';
-
-// Code file extensions → use file-code icon; everything else → file icon
-const CODE_EXTENSIONS = new Set([
-  'js',
-  'mjs',
-  'cjs',
-  'ts',
-  'tsx',
-  'jsx',
-  'css',
-  'scss',
-  'html',
-  'vue',
-  'svelte',
-  'py',
-  'rb',
-  'go',
-  'rs',
-  'java',
-  'c',
-  'cpp',
-  'h',
-  'cs',
-  'php',
-  'sh',
-  'bash',
-  'zsh',
-  'sql',
-  'json',
-  'xml',
-  'swift',
-  'kt',
-  'lua',
-  'r',
-  'pl',
-  'ex',
-  'exs',
-  'elm',
-]);
-
-function fileIconName(path) {
-  const ext = path.split('.').pop()?.toLowerCase() || '';
-  return CODE_EXTENSIONS.has(ext) ? 'file-code' : 'file';
-}
+import { icon, fileIconName } from './icons.js';
 
 /**
  * Create a multi-select file picker widget.

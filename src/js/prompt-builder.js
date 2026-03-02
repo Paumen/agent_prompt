@@ -27,14 +27,14 @@ export function buildPrompt(state) {
   // Spec uses task="debug" for fix flow, other flows match their flow ID
   const taskId = TASK_IDS[flowId] || flowId || 'task';
   lines.push(
-    `    Please help <task="${esc(taskId)}"> ${esc(flowLabel)} </task> by executing below 'todo' steps`
+    `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`
   );
   lines.push(
-    `    for <repository> https://github.com/${esc(owner)}/${esc(repo)} </repository>`
+    `    for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository>`
   );
-  lines.push(`    on <branch> ${esc(branch || 'main')} </branch>.`);
+  lines.push(`    on <branch> ${escapeXml(branch || 'main')} </branch>.`);
   if (pat) {
-    lines.push(`    Authenticate using PAT: <PAT> ${esc(pat)} </PAT>.`);
+    lines.push(`    Authenticate using PAT: <PAT> ${escapeXml(pat)} </PAT>.`);
   }
   lines.push(
     '    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.'
@@ -76,7 +76,7 @@ export function buildPrompt(state) {
     // Phase 13: expand params.files into individual Read lines per file
     if (step.params?.files?.length > 0 && step.operation === 'read') {
       for (const filePath of step.params.files) {
-        lines.push(`    Step ${stepNum}: Read @${esc(filePath)}`);
+        lines.push(`    Step ${stepNum}: Read @${escapeXml(filePath)}`);
         stepNum++;
       }
       continue;
@@ -111,7 +111,7 @@ export function buildPrompt(state) {
   const userNotes = notes?.user_text?.trim();
   if (userNotes) {
     lines.push('<notes>');
-    lines.push(`  Critical note: ${esc(userNotes)}`);
+    lines.push(`  Critical note: ${escapeXml(userNotes)}`);
     lines.push('</notes>');
   }
 
@@ -161,12 +161,12 @@ function buildFixTaskStep(panelA, panelB) {
   parts.push('              <undesired_behavior>');
   if (panelA?.description) {
     parts.push(
-      `                Undesired behavior observed by user is: ${esc(panelA.description)}.`
+      `                Undesired behavior observed by user is: ${escapeXml(panelA.description)}.`
     );
   }
   if (panelA?.issue_number) {
     parts.push(
-      `                Attempt to learn more regarding the undesired behavior by reading issue #${esc(String(panelA.issue_number))}.`
+      `                Attempt to learn more regarding the undesired behavior by reading issue #${escapeXml(String(panelA.issue_number))}.`
     );
   }
   if (panelA?.files?.length > 0) {
@@ -180,7 +180,7 @@ function buildFixTaskStep(panelA, panelB) {
   parts.push('              <expected_behavior>');
   if (panelB?.description) {
     parts.push(
-      `                Expected behavior after the fix: ${esc(panelB.description)}.`
+      `                Expected behavior after the fix: ${escapeXml(panelB.description)}.`
     );
   }
   if (panelB?.spec_files?.length > 0) {
@@ -211,7 +211,7 @@ function buildReviewTaskStep(panelA, panelB) {
   parts.push('              <review_subject>');
   if (panelA?.pr_number) {
     parts.push(
-      `                Review PR #${esc(String(panelA.pr_number))}. Fetch and examine the PR diff.`
+      `                Review PR #${escapeXml(String(panelA.pr_number))}. Fetch and examine the PR diff.`
     );
   }
   if (panelA?.files?.length > 0) {
@@ -221,7 +221,7 @@ function buildReviewTaskStep(panelA, panelB) {
   }
   if (panelA?.description) {
     parts.push(
-      `                Context provided by user: ${esc(panelA.description)}.`
+      `                Context provided by user: ${escapeXml(panelA.description)}.`
     );
   }
   parts.push('              </review_subject>');
@@ -230,7 +230,7 @@ function buildReviewTaskStep(panelA, panelB) {
   parts.push('              <review_criteria>');
   if (panelB?.lenses?.length > 0) {
     parts.push(
-      `                Focus on: [${panelB.lenses.map(esc).join(', ')}].`
+      `                Focus on: [${panelB.lenses.map(escapeXml).join(', ')}].`
     );
   }
   if (panelB?.spec_files?.length > 0) {
@@ -261,7 +261,7 @@ function buildImplementTaskStep(panelA, panelB) {
   parts.push('              <existing_context>');
   if (panelA?.description) {
     parts.push(
-      `                Context provided by user: ${esc(panelA.description)}.`
+      `                Context provided by user: ${escapeXml(panelA.description)}.`
     );
   }
   if (panelA?.files?.length > 0) {
@@ -274,7 +274,7 @@ function buildImplementTaskStep(panelA, panelB) {
   // Panel B — requirements
   parts.push('              <requirements>');
   if (panelB?.description) {
-    parts.push(`                ${esc(panelB.description)}`);
+    parts.push(`                ${escapeXml(panelB.description)}`);
   }
   if (panelB?.spec_files?.length > 0) {
     parts.push(
@@ -283,7 +283,7 @@ function buildImplementTaskStep(panelA, panelB) {
   }
   if (panelB?.acceptance_criteria) {
     parts.push(
-      `                Acceptance criteria: ${esc(panelB.acceptance_criteria)}.`
+      `                Acceptance criteria: ${escapeXml(panelB.acceptance_criteria)}.`
     );
   }
   parts.push('              </requirements>');
@@ -303,11 +303,11 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
   // Panel A — current state
   parts.push('              <current_state>');
   if (panelA?.description) {
-    parts.push(`                ${esc(panelA.description)}`);
+    parts.push(`                ${escapeXml(panelA.description)}`);
   }
   if (panelA?.issue_number) {
     parts.push(
-      `                Related issue describing current state: #${esc(String(panelA.issue_number))}. Read this issue for context.`
+      `                Related issue describing current state: #${escapeXml(String(panelA.issue_number))}. Read this issue for context.`
     );
   }
   if (panelA?.files?.length > 0) {
@@ -321,12 +321,12 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
   parts.push('              <desired_outcome>');
   if (panelB?.description) {
     parts.push(
-      `                Desired improvements: ${esc(panelB.description)}.`
+      `                Desired improvements: ${escapeXml(panelB.description)}.`
     );
   }
   if (panelB?.issue_number) {
     parts.push(
-      `                Desired state per issue: #${esc(String(panelB.issue_number))}. Read this issue for target state.`
+      `                Desired state per issue: #${escapeXml(String(panelB.issue_number))}. Read this issue for target state.`
     );
   }
   if (panelB?.guideline_files?.length > 0) {
@@ -336,7 +336,7 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
   }
   if (panelB?.lenses?.length > 0) {
     parts.push(
-      `                Focus on: [${panelB.lenses.map(esc).join(', ')}].`
+      `                Focus on: [${panelB.lenses.map(escapeXml).join(', ')}].`
     );
   }
   parts.push('              </desired_outcome>');
@@ -371,13 +371,13 @@ function buildGenericTaskStep(panelA, panelB) {
 
   const parts = ['Understand the task:'];
   if (panelA?.description) {
-    parts.push(`              Context: ${esc(panelA.description)}.`);
+    parts.push(`              Context: ${escapeXml(panelA.description)}.`);
   }
   if (panelA?.files?.length > 0) {
     parts.push(`              Files: ${formatFileList(panelA.files)}.`);
   }
   if (panelB?.description) {
-    parts.push(`              Goal: ${esc(panelB.description)}.`);
+    parts.push(`              Goal: ${escapeXml(panelB.description)}.`);
   }
   if (panelB?.spec_files?.length > 0) {
     parts.push(`              Specs: ${formatFileList(panelB.spec_files)}.`);
@@ -516,8 +516,8 @@ function formatStep(step) {
   const parts = [];
 
   // Operation + object (STP-02 minimum: 1x operation, 1x object)
-  const op = capitalize(esc(step.operation || ''));
-  const obj = esc(step.object || '');
+  const op = capitalize(escapeXml(step.operation || ''));
+  const obj = escapeXml(step.object || '');
   parts.push(`${op} ${obj}`.trim());
 
   // Params — add relevant details
@@ -526,7 +526,7 @@ function formatStep(step) {
     for (const [key, val] of Object.entries(step.params)) {
       if (val !== null && val !== undefined && val !== '') {
         // File references get @ prefix (OUT-04)
-        const escaped = esc(String(val));
+        const escaped = escapeXml(String(val));
         const display = key === 'file' ? `@${escaped}` : escaped;
         paramParts.push(display);
       }
@@ -539,12 +539,12 @@ function formatStep(step) {
   // Lenses (STP-03)
   const lenses = step.lenses || [];
   if (Array.isArray(lenses) && lenses.length > 0) {
-    parts.push(`— focus on [${lenses.map(esc).join(', ')}]`);
+    parts.push(`— focus on [${lenses.map(escapeXml).join(', ')}]`);
   }
 
   // User-provided name for branch/PR/file (name_provided field)
   if (step.name_provided) {
-    parts.push(`— name it ${esc(step.name_provided)}`);
+    parts.push(`— name it ${escapeXml(step.name_provided)}`);
   }
 
   return parts.join(' ');
@@ -557,7 +557,7 @@ function formatStep(step) {
  */
 function formatFileList(files) {
   if (!files || files.length === 0) return '';
-  return files.map((f) => `@${esc(f)}`).join(', ');
+  return files.map((f) => `@${escapeXml(f)}`).join(', ');
 }
 
 /**
@@ -570,7 +570,7 @@ function capitalize(str) {
 /**
  * Escape XML-sensitive characters in user content.
  */
-function esc(str) {
+function escapeXml(str) {
   if (!str) return '';
   return String(str)
     .replace(/&/g, '&amp;')

@@ -62,6 +62,22 @@ vi.mock('../src/js/state.js', () => ({
 
 vi.mock('../src/js/flow-loader.js', () => ({
   getFlowById: vi.fn(() => null),
+  ALL_LENSES: [
+    'semantics',
+    'syntax',
+    'security',
+    'performance',
+    'structure',
+    'dependencies',
+    'duplications',
+    'redundancies',
+    'error_handling',
+    'naming_conventions',
+    'test_coverage',
+    'type_safety',
+    'documentation_completeness',
+    'accessibility',
+  ],
 }));
 
 vi.mock('../src/js/step-generator.js', () => ({

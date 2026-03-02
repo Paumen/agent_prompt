@@ -34,6 +34,7 @@ vi.mock('../src/js/state.js', () => ({
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
   applyFlowDefaults: vi.fn(),
+  getValueByPath: vi.fn((obj, path) => path.split('.').reduce((o, k) => o?.[k], obj)),
 }));
 
 vi.mock('../src/js/flow-loader.js', () => ({
@@ -87,6 +88,22 @@ vi.mock('../src/js/flow-loader.js', () => ({
     },
   })),
   getFlowById: vi.fn(() => null),
+  ALL_LENSES: [
+    'semantics',
+    'syntax',
+    'security',
+    'performance',
+    'structure',
+    'dependencies',
+    'duplications',
+    'redundancies',
+    'error_handling',
+    'naming_conventions',
+    'test_coverage',
+    'type_safety',
+    'documentation_completeness',
+    'accessibility',
+  ],
 }));
 
 vi.mock('../src/js/card-configuration.js', () => ({
@@ -110,6 +127,14 @@ vi.mock('../src/js/components.js', () => ({
   showNotification: vi.fn(),
   createSearchableDropdown: vi.fn((container) => {
     container.appendChild(document.createElement('input'));
+  }),
+  expandCard: vi.fn((id) => {
+    const card = document.getElementById(id);
+    if (card) card.classList.add('card--open');
+  }),
+  collapseCard: vi.fn((id) => {
+    const card = document.getElementById(id);
+    if (card) card.classList.remove('card--open');
   }),
 }));
 

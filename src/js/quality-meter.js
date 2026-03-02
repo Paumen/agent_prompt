@@ -11,7 +11,7 @@
  *   0–50: Poor (red) | 51–60: Minimal | 61–70: Basic | 71–80: Good | 81–90: Strong | 91–100: Excellent (green)
  */
 
-import { subscribe, getState } from './state.js';
+import { subscribe, getState, getValueByPath } from './state.js';
 
 // --- Field weights ---
 
@@ -78,10 +78,6 @@ const FLOW_FIELDS = {
 };
 
 // --- Helpers ---
-
-function getValueByPath(state, path) {
-  return path.split('.').reduce((obj, key) => obj?.[key], state);
-}
 
 function isFieldFilled(value, type) {
   if (value === null || value === undefined) return false;

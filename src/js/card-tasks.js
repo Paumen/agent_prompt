@@ -7,33 +7,15 @@
  * Req IDs: SCT-01..09, DM-DEF-03
  */
 
-import { getState, setState, subscribe, applyFlowDefaults } from './state.js';
-import { getFlows, getFlowById } from './flow-loader.js';
+import { getState, setState, subscribe, applyFlowDefaults, getValueByPath } from './state.js';
+import { getFlows, getFlowById, ALL_LENSES } from './flow-loader.js';
 import { getFileTree, setConfigCardSummary } from './card-configuration.js';
 import { fetchPRs, fetchIssues } from './github-api.js';
 import { cacheGet, cacheSet } from './cache.js';
-import { renderShimmer } from './components.js';
+import { renderShimmer, expandCard, collapseCard } from './components.js';
 import { createFilePicker } from './file-tree.js';
 
 import { icon } from './icons.js';
-
-// All available lenses (from flows.yaml vocabulary)
-const ALL_LENSES = [
-  'semantics',
-  'syntax',
-  'security',
-  'performance',
-  'structure',
-  'dependencies',
-  'duplications',
-  'redundancies',
-  'error_handling',
-  'naming_conventions',
-  'test_coverage',
-  'type_safety',
-  'documentation_completeness',
-  'accessibility',
-];
 
 // --- Module-level state ---
 
@@ -50,22 +32,6 @@ let isLoadingIssues = false;
 
 // Scope selector element (for show/hide)
 let elScopeSelector = null;
-
-// --- Card expand/collapse helpers ---
-
-function expandCard(id) {
-  const card = document.getElementById(id);
-  if (!card) return;
-  card.classList.add('card--open');
-  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'true');
-}
-
-function collapseCard(id) {
-  const card = document.getElementById(id);
-  if (!card) return;
-  card.classList.remove('card--open');
-  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'false');
-}
 
 // --- Flow grid ---
 
@@ -793,10 +759,6 @@ function fieldNameToLabel(fieldName) {
     labels[fieldName] ||
     fieldName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   );
-}
-
-function getValueByPath(state, path) {
-  return path.split('.').reduce((obj, key) => obj?.[key], state);
 }
 
 // --- Exported element getter (for testing) ---

@@ -16,6 +16,8 @@ import {
   renderError,
   showNotification,
   isInteracting,
+  expandCard,
+  collapseCard,
 } from './components.js';
 
 // --- GL-05: Defer re-render until user is not mid-interaction ---
@@ -106,22 +108,6 @@ let elPatInput,
 let reposCollapsed = false;
 // Phase 11: branches start collapsed (show first 3 by default)
 let branchesCollapsed = true;
-
-// --- Card expand/collapse helpers ---
-
-function expandCard(id) {
-  const card = document.getElementById(id);
-  if (!card) return;
-  card.classList.add('card--open');
-  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'true');
-}
-
-function collapseCard(id) {
-  const card = document.getElementById(id);
-  if (!card) return;
-  card.classList.remove('card--open');
-  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'false');
-}
 
 // --- Render static UI shell ---
 

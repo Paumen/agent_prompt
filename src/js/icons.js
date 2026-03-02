@@ -6,6 +6,58 @@
  * Components call icon(name, styleClass) to get a cloned DOM element.
  */
 
+// Code file extensions — file-code icon; everything else → file icon
+// Shared constant used by card-steps.js and file-tree.js
+export const CODE_EXTENSIONS = new Set([
+  'js',
+  'mjs',
+  'cjs',
+  'ts',
+  'tsx',
+  'jsx',
+  'css',
+  'scss',
+  'html',
+  'vue',
+  'svelte',
+  'py',
+  'rb',
+  'go',
+  'rs',
+  'java',
+  'c',
+  'cpp',
+  'h',
+  'cs',
+  'php',
+  'sh',
+  'bash',
+  'zsh',
+  'sql',
+  'json',
+  'xml',
+  'swift',
+  'kt',
+  'lua',
+  'r',
+  'pl',
+  'ex',
+  'exs',
+  'elm',
+]);
+
+/**
+ * Get the appropriate icon name for a file path.
+ * Shared helper used by card-steps.js and file-tree.js.
+ *
+ * @param {string} path - file path
+ * @returns {string} 'file-code' for code files, 'file' otherwise
+ */
+export function fileIconName(path) {
+  const ext = path.split('.').pop()?.toLowerCase() || '';
+  return CODE_EXTENSIONS.has(ext) ? 'file-code' : 'file';
+}
+
 // prettier-ignore
 const ICONS = {
   'chevron-down':       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z"/></svg>',
