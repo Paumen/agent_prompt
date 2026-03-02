@@ -199,9 +199,11 @@ body {
 }
 
 .step-label {
+  display: flex;
   flex: 1;
   min-width: 0;
   font-size: var(--text);
+  place-self: flex-start;
 }
 
 .step-delete {
