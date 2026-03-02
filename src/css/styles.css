@@ -294,24 +294,24 @@ body {
 .prompt-region {
   display: flex;
   flex-direction: column;
+  padding: var(--sp-4);
 }
 
 .prompt-preview-header {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background: var(--bg);
+  background: none;
 }
 
 .prompt-output {
   background: var(--bg-inset);
   border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: var(--radius);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-  padding: var(--sp-8);
+  padding: var(--sp-4);
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 140px;
