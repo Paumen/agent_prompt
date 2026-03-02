@@ -4,7 +4,7 @@
  * SCT-08: Quality meter scoring, threshold colors, per-flow weights.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   calculateScore,
   getThresholdColor,

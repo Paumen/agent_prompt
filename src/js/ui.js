@@ -11,6 +11,125 @@
  *
  * Litmus test: if a function would only be called from one card file,
  * it does NOT belong here.
+ *
+ * ============================================================
+ * USAGE EXAMPLES FOR PHASE 2 MIGRATION
+ * ============================================================
+ *
+ * // --- Buttons (5 types) ---
+ * import { createButton } from './ui.js';
+ *
+ * // Primary action button (e.g., "Prompt Claude")
+ * const primaryBtn = createButton('primary', {
+ *   label: 'Prompt Claude',
+ *   onClick: () => handlePrompt(),
+ * });
+ *
+ * // Select button (single-select, e.g., flow picker)
+ * const selectBtn = createButton('select', {
+ *   label: 'Fix / Debug',
+ *   iconName: 'bug',
+ *   selected: state.task.flow_id === 'fix',
+ *   onClick: () => selectFlow('fix'),
+ * });
+ *
+ * // Action button (stateless action, e.g., copy)
+ * const actionBtn = createButton('action', {
+ *   label: 'Copy',
+ *   iconName: 'clipboard',
+ *   onClick: () => copyToClipboard(),
+ * });
+ *
+ * // Pill button (multi-select toggle, e.g., lenses)
+ * const pillBtn = createButton('pill', {
+ *   label: 'security',
+ *   selected: state.lenses.includes('security'),
+ *   onClick: () => toggleLens('security'),
+ * });
+ *
+ * // Icon button (tertiary action, e.g., clear, eye toggle)
+ * const iconBtn = createButton('icon', {
+ *   iconName: 'x',
+ *   ariaLabel: 'Clear',
+ *   onClick: () => clearInput(),
+ * });
+ *
+ * // --- Input Fields ---
+ * import { createInputField } from './ui.js';
+ *
+ * const input = createInputField({
+ *   placeholder: 'Enter description...',
+ *   value: state.description,
+ *   onInput: (e) => setState('description', e.target.value),
+ * });
+ *
+ * const textarea = createInputField({
+ *   type: 'textarea',
+ *   placeholder: 'Additional notes...',
+ *   rows: 3,
+ * });
+ *
+ * const passwordInput = createInputField({
+ *   type: 'password',
+ *   placeholder: 'GitHub PAT',
+ * });
+ *
+ * // --- Pickers (search + dropdown + tags) ---
+ * import { createPicker } from './ui.js';
+ *
+ * // Single-select picker (e.g., issue picker)
+ * const issuePicker = createPicker({
+ *   items: issues.map(i => ({ value: i.number, label: i.title })),
+ *   placeholder: 'Search issues...',
+ *   searchIconName: 'search',
+ *   onSelect: (item) => setState('issue_number', item.value),
+ * });
+ *
+ * // Multi-select picker (e.g., file picker)
+ * const filePicker = createPicker({
+ *   items: files.map(f => ({ value: f.path, label: f.path })),
+ *   selected: state.files,
+ *   multiSelect: true,
+ *   placeholder: 'Search files...',
+ *   onSelect: (item) => addFile(item.value),
+ *   onRemove: (val) => removeFile(val),
+ * });
+ *
+ * // --- Tags ---
+ * import { createTag } from './ui.js';
+ *
+ * const tag = createTag({
+ *   label: 'src/index.js',
+ *   title: 'src/index.js', // full text on hover
+ *   iconName: 'file',
+ *   onRemove: () => removeFile('src/index.js'),
+ * });
+ *
+ * // --- Button Grid ---
+ * import { createButtonGrid } from './ui.js';
+ *
+ * const flowGrid = createButtonGrid([
+ *   { label: 'Fix', iconName: 'bug', selected: flowId === 'fix', onClick: () => selectFlow('fix') },
+ *   { label: 'Review', iconName: 'codescan', selected: flowId === 'review', onClick: () => selectFlow('review') },
+ * ], {
+ *   columns: 4,  // optional: use CSS grid
+ *   ariaLabel: 'Select a flow',
+ * });
+ *
+ * // --- More/Less Toggle ---
+ * import { createMoreLess } from './ui.js';
+ *
+ * const moreBtn = createMoreLess({
+ *   hiddenCount: 10,
+ *   expanded: false,
+ *   activeLabel: '3 selected',
+ *   onToggle: (isExpanded) => renderAllItems(isExpanded),
+ * });
+ *
+ * // --- Labels ---
+ * import { createLabel } from './ui.js';
+ *
+ * const label = createLabel('Description', { required: true });
  */
 
 import { icon } from './icons.js';

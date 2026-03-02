@@ -17,7 +17,6 @@ import {
   showNotification,
   isInteracting,
   expandCard,
-  collapseCard,
 } from './components.js';
 
 // --- GL-05: Defer re-render until user is not mid-interaction ---

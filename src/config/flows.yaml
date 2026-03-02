@@ -110,7 +110,7 @@ _x_anchors:
 # ==================================================
 flows:
   fix:
-    label: 'Debug'
+    label: 'Fix / Debug'
     icon: 'bug'
     panel_a:
       label: 'Current State'
@@ -160,7 +160,7 @@ flows:
       - *commit_pr
 
   review:
-    label: 'Review'
+    label: 'Review / Analyze'
     icon: 'codescan'
     panel_a:
       label: 'Review Subject'
@@ -210,7 +210,7 @@ flows:
         source: panel_a.files
 
   implement:
-    label: 'Implement'
+    label: 'Implement / Build'
     icon: 'rocket'
     panel_a:
       label: 'Context'
@@ -254,7 +254,7 @@ flows:
       - *commit_pr
 
   improve:
-    label: 'Improve'
+    label: 'Improve / Modify'
     icon: 'compose'
     panel_a:
       label: 'Current State'
