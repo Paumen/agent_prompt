@@ -357,7 +357,8 @@ body {
   font-size: var(--text-sm);
   padding: var(--sp-4);
   color: #fff;
-  background: var(--accent);
+  background: var(--accent-subtle);
+  min-height: 32px;
 }
 
 .btn-grid-item {
@@ -370,7 +371,10 @@ body {
   border-radius: var(--radius);
   cursor: pointer;
   white-space: nowrap;
-  min-height: 32px;
+  min-height: 24px;
+  font-size: var(--text-sm);
+  background: var(--bg-inset);
+
 }
 
 .btn-action {
