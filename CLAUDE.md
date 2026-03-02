@@ -4,14 +4,14 @@
 
 Single-page web app that generates prompts agentic llm.
 
-**Current phase**: Repository setup complete. Implementation started.
+**Current phase**: Repository setup complete. Implementation v1 completed, V2 started.
 
 ## Authority Hierarchy
 
 In case of conflicts between files, the higher-ranked file is always correct:
 
 ```
-@spec/spec_concept.md  > @src/config/flows.yaml  >  @spec/hybrid-framework-design.md  > @spec/implementation-plan.md > @source code
+@spec/spec_concept.md  > @src/config/flows.yaml > @source code
 ```
 
 If a conflict exists, update the lower-ranked file to match. If unclear, ask the user.
@@ -28,7 +28,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 - **NEVER** edit `spec/spec_concept.md` without asking the user first. **Exception**: Status updates to the Implementation Status table and entries to the Decisions Log in `spec/spec_concept.md` are permitted as part of the normal workflow.
 - **NEVER** edit `src/config/flows.yaml` without asking the user first.
 - **NEVER** edit `.github/workflows/` without asking the user first. **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
-- **MAY** freely edit files in `src/` (except `src/config/flows.yaml`), `tests/`, and `package.json`.
+- **MAY** freely edit files in `src/` (except `src/config/flows.yaml`), `tests/`, and `package.json`. 
 
 ## Anti-Over-Engineering Rule
 
@@ -37,10 +37,10 @@ Before implementing complex logic, evaluate if there is a simpler alternative th
 ## CSS Rules
 
 - Use CSS custom properties (variables) defined in `src/css/variables.css`.
-- Minimize class names — reuse elements, prefer semantic HTML selectors.
-- Mobile-first: base styles for mobile, `@media` queries for larger screens.
+- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
+- Use modern futures like light-dark, container queries, cqi, dvh, clamp(), :is(), :had(), :where(), etc.
 - No CSS frameworks, no preprocessors — plain CSS only.
-- Any new color, size, or spacing value must be added as a variable first in `variables.css`.
+- Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after approval user.
 
 ## Code Conventions
 
