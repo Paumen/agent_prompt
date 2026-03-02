@@ -63,7 +63,6 @@
 | **btn-pill**    | Pill shape, neutral border, darker bg when selected | Multi-select toggle              | `.pill` + `.pill--on`               | Lenses, output modes                          |
 | **btn-icon**    | No bg (transparent/inherit), icon ± label           | Tertiary action, collapse/expand | `.btn-icon`, `.card-header`         | Clear, remove, info, card headers, eye toggle |
 
-**Decision: keep 5 types.** The semantic distinction between `btn-select` (has selected state, announced by screen readers via `aria-selected`/`aria-checked`) and `btn-action` (stateless, fires-and-forgets) matters for both accessibility and maintainability. Merging them saves one class name but loses a meaningful distinction that screen readers and keyboard users rely on. 5 types is already a simplification from the current 6+ variants with inconsistent naming.
 
 ### Other Elements
 
@@ -78,8 +77,8 @@
 | Component          | Reuses                                      | Own styling                                                                   |
 | :----------------- | :------------------------------------------ | :---------------------------------------------------------------------------- |
 | **Quality meter**  | btn-icon (for info button), tooltip pattern | Bar + track + thresholds                                                      |
-| **Shimmer/loader** | —                                           | Animation keyframes (if these are actually used; PO hasn't seen them trigger) |
-| **Notifications**  | —                                           | Float animation (if working)                                                  |
+| **Shimmer/loader** | —                                           | Animation keyframes |
+| **Notifications**  | —                                           | Float animation (if these are actually used; PO hasn't seen them trigger)                                                  |
 
 ---
 
@@ -87,7 +86,7 @@
 
 | Implication                          | Detail                                                                                                                                                                                                                                                                             |
 | :----------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **~50% class reduction**             | From 93 → target <47 core classes. Using `inherit`, `:has()`, `:where()`, pseudo-classes, and standardization. Isolated specials excluded from count. The proposed framework has ~20 core classes; adding variants, states, and interaction patterns realistically lands at 35-45. |
+| **~50% class reduction**             | From 93 → target <40 core classes. Using `inherit`, `:has()`, `:where()`, pseudo-classes, and standardization. Isolated specials excluded from count. The proposed framework has ~20 core classes; adding variants, states, and interaction patterns realistically lands at 35-45. |
 | **Flatter DOM**                      | Remove wrappers: `dual-panel`, `panel-area`, `input-row`, `dropdown-wrapper`, `panel-field-group`. Elements live directly in their parent grid.                                                                                                                                    |
 | **JS changes across all card files** | All 4 card JS files + components.js + quality-meter.js need class name updates and DOM structure changes. This is the bulk of the work.                                                                                                                                            |
 | **One functional change**            | Repos/branches adopt picker pattern (like PRs/issues). Separate PR.                                                                                                                                                                                                                |
@@ -96,18 +95,7 @@
 | **Reduced spacing rules**            | Grid `gap` handles most spacing. Elements fill their parents.                                                                                                                                                                                                                      |
 | **CSS variables updates**            | Fix accent colors (`light-dark()`), add `--bg-inset-darker` if needed, apply `clamp()` to spacing/font values (see roadmap dependency assessment).                                                                                                                                 |
 | **Test simplification**              | See testing strategy below.                                                                                                                                                                                                                                                        |
-| **Max-width → 800px**                | Wider container for more breathing room.                                                                                                                                                                                                                                           |
-
-### Testing Strategy
-
-Current state: 432 test cases across 15 files. PO feedback: excessive for a simple webapp, tests rarely catch real issues, most bugs found in PR review and user testing.
-
-**Approach for the redesign:**
-
-- **Keep**: Functional tests (state changes, prompt building, step generation, flow loading, API calls). These test _logic_, not DOM structure, so they survive the redesign mostly intact.
-- **Simplify**: DOM-structure tests (class name assertions, element counting). Replace with fewer, broader integration tests that verify _behavior_ (e.g., "clicking a flow button updates the state" rather than "button has class `.item-selected`").
-- **Remove**: Tests that test framework wiring rather than functionality (e.g., "card has correct header text").
-- **Target**: ~200-250 meaningful tests (40-45% reduction) that test what matters.
+| **Max-width → 800px**                | Wider container for more breathing room
 
 ---
 
@@ -188,11 +176,11 @@ Current state: 432 test cases across 15 files. PO feedback: excessive for a simp
 
 | File           | Current equivalent                          | Target                                                         |
 | :------------- | :------------------------------------------ | :------------------------------------------------------------- |
-| variables.css  | 56 lines                                    | ~80-100 lines (adding `clamp()` values, fixing `light-dark()`) |
-| layout.css     | ~150 lines scattered in styles.css          | ~100-120 lines                                                 |
-| components.css | ~650 lines scattered in styles.css          | ~250-350 lines                                                 |
-| special.css    | ~120 lines (meter + shimmer + notification) | ~60-80 lines (if kept)                                         |
-| **Total**      | **926 lines**                               | **~490-650 lines (30-47% reduction)**                          |
+| variables.css  | 54 lines                                    | ~60 lines (adding `clamp()` values, fixing `light-dark()`) |
+| layout.css     | ~150 lines scattered in styles.css          | ~100 lines                                                 |
+| components.css | ~650 lines scattered in styles.css          | ~250-300 lines                                                 |
+| special.css    | ~120 lines (meter + shimmer + notification) | ~60 lines (if kept)                                         |
+| **Total**      | **926 lines**                               | **~450-550 lines (40-50% reduction)**                          |
 
 ---
 
@@ -348,7 +336,7 @@ The reduction is modest in raw lines because business logic doesn't shrink — i
 5. **Test Simplification** (alongside steps 3-4)
    - Replace DOM-structure tests with behavior tests
    - Remove low-value tests
-   - Target ~200-250 tests
+   - Target ~150-200 tests
 
 **Key principle (from PO):** We build the framework first, then cards conform to it. NOT the other way around. Each component sits in its grid; it should not matter which card it's in. This IS the maintainability fix.
 
@@ -369,7 +357,7 @@ Each phase must pass its exit gate before the next phase begins.
 - [x] 4 new CSS files created: `variables.css` (updated), `layout.css`, `components.css`, `special.css`
 - [x] All grid classes defined and documented (body, card, card-in-card, input, output, btn-\*)
 - [x] `container-type: inline-size` set on card elements
-- [ ] `clamp()` applied to spacing and font-size variables
+- [x] `clamp()` applied to spacing and font-size variables
 - [x] `ui.js` created with all factory functions (`createButton`, `createInputField`, `createPicker`, `createTag`, `createButtonGrid`, `createMoreLess`, `createLabel`)
 - [x] Old `styles.css` and new CSS files coexist without conflicts — both class systems work simultaneously
 - [x] `npm run build` passes
@@ -410,14 +398,13 @@ Card migration order: card-prompt → card-steps → card-configuration → card
 
 ---
 
-## k. Open Items / Decisions Required
+## k3. Open Items / Decisions Required
 
 | #   | Item                                                                                                                                                                                                                                                                                                                                         | Status                                                                                                                                                                              |
 | :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | **btn-action vs btn-select merge → reach 4 button types?**                                                                                                                                                                                                                                                                                   | **Closed — keep 5.** The semantic distinction aids accessibility (screen readers announce selected state for `btn-select` but not `btn-action`) and maintainability. See section c. |
 | 2   | **Input grid: fixed 20%/80% vs subgrid for flexibility?** If subgrid can keep labels consistent across cards while adapting to content, it's the best of both worlds.                                                                                                                                                                        | Open — will prototype both                                                                                                                                                          |
-| 3   | **Shimmer/loader/notifications: working?** PO hasn't seen them. Verify if functional before including in framework. If unused, remove.                                                                                                                                                                                                       | Open — needs verification                                                                                                                                                           |
-| 4   | **Test reduction target: ~200-250 acceptable?** PO confirmed desire for efficiency over coverage.                                                                                                                                                                                                                                            | Approved in principle                                                                                                                                                               |
+| 3   | **notifications: obsoleted?** PO hasn't seen them. Verify if functional before including in framework. If unused, remove.                                                                                                                                                                                                       | Open|
 | 5   | **CSS file split: `layout.css` + `components.css` + `special.css`?** PO proposed this split. Adopted in plan. Confirm naming convention before Phase 2.                                                                                                                                                                                      | Adopted — naming TBD                                                                                                                                                                |
 | 6   | **`ui.js` scope: just DOM creation or also event wiring?** If `ui.js` only creates elements, card files still wire events. If `ui.js` also wires events (via callback params), card files shrink more but `ui.js` grows. Recommendation: include callback params in factory functions (like `onClick`, `onInput`) — this is the natural API. | Open — prototype will clarify                                                                                                                                                       |
 
@@ -431,14 +418,4 @@ Card migration order: card-prompt → card-steps → card-configuration → card
 | **Advanced progressive disclosure** | Collapsing sections beyond basic card-in-card            | Phase 2                            |
 | **Repos/branches → pickers**        | Adopt field-picker pattern for repo and branch selection | Phase 1 (needs field-picker class) |
 
----
-
-## m. Additional Observations
-
-1. **`ALL_LENSES` is duplicated** in `card-tasks.js` (line 21) and `card-steps.js` (line 17). Should be extracted to a shared constant. Quick fix, independent of redesign.
-
-2. **`--shadow-inset-sm`** is referenced in CSS (line 470, `.input-field`) but NOT defined in `variables.css`. Existing bug.
-
-3. **An ASCII wireframe** of the Grid structure for each card would communicate the redesign better than a table. Recommend creating one before Phase 2 starts.
-
-4. **Meter has 10 classes and ~200 lines for a bar + label + tooltip.** PO correctly flags this as over-engineered. During Phase 3, reduce to standard output-styling + btn-icon + a few special rules.
+**Meter has 10 classes and ~200 lines for a bar + label + tooltip.** PO correctly flags this as over-engineered. During Phase 3, reduce to standard output-styling + btn-icon + a few special rules.
