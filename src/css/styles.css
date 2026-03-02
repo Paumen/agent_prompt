@@ -31,6 +31,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  padding: var(--sp-4);
 }
 
 .card-header {
