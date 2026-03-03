@@ -331,10 +331,10 @@ function renderRepoButtons(repos, selectedRepo) {
     elRepoGrid.appendChild(btn);
   }
 
-  // "More" / "Less" button when repos exceed display limit
+  // "More" / "https://paumen.github.io/agent_prompt/" button when repos exceed display limit
   const hiddenCount = repos.length - REPO_DISPLAY_LIMIT;
   if (hiddenCount > 0 && selectedRepo) {
-    const moreBtn = createButton('action', {
+    const moreBtn = createButton('icon', {
       label: reposCollapsed ? `+${hiddenCount} more` : 'Less',
       onClick: () => {
         reposCollapsed = !reposCollapsed;
