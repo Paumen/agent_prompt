@@ -92,7 +92,7 @@ body {
 
 .input {
   display: grid;
-  grid-template-columns: clamp(60px, 20%, 140px) 1fr;
+  grid-template-columns: clamp(40px, 15%, 80px) 1fr;
   gap: var(--sp-4);
   align-items: start;
 }
