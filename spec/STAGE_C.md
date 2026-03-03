@@ -387,15 +387,6 @@ Card migration order: card-prompt → card-steps → card-configuration → card
 - [x] `ALL_LENSES` and other duplicated constants extracted to shared module
 - [x] `npm run build` + `npm run lint` + `npm test` all pass
 
-**Phase C5 — Test Simplification:**
-
-- [ ] DOM-structure tests replaced with behavior tests (test what the user sees, not what classes exist)
-- [ ] Low-value tests removed (framework wiring, header text assertions)
-- [ ] Test count in range ~200-250 (down from 432)
-- [ ] All remaining tests pass
-- [ ] No test references old class names or removed DOM wrappers
-- [ ] `npm test` passes with zero failures
-
 ---
 
 ## k3. Open Items / Decisions Required
