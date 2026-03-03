@@ -4,49 +4,32 @@
 
 Single-page web app that generates prompts for agentic llm.
 
-This product is build in stages (A-Z), phases (1-9), steps (1-99).
+Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99).
 
-### Stage A: Initial Implementation (A1-A9)
+### Stage A: Core Implementation — COMPLETE
+- [x] A1 CSS Foundation: Design tokens, card shell, feedback styles, a11y
+- [x] A2 State Management: setState/subscribe, localStorage, deterministic prompt
+- [x] A3 Build Pipeline: YAML→JSON plugin, schema validation, runtime loader
+- [x] A4 GitHub API & Caching: Repos/branches/trees, 15-min TTL, limit enforcement
+- [x] A5 Config Card: PAT/username fields, repo/branch selection, background fetch
+- [x] A6 Task Card: Flow selection, Situation/Target fields, Quality Meter
+- [x] A7 Steps Card: Dynamic step generation, lens pills, delete actions
+- [x] A8 Prompt Output: XML generation, Copy action, Claude.ai deep-link, notes field
+- [x] A9 Polish & Constraints: ≤2 clicks, zero h-scroll, mobile-first audit
 
-Core app build — **COMPLETE**
+### Stage B: UX/UI Remediation — COMPLETE
+- [x] B1 Global Visual Foundation: Shadow system, Octicon SVGs, field depth
+- [x] B2 Config Card Refinement: Expansion logic, credential UI, iconography
+- [x] B3 Task Card: Visual separation, validation UI, hierarchy, compact layout
+- [x] B4 Steps & Output Logic: Step styling, multi-select, file consolidation, lens stability
+- [x] B5 Prompt Card & Actions: Header actions, icon animation, XML highlighting, quality tooltip
+- [x] B6 Final UAT & Regression: Viewport audit, performance, a11y validation, PO approved
 
-| ID  | Phase                         | Status      | Summary                                                              |
-| --- | ----------------------------- | ----------- | -------------------------------------------------------------------- |
-| A1  | CSS Foundation                | ✅ Complete | Design tokens, card shell, feedback styles, a11y                     |
-| A2  | State Management              | ✅ Complete | setState/subscribe, localStorage persistence, deterministic prompt   |
-| A3  | Build Pipeline & Flow Loading | ✅ Complete | YAML→JSON plugin, schema validation, runtime loader                  |
-| A4  | GitHub API & Caching          | ✅ Complete | Repos/branches/trees/PRs/issues, 15-min TTL cache, limit enforcement |
-| A5  | Config Card                   | ✅ Complete | PAT/username fields, repo/branch selection, background fetch         |
-| A6  | Task Card (Dual-Panel)        | ✅ Complete | Flow selection, Situation/Target fields, Quality Meter               |
-| A7  | Steps Card (Auto-Gen)         | ✅ Complete | Dynamic step generation, lens pills, delete actions                  |
-| A8  | Prompt Output                 | ✅ Complete | XML generation, Copy action, Claude.ai deep-link, notes field        |
-| A9  | Polish & Constraints          | ✅ Complete | ≤2 clicks, zero h-scroll, mobile-first audit                         |
-
-### Stage B: UX/UI fixes and improvements (B1-B6)
-
-UAT remediation — **COMPLETE**
-| ID  | Phase                  | Status      | Summary                                                                                         |
-| --- | ---------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| B1 | Global Visual Foundation | ✅ Complete | Shadow system, icon migration to Octicon SVGs, field depth |
-| B2 | Config Card Refinement | ✅ Complete | Expansion logic, credential UI, iconography |
-| B3 | Task Card (Dual-Panel) | ✅ Complete | Visual separation, validation UI, hierarchy, compact layout |
-| B4 | Steps & Output Logic | ✅ Complete | Step styling, multi-select outputs, file consolidation, lens stability |
-| B5 | Prompt Card & Actions | ✅ Complete | Header actions, icon animation, XML highlighting, quality tooltip |
-| B6 | Final UAT & Regression | ✅ Complete | Viewport audit, performance, a11y validation, PO approved |
-
-### Stage C: Redesign Framework (C1-C5)
-
-CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases C1–C4 complete, Phase C5 pending)**
-
-Details in @spec/STAGE_C.md
-
-| ID  | Phase                  | Status      | Summary                                                                                         |
-| --- | ---------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| C1  | CSS Quick Wins         | ✅ Complete | Pill/flex/surface consolidation, accent light-dark fix, shadow-inset-sm fix                     |
-| C2  | Framework Definition   | ✅ Complete | 4 CSS files (layout/components/special), ui.js factories, clamp() responsive, container queries |
-| C3  | Structural Application | ✅ Complete | Migrate cards to new framework (prompt → steps → config → tasks order)                          |
-| C4  | Pattern Cleanup        | ✅ Complete | Remove card-specific CSS, target <40 core classes, delete old styles.css, no inline styles      |
-| C5  | Test Simplification    | ⏳ Pending  | Replace DOM tests with behavior tests, reduce count to <150-200                                 |
+### Stage C: Redesign Framework — COMPLETE (Ref: @spec/STAGE_C.md)
+- [x] C1 CSS Quick Wins: Pill/flex/surface consolidation, accent fix, shadow-inset-sm fix
+- [x] C2 Framework Definition: 4 CSS files, ui.js factories, clamp(), container queries
+- [x] C3 Structural Application: Migrate cards (prompt → steps → config → tasks)
+- [x] C4 Pattern Cleanup: Remove card-specific CSS, <40 core classes, delete old styles
 
 ## Authority Hierarchy
 
@@ -107,9 +90,5 @@ npm test          # Run all tests
 - **Gemini Code Assist (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
 - **Llamapreview (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
 
-PRs require product owner approval before merge.
-
-**Working with the product owner:**
-
-- The product owner is non-technical. Use plain language in PR descriptions, status summaries, and questions — explain _what it does and why_, not just _what files changed_.
+- PRs require product owner approval before merge.
 - When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
