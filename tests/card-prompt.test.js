@@ -91,18 +91,26 @@ describe('highlightXml', () => {
 describe('initPromptCard — rendering', () => {
   it('renders prompt preview with XML highlighting, empty state when no prompt', () => {
     initPromptCard();
-    const preview = document.querySelector('.prompt-output');
-    expect(preview.textContent).toBe(MOCK_PROMPT);
-    expect(preview.innerHTML).toContain('<span class="xml-tag">');
-    expect(preview.classList.contains('prompt-output--empty')).toBe(false);
+    const previewCode = document.querySelector('.prompt-output code');
+    expect(previewCode.textContent).toBe(MOCK_PROMPT);
+    expect(previewCode.innerHTML).toContain('<span class="xml-tag">');
+    expect(
+      previewCode
+        .closest('.prompt-output')
+        .classList.contains('prompt-output--empty')
+    ).toBe(false);
 
     // Empty state
     getState.mockReturnValue({ ...mockState, _prompt: '' });
     createPromptCard();
     initPromptCard();
-    const empty = document.querySelector('.prompt-output');
-    expect(empty.textContent).toBe('Select a flow to generate a prompt.');
-    expect(empty.classList.contains('prompt-output--empty')).toBe(true);
+    const emptyCode = document.querySelector('.prompt-output code');
+    expect(emptyCode.textContent).toBe('Select a flow to generate a prompt.');
+    expect(
+      emptyCode
+        .closest('.prompt-output')
+        .classList.contains('prompt-output--empty')
+    ).toBe(true);
   });
 
   it('subscribes to state and updates preview', () => {
@@ -117,7 +125,7 @@ describe('initPromptCard — rendering', () => {
     getState.mockReturnValue({ ...mockState, _prompt: newPrompt });
     cb();
 
-    expect(document.querySelector('.prompt-output').textContent).toBe(
+    expect(document.querySelector('.prompt-output code').textContent).toBe(
       newPrompt
     );
   });

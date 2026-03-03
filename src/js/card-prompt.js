@@ -52,10 +52,10 @@ function renderPromptCard() {
   if (elPreview) {
     if (prompt) {
       elPreview.innerHTML = highlightXml(prompt);
-      elPreview.classList.remove('prompt-output--empty');
+      elPreview.parentElement.classList.remove('prompt-output--empty');
     } else {
       elPreview.textContent = 'Select a flow to generate a prompt.';
-      elPreview.classList.add('prompt-output--empty');
+      elPreview.parentElement.classList.add('prompt-output--empty');
     }
   }
 
@@ -160,19 +160,19 @@ export function initPromptCard() {
   const { labelEl } = renderQualityMeter(meterContainer);
   if (labelEl) initMeterTooltip(labelEl);
 
-  // === Preview region ===
-  const region = document.createElement('div');
-  region.className = 'prompt-region';
-  region.setAttribute('role', 'region');
-  region.setAttribute('aria-label', 'Generated prompt');
+  // === Prompt preview ===
+  const preEl = document.createElement('pre');
+  preEl.className = 'prompt-output';
+  preEl.setAttribute('role', 'region');
+  preEl.setAttribute('aria-label', 'Generated prompt');
 
-  // Prompt preview
-  elPreview = document.createElement('pre');
-  elPreview.className = 'prompt-output';
+  // Code element holds the text content (survives action bar)
+  elPreview = document.createElement('code');
+  preEl.appendChild(elPreview);
 
-  // Action bar: floats top-right inside region
+  // Action bar: positioned top-right inside preview via .prompt-output > .wrapper
   const actionBar = document.createElement('div');
-  actionBar.className = 'prompt-actions';
+  actionBar.className = 'wrapper';
 
   // Screen reader copy status
   elCopyStatus = document.createElement('span');
@@ -204,8 +204,7 @@ export function initPromptCard() {
   actionBar.appendChild(copyBtn);
   actionBar.appendChild(promptClaudeBtn);
 
-  region.appendChild(elPreview);
-  region.appendChild(actionBar);
+  preEl.appendChild(actionBar);
 
   // === Notes section (OUT-06) — uses .input grid layout ===
   const notesRow = document.createElement('div');
@@ -223,7 +222,7 @@ export function initPromptCard() {
   });
   notesRow.appendChild(elNotes);
 
-  elBody.appendChild(region);
+  elBody.appendChild(preEl);
   elBody.appendChild(notesRow);
 
   // Initial render

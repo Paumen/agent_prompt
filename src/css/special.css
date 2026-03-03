@@ -171,20 +171,8 @@
    PROMPT OUTPUT
    ============================================================ */
 
-.prompt-region {
-  position: relative;
-}
-
-.prompt-actions {
-  position: absolute;
-  top: var(--sp-4);
-  right: var(--sp-4);
-  display: flex;
-  gap: var(--sp-2);
-  z-index: 1;
-}
-
 .prompt-output {
+  position: relative;
   background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -197,6 +185,13 @@
   min-height: 140px;
   max-height: 300px;
   overflow-y: auto;
+}
+
+.prompt-output > .wrapper {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  z-index: 1;
 }
 
 .prompt-output--empty {
