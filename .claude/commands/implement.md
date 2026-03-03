@@ -8,7 +8,7 @@ Steps:
 4. Challenge human if requirement implementation would be complex and/or alternative might be preferred, propose but let human decide.
 5. Implement the feature following the conventions in CLAUDE.md.
 6. Execute tests + Run `npm run build` to verify no build errors.`.
-7. Update the checklist items in `spec/redesign-plan-review.md`.
+7. Update the checklist items in `spec/STAGE_C.md`.
 8. If any new key product or Architecture decisions are made log in the Decisions Log section of `spec/spec_concept.md`.
 9. Test if `https://paumen.github.io/agent_prompt/` updated and works as expected. If user testing is possible or required let user know.
 10. Commit Changes and push. 
