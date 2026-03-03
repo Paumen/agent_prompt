@@ -2,7 +2,7 @@
 
 ---
 
-### CONTEXT UAT Feedback Remediation  
+### CONTEXT UAT Feedback Remediation
 
 After Stage A a UAT review surfaced broad visual, interaction, and logic
 issues across all four cards. A prior partial UAT remediation was committed on 2026-02-27
@@ -68,4 +68,4 @@ fully address the remaining feedback.
 
 [x] **Viewport Audit**: Verify zero horizontal scroll at 320px; ensure all touch targets (buttons/icons) meet 44px minimum height requirements.
 [x] **Performance**: Final bundle audit for vanilla JS/ESM compliance; remove redundant event listeners and unused CSS tokens.
-[x] **A11y Pass**: Validate `aria-expanded` states and ensure keyboard focus remains trapped in active input flows during credential entry. 
+[x] **A11y Pass**: Validate `aria-expanded` states and ensure keyboard focus remains trapped in active input flows during credential entry.

@@ -232,9 +232,9 @@ describe('repo selection (CFG-03)', () => {
     expect(
       document.getElementById('card-tasks').classList.contains('card--open')
     ).toBe(true);
-    // Credentials div gets cfg-credentials--hidden class
+    // Credentials div gets hidden attribute
     const credDiv = document.getElementById('bd-configuration').children[0];
-    expect(credDiv.classList.contains('cfg-credentials--hidden')).toBe(true);
+    expect(credDiv.hidden).toBe(true);
   });
 });
 

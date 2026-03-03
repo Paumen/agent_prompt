@@ -34,6 +34,17 @@
     background-color 0.25s ease;
 }
 
+/* Meter label (text + info button) */
+.quality-meter > :last-child {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  margin-top: var(--sp-2);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
 /* Info button (reuses btn-icon pattern) */
 .meter-info-wrapper {
   position: relative;
@@ -161,18 +172,31 @@
    ============================================================ */
 
 .prompt-output {
+  position: relative;
   background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-  padding: var(--sp-4);
-  white-space: pre-wrap;
-  word-break: break-word;
+  padding: var(--sp-8) var(--sp-4) var(--sp-4);
   min-height: 140px;
   max-height: 300px;
+}
+
+.prompt-output > code {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
   overflow-y: auto;
+  max-height: calc(300px - var(--sp-8) - var(--sp-4));
+}
+
+.prompt-output > .wrapper {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  z-index: 1;
 }
 
 .prompt-output--empty {

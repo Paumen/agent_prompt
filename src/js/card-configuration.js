@@ -114,12 +114,9 @@ function renderShell(container) {
 
   // Credentials row: PAT + Username side by side
   elCredentials = document.createElement('div');
-  elCredentials.style.cssText = 'display:flex;gap:var(--sp-4);flex-wrap:wrap';
+  elCredentials.className = 'wrapper';
 
-  // --- PAT column ---
-  const patCol = document.createElement('div');
-  patCol.style.cssText = 'flex:1;min-width:200px';
-
+  // --- PAT ---
   const patWrapper = createInputField({
     type: 'password',
     id: 'cfg-pat',
@@ -151,12 +148,7 @@ function renderShell(container) {
   elPatClear.hidden = true;
   patWrapper.appendChild(elPatClear);
 
-  patCol.appendChild(patWrapper);
-
-  // --- Username column ---
-  const userCol = document.createElement('div');
-  userCol.style.cssText = 'flex:1;min-width:200px';
-
+  // --- Username ---
   const userWrapper = createInputField({
     iconName: 'mark-github',
     id: 'cfg-username',
@@ -173,10 +165,8 @@ function renderShell(container) {
   elUserClear.hidden = true;
   userWrapper.appendChild(elUserClear);
 
-  userCol.appendChild(userWrapper);
-
-  elCredentials.appendChild(patCol);
-  elCredentials.appendChild(userCol);
+  elCredentials.appendChild(patWrapper);
+  elCredentials.appendChild(userWrapper);
 
   // Repo section
   elRepoSection = document.createElement('div');
@@ -232,7 +222,7 @@ function onPatClear() {
   });
   fileTree = [];
   // Show credentials again when clearing
-  elCredentials?.classList.remove('cfg-credentials--hidden');
+  if (elCredentials) elCredentials.hidden = false;
   reposCollapsed = false;
   branchesCollapsed = true;
   renderRepoSection([]);
@@ -269,7 +259,7 @@ function onUserClear() {
     return s;
   });
   fileTree = [];
-  elCredentials?.classList.remove('cfg-credentials--hidden');
+  if (elCredentials) elCredentials.hidden = false;
   reposCollapsed = false;
   branchesCollapsed = true;
   renderRepoSection([]);
@@ -283,14 +273,14 @@ function renderRepoSection(repos, selectedRepo) {
   elRepoSection.innerHTML = '';
   if (!repos || repos.length === 0) return;
 
-  const label = document.createElement('div');
-  label.style.cssText =
-    'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
-  label.textContent = 'Repositories';
+  elRepoSection.className = 'input';
+
+  const label = document.createElement('label');
+  label.textContent = 'Repos';
   elRepoSection.appendChild(label);
 
   elRepoGrid = document.createElement('div');
-  elRepoGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
+  elRepoGrid.className = 'wrapper';
   elRepoGrid.setAttribute('role', 'listbox');
   elRepoGrid.setAttribute('aria-label', 'Repositories');
 
@@ -355,7 +345,7 @@ function onRepoSelect(repo, allRepos) {
   renderRepoButtons(allRepos, repo.name);
   renderBranchSection([]);
 
-  elCredentials?.classList.add('cfg-credentials--hidden');
+  if (elCredentials) elCredentials.hidden = true;
 
   // Expand Tasks card; Config card stays open (full collapse happens on flow select)
   expandCard('card-tasks');
@@ -370,14 +360,14 @@ function renderBranchSection(branches, selectedBranch) {
   elBranchSection.innerHTML = '';
   if (!branches || branches.length === 0) return;
 
-  const label = document.createElement('div');
-  label.style.cssText =
-    'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
-  label.textContent = 'Branches';
+  elBranchSection.className = 'input';
+
+  const label = document.createElement('label');
+  label.textContent = 'Branch';
   elBranchSection.appendChild(label);
 
   elBranchGrid = document.createElement('div');
-  elBranchGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
+  elBranchGrid.className = 'wrapper';
   elBranchGrid.setAttribute('role', 'listbox');
   elBranchGrid.setAttribute('aria-label', 'Branches');
 
@@ -452,10 +442,9 @@ async function loadRepos(owner, pat, isBackground = false) {
 
   if (!isBackground) {
     elRepoSection.innerHTML = '';
-    const label = document.createElement('div');
-    label.style.cssText =
-      'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
-    label.textContent = 'Repositories';
+    elRepoSection.className = 'input';
+    const label = document.createElement('label');
+    label.textContent = 'Repos';
     elRepoSection.appendChild(label);
     const shimmerContainer = document.createElement('div');
     elRepoSection.appendChild(shimmerContainer);
@@ -510,10 +499,9 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   }
 
   elBranchSection.innerHTML = '';
-  const label = document.createElement('div');
-  label.style.cssText =
-    'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
-  label.textContent = 'Branches';
+  elBranchSection.className = 'input';
+  const label = document.createElement('label');
+  label.textContent = 'Branch';
   elBranchSection.appendChild(label);
   const shimmerContainer = document.createElement('div');
   elBranchSection.appendChild(shimmerContainer);
@@ -611,7 +599,7 @@ export function initConfigurationCard() {
   cfgCard?.querySelector('.card-header')?.addEventListener('click', () => {
     const willBeOpen = !cfgCard.classList.contains('card--open');
     if (willBeOpen) {
-      elCredentials?.classList.remove('cfg-credentials--hidden');
+      if (elCredentials) elCredentials.hidden = false;
       setConfigCardSummary('');
     }
   });

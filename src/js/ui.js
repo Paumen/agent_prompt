@@ -208,20 +208,16 @@ export function createPicker(options = {}) {
   searchInput.setAttribute('aria-label', placeholder);
   searchRow.appendChild(searchInput);
 
-  // Dropdown
+  // Dropdown (inside searchRow for CSS positioning)
   const dropdown = document.createElement('div');
   dropdown.className = 'field-picker-dropdown';
+  searchRow.appendChild(dropdown);
 
-  const searchWrapper = document.createElement('div');
-  searchWrapper.style.position = 'relative';
-  searchWrapper.appendChild(searchRow);
-  searchWrapper.appendChild(dropdown);
-
-  container.appendChild(searchWrapper);
+  container.appendChild(searchRow);
 
   // Tags container (for multi-select)
   const tagsContainer = document.createElement('div');
-  tagsContainer.className = 'field-picker-tags';
+  tagsContainer.className = 'wrapper';
   if (multiSelect) {
     container.appendChild(tagsContainer);
   }
@@ -299,7 +295,7 @@ export function createPicker(options = {}) {
   });
 
   document.addEventListener('click', (e) => {
-    if (!searchWrapper.contains(e.target)) {
+    if (!searchRow.contains(e.target)) {
       dropdown.classList.remove('field-picker-dropdown--open');
     }
   });
@@ -373,27 +369,13 @@ export function createTag(options = {}) {
  * @param {'select'|'pill'|'action'} [gridOptions.buttonType='select'] - type of buttons
  * @param {string} [gridOptions.role='listbox'] - ARIA role for the grid
  * @param {string} [gridOptions.ariaLabel] - accessible label
- * @param {number} [gridOptions.columns] - fixed column count (CSS grid)
  * @returns {HTMLElement}
  */
 export function createButtonGrid(buttons, gridOptions = {}) {
-  const {
-    buttonType = 'select',
-    role = 'listbox',
-    ariaLabel,
-    columns,
-  } = gridOptions;
+  const { buttonType = 'select', role = 'listbox', ariaLabel } = gridOptions;
 
   const grid = document.createElement('div');
-  grid.style.display = 'flex';
-  grid.style.flexWrap = 'wrap';
-  grid.style.gap = 'var(--sp-2)';
-
-  if (columns) {
-    grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-    grid.style.gap = 'var(--sp-4)';
-  }
+  grid.className = 'wrapper';
 
   if (role) grid.setAttribute('role', role);
   if (ariaLabel) grid.setAttribute('aria-label', ariaLabel);
@@ -488,7 +470,6 @@ export function createLabel(text, options = {}) {
     const req = document.createElement('span');
     req.textContent = ' *';
     req.setAttribute('aria-hidden', 'true');
-    req.style.color = 'var(--caution-dark)';
     label.appendChild(req);
   }
 

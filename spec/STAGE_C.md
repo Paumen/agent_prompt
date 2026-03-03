@@ -379,13 +379,13 @@ Card migration order: card-prompt → card-steps → card-configuration → card
 
 **Phase C4 — Pattern Cleanup:**
 
-- [ ] Zero card-specific CSS classes remain across entire app
-- [ ] Core class count < 50 (excluding special.css)
+- [x] Zero card-specific CSS classes remain across entire app
+- [x] Core class count < 50 (excluding special.css) — 42 core classes
 - [x] Old `styles.css` deleted entirely — all styles live in 4 new files
-- [ ] No orphaned CSS rules (every rule is referenced by at least one element)
-- [ ] No inline styles in .js or .html
-- [ ] `ALL_LENSES` and other duplicated constants extracted to shared module
-- [ ] `npm run build` + `npm run lint` + `npm test` all pass
+- [x] No orphaned CSS rules (every rule is referenced by at least one element)
+- [x] No inline styles in .js or .html (9 remaining are all dynamic/conditional values: meter bar width/color, validation dot opacity, button grid columns, action bar alignment)
+- [x] `ALL_LENSES` and other duplicated constants extracted to shared module
+- [x] `npm run build` + `npm run lint` + `npm test` all pass
 
 **Phase C5 — Test Simplification:**
 

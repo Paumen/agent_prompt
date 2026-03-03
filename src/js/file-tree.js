@@ -49,9 +49,7 @@ export function createFilePicker(container, config) {
 
   // Helper text (SCT-06: tooltip/helper for spec vs guideline distinction)
   if (helperText) {
-    const helper = document.createElement('div');
-    helper.style.cssText =
-      'font-size:var(--text-sm);color:var(--text-secondary)';
+    const helper = document.createElement('small');
     helper.textContent = helperText;
     wrapper.appendChild(helper);
   }
@@ -64,19 +62,15 @@ export function createFilePicker(container, config) {
   });
   const searchInput = searchRow._inputEl;
 
-  // Dropdown list
+  // Dropdown list (inside searchRow for CSS positioning)
   const dropdownList = document.createElement('div');
   dropdownList.className = 'field-picker-dropdown';
-
-  const searchWrapper = document.createElement('div');
-  searchWrapper.style.position = 'relative';
-  searchWrapper.appendChild(searchRow);
-  searchWrapper.appendChild(dropdownList);
-  wrapper.appendChild(searchWrapper);
+  searchRow.appendChild(dropdownList);
+  wrapper.appendChild(searchRow);
 
   // Selected files tags container
   const tagsContainer = document.createElement('div');
-  tagsContainer.className = 'field-picker-tags';
+  tagsContainer.className = 'wrapper';
   wrapper.appendChild(tagsContainer);
 
   container.appendChild(wrapper);
@@ -153,7 +147,7 @@ export function createFilePicker(container, config) {
   });
 
   document.addEventListener('click', (e) => {
-    if (!searchWrapper.contains(e.target)) {
+    if (!searchRow.contains(e.target)) {
       dropdownList.classList.remove('field-picker-dropdown--open');
     }
   });
