@@ -171,6 +171,19 @@
    PROMPT OUTPUT
    ============================================================ */
 
+.prompt-region {
+  position: relative;
+}
+
+.prompt-actions {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  display: flex;
+  gap: var(--sp-2);
+  z-index: 1;
+}
+
 .prompt-output {
   background: var(--bg-inset);
   border: 1px solid var(--border);
@@ -178,7 +191,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-  padding: var(--sp-4);
+  padding: var(--sp-8) var(--sp-4) var(--sp-4);
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 140px;

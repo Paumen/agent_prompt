@@ -162,13 +162,17 @@ export function initPromptCard() {
 
   // === Preview region ===
   const region = document.createElement('div');
+  region.className = 'prompt-region';
   region.setAttribute('role', 'region');
   region.setAttribute('aria-label', 'Generated prompt');
 
-  // Preview header: action buttons (right-aligned)
-  const previewHeader = document.createElement('div');
-  previewHeader.className = 'wrapper';
-  previewHeader.style.justifyContent = 'flex-end';
+  // Prompt preview
+  elPreview = document.createElement('pre');
+  elPreview.className = 'prompt-output';
+
+  // Action bar: floats top-right inside region
+  const actionBar = document.createElement('div');
+  actionBar.className = 'prompt-actions';
 
   // Screen reader copy status
   elCopyStatus = document.createElement('span');
@@ -196,16 +200,12 @@ export function initPromptCard() {
       'Open Claude in a new tab with this prompt pre-filled in the chat input',
   });
 
-  previewHeader.appendChild(elCopyStatus);
-  previewHeader.appendChild(copyBtn);
-  previewHeader.appendChild(promptClaudeBtn);
+  actionBar.appendChild(elCopyStatus);
+  actionBar.appendChild(copyBtn);
+  actionBar.appendChild(promptClaudeBtn);
 
-  // Prompt preview
-  elPreview = document.createElement('pre');
-  elPreview.className = 'prompt-output';
-
-  region.appendChild(previewHeader);
   region.appendChild(elPreview);
+  region.appendChild(actionBar);
 
   // === Notes section (OUT-06) — uses .input grid layout ===
   const notesRow = document.createElement('div');

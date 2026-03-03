@@ -372,11 +372,7 @@ export function createTag(options = {}) {
  * @returns {HTMLElement}
  */
 export function createButtonGrid(buttons, gridOptions = {}) {
-  const {
-    buttonType = 'select',
-    role = 'listbox',
-    ariaLabel,
-  } = gridOptions;
+  const { buttonType = 'select', role = 'listbox', ariaLabel } = gridOptions;
 
   const grid = document.createElement('div');
   grid.className = 'wrapper';
