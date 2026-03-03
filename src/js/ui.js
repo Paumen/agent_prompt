@@ -369,7 +369,6 @@ export function createTag(options = {}) {
  * @param {'select'|'pill'|'action'} [gridOptions.buttonType='select'] - type of buttons
  * @param {string} [gridOptions.role='listbox'] - ARIA role for the grid
  * @param {string} [gridOptions.ariaLabel] - accessible label
- * @param {number} [gridOptions.columns] - fixed column count (CSS grid)
  * @returns {HTMLElement}
  */
 export function createButtonGrid(buttons, gridOptions = {}) {
@@ -377,17 +376,10 @@ export function createButtonGrid(buttons, gridOptions = {}) {
     buttonType = 'select',
     role = 'listbox',
     ariaLabel,
-    columns,
   } = gridOptions;
 
   const grid = document.createElement('div');
   grid.className = 'wrapper';
-
-  if (columns) {
-    grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-    grid.style.gap = 'var(--sp-4)';
-  }
 
   if (role) grid.setAttribute('role', role);
   if (ariaLabel) grid.setAttribute('aria-label', ariaLabel);

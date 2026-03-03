@@ -648,12 +648,6 @@ function fieldNameToLabel(fieldName) {
   );
 }
 
-// --- Exported element getter (for testing) ---
-
-export function getCardTasksEl() {
-  return elBody;
-}
-
 // --- Initialization ---
 
 export function initTasksCard() {
