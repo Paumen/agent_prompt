@@ -73,7 +73,6 @@ export function buildPrompt(state) {
       taskStepInserted = true;
     }
 
-    // Phase 13: expand params.files into individual Read lines per file
     if (step.params?.files?.length > 0 && step.operation === 'read') {
       for (const filePath of step.params.files) {
         lines.push(`    Step ${stepNum}: Read @${escapeXml(filePath)}`);
@@ -390,7 +389,7 @@ function buildGenericTaskStep(panelA, panelB) {
 
 /**
  * Build the final feedback step. For review flow, checks output modes
- * from enabled_steps feedback steps (outputs_selected array, Phase 13).
+ * from enabled_steps feedback steps (outputs_selected array).
  * When multiple modes are selected, the prompt combines all into one instruction.
  */
 function buildFeedbackStep(flowId, enabledSteps) {
@@ -401,7 +400,6 @@ function buildFeedbackStep(flowId, enabledSteps) {
       s.id === 'provide-feedback-files' ||
       s.object === 'review_feedback'
   );
-  // Phase 13: prefer outputs_selected (array); fall back to legacy output_selected (string)
   let outputMode = null;
   if (feedbackSteps.length > 0) {
     const fs = feedbackSteps[0];
@@ -452,7 +450,7 @@ function buildFeedbackStep(flowId, enabledSteps) {
 }
 
 /**
- * Review flow supports multiple output modes (Phase 13: outputs_selected array).
+ * Review flow supports multiple output modes (outputs_selected array).
  * When multiple modes are selected, the instruction mentions all delivery methods.
  *
  * @param {string[]|null} outputModes - array of selected mode IDs, or null for default
