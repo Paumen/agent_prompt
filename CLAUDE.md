@@ -25,7 +25,8 @@ Core app build — **COMPLETE**
 ### Stage B: UX/UI fixes and improvements (B1-B6)
 
 UAT remediation — **COMPLETE**
-
+| ID  | Phase                  | Status      | Summary                                                                                         |
+| --- | ---------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
 | B1 | Global Visual Foundation | ✅ Complete | Shadow system, icon migration to Octicon SVGs, field depth |
 | B2 | Config Card Refinement | ✅ Complete | Expansion logic, credential UI, iconography |
 | B3 | Task Card (Dual-Panel) | ✅ Complete | Visual separation, validation UI, hierarchy, compact layout |
