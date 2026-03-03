@@ -172,7 +172,6 @@
    ============================================================ */
 
 .prompt-output {
-  position: relative;
   background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -188,9 +187,9 @@
 }
 
 .prompt-output > .wrapper {
-  position: absolute;
-  top: var(--sp-4);
-  right: var(--sp-4);
+  position: sticky;
+  top: 0;
+  float: right;
   z-index: 1;
 }
 
