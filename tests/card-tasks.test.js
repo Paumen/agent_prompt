@@ -130,7 +130,6 @@ vi.mock('../src/js/file-tree.js', () => ({
 import { initTasksCard } from '../src/js/card-tasks.js';
 import {
   getState,
-  setState,
   subscribe,
   applyFlowDefaults,
 } from '../src/js/state.js';

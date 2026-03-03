@@ -11,28 +11,7 @@
  *
  * Litmus test: if a function would only be called from one card file,
  * it does NOT belong here.
- */
-
-import { icon } from './icons.js';
-
-// ============================================================
-// BUTTONS
-// ============================================================
-
-/**
- * Create a button element with the correct framework class and attributes.
  *
- * @param {'primary'|'select'|'action'|'pill'|'icon'} type - button type
- * @param {object} options
- * @param {string} [options.label] - button text label
- * @param {string} [options.iconName] - icon name from icons.js registry
- * @param {string} [options.iconClass] - icon style class (e.g. 'icon-btn')
- * @param {boolean} [options.selected] - whether the button is in selected/on state
- * @param {Function} [options.onClick] - click handler
- * @param {string} [options.ariaLabel] - accessible label for screen readers
- * @param {string} [options.title] - native tooltip text
- * @param {object} [options.dataset] - data-* attributes as key/value pairs
- * @returns {HTMLButtonElement}
  */
 export function createButton(type, options = {}) {
   const {
