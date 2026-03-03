@@ -3,10 +3,6 @@
 ## Table of Contents
 
 1. [Architecture & File Map](#1-architecture--file-map)
-
-## Table of Contents
-
-1. [Architecture & File Map](#1-architecture--file-map)
 2. [Preconditions](#2-preconditions)
 3. [Phase A1 — CSS Foundation](#3-phase-0--css-foundation)
 4. [Phase A2 — State Management](#4-phase-1--state-management)
