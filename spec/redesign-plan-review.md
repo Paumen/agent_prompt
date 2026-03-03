@@ -343,7 +343,7 @@ The reduction is modest in raw lines because business logic doesn't shrink — i
 
 Each phase must pass its exit gate before the next phase begins.
 
-**Phase 0 — CSS Quick Wins:**
+**Phase C1 — CSS Quick Wins:**
 
 - [x] All quick-win CSS changes merged (pill consolidation, flex utility, surface pattern, accent light-dark fix, shadow-inset-sm fix)
 - [x] `npm run build` passes with zero errors
@@ -351,7 +351,7 @@ Each phase must pass its exit gate before the next phase begins.
 - [x] Visual regression check: PO confirms app looks identical before and after (no visible changes — these are internal consolidations only)
 - [x] All existing tests still pass (`npm test`)
 
-**Phase 1 — Framework Definition:**
+**Phase C2 — Framework Definition:**
 
 - [x] 4 new CSS files created: `variables.css` (updated), `layout.css`, `components.css`, `special.css`
 - [x] All grid classes defined and documented (body, card, card-in-card, input, output, btn-\*)
@@ -363,7 +363,7 @@ Each phase must pass its exit gate before the next phase begins.
 - [x] A standalone HTML test page or Storybook-like preview demonstrates each `ui.js` component works correctly in isolation
 - [x] PO reviews component preview and confirms visual direction
 
-**Phase 2 — Structural Application (per card):**
+**Phase C3 — Structural Application (per card):**
 
 Exit gate applies _after each card migration_, not just at the end:
 
@@ -377,7 +377,7 @@ Exit gate applies _after each card migration_, not just at the end:
 
 Card migration order: card-prompt → card-steps → card-configuration → card-tasks
 
-**Phase 3 — Pattern Cleanup:**
+**Phase C4 — Pattern Cleanup:**
 
 - [ ] Zero card-specific CSS classes remain across entire app
 - [ ] Core class count < 50 (excluding special.css)
@@ -386,7 +386,7 @@ Card migration order: card-prompt → card-steps → card-configuration → card
 - [ ] `ALL_LENSES` and other duplicated constants extracted to shared module
 - [ ] `npm run build` + `npm run lint` + `npm test` all pass
 
-**Phase 4 — Test Simplification:**
+**Phase C5 — Test Simplification:**
 
 - [ ] DOM-structure tests replaced with behavior tests (test what the user sees, not what classes exist)
 - [ ] Low-value tests removed (framework wiring, header text assertions)
