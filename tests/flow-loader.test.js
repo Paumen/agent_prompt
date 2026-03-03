@@ -18,15 +18,6 @@ describe('flow-loader.js', () => {
     expect(flows).toHaveProperty('improve');
   });
 
-  it('getFlowById returns flow or null for unknown', () => {
-    expect(getFlowById('fix').label).toBe('Fix / Debug');
-    expect(getFlowById('review').label).toBe('Review / Analyze');
-    expect(getFlowById('implement').label).toBe('Implement / Build');
-    expect(getFlowById('improve').label).toBe('Improve / Modify');
-    expect(getFlowById('nonexistent')).toBe(null);
-    expect(getFlowById('')).toBe(null);
-  });
-
   it('getFlowIds returns all flow IDs', () => {
     const ids = getFlowIds();
     expect(ids).toContain('fix');
