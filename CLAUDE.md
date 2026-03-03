@@ -33,7 +33,7 @@ UAT remediation — **COMPLETE**
 | B6 | Final UAT & Regression | ✅ Complete | Viewport audit, performance, a11y validation, PO approved |
 
 ### Stage C: Redesign Framework (C1-C5)
-CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases 0–1 complete, Phase 2 starting)**
+CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases C1–C2 complete, Phase C3 starting)**
 
 Details in @spec/redesign-plan-review.md
 
