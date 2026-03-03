@@ -34,7 +34,7 @@ export function isSourceFilled(source, panelA, panelB) {
  * Conditional steps (with `source` field) are only included when
  * the referenced panel field is filled (STP-02).
  *
- * Phase 13: For file-sourced steps (object === 'files' with an array source),
+ * For file-sourced steps (object === 'files' with an array source),
  * params.files is populated from the panel data so individual files can be
  * rendered as removable pills in the UI.
  *
@@ -67,7 +67,6 @@ export function generateSteps(flowDef, panelA, panelB) {
     if (stepDef.pr_name !== undefined) step.pr_name = stepDef.pr_name;
     if (stepDef.file_name !== undefined) step.file_name = stepDef.file_name;
 
-    // Phase 13 — File step consolidation:
     // For steps that read files from a panel array source, populate params.files
     // so the UI can render individual removable file pills.
     if (
@@ -95,7 +94,7 @@ export function generateSteps(flowDef, panelA, panelB) {
  * Respects user deletions (removedIds) — deleted steps stay deleted
  * until flow switch clears removedIds.
  *
- * Phase 13: Also preserves outputs_selected (array). If existing step
+ * Also preserves outputs_selected (array). If existing step
  * has old-format output_selected (string), migrates it to array format.
  */
 export function reconcileSteps(generated, currentSteps, removedIds) {

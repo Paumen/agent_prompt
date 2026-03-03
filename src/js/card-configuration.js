@@ -5,7 +5,6 @@
  * Wired to state, GitHub API, and cache.
  *
  * Req IDs: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, APP-04
- * Phase 11: input-row layout, eye/clear buttons, icons per button, display limits
  */
 
 import { getState, setState } from './state.js';
@@ -32,12 +31,12 @@ function deferIfInteracting(fn, maxRetries = 5) {
   setTimeout(() => deferIfInteracting(fn, maxRetries - 1), 2000);
 }
 
-// --- Display limits (Phase 11) ---
+// --- Display limits ---
 
 // Max repos visible in the collapsed state (approx. one row)
 const REPO_DISPLAY_LIMIT = 4;
 
-// Max branches visible in the collapsed state (Phase 11: 3)
+// Max branches visible in the collapsed state
 const BRANCH_DISPLAY_LIMIT = 3;
 
 // --- Module-level UI data ---
@@ -105,7 +104,7 @@ let elPatInput,
 // Track collapsed state for repo/branch grids (VIS-03)
 // NOTE: do NOT reset these inside the render functions — only set explicitly.
 let reposCollapsed = false;
-// Phase 11: branches start collapsed (show first 3 by default)
+// Branches start collapsed (show first 3 by default)
 let branchesCollapsed = true;
 
 // --- Render static UI shell ---
@@ -195,7 +194,6 @@ function renderShell(container) {
 function onPatInput() {
   const pat = elPatInput.value.trim();
   setState('configuration.pat', pat);
-  // Phase 11: show/hide eye and clear buttons based on value
   const hasValue = pat.length > 0;
   elPatToggle.hidden = !hasValue;
   elPatClear.hidden = !hasValue;
@@ -212,7 +210,6 @@ function onPatChange() {
 function onPatToggle() {
   const isPassword = elPatInput.type === 'password';
   elPatInput.type = isPassword ? 'text' : 'password';
-  // Phase 11: toggle .is-shown class for CSS-driven icon swap
   elPatToggle.classList.toggle('is-shown', isPassword);
   elPatToggle.setAttribute(
     'aria-label',
@@ -245,7 +242,6 @@ function onPatClear() {
 
 function onUsernameInput() {
   const owner = elUsername.value.trim();
-  // Phase 11: show/hide username clear button based on value
   elUserClear.hidden = owner.length === 0;
 }
 
@@ -359,7 +355,6 @@ function onRepoSelect(repo, allRepos) {
   renderRepoButtons(allRepos, repo.name);
   renderBranchSection([]);
 
-  // Hide credentials after repo is selected
   elCredentials?.classList.add('cfg-credentials--hidden');
 
   // Expand Tasks card; Config card stays open (full collapse happens on flow select)
@@ -434,7 +429,6 @@ function renderBranchButtons(branches, selectedBranch) {
 
 function onBranchSelect(branch, allBranches) {
   setState('configuration.branch', branch.name);
-  // Phase 11: keep branchesCollapsed as-is (no auto-collapse per branch selection)
   renderBranchButtons(allBranches, branch.name);
 
   const state = getState();
@@ -509,7 +503,6 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   if (cached) {
     const autoSelected = defaultBranch || cached[0]?.name || '';
     setState('configuration.branch', autoSelected);
-    // Phase 11: branchesCollapsed stays true (initial value) — no auto-set here
     renderBranchSection(cached, autoSelected);
     loadTreeInBackground(owner, repo, autoSelected, pat);
     loadBranchesBackground(owner, repo, pat, cacheKey, cached);
@@ -541,7 +534,6 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   const match = result.data.find((b) => b.name === defaultBranch);
   const autoSelected = match ? match.name : result.data[0]?.name || '';
   setState('configuration.branch', autoSelected);
-  // Phase 11: branchesCollapsed stays true (set as initial value) — no auto-set here
   renderBranchSection(result.data, autoSelected);
 
   if (autoSelected) {
@@ -597,12 +589,10 @@ export function initConfigurationCard() {
   elPatInput.value = savedPat;
   elUsername.value = savedOwner;
 
-  // Phase 11: show eye/clear if PAT already has a value
   if (savedPat) {
     elPatToggle.hidden = false;
     elPatClear.hidden = false;
   }
-  // Phase 11: show username clear if owner already has a value
   if (savedOwner) {
     elUserClear.hidden = false;
   }

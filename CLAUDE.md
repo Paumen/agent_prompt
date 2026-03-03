@@ -35,7 +35,7 @@ UAT remediation — **COMPLETE**
 ### Stage C: Redesign Framework (C1-C5)
 CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases C1–C2 complete, Phase C3 starting)**
 
-Details in @spec/redesign-plan-review.md
+Details in @spec/STAGE_C.md
 
 | ID | Phase | Status | Summary |
 |---|---|---|---|

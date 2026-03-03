@@ -313,7 +313,7 @@ describe('flow switch resets panels (DM-DEF-03)', () => {
   });
 });
 
-describe('Phase 12: Task Card Polish', () => {
+describe('Task Card Polish', () => {
   it('flow icons use class="icon"', () => {
     initTasksCard();
     expect(
@@ -329,7 +329,7 @@ describe('Phase 12: Task Card Polish', () => {
   });
 });
 
-describe('Phase 13: PR clear button', () => {
+describe('PR clear button', () => {
   it('renders clear button when PR is selected', () => {
     getState.mockReturnValue({
       task: { flow_id: 'review' },

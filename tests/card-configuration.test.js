@@ -316,7 +316,7 @@ describe('accessibility', () => {
   });
 });
 
-describe('Phase 11 — eye/clear button visibility', () => {
+describe('eye/clear button visibility', () => {
   it('eye and clear buttons hidden when PAT is empty, shown when PAT has value', () => {
     cardConfig.initConfigurationCard();
 
@@ -335,7 +335,7 @@ describe('Phase 11 — eye/clear button visibility', () => {
   });
 });
 
-describe('Phase 11 — username clear button', () => {
+describe('username clear button', () => {
   it('clears owner, repo, branch state', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
@@ -360,7 +360,7 @@ describe('Phase 11 — username clear button', () => {
   });
 });
 
-describe('Phase 11 — icons on repo/branch buttons', () => {
+describe('icons on repo/branch buttons', () => {
   it('repo buttons contain SVG icon', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
