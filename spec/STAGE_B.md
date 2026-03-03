@@ -1,23 +1,12 @@
 # STAGE B Implementation Plan (v1)
 
-## Table of Contents
-
-1. [Phase B1 — Global Visual Foundation](#12-phase-9--global-visual-foundation)
-2. [Phase B2 — Config Card Refinement](#13-phase-10--config-card-refinement)
-3. [Phase B3 — Task Card (Dual-Panel)](#14-phase-11--task-card-dual-panel)
-4. [Phase B4 — Steps Card & Output Logic](#15-phase-12--steps-card--output-logic)
-5. [Phase B5 — Prompt Card & Action Header](#16-phase-13--prompt-card--action-header)
-6. [Phase B6 — Final UAT & Regression](#17-phase-14--final-uat--regression)
-
 ---
 
-## UAT Feedback Remediation Phases 10 till 14
+### CONTEXT UAT Feedback Remediation  
 
-### Context
-
-After Phase 9 (E2E tests), a UAT review surfaced broad visual, interaction, and logic
+After Stage A a UAT review surfaced broad visual, interaction, and logic
 issues across all four cards. A prior partial UAT remediation was committed on 2026-02-27
-but did not close all items. This plan defines five new implementation phases (10–14) to
+but did not close all items. This plan defines six phases (B1-6) to
 fully address the remaining feedback.
 
 ---
