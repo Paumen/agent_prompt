@@ -4,7 +4,7 @@
 
 Single-page web app that generates prompts agentic llm.
 
-**Current phase**: Repository setup complete. Implementation v1 completed, V2 started.
+**Current phase**: Repository setup complete. Implementation v1 completed, V2 phase 0, 1, and 2 complete, phase 3 to start.
 
 ## Authority Hierarchy
 
@@ -25,22 +25,12 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 ## File Permissions
 
-- **NEVER** edit `spec/spec_concept.md` without asking the user first. **Exception**: Status updates to the Implementation Status table and entries to the Decisions Log in `spec/spec_concept.md` are permitted as part of the normal workflow.
-- **NEVER** edit `src/config/flows.yaml` without asking the user first.
-- **NEVER** edit `.github/workflows/` without asking the user first. **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
-- **MAY** freely edit files in `src/` (except `src/config/flows.yaml`), `tests/`, and `package.json`. 
+- **NEVER** edit `spec/spec_concept.md`, `src/config/flows.yaml`, `.github/workflows/`, edit `src/css/variables.css`, OR `src/css/specials.css` without asking the user first.
+- **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
 
 ## Anti-Over-Engineering Rule
 
 Before implementing complex logic, evaluate if there is a simpler alternative that achieves the same result. If the spec seems over-engineered for the use case, flag it and suggest a simpler approach before proceeding. Prefer the simplest solution that fully satisfies the requirement.
-
-## CSS Rules
-
-- Use CSS custom properties (variables) defined in `src/css/variables.css`.
-- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
-- Use modern futures like light-dark, container queries, cqi, dvh, clamp(), :is(), :had(), :where(), etc.
-- No CSS frameworks, no preprocessors — plain CSS only.
-- Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after approval user.
 
 ## Code Conventions
 
@@ -49,6 +39,12 @@ Before implementing complex logic, evaluate if there is a simpler alternative th
 - One feature per file where practical.
 - All asset references in HTML must use relative paths (starting with `./`), not absolute paths starting with `/`. Vite's `base` config handles path rewriting during build.
 - Run `npm run build` before creating a PR to catch build errors early.
+- **NEVER** apply inline styles in .js or .html without asking the user first.
+- Use CSS custom properties (variables) defined in `src/css/variables.css`. Request if you need other or adjustments.
+- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
+- Use modern futures like light-dark, container queries, cqi, dvh, clamp(), :is(), :had(), :where(), etc.
+- Plain CSS only.
+- Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after approval user.
 
 ## Commands
 
@@ -60,17 +56,6 @@ npm run lint:fix  # Auto-fix lint issues
 npm run format    # Auto-format all files with Prettier
 npm test          # Run all tests
 ```
-
-## Workflow
-
-1. Write a test for every feature/requirement implemented.
-2. After implementing a spec requirement, update the Implementation Status table at the bottom of `spec/spec_concept.md`:
-   - **Lifecycle**: `To start` → `In progress` → `Testing` → `🏁 Approved` (or `🚫 Blocked` if stuck). Claude Code may set statuses up to `Testing`. Only the PO may set `🏁 Approved`.
-   - **Test columns** (Unit / SIT / UAT): update independently as tests are written and pass. Use `—` (N/A), `◻` (not yet run), `❌` (failed), `✅` (passed).
-3. Log significant technical decisions in the Decisions Log section of `spec/spec_concept.md`.
-4. Every PR must fill in the PR template (requirements addressed, testing done).
-5. Run `npm run format` and `npm run lint:fix` before committing.
-6. Run `npm run build` before creating a PR.
 
 ## Team
 
