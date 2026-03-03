@@ -165,12 +165,10 @@ export function initPromptCard() {
   region.setAttribute('role', 'region');
   region.setAttribute('aria-label', 'Generated prompt');
 
-  // Preview header: action buttons
+  // Preview header: action buttons (right-aligned)
   const previewHeader = document.createElement('div');
-  previewHeader.style.display = 'flex';
-  previewHeader.style.alignItems = 'center';
+  previewHeader.className = 'wrapper';
   previewHeader.style.justifyContent = 'flex-end';
-  previewHeader.style.gap = 'var(--sp-4)';
 
   // Screen reader copy status
   elCopyStatus = document.createElement('span');

@@ -208,20 +208,16 @@ export function createPicker(options = {}) {
   searchInput.setAttribute('aria-label', placeholder);
   searchRow.appendChild(searchInput);
 
-  // Dropdown
+  // Dropdown (inside searchRow for CSS positioning)
   const dropdown = document.createElement('div');
   dropdown.className = 'field-picker-dropdown';
+  searchRow.appendChild(dropdown);
 
-  const searchWrapper = document.createElement('div');
-  searchWrapper.style.position = 'relative';
-  searchWrapper.appendChild(searchRow);
-  searchWrapper.appendChild(dropdown);
-
-  container.appendChild(searchWrapper);
+  container.appendChild(searchRow);
 
   // Tags container (for multi-select)
   const tagsContainer = document.createElement('div');
-  tagsContainer.className = 'field-picker-tags';
+  tagsContainer.className = 'wrapper';
   if (multiSelect) {
     container.appendChild(tagsContainer);
   }
@@ -299,7 +295,7 @@ export function createPicker(options = {}) {
   });
 
   document.addEventListener('click', (e) => {
-    if (!searchWrapper.contains(e.target)) {
+    if (!searchRow.contains(e.target)) {
       dropdown.classList.remove('field-picker-dropdown--open');
     }
   });
@@ -385,9 +381,7 @@ export function createButtonGrid(buttons, gridOptions = {}) {
   } = gridOptions;
 
   const grid = document.createElement('div');
-  grid.style.display = 'flex';
-  grid.style.flexWrap = 'wrap';
-  grid.style.gap = 'var(--sp-2)';
+  grid.className = 'wrapper';
 
   if (columns) {
     grid.style.display = 'grid';
@@ -488,7 +482,6 @@ export function createLabel(text, options = {}) {
     const req = document.createElement('span');
     req.textContent = ' *';
     req.setAttribute('aria-hidden', 'true');
-    req.style.color = 'var(--caution-dark)';
     label.appendChild(req);
   }
 

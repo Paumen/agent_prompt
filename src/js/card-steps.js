@@ -118,13 +118,7 @@ function renderStepList() {
   }
 
   const list = document.createElement('ol');
-  list.style.listStyle = 'none';
-  list.style.display = 'flex';
-  list.style.flexDirection = 'column';
-  list.style.padding = '0';
-  list.style.margin = '0';
-  list.style.width = '100%';
-  list.style.gap = 'var(--sp-4)';
+  list.className = 'output-block';
   list.setAttribute('role', 'list');
 
   steps.forEach((step, index) => {
@@ -141,16 +135,13 @@ function renderStepRow(step, index) {
 
   // Badge (col 1)
   const badge = document.createElement('span');
+  badge.className = 'badge';
   badge.textContent = String(index + 1);
   badge.setAttribute('aria-hidden', 'true');
-  badge.style.cssText =
-    'background:var(--bg);border-radius:50%;width:16px;height:16px;display:grid;place-content:center;font-weight:800;flex-shrink:0;font-size:var(--text)';
   li.appendChild(badge);
 
   // Label (col 2)
   const label = document.createElement('span');
-  label.style.cssText =
-    'display:flex;align-items:center;flex:1;min-width:0;font-size:var(--text);text-align:left';
   label.textContent = formatStepLabel(step);
   li.appendChild(label);
 
@@ -215,7 +206,7 @@ function renderSourcePill(source, iconName, labelPrefix) {
 
 function renderFilePills(step) {
   const container = document.createElement('div');
-  container.className = 'field-picker-tags';
+  container.className = 'wrapper';
 
   for (const filePath of step.params.files) {
     const segments = filePath.split('/');
@@ -233,12 +224,9 @@ function renderFilePills(step) {
 
 function renderOptionalTextRow(step, index) {
   const row = document.createElement('div');
-  row.style.cssText =
-    'display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap';
+  row.className = 'input';
 
-  const lbl = document.createElement('span');
-  lbl.style.cssText =
-    'font-size:var(--text-sm);color:var(--text-secondary);white-space:nowrap';
+  const lbl = document.createElement('label');
   lbl.textContent = getOptionalTextLabel(step);
   row.appendChild(lbl);
 
@@ -247,8 +235,6 @@ function renderOptionalTextRow(step, index) {
     value: step.name_provided || '',
     onInput: (e) => onOptionalTextChange(index, e.target.value),
   });
-  input.style.width = '160px';
-  input.style.fontSize = 'var(--text-sm)';
   row.appendChild(input);
 
   return row;
@@ -256,14 +242,14 @@ function renderOptionalTextRow(step, index) {
 
 function renderOutputIcons(step, index) {
   const container = document.createElement('div');
-  container.style.cssText =
-    'display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap';
+  container.className = 'input';
 
-  const label = document.createElement('span');
-  label.style.cssText =
-    'font-size:var(--text-sm);color:var(--text-secondary);white-space:nowrap';
-  label.textContent = 'Deliver via:';
-  container.appendChild(label);
+  const lbl = document.createElement('label');
+  lbl.textContent = 'Deliver via:';
+  container.appendChild(lbl);
+
+  const pillGroup = document.createElement('div');
+  pillGroup.className = 'wrapper';
 
   const selected =
     step.outputs_selected ||
@@ -279,9 +265,10 @@ function renderOutputIcons(step, index) {
       onClick: () => onSelectOutput(index, mode, btn),
     });
     btn.setAttribute('role', 'checkbox');
-    container.appendChild(btn);
+    pillGroup.appendChild(btn);
   }
 
+  container.appendChild(pillGroup);
   return container;
 }
 
@@ -294,7 +281,7 @@ function renderStepLenses(step, stepIndex) {
 
   // Primary lenses
   const pillGroup = document.createElement('div');
-  pillGroup.className = 'field-picker-tags';
+  pillGroup.className = 'wrapper';
 
   for (const lens of initial) {
     pillGroup.appendChild(createLensPill(lens, activeLenses, stepIndex));
@@ -308,9 +295,8 @@ function renderStepLenses(step, stepIndex) {
     const isExpanded = expandedSteps.get(step.id) || false;
 
     const extraGroup = document.createElement('div');
-    extraGroup.className = 'field-picker-tags';
-    extraGroup.style.display = isExpanded ? 'flex' : 'none';
-    extraGroup.style.marginTop = 'var(--sp-2)';
+    extraGroup.className = 'wrapper';
+    extraGroup.hidden = !isExpanded;
 
     for (const lens of remainder) {
       extraGroup.appendChild(createLensPill(lens, activeLenses, stepIndex));
@@ -325,7 +311,7 @@ function renderStepLenses(step, stepIndex) {
           : undefined,
       onToggle: (nowExpanded) => {
         expandedSteps.set(step.id, nowExpanded);
-        extraGroup.style.display = nowExpanded ? 'flex' : 'none';
+        extraGroup.hidden = !nowExpanded;
       },
     });
 

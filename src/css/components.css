@@ -32,7 +32,6 @@
   white-space: nowrap;
   flex-shrink: 0;
   color: var(--text-secondary);
-
 }
 
 /* --- 1. btn-primary: accent bg, white text, main action --- */
@@ -221,6 +220,7 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
+  position: relative;
 }
 
 .field-picker-search .input-field {
@@ -266,10 +266,16 @@
   text-align: center;
 }
 
-.field-picker-tags {
+.wrapper {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
+}
+
+/* Credentials: field-picker-search children grow to fill */
+.wrapper > .field-picker-search {
+  flex: 1;
+  min-width: 200px;
 }
 
 /* ============================================================
@@ -336,7 +342,8 @@
    SURFACES (card, card-in-card, output backgrounds)
    ============================================================ */
 
-.card, .card-in-card {
+.card,
+.card-in-card {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -393,6 +400,12 @@
   align-items: center;
   gap: var(--sp-2);
   font-size: var(--text);
+  font-weight: 700;
+}
+
+/* Subtitle within title (semantic <small>) */
+.card-title small {
+  font-weight: 400;
 }
 
 /* Chevron rotation when open */
@@ -455,6 +468,30 @@
   font-weight: 800;
 }
 
+/* Badge (step number circle) */
+.badge {
+  display: grid;
+  place-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  font-weight: 800;
+  font-size: var(--text);
+  flex-shrink: 0;
+}
+
+/* Small helper/subtitle text */
+small {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Required indicator color in labels */
+label > [aria-hidden] {
+  color: var(--caution-dark);
+}
+
 /* Required group dot indicator */
 .required-group-dot {
   display: inline-block;
@@ -465,9 +502,4 @@
   vertical-align: middle;
   cursor: help;
   transition: opacity 0.3s ease;
-}
-
-/* Credentials row (config card) */
-.cfg-credentials--hidden {
-  display: none;
 }

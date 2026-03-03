@@ -6,22 +6,23 @@ Single-page web app that generates prompts for agentic llm.
 
 This product is build in stages (A-Z), phases (1-9), steps (1-99).
 
-### Stage A: Initial Implementation (A1-A9) 
+### Stage A: Initial Implementation (A1-A9)
+
 Core app build — **COMPLETE**
 
-| ID | Phase | Status | Summary |
-|---|---|---|---|
-| A1 | CSS Foundation | ✅ Complete | Design tokens, card shell, feedback styles, a11y |
-| A2 | State Management | ✅ Complete | setState/subscribe, localStorage persistence, deterministic prompt |
-| A3 | Build Pipeline & Flow Loading | ✅ Complete | YAML→JSON plugin, schema validation, runtime loader |
-| A4 | GitHub API & Caching | ✅ Complete | Repos/branches/trees/PRs/issues, 15-min TTL cache, limit enforcement |
-| A5 | Config Card | ✅ Complete | PAT/username fields, repo/branch selection, background fetch |
-| A6 | Task Card (Dual-Panel) | ✅ Complete | Flow selection, Situation/Target fields, Quality Meter |
-| A7 | Steps Card (Auto-Gen) | ✅ Complete | Dynamic step generation, lens pills, delete actions |
-| A8 | Prompt Output | ✅ Complete | XML generation, Copy action, Claude.ai deep-link, notes field |
-| A9 | Polish & Constraints | ✅ Complete | ≤2 clicks, zero h-scroll, mobile-first audit |
+| ID  | Phase                         | Status      | Summary                                                              |
+| --- | ----------------------------- | ----------- | -------------------------------------------------------------------- |
+| A1  | CSS Foundation                | ✅ Complete | Design tokens, card shell, feedback styles, a11y                     |
+| A2  | State Management              | ✅ Complete | setState/subscribe, localStorage persistence, deterministic prompt   |
+| A3  | Build Pipeline & Flow Loading | ✅ Complete | YAML→JSON plugin, schema validation, runtime loader                  |
+| A4  | GitHub API & Caching          | ✅ Complete | Repos/branches/trees/PRs/issues, 15-min TTL cache, limit enforcement |
+| A5  | Config Card                   | ✅ Complete | PAT/username fields, repo/branch selection, background fetch         |
+| A6  | Task Card (Dual-Panel)        | ✅ Complete | Flow selection, Situation/Target fields, Quality Meter               |
+| A7  | Steps Card (Auto-Gen)         | ✅ Complete | Dynamic step generation, lens pills, delete actions                  |
+| A8  | Prompt Output                 | ✅ Complete | XML generation, Copy action, Claude.ai deep-link, notes field        |
+| A9  | Polish & Constraints          | ✅ Complete | ≤2 clicks, zero h-scroll, mobile-first audit                         |
 
-### Stage B: UX/UI fixes and improvements (B1-B6) 
+### Stage B: UX/UI fixes and improvements (B1-B6)
 
 UAT remediation — **COMPLETE**
 
@@ -33,17 +34,18 @@ UAT remediation — **COMPLETE**
 | B6 | Final UAT & Regression | ✅ Complete | Viewport audit, performance, a11y validation, PO approved |
 
 ### Stage C: Redesign Framework (C1-C5)
-CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases C1–C2 complete, Phase C3 starting)**
+
+CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases C1–C4 complete, Phase C5 pending)**
 
 Details in @spec/STAGE_C.md
 
-| ID | Phase | Status | Summary |
-|---|---|---|---|
-| C1 | CSS Quick Wins | ✅ Complete | Pill/flex/surface consolidation, accent light-dark fix, shadow-inset-sm fix |
-| C2 | Framework Definition | ✅ Complete | 4 CSS files (layout/components/special), ui.js factories, clamp() responsive, container queries |
-| C3 | Structural Application |  ✅ Complete | Migrate cards to new framework (prompt → steps → config → tasks order) |
-| C4 | Pattern Cleanup | ⏳ Pending | Remove card-specific CSS, target <40 core classes, delete old styles.css, no inline styles |
-| C5 | Test Simplification | ⏳ Pending | Replace DOM tests with behavior tests, reduce count to <150-200 |
+| ID  | Phase                  | Status      | Summary                                                                                         |
+| --- | ---------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
+| C1  | CSS Quick Wins         | ✅ Complete | Pill/flex/surface consolidation, accent light-dark fix, shadow-inset-sm fix                     |
+| C2  | Framework Definition   | ✅ Complete | 4 CSS files (layout/components/special), ui.js factories, clamp() responsive, container queries |
+| C3  | Structural Application | ✅ Complete | Migrate cards to new framework (prompt → steps → config → tasks order)                          |
+| C4  | Pattern Cleanup        | ✅ Complete | Remove card-specific CSS, target <40 core classes, delete old styles.css, no inline styles      |
+| C5  | Test Simplification    | ⏳ Pending  | Replace DOM tests with behavior tests, reduce count to <150-200                                 |
 
 ## Authority Hierarchy
 

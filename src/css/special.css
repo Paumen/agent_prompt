@@ -34,6 +34,17 @@
     background-color 0.25s ease;
 }
 
+/* Meter label (text + info button) */
+.quality-meter > :last-child {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  margin-top: var(--sp-2);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
 /* Info button (reuses btn-icon pattern) */
 .meter-info-wrapper {
   position: relative;

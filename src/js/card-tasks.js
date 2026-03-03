@@ -48,7 +48,7 @@ let elScopeSelector = null;
 
 function renderFlowSelector() {
   elFlowGrid = document.createElement('div');
-  elFlowGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
+  elFlowGrid.className = 'wrapper';
   elFlowGrid.setAttribute('role', 'listbox');
   elFlowGrid.setAttribute('aria-label', 'Select a flow');
 
@@ -71,8 +71,7 @@ function renderFlowSelector() {
 
 function renderPanelArea() {
   elPanelArea = document.createElement('div');
-  elPanelArea.style.cssText =
-    'display:grid;grid-template-columns:1fr;gap:var(--sp-8)';
+  elPanelArea.className = 'card-body';
   elBody.appendChild(elPanelArea);
 }
 
@@ -155,23 +154,15 @@ function renderDualPanels(flowId, flowDef) {
 
 function renderPanelHeader(genericLabel, flowSubtitle) {
   const header = document.createElement('div');
-  header.style.cssText =
-    'display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:var(--text)';
+  header.className = 'card-title';
 
   const label = document.createElement('span');
   label.textContent = genericLabel;
   header.appendChild(label);
 
   if (flowSubtitle) {
-    const sep = document.createElement('span');
-    sep.style.color = 'var(--text-tertiary)';
-    sep.textContent = '·';
-    header.appendChild(sep);
-
-    const subtitle = document.createElement('span');
-    subtitle.style.cssText =
-      'font-weight:400;font-size:var(--text-sm);color:var(--text-secondary)';
-    subtitle.textContent = flowSubtitle;
+    const subtitle = document.createElement('small');
+    subtitle.textContent = `· ${flowSubtitle}`;
     header.appendChild(subtitle);
   }
 
@@ -390,7 +381,7 @@ function renderFilePicker(
 
 function renderLensPicker(container, statePath, currentLenses) {
   const pillGroup = document.createElement('div');
-  pillGroup.className = 'field-picker-tags';
+  pillGroup.className = 'wrapper';
 
   for (const lens of ALL_LENSES) {
     const isOn = currentLenses.includes(lens);
@@ -425,13 +416,13 @@ function renderLensPicker(container, statePath, currentLenses) {
 function renderScopeSelector() {
   const scopeEl = document.createElement('div');
   scopeEl.className = 'input';
-  scopeEl.style.display = 'none'; // hidden until 2+ files selected
+  scopeEl.hidden = true; // hidden until 2+ files selected
 
   const scopeLabel = createLabel('How should files be improved?');
   scopeEl.appendChild(scopeLabel);
 
   const scopeOptions = document.createElement('div');
-  scopeOptions.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
+  scopeOptions.className = 'wrapper';
 
   const options = [
     { value: 'each_file', label: 'Each file separately' },
@@ -463,7 +454,7 @@ function updateScopeSelector() {
   if (!elScopeSelector || currentFlowId !== 'improve') return;
   const state = getState();
   const fileCount = (state.panel_a?.files || []).length;
-  elScopeSelector.style.display = fileCount >= 2 ? 'block' : 'none';
+  elScopeSelector.hidden = fileCount < 2;
 }
 
 // --- Required group validation (SCT-05) ---
