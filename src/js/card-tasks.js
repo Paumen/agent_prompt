@@ -7,15 +7,26 @@
  * Req IDs: SCT-01..09, DM-DEF-03
  */
 
-import { getState, setState, subscribe, applyFlowDefaults, getValueByPath } from './state.js';
+import {
+  getState,
+  setState,
+  subscribe,
+  applyFlowDefaults,
+  getValueByPath,
+} from './state.js';
 import { getFlows, getFlowById, ALL_LENSES } from './flow-loader.js';
 import { getFileTree, setConfigCardSummary } from './card-configuration.js';
 import { fetchPRs, fetchIssues } from './github-api.js';
 import { cacheGet, cacheSet } from './cache.js';
 import { renderShimmer, expandCard, collapseCard } from './components.js';
 import { createFilePicker } from './file-tree.js';
-
-import { icon } from './icons.js';
+import {
+  createButton,
+  createInputField,
+  createLabel,
+  createPicker,
+  createTag,
+} from './ui.js';
 
 // --- Module-level state ---
 
@@ -37,26 +48,19 @@ let elScopeSelector = null;
 
 function renderFlowSelector() {
   elFlowGrid = document.createElement('div');
-  elFlowGrid.className = 'btn-grid flow-grid';
+  elFlowGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
   elFlowGrid.setAttribute('role', 'listbox');
   elFlowGrid.setAttribute('aria-label', 'Select a flow');
 
   const flows = getFlows();
   for (const [flowId, flowDef] of Object.entries(flows)) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn-grid-item flow-btn';
-    btn.dataset.flowId = flowId;
+    const btn = createButton('select', {
+      label: flowDef.label,
+      iconName: flowDef.icon || undefined,
+      onClick: () => onFlowSelect(flowId, flowDef),
+      dataset: { flowId },
+    });
     btn.setAttribute('role', 'option');
-    btn.setAttribute('aria-selected', 'false');
-
-    if (flowDef.icon) btn.appendChild(icon(flowDef.icon, 'icon-btn'));
-    const labelSpan = document.createElement('span');
-    labelSpan.className = 'flow-btn-label';
-    labelSpan.textContent = flowDef.label;
-    btn.appendChild(labelSpan);
-
-    btn.addEventListener('click', () => onFlowSelect(flowId, flowDef));
     elFlowGrid.appendChild(btn);
   }
 
@@ -67,7 +71,8 @@ function renderFlowSelector() {
 
 function renderPanelArea() {
   elPanelArea = document.createElement('div');
-  elPanelArea.className = 'panel-area';
+  elPanelArea.style.cssText =
+    'display:grid;grid-template-columns:1fr;gap:var(--sp-8)';
   elBody.appendChild(elPanelArea);
 }
 
@@ -82,10 +87,10 @@ function onFlowSelect(flowId, flowDef) {
   applyFlowDefaults(flowId, flowDef);
 
   // Update flow button selection
-  const buttons = elFlowGrid.querySelectorAll('.flow-btn');
+  const buttons = elFlowGrid.querySelectorAll('.btn-select');
   for (const btn of buttons) {
     const isSelected = btn.dataset.flowId === flowId;
-    btn.classList.toggle('item-selected', isSelected);
+    btn.classList.toggle('btn-select--selected', isSelected);
     btn.setAttribute('aria-selected', String(isSelected));
   }
 
@@ -112,12 +117,9 @@ function renderDualPanels(flowId, flowDef) {
   elPanelArea.innerHTML = '';
   elScopeSelector = null;
 
-  const dualPanel = document.createElement('div');
-  dualPanel.className = 'dual-panel';
-
-  // Panel A — Situation
+  // Panel A — Situation (card-in-card)
   const panelA = document.createElement('div');
-  panelA.className = 'panel panel-a';
+  panelA.className = 'card-in-card card-in-card--open';
 
   const panelAHeader = renderPanelHeader(
     'Situation',
@@ -126,9 +128,9 @@ function renderDualPanels(flowId, flowDef) {
   panelA.appendChild(panelAHeader);
   renderPanelFields(panelA, flowDef.panel_a.fields, 'panel_a');
 
-  // Panel B — Target
+  // Panel B — Target (card-in-card)
   const panelB = document.createElement('div');
-  panelB.className = 'panel panel-b';
+  panelB.className = 'card-in-card card-in-card--open';
 
   const panelBHeader = renderPanelHeader(
     'Target',
@@ -137,9 +139,8 @@ function renderDualPanels(flowId, flowDef) {
   panelB.appendChild(panelBHeader);
   renderPanelFields(panelB, flowDef.panel_b.fields, 'panel_b');
 
-  dualPanel.appendChild(panelA);
-  dualPanel.appendChild(panelB);
-  elPanelArea.appendChild(dualPanel);
+  elPanelArea.appendChild(panelA);
+  elPanelArea.appendChild(panelB);
 
   // Improve/Modify scope selector (SCT-09, shown when 2+ files)
   if (flowId === 'improve') {
@@ -154,22 +155,22 @@ function renderDualPanels(flowId, flowDef) {
 
 function renderPanelHeader(genericLabel, flowSubtitle) {
   const header = document.createElement('div');
-  header.className = 'panel-header';
+  header.style.cssText =
+    'display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:var(--text)';
 
   const label = document.createElement('span');
-  label.className = 'panel-label';
   label.textContent = genericLabel;
-
   header.appendChild(label);
 
   if (flowSubtitle) {
     const sep = document.createElement('span');
-    sep.className = 'panel-sep';
+    sep.style.color = 'var(--text-tertiary)';
     sep.textContent = '·';
     header.appendChild(sep);
 
     const subtitle = document.createElement('span');
-    subtitle.className = 'panel-subtitle';
+    subtitle.style.cssText =
+      'font-weight:400;font-size:var(--text-sm);color:var(--text-secondary)';
     subtitle.textContent = flowSubtitle;
     header.appendChild(subtitle);
   }
@@ -180,28 +181,13 @@ function renderPanelHeader(genericLabel, flowSubtitle) {
 function renderPanelFields(panelEl, fieldsMap, panelKey) {
   if (!fieldsMap) return;
 
-  // Group fields by required_group for indicator tracking
-  const requiredGroups = {};
-
   for (const [fieldName, fieldDef] of Object.entries(fieldsMap)) {
-    if (fieldDef.required_group) {
-      const gk = fieldDef.required_group;
-      if (!requiredGroups[gk]) requiredGroups[gk] = [];
-      requiredGroups[gk].push(fieldName);
-    }
-  }
-
-  for (const [fieldName, fieldDef] of Object.entries(fieldsMap)) {
-    const fieldGroup = document.createElement('div');
-    fieldGroup.className = 'panel-field-group';
+    const fieldRow = document.createElement('div');
+    fieldRow.className = 'input';
 
     // Label
-    const label = document.createElement('label');
-    label.className = 'field-label';
-
     const labelText = fieldDef.label || fieldNameToLabel(fieldName);
-
-    label.appendChild(document.createTextNode(labelText));
+    const label = createLabel(labelText, { required: !!fieldDef.required });
 
     // Required group indicator (SCT-05)
     if (fieldDef.required_group) {
@@ -216,23 +202,13 @@ function renderPanelFields(panelEl, fieldsMap, panelKey) {
       label.appendChild(indicator);
     }
 
-    if (fieldDef.required) {
-      const req = document.createElement('span');
-      req.className = 'required';
-      req.textContent = '*';
-      req.setAttribute('aria-hidden', 'true');
-      label.appendChild(req);
-    }
-
-    fieldGroup.appendChild(label);
+    fieldRow.appendChild(label);
 
     // Field widget
-    renderFieldWidget(fieldGroup, fieldName, fieldDef, panelKey);
+    renderFieldWidget(fieldRow, fieldName, fieldDef, panelKey);
 
-    panelEl.appendChild(fieldGroup);
+    panelEl.appendChild(fieldRow);
   }
-
-  // Required group indicators are handled via dots on labels (tooltip on hover)
 }
 
 // --- Field widget renderers ---
@@ -275,15 +251,15 @@ function renderFieldWidget(container, fieldName, fieldDef, panelKey) {
 }
 
 function renderTextField(container, fieldDef, statePath, currentValue) {
-  const textarea = document.createElement('textarea');
-  textarea.className = 'input-field field-textarea';
-  textarea.placeholder = fieldDef.placeholder || '';
-  textarea.value = currentValue || '';
-  textarea.rows = 3;
-
-  textarea.addEventListener('input', () => {
-    setState(statePath, textarea.value);
-    updateRequiredGroupIndicators();
+  const textarea = createInputField({
+    type: 'textarea',
+    placeholder: fieldDef.placeholder || '',
+    value: currentValue || '',
+    rows: 3,
+    onInput: (e) => {
+      setState(statePath, e.target.value);
+      updateRequiredGroupIndicators();
+    },
   });
 
   container.appendChild(textarea);
@@ -291,7 +267,7 @@ function renderTextField(container, fieldDef, statePath, currentValue) {
 
 function renderPickerField(container, fieldDef, statePath, kind, currentValue) {
   const pickerWrapper = document.createElement('div');
-  pickerWrapper.className = 'picker-wrapper';
+  pickerWrapper.className = 'field-picker';
 
   // Show current selection if any
   if (currentValue) {
@@ -320,7 +296,6 @@ function renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind) {
   }
 
   if (!items) {
-    // No data yet — show a small message + try to load
     const empty = document.createElement('div');
     empty.className = 'empty-state';
     empty.textContent = `No ${kind === 'pr' ? 'PRs' : 'issues'} loaded yet.`;
@@ -336,89 +311,33 @@ function renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind) {
     return;
   }
 
-  const options = items.map(({ number, title }) => ({
+  const pickerIconName = kind === 'pr' ? 'git-pull-request' : 'issue-opened';
+  const placeholder =
+    fieldDef.placeholder || `Select ${kind === 'pr' ? 'PR' : 'issue'}`;
+
+  const pickerItems = items.map(({ number, title }) => ({
     value: number,
     label: `#${number} — ${title}`,
   }));
 
-  const inputRow = document.createElement('div');
-  inputRow.className = 'input-row';
-
-  // Prepend picker icon inside the input row
-  const pickerIconName = kind === 'pr' ? 'git-pull-request' : 'issue-opened';
-  inputRow.appendChild(icon(pickerIconName, 'icon-btn'));
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'input-field dropdown-input';
-  input.placeholder =
-    fieldDef.placeholder || `Select ${kind === 'pr' ? 'PR' : 'issue'}`;
-  input.setAttribute('autocomplete', 'off');
-  input.setAttribute(
-    'aria-label',
-    fieldDef.placeholder || `Select ${kind === 'pr' ? 'PR' : 'issue'}`
-  );
-  inputRow.appendChild(input);
-
-  const list = document.createElement('div');
-  list.className = 'dropdown-list';
-
-  function renderList(filter = '') {
-    list.innerHTML = '';
-    const lower = filter.toLowerCase();
-    const filtered = options.filter((o) =>
-      o.label.toLowerCase().includes(lower)
-    );
-
-    if (filtered.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'dropdown-empty';
-      empty.textContent = 'No matches';
-      list.appendChild(empty);
-      return;
-    }
-
-    for (const opt of filtered) {
-      const item = document.createElement('div');
-      item.className = 'dropdown-item';
-      item.textContent = opt.label;
-      item.addEventListener('click', () => {
-        setState(statePath, opt.value);
-        renderPickerSelection(
-          pickerWrapper,
-          opt.value,
-          statePath,
-          kind,
-          opt.label
-        );
-        updateRequiredGroupIndicators();
-        list.classList.remove('dropdown-list--open');
-      });
-      list.appendChild(item);
-    }
-  }
-
-  input.addEventListener('focus', () => {
-    renderList(input.value);
-    list.classList.add('dropdown-list--open');
+  const picker = createPicker({
+    items: pickerItems,
+    placeholder,
+    searchIconName: pickerIconName,
+    onSelect: (item) => {
+      setState(statePath, item.value);
+      renderPickerSelection(
+        pickerWrapper,
+        item.value,
+        statePath,
+        kind,
+        item.label
+      );
+      updateRequiredGroupIndicators();
+    },
   });
 
-  input.addEventListener('input', () => {
-    renderList(input.value);
-    list.classList.add('dropdown-list--open');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!pickerWrapper.contains(e.target)) {
-      list.classList.remove('dropdown-list--open');
-    }
-  });
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'dropdown-wrapper';
-  wrapper.appendChild(inputRow);
-  wrapper.appendChild(list);
-  pickerWrapper.appendChild(wrapper);
+  pickerWrapper.appendChild(picker);
 }
 
 function renderPickerSelection(
@@ -430,32 +349,19 @@ function renderPickerSelection(
 ) {
   pickerWrapper.innerHTML = '';
 
-  const selRow = document.createElement('div');
-  selRow.className = 'picker-selected-row';
-
-  const selLabel = document.createElement('span');
-  selLabel.className = 'picker-selected-value';
-  selLabel.textContent = labelText || `#${value}`;
-
-  const clearBtn = document.createElement('button');
-  clearBtn.type = 'button';
-  clearBtn.className = 'btn-icon picker-clear';
-  clearBtn.setAttribute(
-    'aria-label',
-    `Clear ${kind === 'pr' ? 'PR' : 'issue'} selection`
-  );
-  clearBtn.appendChild(icon('x', 'icon-remove'));
-  clearBtn.addEventListener('click', () => {
-    setState(statePath, null);
-    updateRequiredGroupIndicators();
-    // Re-render dropdown
-    const fieldDef = { placeholder: '' };
-    renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind);
+  const iconName = kind === 'pr' ? 'git-pull-request' : 'issue-opened';
+  const tag = createTag({
+    label: labelText || `#${value}`,
+    iconName,
+    onRemove: () => {
+      setState(statePath, null);
+      updateRequiredGroupIndicators();
+      const fieldDef = { placeholder: '' };
+      renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind);
+    },
   });
 
-  selRow.appendChild(selLabel);
-  selRow.appendChild(clearBtn);
-  pickerWrapper.appendChild(selRow);
+  pickerWrapper.appendChild(tag);
 }
 
 function renderFilePicker(
@@ -484,16 +390,15 @@ function renderFilePicker(
 
 function renderLensPicker(container, statePath, currentLenses) {
   const pillGroup = document.createElement('div');
-  pillGroup.className = 'pill-group lens-picker';
+  pillGroup.className = 'field-picker-tags';
 
   for (const lens of ALL_LENSES) {
-    const pill = document.createElement('button');
-    pill.type = 'button';
-    pill.className = `pill ${currentLenses.includes(lens) ? 'pill--on' : ''}`;
-    pill.textContent = lens.replace(/_/g, ' ');
-    pill.setAttribute('role', 'switch');
     const isOn = currentLenses.includes(lens);
-    pill.setAttribute('aria-checked', String(isOn));
+    const pill = createButton('pill', {
+      label: lens.replace(/_/g, ' '),
+      selected: isOn,
+    });
+    pill.setAttribute('role', 'switch');
 
     pill.addEventListener('click', () => {
       const state = getState();
@@ -506,7 +411,7 @@ function renderLensPicker(container, statePath, currentLenses) {
       // Update pill UI
       const nowOn = newLenses.includes(lens);
       pill.setAttribute('aria-checked', String(nowOn));
-      pill.classList.toggle('pill--on', nowOn);
+      pill.classList.toggle('btn-pill--on', nowOn);
     });
 
     pillGroup.appendChild(pill);
@@ -519,15 +424,14 @@ function renderLensPicker(container, statePath, currentLenses) {
 
 function renderScopeSelector() {
   const scopeEl = document.createElement('div');
-  scopeEl.className = 'scope-selector';
+  scopeEl.className = 'input';
   scopeEl.style.display = 'none'; // hidden until 2+ files selected
 
-  const scopeLabel = document.createElement('div');
-  scopeLabel.className = 'field-label';
-  scopeLabel.textContent = 'How should files be improved?';
+  const scopeLabel = createLabel('How should files be improved?');
+  scopeEl.appendChild(scopeLabel);
 
   const scopeOptions = document.createElement('div');
-  scopeOptions.className = 'btn-grid';
+  scopeOptions.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
 
   const options = [
     { value: 'each_file', label: 'Each file separately' },
@@ -535,31 +439,23 @@ function renderScopeSelector() {
   ];
 
   for (const opt of options) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = `btn-grid-item scope-btn ${getState().improve_scope === opt.value ? 'item-selected' : ''}`;
-    btn.dataset.scope = opt.value;
-    btn.textContent = opt.label;
-    btn.setAttribute(
-      'aria-selected',
-      getState().improve_scope === opt.value ? 'true' : 'false'
-    );
-
-    btn.addEventListener('click', () => {
-      setState('improve_scope', opt.value);
-      for (const b of scopeOptions.querySelectorAll('.scope-btn')) {
-        const isSelected = b.dataset.scope === opt.value;
-        b.classList.toggle('item-selected', isSelected);
-        b.setAttribute('aria-selected', String(isSelected));
-      }
+    const btn = createButton('select', {
+      label: opt.label,
+      selected: getState().improve_scope === opt.value,
+      dataset: { scope: opt.value },
+      onClick: () => {
+        setState('improve_scope', opt.value);
+        for (const b of scopeOptions.querySelectorAll('.btn-select')) {
+          const isSelected = b.dataset.scope === opt.value;
+          b.classList.toggle('btn-select--selected', isSelected);
+          b.setAttribute('aria-selected', String(isSelected));
+        }
+      },
     });
-
     scopeOptions.appendChild(btn);
   }
 
-  scopeEl.appendChild(scopeLabel);
   scopeEl.appendChild(scopeOptions);
-
   return scopeEl;
 }
 
@@ -715,12 +611,12 @@ function refreshPickerFields(kind) {
       const currentValue = getValueByPath(state, statePath);
       if (currentValue) continue; // already selected
 
-      // Find the picker-wrapper in DOM and re-render
-      const wrappers = elPanelArea.querySelectorAll('.picker-wrapper');
+      // Find the field-picker in DOM and re-render
+      const wrappers = elPanelArea.querySelectorAll('.field-picker');
       for (const pickerWrapper of wrappers) {
         // Heuristic to match the wrapper to the field
-        const group = pickerWrapper.closest('.panel-field-group');
-        const label = group?.querySelector('.field-label');
+        const group = pickerWrapper.closest('.input');
+        const label = group?.querySelector('label');
         if (
           label?.textContent?.startsWith(
             fieldDef.label || fieldNameToLabel(fieldName)

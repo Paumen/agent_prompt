@@ -5,12 +5,12 @@
  * pre-filled, optional notes textarea.
  *
  * Req IDs: OUT-01..08
- * Phase 14: highlightXml, copy icon swap, quality meter tooltip.
  */
 
 import { getState, setState, subscribe } from './state.js';
 import { renderQualityMeter } from './quality-meter.js';
 import { icon } from './icons.js';
+import { createButton, createInputField, createLabel } from './ui.js';
 
 // --- Module-level references ---
 
@@ -20,7 +20,7 @@ let elCopyStatus = null;
 let elNotes = null;
 let copyBtn = null;
 
-// --- XML Syntax Highlighting (Phase 14, UAT 4.4) ---
+// --- XML Syntax Highlighting ---
 
 /**
  * Escape HTML special chars and wrap XML tag patterns in highlight spans.
@@ -30,15 +30,11 @@ let copyBtn = null;
  * @returns {string} HTML string safe for innerHTML
  */
 export function highlightXml(text) {
-  // Step 1: escape all HTML special chars (prevents injection)
   const escaped = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Step 2: find escaped XML tag patterns and wrap in highlight span
-  // Matches: &lt;[/]tagname[ attrs]&gt;
-  // [^&]*? stops at & (beginning of &gt;), preventing greedy overconsumption
   return escaped.replace(
     /&lt;\/?[\w][\w.-]*(?:\s[^&]*?)?&gt;/g,
     '<span class="xml-tag">$&</span>'
@@ -53,8 +49,6 @@ function renderPromptCard() {
   const state = getState();
   const prompt = state._prompt || '';
 
-  // OUT-01, OUT-03: live preview, fully regenerated from current state
-  // Phase 14: use innerHTML with XML highlighting instead of textContent
   if (elPreview) {
     if (prompt) {
       elPreview.innerHTML = highlightXml(prompt);
@@ -80,12 +74,10 @@ function onCopy() {
 
   navigator.clipboard.writeText(prompt).then(
     () => {
-      // Phase 14 UAT 4.2: icon swap via class toggle
       if (copyBtn) {
         copyBtn.classList.add('btn--copied');
         setTimeout(() => copyBtn?.classList.remove('btn--copied'), 2000);
       }
-      // Keep aria-live for screen readers (visually hidden)
       showCopyStatus('Copied!', 'success');
     },
     () => showCopyStatus('Copy failed', 'error')
@@ -104,7 +96,7 @@ function showCopyStatus(message, type) {
   }, 2000);
 }
 
-// OUT-07: deep-link to Claude with prompt pre-filled via URL query parameter
+// OUT-07: deep-link to Claude with prompt pre-filled
 function onPromptClaude() {
   const state = getState();
   const prompt = state._prompt || '';
@@ -118,19 +110,17 @@ function onNotesChange(value) {
   setState('notes.user_text', value);
 }
 
-// --- Quality Meter Tooltip (Phase 14, UAT 5) ---
+// --- Quality Meter Tooltip ---
 
 function initMeterTooltip(labelEl) {
-  labelEl.classList.add('quality-meter-label--with-tooltip');
-
   const wrapper = document.createElement('span');
   wrapper.className = 'meter-info-wrapper';
 
-  const infoBtn = document.createElement('button');
-  infoBtn.type = 'button';
-  infoBtn.className = 'btn-icon meter-info-btn';
-  infoBtn.setAttribute('aria-label', 'How is the quality score calculated?');
-  infoBtn.appendChild(icon('info', 'icon-info'));
+  const infoBtn = createButton('icon', {
+    ariaLabel: 'How is the quality score calculated?',
+    iconName: 'info',
+    iconClass: 'icon-btn',
+  });
 
   const tooltip = document.createElement('div');
   tooltip.role = 'tooltip';
@@ -144,14 +134,12 @@ function initMeterTooltip(labelEl) {
   wrapper.appendChild(tooltip);
   labelEl.appendChild(wrapper);
 
-  // Toggle on info button click
   infoBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const isVisible = tooltip.classList.toggle('meter-tooltip--visible');
     tooltip.setAttribute('aria-hidden', String(!isVisible));
   });
 
-  // Close when clicking anywhere else on the document
   document.addEventListener('click', () => {
     if (tooltip.classList.contains('meter-tooltip--visible')) {
       tooltip.classList.remove('meter-tooltip--visible');
@@ -170,28 +158,29 @@ export function initPromptCard() {
   const meterContainer = document.createElement('div');
   elBody.appendChild(meterContainer);
   const { labelEl } = renderQualityMeter(meterContainer);
-  // Phase 14: append info tooltip button next to meter label
   if (labelEl) initMeterTooltip(labelEl);
 
-  // === Preview region (role=region for a11y) ===
+  // === Preview region ===
   const region = document.createElement('div');
   region.setAttribute('role', 'region');
   region.setAttribute('aria-label', 'Generated prompt');
-  region.className = 'prompt-region';
 
-  // Preview header: action buttons top-right (Phase 14 UAT 4.1)
+  // Preview header: action buttons
   const previewHeader = document.createElement('div');
-  previewHeader.className = 'prompt-preview-header';
+  previewHeader.style.display = 'flex';
+  previewHeader.style.alignItems = 'center';
+  previewHeader.style.justifyContent = 'flex-end';
+  previewHeader.style.gap = 'var(--sp-4)';
 
-  // aria-live status span for screen readers (visually hidden, UAT 4.2)
+  // Screen reader copy status
   elCopyStatus = document.createElement('span');
-  elCopyStatus.className = 'copy-status sr-only';
+  elCopyStatus.className = 'sr-only';
   elCopyStatus.setAttribute('aria-live', 'polite');
 
-  // Copy button: clipboard icon + check icon
-  copyBtn = document.createElement('button');
-  copyBtn.type = 'button';
-  copyBtn.className = 'btn-action btn-copy';
+  // Copy button: dual icons (clipboard → check on copy)
+  copyBtn = createButton('action', { onClick: onCopy });
+  copyBtn.classList.add('btn-copy');
+  copyBtn.textContent = ''; // clear default
   const clipboardIcon = icon('copy', 'icon-btn');
   clipboardIcon.classList.add('icon-clipboard');
   const checkIcon = icon('check', 'icon-btn');
@@ -199,54 +188,49 @@ export function initPromptCard() {
   copyBtn.appendChild(clipboardIcon);
   copyBtn.appendChild(checkIcon);
   copyBtn.appendChild(document.createTextNode(' Copy'));
-  copyBtn.addEventListener('click', onCopy);
 
-  // Prompt Claude button (OUT-07): deep-links to claude.ai/new?q=<encoded-prompt>
-  const promptClaudeBtn = document.createElement('button');
-  promptClaudeBtn.type = 'button';
-  promptClaudeBtn.className = 'btn-action btn-action--primary';
-  promptClaudeBtn.appendChild(icon('paper-airplane', 'icon-btn'));
-  promptClaudeBtn.appendChild(document.createTextNode(' Prompt Claude'));
-  promptClaudeBtn.title =
-    'Open Claude in a new tab with this prompt pre-filled in the chat input';
-  promptClaudeBtn.addEventListener('click', onPromptClaude);
+  // Prompt Claude button
+  const promptClaudeBtn = createButton('primary', {
+    label: ' Prompt Claude',
+    iconName: 'paper-airplane',
+    onClick: onPromptClaude,
+    title:
+      'Open Claude in a new tab with this prompt pre-filled in the chat input',
+  });
 
   previewHeader.appendChild(elCopyStatus);
   previewHeader.appendChild(copyBtn);
   previewHeader.appendChild(promptClaudeBtn);
 
-  // Prompt preview (OUT-01: XML-tagged output, OUT-02: flow-specific format)
+  // Prompt preview
   elPreview = document.createElement('pre');
   elPreview.className = 'prompt-output';
 
   region.appendChild(previewHeader);
   region.appendChild(elPreview);
 
-  // === Notes section (OUT-06) ===
-  const notesSection = document.createElement('div');
-  notesSection.className = 'prompt-notes';
+  // === Notes section (OUT-06) — uses .input grid layout ===
+  const notesRow = document.createElement('div');
+  notesRow.className = 'input';
 
-  const notesLabel = document.createElement('label');
-  notesLabel.htmlFor = 'notes-user-text';
-  notesLabel.className = 'field-label';
-  notesLabel.textContent = 'Notes';
+  const notesLabel = createLabel('Notes', { htmlFor: 'notes-user-text' });
+  notesRow.appendChild(notesLabel);
 
-  elNotes = document.createElement('textarea');
-  elNotes.id = 'notes-user-text';
-  elNotes.className = 'input-field field-textarea';
-  elNotes.placeholder = 'Optional notes appended to your prompt\u2026';
-  elNotes.rows = 3;
-  elNotes.addEventListener('input', () => onNotesChange(elNotes.value));
-
-  notesSection.appendChild(notesLabel);
-  notesSection.appendChild(elNotes);
+  elNotes = createInputField({
+    type: 'textarea',
+    id: 'notes-user-text',
+    placeholder: 'Optional notes appended to your prompt\u2026',
+    rows: 3,
+    onInput: () => onNotesChange(elNotes.value),
+  });
+  notesRow.appendChild(elNotes);
 
   elBody.appendChild(region);
-  elBody.appendChild(notesSection);
+  elBody.appendChild(notesRow);
 
   // Initial render
   renderPromptCard();
 
-  // OUT-03: subscribe to all state changes for live prompt updates
+  // OUT-03: subscribe for live prompt updates
   subscribe(renderPromptCard);
 }

@@ -7,9 +7,6 @@
  * Surface colors, text colors, borders, interaction states.
  *
  * Import order: variables.css → layout.css → components.css → special.css
- *
- * NOTE: These classes coexist with old styles.css during migration.
- * All new component classes use the v2- prefix to avoid collisions.
  */
 
 /* ============================================================
@@ -18,11 +15,11 @@
 
 /* --- Shared button reset --- */
 
-.v2-btn-primary,
-.v2-btn-select,
-.v2-btn-action,
-.v2-btn-pill,
-.v2-btn-icon {
+.btn-primary,
+.btn-select,
+.btn-action,
+.btn-pill,
+.btn-icon {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -38,7 +35,7 @@
 
 /* --- 1. btn-primary: accent bg, white text, main action --- */
 
-.v2-btn-primary {
+.btn-primary {
   background: var(--accent);
   color: #fff;
   border: 1px solid var(--accent);
@@ -48,14 +45,14 @@
   min-height: 32px;
 }
 
-.v2-btn-primary:hover {
+.btn-primary:hover {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
 }
 
 /* --- 2. btn-select: single-select from options --- */
 
-.v2-btn-select {
+.btn-select {
   position: relative;
   background: var(--bg-inset);
   color: var(--text-primary);
@@ -64,16 +61,16 @@
   min-height: 24px;
 }
 
-.v2-btn-select[aria-selected='true'],
-.v2-btn-select.v2-btn-select--selected {
+.btn-select[aria-selected='true'],
+.btn-select.btn-select--selected {
   background: var(--accent-subtle);
   border-color: var(--accent);
   color: var(--text-primary);
   padding-left: var(--sp-8);
 }
 
-.v2-btn-select[aria-selected='true']::before,
-.v2-btn-select.v2-btn-select--selected::before {
+.btn-select[aria-selected='true']::before,
+.btn-select.btn-select--selected::before {
   content: '';
   position: absolute;
   left: 0;
@@ -84,14 +81,14 @@
   border-radius: var(--radius) 0 0 var(--radius);
 }
 
-.v2-btn-select[aria-selected='true'] .icon,
-.v2-btn-select.v2-btn-select--selected .icon {
+.btn-select[aria-selected='true'] .icon,
+.btn-select.btn-select--selected .icon {
   color: var(--accent);
 }
 
 /* --- 3. btn-action: one-shot stateless action --- */
 
-.v2-btn-action {
+.btn-action {
   background: var(--bg);
   color: var(--text-primary);
   border: 1px solid var(--border);
@@ -103,7 +100,7 @@
 
 /* --- 4. btn-pill: multi-select toggle (pill shape) --- */
 
-.v2-btn-pill {
+.btn-pill {
   background: var(--bg);
   color: var(--text-secondary);
   border: 1px solid var(--border);
@@ -112,8 +109,8 @@
   min-height: 24px;
 }
 
-.v2-btn-pill[aria-checked='true'],
-.v2-btn-pill.v2-btn-pill--on {
+.btn-pill[aria-checked='true'],
+.btn-pill.btn-pill--on {
   background: var(--accent-subtle);
   color: var(--accent);
   border-color: var(--accent);
@@ -121,7 +118,7 @@
 
 /* --- 5. btn-icon: transparent, icon-only or icon+label tertiary --- */
 
-.v2-btn-icon {
+.btn-icon {
   background: none;
   border: none;
   color: var(--text-secondary);
@@ -133,7 +130,7 @@
 }
 
 /* btn-icon with label */
-.v2-btn-icon--labeled {
+.btn-icon--labeled {
   display: inline-flex;
   gap: var(--sp-2);
   padding: var(--sp-2);
@@ -144,26 +141,26 @@
    HOVER & FOCUS STATES
    ============================================================ */
 
-.v2-btn-select:hover,
-.v2-btn-action:hover {
+.btn-select:hover,
+.btn-action:hover {
   border-color: var(--border-focus);
   filter: brightness(1.015);
 }
 
-.v2-btn-pill:hover {
+.btn-pill:hover {
   border-color: var(--border-focus);
 }
 
-.v2-btn-icon:hover {
+.btn-icon:hover {
   color: var(--text-primary);
 }
 
 :is(
-  .v2-btn-primary,
-  .v2-btn-select,
-  .v2-btn-action,
-  .v2-btn-pill,
-  .v2-btn-icon
+  .btn-primary,
+  .btn-select,
+  .btn-action,
+  .btn-pill,
+  .btn-icon
 ):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -173,7 +170,7 @@
    INPUT FIELD
    ============================================================ */
 
-.v2-input-field {
+.input-field {
   width: 100%;
   padding: var(--sp-2);
   background: var(--bg-raised);
@@ -186,24 +183,24 @@
   box-shadow: var(--shadow-inset-sm);
 }
 
-.v2-input-field::placeholder {
+.input-field::placeholder {
   color: var(--text-tertiary);
   font-size: var(--text-sm);
 }
 
-.v2-input-field:focus {
+.input-field:focus {
   outline: none;
   border-color: var(--border-focus);
   background: var(--bg-inset);
 }
 
-.v2-input-field:focus-visible {
+.input-field:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 0;
 }
 
 /* Textarea variant */
-.v2-input-field--textarea {
+.input-field--textarea {
   resize: vertical;
   min-height: 40px;
 }
@@ -212,25 +209,25 @@
    FIELD PICKER (search input + dropdown + tags)
    ============================================================ */
 
-.v2-field-picker {
+.field-picker {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
   position: relative;
 }
 
-.v2-field-picker-search {
+.field-picker-search {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
 }
 
-.v2-field-picker-search .v2-input-field {
+.field-picker-search .input-field {
   flex: 1;
   min-width: 0;
 }
 
-.v2-field-picker-dropdown {
+.field-picker-dropdown {
   display: none;
   position: absolute;
   left: 0;
@@ -244,11 +241,11 @@
   z-index: 10;
 }
 
-.v2-field-picker-dropdown--open {
+.field-picker-dropdown--open {
   display: block;
 }
 
-.v2-field-picker-item {
+.field-picker-item {
   padding: var(--sp-2);
   cursor: pointer;
   min-height: 24px;
@@ -257,18 +254,18 @@
   font-size: var(--text-sm);
 }
 
-.v2-field-picker-item:hover {
+.field-picker-item:hover {
   background: var(--bg-inset);
 }
 
-.v2-field-picker-empty {
+.field-picker-empty {
   padding: var(--sp-2);
   color: var(--text-secondary);
   font-size: var(--text-sm);
   text-align: center;
 }
 
-.v2-field-picker-tags {
+.field-picker-tags {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
@@ -278,7 +275,7 @@
    TAG (selected items with remove button)
    ============================================================ */
 
-.v2-tag {
+.tag {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -291,14 +288,14 @@
   max-width: 200px;
 }
 
-.v2-tag-text {
+.tag-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
 }
 
-.v2-tag .v2-btn-icon {
+.tag .btn-icon {
   flex-shrink: 0;
 }
 
@@ -306,18 +303,39 @@
    ICON (standardized size)
    ============================================================ */
 
-.v2-icon {
+.icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
   display: block;
 }
 
+/* Icon color variants */
+.icon-remove {
+  color: var(--neutral);
+}
+.icon-remove:hover {
+  color: var(--neutral-dark);
+}
+.icon-btn {
+  color: inherit;
+}
+.icon--chevron {
+  color: var(--text-tertiary);
+  transition: transform 0.4s ease;
+}
+
+/* Card title inline icons */
+.card-title .icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* ============================================================
    SURFACES (card, card-in-card, output backgrounds)
    ============================================================ */
 
-.v2-card {
+.card {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -325,7 +343,7 @@
   padding: var(--sp-4);
 }
 
-.v2-card-in-card {
+.card-in-card {
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -334,14 +352,14 @@
   padding: var(--sp-4);
 }
 
-.v2-output {
+.output {
   background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: var(--sp-4);
 }
 
-.v2-output--darker {
+.output--darker {
   background: var(--bg-inset-darker);
 }
 
@@ -349,7 +367,7 @@
    CARD HEADER (btn-icon variant for collapse/expand)
    ============================================================ */
 
-.v2-card-header {
+.card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -364,16 +382,16 @@
   color: inherit;
 }
 
-.v2-card-header:hover {
+.card-header:hover {
   background: var(--bg-inset);
 }
 
-.v2-card-header:focus-visible {
+.card-header:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 
-.v2-card-title {
+.card-title {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -381,20 +399,15 @@
 }
 
 /* Chevron rotation when open */
-.v2-card-header[aria-expanded='true'] .v2-icon--chevron {
+.card-header[aria-expanded='true'] .icon--chevron {
   transform: rotate(180deg);
-}
-
-.v2-icon--chevron {
-  color: var(--text-tertiary);
-  transition: transform 0.4s ease;
 }
 
 /* ============================================================
    UTILITY
    ============================================================ */
 
-.v2-sr-only {
+.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -406,9 +419,58 @@
   border: 0;
 }
 
-.v2-empty-state {
+.empty-state {
   color: var(--text-secondary);
   font-size: var(--text-sm);
   padding: var(--sp-2);
   text-align: center;
+}
+
+/* ============================================================
+   SPECIAL PATTERNS (icon swap, XML highlight)
+   ============================================================ */
+
+/* Copy button: clipboard → check icon swap */
+.btn-copy .icon-check {
+  display: none;
+}
+.btn-copy.btn--copied .icon-clipboard {
+  display: none;
+}
+.btn-copy.btn--copied .icon-check {
+  display: block;
+}
+
+/* Eye toggle: show/hide password */
+.js-eye-btn .icon-eye-off {
+  display: none;
+}
+.js-eye-btn.is-shown .icon-eye-on {
+  display: none;
+}
+.js-eye-btn.is-shown .icon-eye-off {
+  display: block;
+}
+
+/* XML syntax highlighting in prompt preview */
+.xml-tag {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+/* Required group dot indicator */
+.required-group-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--caution-dark);
+  vertical-align: middle;
+  cursor: help;
+  transition: opacity 0.3s ease;
+}
+
+/* Credentials row (config card) */
+.cfg-credentials--hidden {
+  display: none;
 }

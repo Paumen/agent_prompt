@@ -140,7 +140,9 @@ describe('initPromptCard — Copy button', () => {
     expect(
       document.querySelector('.btn-copy').classList.contains('btn--copied')
     ).toBe(true);
-    expect(document.querySelector('.copy-status').textContent).toBe('Copied!');
+    expect(
+      document.querySelector('.sr-only[aria-live="polite"]').textContent
+    ).toBe('Copied!');
   });
 
   it('shows error on clipboard failure', async () => {
@@ -155,9 +157,9 @@ describe('initPromptCard — Copy button', () => {
     document.querySelector('.btn-copy').click();
     await flushPromises();
 
-    expect(document.querySelector('.copy-status').textContent).toBe(
-      'Copy failed'
-    );
+    expect(
+      document.querySelector('.sr-only[aria-live="polite"]').textContent
+    ).toBe('Copy failed');
   });
 
   it('does not copy when prompt is empty', () => {
@@ -219,9 +221,7 @@ describe('initPromptCard — Prompt Claude button', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
     initPromptCard();
 
-    const btn = Array.from(document.querySelectorAll('.btn-action')).find((b) =>
-      b.textContent.includes('Prompt Claude')
-    );
+    const btn = document.querySelector('.btn-primary');
     btn.click();
 
     const url = openSpy.mock.calls[0][0];
@@ -234,7 +234,7 @@ describe('initPromptCard — Prompt Claude button', () => {
 describe('initPromptCard — Quality meter tooltip', () => {
   it('toggles tooltip on info button click', () => {
     initPromptCard();
-    const btn = document.querySelector('.meter-info-btn');
+    const btn = document.querySelector('.meter-info-wrapper .btn-icon');
     const tooltip = document.querySelector('.meter-tooltip');
 
     expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(false);

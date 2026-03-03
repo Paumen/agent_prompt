@@ -157,7 +157,8 @@ export function renderQualityMeter(container) {
   bar.className = 'quality-meter-bar';
 
   const label = document.createElement('div');
-  label.className = 'quality-meter-label';
+  label.style.cssText =
+    'font-size:var(--text-sm);color:var(--text-tertiary);margin-top:var(--sp-2);font-weight:500;display:flex;align-items:center;gap:var(--sp-2)';
 
   // Use a child span for the text so external elements (e.g., tooltip button)
   // can be appended to `label` without being wiped by update()

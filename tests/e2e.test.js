@@ -130,13 +130,13 @@ async function setupRepoAndBranch() {
 
   await vi.waitFor(() => {
     const buttons = document.querySelectorAll(
-      '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+      '[aria-label="Repositories"] .btn-select'
     );
     expect(buttons.length).toBeGreaterThan(0);
   });
 
   const repoBtn = document.querySelector(
-    '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+    '[aria-label="Repositories"] .btn-select'
   );
   repoBtn.click();
 
@@ -169,9 +169,9 @@ describe('E2E: Fix Flow Journey', () => {
     await setupRepoAndBranch();
 
     // Select Fix flow
-    const fixBtn = Array.from(document.querySelectorAll('.flow-btn')).find(
-      (b) => b.dataset.flowId === 'fix'
-    );
+    const fixBtn = Array.from(
+      document.querySelectorAll('.btn-select[data-flow-id]')
+    ).find((b) => b.dataset.flowId === 'fix');
     fixBtn.click();
 
     await vi.waitFor(() => {
@@ -179,7 +179,9 @@ describe('E2E: Fix Flow Journey', () => {
     });
 
     // Fill panel A
-    const textarea = document.querySelector('.panel-a .field-textarea');
+    const textarea = document.querySelector(
+      '.card-in-card .input-field--textarea'
+    );
     textarea.value = 'Login crashes when clicking submit';
     textarea.dispatchEvent(new Event('input'));
 
@@ -203,25 +205,31 @@ describe('E2E: Fix Flow Journey', () => {
     cardPrompt.initPromptCard();
     await setupRepoAndBranch();
 
-    const fixBtn = Array.from(document.querySelectorAll('.flow-btn')).find(
-      (b) => b.dataset.flowId === 'fix'
-    );
+    const fixBtn = Array.from(
+      document.querySelectorAll('.btn-select[data-flow-id]')
+    ).find((b) => b.dataset.flowId === 'fix');
     fixBtn.click();
 
     await vi.waitFor(() => {
       expect(state.getState().task.flow_id).toBe('fix');
     });
 
-    const textarea = document.querySelector('.panel-a .field-textarea');
+    const textarea = document.querySelector(
+      '.card-in-card .input-field--textarea'
+    );
     textarea.value = 'Bug description';
     textarea.dispatchEvent(new Event('input'));
 
     await vi.waitFor(() => {
-      expect(document.querySelectorAll('.step-row').length).toBeGreaterThan(0);
+      expect(document.querySelectorAll('.output-field').length).toBeGreaterThan(
+        0
+      );
     });
 
     const promptBefore = state.getState()._prompt;
-    const deleteBtn = document.querySelector('.step-delete');
+    const deleteBtn = document.querySelector(
+      '.btn-icon[aria-label^="Remove step"]'
+    );
     deleteBtn.click();
 
     await vi.waitFor(() => {
@@ -364,9 +372,9 @@ describe('DM-DEF-03: Flow Switch Reset', () => {
     await setupRepoAndBranch();
 
     // Select Fix flow and fill data
-    const fixBtn = Array.from(document.querySelectorAll('.flow-btn')).find(
-      (b) => b.dataset.flowId === 'fix'
-    );
+    const fixBtn = Array.from(
+      document.querySelectorAll('.btn-select[data-flow-id]')
+    ).find((b) => b.dataset.flowId === 'fix');
     fixBtn.click();
 
     await vi.waitFor(() => {
@@ -383,9 +391,9 @@ describe('DM-DEF-03: Flow Switch Reset', () => {
     expect(s.panel_a.issue_number).toBe(42);
 
     // Switch to Review flow
-    const reviewBtn = Array.from(document.querySelectorAll('.flow-btn')).find(
-      (b) => b.dataset.flowId === 'review'
-    );
+    const reviewBtn = Array.from(
+      document.querySelectorAll('.btn-select[data-flow-id]')
+    ).find((b) => b.dataset.flowId === 'review');
     reviewBtn.click();
 
     await vi.waitFor(() => {

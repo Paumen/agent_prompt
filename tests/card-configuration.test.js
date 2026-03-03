@@ -80,8 +80,8 @@ describe('initConfigurationCard()', () => {
 
   it('renders show/hide toggle and clear button for PAT', () => {
     cardConfig.initConfigurationCard();
-    expect(document.querySelector('.cfg-pat-toggle')).not.toBeNull();
-    expect(document.querySelector('.cfg-pat-clear')).not.toBeNull();
+    expect(document.querySelector('.js-eye-btn')).not.toBeNull();
+    expect(document.querySelector('[aria-label="Clear token"]')).not.toBeNull();
   });
 });
 
@@ -89,7 +89,7 @@ describe('PAT field (CFG-01)', () => {
   it('show/hide toggle changes input type', () => {
     cardConfig.initConfigurationCard();
     const pat = document.getElementById('cfg-pat');
-    const toggle = document.querySelector('.cfg-pat-toggle');
+    const toggle = document.querySelector('.js-eye-btn');
 
     pat.value = 'tok';
     pat.dispatchEvent(new Event('input'));
@@ -118,7 +118,7 @@ describe('PAT field (CFG-01)', () => {
     state.setState('configuration.branch', 'main');
     cardConfig.initConfigurationCard();
 
-    document.querySelector('.cfg-pat-clear').click();
+    document.querySelector('[aria-label="Clear token"]').click();
 
     expect(document.getElementById('cfg-pat').value).toBe('');
     expect(state.getState().configuration.pat).toBe('');
@@ -142,7 +142,6 @@ describe('auto-fetch repos (CFG-02)', () => {
   });
 
   it('does not fetch when PAT or username is empty', async () => {
-    // Test with owner but no PAT
     state.setState('configuration.owner', 'alice');
     globalThis.fetch = mockFetch(SAMPLE_REPOS);
     cardConfig.initConfigurationCard();
@@ -165,7 +164,7 @@ describe('auto-fetch repos (CFG-02)', () => {
 
     await vi.waitFor(() => {
       const buttons = document.querySelectorAll(
-        '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
+        '[aria-label="Repositories"] .btn-select'
       );
       expect(buttons.length).toBe(3);
     });
@@ -205,9 +204,8 @@ describe('repo selection (CFG-03)', () => {
 
     await vi.waitFor(() => {
       expect(
-        document.querySelectorAll(
-          '.cfg-section--repos .btn-grid-item:not(.cfg-show-more)'
-        ).length
+        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
+          .length
       ).toBe(3);
     });
   }
@@ -216,29 +214,27 @@ describe('repo selection (CFG-03)', () => {
     await setupWithRepos();
 
     const repoBtn = document.querySelector(
-      '.cfg-section--repos .btn-grid-item'
+      '[aria-label="Repositories"] .btn-select'
     );
     repoBtn.click();
 
     expect(state.getState().configuration.repo).toBe('alpha');
     await vi.waitFor(() => {
-      expect(document.querySelector('.item-selected')).not.toBeNull();
+      expect(document.querySelector('.btn-select--selected')).not.toBeNull();
     });
   });
 
   it('expands Tasks card and hides credentials on repo select', async () => {
     await setupWithRepos();
 
-    document.querySelector('.cfg-section--repos .btn-grid-item').click();
+    document.querySelector('[aria-label="Repositories"] .btn-select').click();
 
     expect(
       document.getElementById('card-tasks').classList.contains('card--open')
     ).toBe(true);
-    expect(
-      document
-        .querySelector('.credentials-row')
-        .classList.contains('cfg-credentials--hidden')
-    ).toBe(true);
+    // Credentials div gets cfg-credentials--hidden class
+    const credDiv = document.getElementById('bd-configuration').children[0];
+    expect(credDiv.classList.contains('cfg-credentials--hidden')).toBe(true);
   });
 });
 
@@ -268,11 +264,12 @@ describe('branch auto-select (CFG-04)', () => {
 
     await vi.waitFor(() => {
       expect(
-        document.querySelectorAll('.cfg-section--repos .btn-grid-item').length
+        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
+          .length
       ).toBe(3);
     });
 
-    document.querySelector('.cfg-section--repos .btn-grid-item').click();
+    document.querySelector('[aria-label="Repositories"] .btn-select').click();
 
     await vi.waitFor(() => {
       expect(state.getState().configuration.branch).toBe('main');
@@ -308,11 +305,11 @@ describe('accessibility', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      const grid = document.querySelector('.cfg-section--repos .btn-grid');
+      const grid = document.querySelector('[aria-label="Repositories"]');
       expect(grid.getAttribute('role')).toBe('listbox');
       expect(
         document
-          .querySelector('.cfg-section--repos .btn-grid-item')
+          .querySelector('[aria-label="Repositories"] .btn-select')
           .getAttribute('role')
       ).toBe('option');
     });
@@ -324,7 +321,7 @@ describe('Phase 11 — eye/clear button visibility', () => {
     cardConfig.initConfigurationCard();
 
     const eyeBtn = document.querySelector('.js-eye-btn');
-    const clearBtn = document.querySelector('.js-clear-btn');
+    const clearBtn = document.querySelector('[aria-label="Clear token"]');
 
     expect(eyeBtn.hasAttribute('hidden')).toBe(true);
     expect(clearBtn.hasAttribute('hidden')).toBe(true);
@@ -350,11 +347,12 @@ describe('Phase 11 — username clear button', () => {
 
     await vi.waitFor(() => {
       expect(
-        document.querySelectorAll('.cfg-section--repos .btn-grid-item').length
+        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
+          .length
       ).toBe(3);
     });
 
-    document.querySelector('.js-user-clear-btn').click();
+    document.querySelector('[aria-label="Clear username"]').click();
 
     expect(state.getState().configuration.owner).toBe('');
     expect(state.getState().configuration.repo).toBe('');
@@ -371,7 +369,9 @@ describe('Phase 11 — icons on repo/branch buttons', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      const btn = document.querySelector('.cfg-section--repos .btn-grid-item');
+      const btn = document.querySelector(
+        '[aria-label="Repositories"] .btn-select'
+      );
       expect(btn.querySelector('svg')).not.toBeNull();
     });
   });

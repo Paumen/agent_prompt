@@ -90,57 +90,6 @@ describe('showNotification()', () => {
   });
 });
 
-describe('createSearchableDropdown()', () => {
-  const options = [
-    { value: 'src/main.js', label: 'src/main.js' },
-    { value: 'src/utils.js', label: 'src/utils.js' },
-    { value: 'README.md', label: 'README.md' },
-  ];
-
-  it('renders input, shows list on focus, filters on input, calls onSelect', () => {
-    const container = document.getElementById('target');
-    const onSelect = vi.fn();
-    components.createSearchableDropdown(container, {
-      options,
-      onSelect,
-      placeholder: 'Search…',
-    });
-
-    const input = container.querySelector('input');
-    expect(input.getAttribute('placeholder')).toBe('Search…');
-
-    // Show list on focus
-    input.dispatchEvent(new Event('focus'));
-    expect(container.querySelectorAll('.dropdown-item').length).toBe(3);
-
-    // Filter on input
-    input.value = 'utils';
-    input.dispatchEvent(new Event('input'));
-    const items = container.querySelectorAll('.dropdown-item');
-    expect(items.length).toBe(1);
-    expect(items[0].textContent).toContain('utils');
-
-    // Click selects
-    items[0].click();
-    expect(onSelect).toHaveBeenCalledWith(options[1]);
-  });
-
-  it('shows empty state when no match', () => {
-    const container = document.getElementById('target');
-    components.createSearchableDropdown(container, {
-      options,
-      onSelect: vi.fn(),
-    });
-
-    const input = container.querySelector('input');
-    input.dispatchEvent(new Event('focus'));
-    input.value = 'zzz';
-    input.dispatchEvent(new Event('input'));
-
-    expect(container.querySelector('.dropdown-empty')).not.toBeNull();
-  });
-});
-
 describe('setInteracting() / isInteracting()', () => {
   it('returns false initially, true after setInteracting, clears after 2s', () => {
     vi.useFakeTimers();

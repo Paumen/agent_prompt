@@ -11,7 +11,12 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 vi.mock('../src/js/state.js', () => ({
   getState: vi.fn(() => ({
     task: { flow_id: '' },
-    configuration: { owner: 'user', repo: 'repo', branch: 'main', pat: 'tok' },
+    configuration: {
+      owner: 'user',
+      repo: 'repo',
+      branch: 'main',
+      pat: 'tok',
+    },
     panel_a: {
       description: '',
       issue_number: null,
@@ -34,18 +39,24 @@ vi.mock('../src/js/state.js', () => ({
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
   applyFlowDefaults: vi.fn(),
-  getValueByPath: vi.fn((obj, path) => path.split('.').reduce((o, k) => o?.[k], obj)),
+  getValueByPath: vi.fn((obj, path) =>
+    path.split('.').reduce((o, k) => o?.[k], obj)
+  ),
 }));
 
 vi.mock('../src/js/flow-loader.js', () => ({
   getFlows: vi.fn(() => ({
     fix: {
+      icon: 'bug',
       panel_a: {
         label: 'Current State',
         subtitle: "What's happening now",
         fields: {
           description: { type: 'text', required_group: 'a_required' },
-          issue_number: { type: 'issue_picker', required_group: 'a_required' },
+          issue_number: {
+            type: 'issue_picker',
+            required_group: 'a_required',
+          },
           files: { type: 'file_picker_multi' },
         },
       },
@@ -57,6 +68,7 @@ vi.mock('../src/js/flow-loader.js', () => ({
       steps: [],
     },
     review: {
+      icon: 'codescan',
       panel_a: {
         label: 'Review Subject',
         subtitle: 'The PR or code to examine',
@@ -72,17 +84,22 @@ vi.mock('../src/js/flow-loader.js', () => ({
       label: 'Implement / Build',
       icon: 'rocket',
       panel_a: { label: 'Context', subtitle: 'Background', fields: {} },
-      panel_b: { label: 'Requirements', subtitle: 'What to build', fields: {} },
+      panel_b: {
+        label: 'Requirements',
+        subtitle: 'What to build',
+        fields: {},
+      },
       steps: [],
     },
     improve: {
+      icon: 'compose',
       panel_a: { label: 'Current', subtitle: 'What exists', fields: {} },
       panel_b: { label: 'Desired', subtitle: 'Improvements', fields: {} },
       steps: [],
     },
   })),
   getFlowById: vi.fn(() => null),
-
+  ALL_LENSES: [],
 }));
 
 vi.mock('../src/js/card-configuration.js', () => ({
@@ -104,9 +121,6 @@ vi.mock('../src/js/components.js', () => ({
   renderShimmer: vi.fn(),
   renderError: vi.fn(),
   showNotification: vi.fn(),
-  createSearchableDropdown: vi.fn((container) => {
-    container.appendChild(document.createElement('input'));
-  }),
   expandCard: vi.fn((id) => {
     const card = document.getElementById(id);
     if (card) card.classList.add('card--open');
@@ -128,11 +142,7 @@ vi.mock('../src/js/file-tree.js', () => ({
 }));
 
 import { initTasksCard } from '../src/js/card-tasks.js';
-import {
-  getState,
-  subscribe,
-  applyFlowDefaults,
-} from '../src/js/state.js';
+import { getState, subscribe, applyFlowDefaults } from '../src/js/state.js';
 
 // --- Setup ---
 
@@ -169,7 +179,7 @@ afterEach(() => {
 describe('initTasksCard', () => {
   it('renders 4 flow buttons', () => {
     initTasksCard();
-    const buttons = document.querySelectorAll('.flow-btn');
+    const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
     expect(buttons.length).toBe(4);
   });
 
@@ -187,25 +197,25 @@ describe('initTasksCard', () => {
 describe('flow button click', () => {
   it('calls applyFlowDefaults and marks button selected', () => {
     initTasksCard();
-    const buttons = document.querySelectorAll('.flow-btn');
+    const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
     buttons[0].click();
     expect(applyFlowDefaults).toHaveBeenCalled();
-    expect(buttons[0].classList.contains('item-selected')).toBe(true);
+    expect(buttons[0].classList.contains('btn-select--selected')).toBe(true);
   });
 
   it('deselects previous button on new selection', () => {
     initTasksCard();
-    const buttons = document.querySelectorAll('.flow-btn');
+    const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
     buttons[0].click();
     buttons[1].click();
-    expect(buttons[0].classList.contains('item-selected')).toBe(false);
-    expect(buttons[1].classList.contains('item-selected')).toBe(true);
+    expect(buttons[0].classList.contains('btn-select--selected')).toBe(false);
+    expect(buttons[1].classList.contains('btn-select--selected')).toBe(true);
   });
 
   it('expands Steps and Prompt cards, collapses Config', () => {
     document.getElementById('card-configuration').classList.add('card--open');
     initTasksCard();
-    document.querySelector('.flow-btn').click();
+    document.querySelector('.btn-select[data-flow-id]').click();
 
     expect(
       document.getElementById('card-steps').classList.contains('card--open')
@@ -220,20 +230,20 @@ describe('flow button click', () => {
     ).toBe(false);
   });
 
-  it('renders dual panels after flow selection', () => {
+  it('renders card-in-card panels after flow selection', () => {
     initTasksCard();
-    document.querySelector('.flow-btn').click();
-    expect(document.querySelector('.dual-panel')).not.toBeNull();
+    document.querySelector('.btn-select[data-flow-id]').click();
+    expect(document.querySelector('.card-in-card')).not.toBeNull();
   });
 });
 
-describe('dual-panel layout', () => {
+describe('card-in-card layout', () => {
   it('renders Panel A and Panel B with labels', () => {
     initTasksCard();
-    document.querySelector('.flow-btn').click();
+    document.querySelector('.btn-select[data-flow-id]').click();
 
-    expect(document.querySelector('.panel-a')).not.toBeNull();
-    expect(document.querySelector('.panel-b')).not.toBeNull();
+    const panels = document.querySelectorAll('.card-in-card');
+    expect(panels.length).toBe(2);
     expect(document.body.textContent).toContain('Situation');
     expect(document.body.textContent).toContain('Target');
   });
@@ -242,7 +252,7 @@ describe('dual-panel layout', () => {
 describe('required group validation (SCT-05)', () => {
   it('shows required group dot indicator', () => {
     initTasksCard();
-    document.querySelector('.flow-btn').click(); // fix flow has required group
+    document.querySelector('.btn-select[data-flow-id]').click();
     expect(document.querySelector('.required-group-dot')).not.toBeNull();
   });
 });
@@ -278,22 +288,24 @@ describe('improve scope selector (SCT-09)', () => {
     });
 
     initTasksCard();
-    const improveBtn = Array.from(document.querySelectorAll('.flow-btn')).find(
-      (b) => b.textContent.includes('Improve')
-    );
+    const improveBtn = Array.from(
+      document.querySelectorAll('.btn-select[data-flow-id]')
+    ).find((b) => b.dataset.flowId === 'improve');
     improveBtn.click();
 
     const subscriberCb = subscribe.mock.calls[0][0];
     subscriberCb(getState());
 
-    expect(document.querySelector('.scope-selector')).not.toBeNull();
+    // Scope selector uses .input class and contains scope buttons
+    const scopeButtons = document.querySelectorAll('.btn-select[data-scope]');
+    expect(scopeButtons.length).toBe(2);
   });
 });
 
 describe('flow switch resets panels (DM-DEF-03)', () => {
   it('calls applyFlowDefaults on each flow switch', () => {
     initTasksCard();
-    const buttons = document.querySelectorAll('.flow-btn');
+    const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
     buttons[0].click();
     buttons[1].click();
     buttons[2].click();
@@ -304,15 +316,16 @@ describe('flow switch resets panels (DM-DEF-03)', () => {
 describe('Phase 12: Task Card Polish', () => {
   it('flow icons use class="icon"', () => {
     initTasksCard();
-    expect(document.querySelectorAll('.flow-btn .icon').length).toBe(4);
+    expect(
+      document.querySelectorAll('.btn-select[data-flow-id] .icon').length
+    ).toBe(4);
   });
 
-  it('panel header uses · separator', () => {
+  it('panel header uses dot separator', () => {
     initTasksCard();
-    document.querySelector('.flow-btn').click();
-    const sep = document.querySelector('.panel-sep');
-    expect(sep).not.toBeNull();
-    expect(sep.textContent).toBe('·');
+    document.querySelector('.btn-select[data-flow-id]').click();
+    // Separator is now inline styled, but textContent still contains ·
+    expect(document.body.textContent).toContain('·');
   });
 });
 
@@ -347,12 +360,15 @@ describe('Phase 13: PR clear button', () => {
     });
 
     initTasksCard();
-    const reviewBtn = Array.from(document.querySelectorAll('.flow-btn')).find(
-      (b) => b.textContent.includes('Review')
-    );
+    const reviewBtn = Array.from(
+      document.querySelectorAll('.btn-select[data-flow-id]')
+    ).find((b) => b.dataset.flowId === 'review');
     reviewBtn.click();
 
-    const clearBtn = document.querySelector('.picker-clear');
+    // PR selection now renders as a tag with remove button
+    const clearBtn = document.querySelector(
+      '.tag .btn-icon[aria-label^="Remove"]'
+    );
     expect(clearBtn).not.toBeNull();
   });
 });

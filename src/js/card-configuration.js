@@ -18,6 +18,8 @@ import {
   isInteracting,
   expandCard,
 } from './components.js';
+import { icon } from './icons.js';
+import { createButton, createInputField } from './ui.js';
 
 // --- GL-05: Defer re-render until user is not mid-interaction ---
 
@@ -29,8 +31,6 @@ function deferIfInteracting(fn, maxRetries = 5) {
   if (maxRetries <= 0) return;
   setTimeout(() => deferIfInteracting(fn, maxRetries - 1), 2000);
 }
-
-import { icon } from './icons.js';
 
 // --- Display limits (Phase 11) ---
 
@@ -115,31 +115,23 @@ function renderShell(container) {
 
   // Credentials row: PAT + Username side by side
   elCredentials = document.createElement('div');
-  elCredentials.className = 'credentials-row';
+  elCredentials.style.cssText = 'display:flex;gap:var(--sp-4);flex-wrap:wrap';
 
-  // --- PAT column (Phase 11: flat .input-row layout) ---
+  // --- PAT column ---
   const patCol = document.createElement('div');
-  patCol.className = 'cfg-pat-col';
+  patCol.style.cssText = 'flex:1;min-width:200px';
 
-  const patRow = document.createElement('div');
-  patRow.className = 'input-row';
+  const patWrapper = createInputField({
+    type: 'password',
+    id: 'cfg-pat',
+    iconName: 'key',
+    placeholder: 'GitHub personal access token',
+  });
+  elPatInput = patWrapper._inputEl;
 
-  // Left icon: key
-  patRow.appendChild(icon('key', 'icon-btn'));
-
-  elPatInput = document.createElement('input');
-  elPatInput.type = 'password';
-  elPatInput.id = 'cfg-pat';
-  elPatInput.className = 'input-field';
-  elPatInput.placeholder = 'GitHub personal access token';
-  elPatInput.setAttribute('autocomplete', 'off');
-  patRow.appendChild(elPatInput);
-
-  // Eye toggle (class-based, two pre-rendered spans, starts hidden)
-  elPatToggle = document.createElement('button');
-  elPatToggle.className = 'btn-icon cfg-pat-toggle js-eye-btn';
-  elPatToggle.type = 'button';
-  elPatToggle.setAttribute('aria-label', 'Show token');
+  // Eye toggle (dual-icon CSS swap via .js-eye-btn)
+  elPatToggle = createButton('icon', { ariaLabel: 'Show token' });
+  elPatToggle.classList.add('js-eye-btn');
   elPatToggle.hidden = true;
   const eyeOn = document.createElement('span');
   eyeOn.className = 'icon-eye-on';
@@ -149,58 +141,49 @@ function renderShell(container) {
   eyeOff.appendChild(icon('eye-closed', 'icon-btn'));
   elPatToggle.appendChild(eyeOn);
   elPatToggle.appendChild(eyeOff);
-  patRow.appendChild(elPatToggle);
+  patWrapper.appendChild(elPatToggle);
 
   // Clear button (starts hidden)
-  elPatClear = document.createElement('button');
-  elPatClear.className = 'btn-icon cfg-pat-clear js-clear-btn';
-  elPatClear.type = 'button';
-  elPatClear.setAttribute('aria-label', 'Clear token');
+  elPatClear = createButton('icon', {
+    iconName: 'x',
+    iconClass: 'icon-remove',
+    ariaLabel: 'Clear token',
+  });
   elPatClear.hidden = true;
-  elPatClear.appendChild(icon('x', 'icon-remove'));
-  patRow.appendChild(elPatClear);
+  patWrapper.appendChild(elPatClear);
 
-  patCol.appendChild(patRow);
+  patCol.appendChild(patWrapper);
 
-  // --- Username column (Phase 11: flat .input-row layout) ---
+  // --- Username column ---
   const userCol = document.createElement('div');
-  userCol.className = 'cfg-user-col';
+  userCol.style.cssText = 'flex:1;min-width:200px';
 
-  const userRow = document.createElement('div');
-  userRow.className = 'input-row';
-
-  // Left icon: GitHub mark
-  userRow.appendChild(icon('mark-github', 'icon-btn'));
-
-  elUsername = document.createElement('input');
-  elUsername.type = 'text';
-  elUsername.id = 'cfg-username';
-  elUsername.className = 'input-field';
-  elUsername.placeholder = 'GitHub username';
-  elUsername.setAttribute('autocomplete', 'off');
-  userRow.appendChild(elUsername);
+  const userWrapper = createInputField({
+    iconName: 'mark-github',
+    id: 'cfg-username',
+    placeholder: 'GitHub username',
+  });
+  elUsername = userWrapper._inputEl;
 
   // Username clear button (starts hidden)
-  elUserClear = document.createElement('button');
-  elUserClear.className = 'btn-icon js-user-clear-btn';
-  elUserClear.type = 'button';
-  elUserClear.setAttribute('aria-label', 'Clear username');
+  elUserClear = createButton('icon', {
+    iconName: 'x',
+    iconClass: 'icon-remove',
+    ariaLabel: 'Clear username',
+  });
   elUserClear.hidden = true;
-  elUserClear.appendChild(icon('x', 'icon-remove'));
-  userRow.appendChild(elUserClear);
+  userWrapper.appendChild(elUserClear);
 
-  userCol.appendChild(userRow);
+  userCol.appendChild(userWrapper);
 
   elCredentials.appendChild(patCol);
   elCredentials.appendChild(userCol);
 
   // Repo section
   elRepoSection = document.createElement('div');
-  elRepoSection.className = 'cfg-section cfg-section--repos';
 
   // Branch section
   elBranchSection = document.createElement('div');
-  elBranchSection.className = 'cfg-section cfg-section--branches';
 
   container.appendChild(elCredentials);
   container.appendChild(elRepoSection);
@@ -305,12 +288,13 @@ function renderRepoSection(repos, selectedRepo) {
   if (!repos || repos.length === 0) return;
 
   const label = document.createElement('div');
-  label.className = 'cfg-section-label';
+  label.style.cssText =
+    'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
   label.textContent = 'Repositories';
   elRepoSection.appendChild(label);
 
   elRepoGrid = document.createElement('div');
-  elRepoGrid.className = 'btn-grid';
+  elRepoGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
   elRepoGrid.setAttribute('role', 'listbox');
   elRepoGrid.setAttribute('aria-label', 'Repositories');
 
@@ -325,11 +309,8 @@ function renderRepoButtons(repos, selectedRepo) {
 
   let visibleRepos;
   if (!reposCollapsed || repos.length <= REPO_DISPLAY_LIMIT) {
-    // Expanded OR fits within limit: show all
     visibleRepos = repos;
   } else {
-    // Collapsed: show first REPO_DISPLAY_LIMIT repos,
-    // and always include the selected repo even if it's beyond the limit (Phase 11)
     const firstN = repos.slice(0, REPO_DISPLAY_LIMIT);
     if (selectedRepo && !firstN.find((r) => r.name === selectedRepo)) {
       const selectedR = repos.find((r) => r.name === selectedRepo);
@@ -340,31 +321,25 @@ function renderRepoButtons(repos, selectedRepo) {
   }
 
   for (const repo of visibleRepos) {
-    const btn = document.createElement('button');
-    btn.className = 'btn-grid-item';
-    btn.type = 'button';
+    const btn = createButton('select', {
+      label: repo.name,
+      iconName: 'repo',
+      selected: repo.name === selectedRepo,
+      onClick: () => onRepoSelect(repo, repos),
+    });
     btn.setAttribute('role', 'option');
-    btn.setAttribute('aria-selected', String(repo.name === selectedRepo));
-    if (repo.name === selectedRepo) btn.classList.add('item-selected');
-    btn.appendChild(icon('repo', 'icon-btn'));
-    const nameSpan = document.createElement('span');
-    nameSpan.textContent = repo.name;
-    btn.appendChild(nameSpan);
-
-    btn.addEventListener('click', () => onRepoSelect(repo, repos));
     elRepoGrid.appendChild(btn);
   }
 
-  // "More" / "Less" button when repos exceed display limit (only shown when a repo is selected)
+  // "More" / "Less" button when repos exceed display limit
   const hiddenCount = repos.length - REPO_DISPLAY_LIMIT;
   if (hiddenCount > 0 && selectedRepo) {
-    const moreBtn = document.createElement('button');
-    moreBtn.className = 'btn-grid-item cfg-show-more';
-    moreBtn.type = 'button';
-    moreBtn.textContent = reposCollapsed ? `+${hiddenCount} more` : 'Less';
-    moreBtn.addEventListener('click', () => {
-      reposCollapsed = !reposCollapsed;
-      renderRepoButtons(repos, selectedRepo);
+    const moreBtn = createButton('action', {
+      label: reposCollapsed ? `+${hiddenCount} more` : 'Less',
+      onClick: () => {
+        reposCollapsed = !reposCollapsed;
+        renderRepoButtons(repos, selectedRepo);
+      },
     });
     elRepoGrid.appendChild(moreBtn);
   }
@@ -401,12 +376,13 @@ function renderBranchSection(branches, selectedBranch) {
   if (!branches || branches.length === 0) return;
 
   const label = document.createElement('div');
-  label.className = 'cfg-section-label';
+  label.style.cssText =
+    'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
   label.textContent = 'Branches';
   elBranchSection.appendChild(label);
 
   elBranchGrid = document.createElement('div');
-  elBranchGrid.className = 'btn-grid';
+  elBranchGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:var(--sp-2)';
   elBranchGrid.setAttribute('role', 'listbox');
   elBranchGrid.setAttribute('aria-label', 'Branches');
 
@@ -421,11 +397,8 @@ function renderBranchButtons(branches, selectedBranch) {
 
   let visibleBranches;
   if (!branchesCollapsed || branches.length <= BRANCH_DISPLAY_LIMIT) {
-    // Expanded OR fits within limit: show all
     visibleBranches = branches;
   } else {
-    // Collapsed: show first BRANCH_DISPLAY_LIMIT branches.
-    // Always include selected branch even if beyond limit (Phase 11).
     const firstN = branches.slice(0, BRANCH_DISPLAY_LIMIT);
     if (selectedBranch && !firstN.find((b) => b.name === selectedBranch)) {
       const selectedB = branches.find((b) => b.name === selectedBranch);
@@ -436,30 +409,24 @@ function renderBranchButtons(branches, selectedBranch) {
   }
 
   for (const branch of visibleBranches) {
-    const btn = document.createElement('button');
-    btn.className = 'btn-grid-item';
-    btn.type = 'button';
+    const btn = createButton('select', {
+      label: branch.name,
+      iconName: 'git-branch',
+      selected: branch.name === selectedBranch,
+      onClick: () => onBranchSelect(branch, branches),
+    });
     btn.setAttribute('role', 'option');
-    btn.setAttribute('aria-selected', String(branch.name === selectedBranch));
-    if (branch.name === selectedBranch) btn.classList.add('item-selected');
-    btn.appendChild(icon('git-branch', 'icon-btn'));
-    const nameSpan = document.createElement('span');
-    nameSpan.textContent = branch.name;
-    btn.appendChild(nameSpan);
-
-    btn.addEventListener('click', () => onBranchSelect(branch, branches));
     elBranchGrid.appendChild(btn);
   }
 
   const hiddenCount = Math.max(0, branches.length - BRANCH_DISPLAY_LIMIT);
   if (hiddenCount > 0) {
-    const moreBtn = document.createElement('button');
-    moreBtn.className = 'btn-grid-item cfg-show-more';
-    moreBtn.type = 'button';
-    moreBtn.textContent = branchesCollapsed ? `+${hiddenCount} more` : 'Less';
-    moreBtn.addEventListener('click', () => {
-      branchesCollapsed = !branchesCollapsed;
-      renderBranchButtons(branches, selectedBranch);
+    const moreBtn = createButton('action', {
+      label: branchesCollapsed ? `+${hiddenCount} more` : 'Less',
+      onClick: () => {
+        branchesCollapsed = !branchesCollapsed;
+        renderBranchButtons(branches, selectedBranch);
+      },
     });
     elBranchGrid.appendChild(moreBtn);
   }
@@ -492,7 +459,8 @@ async function loadRepos(owner, pat, isBackground = false) {
   if (!isBackground) {
     elRepoSection.innerHTML = '';
     const label = document.createElement('div');
-    label.className = 'cfg-section-label';
+    label.style.cssText =
+      'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
     label.textContent = 'Repositories';
     elRepoSection.appendChild(label);
     const shimmerContainer = document.createElement('div');
@@ -550,7 +518,8 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
 
   elBranchSection.innerHTML = '';
   const label = document.createElement('div');
-  label.className = 'cfg-section-label';
+  label.style.cssText =
+    'font-size:var(--text-sm);color:var(--text-tertiary);font-weight:500';
   label.textContent = 'Branches';
   elBranchSection.appendChild(label);
   const shimmerContainer = document.createElement('div');

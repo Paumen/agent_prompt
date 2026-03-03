@@ -7,14 +7,29 @@
  * No colors, no typography — those live in components.css and variables.css.
  *
  * Import order: variables.css → layout.css → components.css → special.css
- *
- * NOTE: These classes coexist with old styles.css during migration.
- * New classes are prefixed where needed to avoid collisions.
  */
+
+/* === Base reset === */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* === Page === */
+
+body {
+  background: var(--shell);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text);
+  min-height: 100dvh;
+}
 
 /* === Body / App container === */
 
-.v2-app {
+.app {
   max-width: 800px;
   margin: 0 auto;
   padding: var(--sp-8);
@@ -26,7 +41,7 @@
 
 /* === Card === */
 
-.v2-card {
+.card {
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
@@ -36,7 +51,7 @@
 }
 
 /* Card body: grid child, holds card content when expanded */
-.v2-card-body {
+.card-body {
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
@@ -44,13 +59,13 @@
 }
 
 /* Collapsed state: hide card body */
-.v2-card:not(.v2-card--open) .v2-card-body {
+.card:not(.card--open) .card-body {
   display: none;
 }
 
 /* === Card-in-card (replaces panel-a / panel-b) === */
 
-.v2-card-in-card {
+.card-in-card {
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
@@ -58,13 +73,13 @@
 }
 
 /* Basic collapse support for card-in-card */
-.v2-card-in-card:not(.v2-card-in-card--open) > :not(:first-child) {
+.card-in-card:not(.card-in-card--open) > :not(:first-child) {
   display: none;
 }
 
 /* === Input row (label + field) === */
 
-.v2-input {
+.input {
   display: grid;
   grid-template-columns: clamp(60px, 20%, 140px) 1fr;
   gap: var(--sp-4);
@@ -72,19 +87,19 @@
 }
 
 /* Label: first column */
-.v2-input > label,
-.v2-input > .v2-input-label {
+.input > label,
+.input > .input-label {
   grid-column: 1;
   padding-top: var(--sp-2);
 }
 
 /* Field: second column */
-.v2-input > :not(label):not(.v2-input-label) {
+.input > :not(label):not(.input-label) {
   grid-column: 2;
 }
 
 /* Input grid: additional content below the field (pills, helper text) */
-.v2-input-grid {
+.input-grid {
   grid-column: 2;
   display: grid;
   grid-auto-rows: auto;
@@ -93,22 +108,26 @@
 
 /* === Output (full-width content area) === */
 
-.v2-output {
+.output {
   grid-column: 1 / -1;
   width: 100%;
 }
 
-/* Output field: structured row (step rows) */
-.v2-output-field {
+/* Output field: structured row (step rows) — badge | label | actions */
+.output-field {
   display: grid;
-  grid-template-columns: auto auto 1fr 1fr auto;
-  grid-template-rows: auto auto;
+  grid-template-columns: auto 1fr auto;
   gap: var(--sp-4);
   align-items: start;
 }
 
+/* Sub-items in output-field span from label column to end */
+.output-field > :nth-child(n + 4) {
+  grid-column: 2 / -1;
+}
+
 /* Output block: code/text display (prompt preview) */
-.v2-output-block {
+.output-block {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
@@ -119,38 +138,39 @@
 
 /* Small cards (< 400px): stack input label above field */
 @container card (max-width: 399px) {
-  .v2-input {
+  .input {
     grid-template-columns: 1fr;
   }
 
-  .v2-input > label,
-  .v2-input > .v2-input-label {
+  .input > label,
+  .input > .input-label {
     grid-column: 1;
   }
 
-  .v2-input > :not(label):not(.v2-input-label) {
+  .input > :not(label):not(.input-label) {
     grid-column: 1;
   }
 
-  .v2-input-grid {
+  .input-grid {
     grid-column: 1;
   }
 
-  .v2-output-field {
+  .output-field {
     grid-template-columns: auto 1fr auto;
+    gap: var(--sp-2);
   }
 }
 
 /* Medium cards (400–600px): standard 2-column input */
 @container card (min-width: 400px) and (max-width: 599px) {
-  .v2-input {
+  .input {
     grid-template-columns: clamp(60px, 20%, 120px) 1fr;
   }
 }
 
 /* Large cards (600px+): wider label column */
 @container card (min-width: 600px) {
-  .v2-input {
+  .input {
     grid-template-columns: clamp(80px, 20%, 160px) 1fr;
   }
 }
