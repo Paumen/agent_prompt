@@ -168,52 +168,52 @@ Each requirement above is its own acceptance test. The following tests add speci
 
 ### Implementation Status
 
-| ID        | Status  | Unit | SIT | UAT | Notes                                                                    |
-| --------- | ------- | ---- | --- | --- | ------------------------------------------------------------------------ |
-| GL-01     | Testing | —    | ◻   | ◻   | Phase 8: click audit passed — all actions ≤2 clicks                      |
-| GL-02     | Testing | ✅   | ◻   | ◻   | Phase 0: shimmer CSS. Phase 3: JS component done                         |
+| ID        | Status      | Unit | SIT | UAT | Notes                                                                    |
+| --------- | ----------- | ---- | --- | --- | ------------------------------------------------------------------------ |
+| GL-01     | Testing     | —    | ◻   | ◻   | Phase 8: click audit passed — all actions ≤2 clicks                      |
+| GL-02     | Testing     | ✅   | ◻   | ◻   | Phase 0: shimmer CSS. Phase 3: JS component done                         |
 | GL-03     | 🏁 Approved | —    | ◻   | ◻   | Phase 8: mobile-first CSS verified; no h-scroll                          |
-| GL-04     | Testing | ✅   | ◻   | ◻   | Phase 0: error CSS. Phase 3: JS component done                           |
-| GL-05     | Testing | ✅   | ◻   | ◻   | Phase 8: mid-interaction deferral added (retry ×5 every 2s)              |
-| APP-01    | Testing | —    | —   | ◻   | Phase 0: SPA shell created                                               |
+| GL-04     | Testing     | ✅   | ◻   | ◻   | Phase 0: error CSS. Phase 3: JS component done                           |
+| GL-05     | Testing     | ✅   | ◻   | ◻   | Phase 8: mid-interaction deferral added (retry ×5 every 2s)              |
+| APP-01    | Testing     | —    | —   | ◻   | Phase 0: SPA shell created                                               |
 | APP-02    | 🏁 Approved | —    | —   | ◻   | Phase 0: vanilla JS + plain CSS                                          |
-| APP-03    | Testing | ✅   | ◻   | ◻   | Phase 3: limit enforcement in github-api.js                              |
-| APP-04    | Testing | ✅   | —   | ◻   | PAT/owner persist; session resets on reload                              |
-| DM-INV-01 | Testing | ✅   | ◻   | —   | getState() returns derived prompt                                        |
-| DM-INV-02 | Testing | ✅   | ◻   | —   | setState() auto-rebuilds prompt                                          |
-| DM-INV-03 | Testing | ✅   | ◻   | —   | Snapshot test passes (TST-01)                                            |
-| DM-DEF-01 | Testing | ✅   | ◻   | —   | deepMerge for flow defaults → user overrides                             |
-| DM-DEF-02 | Testing | ✅   | —   | —   | YAML→JSON + schema validation via Vite plugin                            |
-| DM-DEF-03 | Testing | ✅   | ◻   | ◻   | applyFlowDefaults() resets panels/steps fully                            |
-| CFG-01    | Testing | ✅   | ◻   | ◻   | PAT field + show/hide + clear action                                     |
+| APP-03    | Testing     | ✅   | ◻   | ◻   | Phase 3: limit enforcement in github-api.js                              |
+| APP-04    | Testing     | ✅   | —   | ◻   | PAT/owner persist; session resets on reload                              |
+| DM-INV-01 | Testing     | ✅   | ◻   | —   | getState() returns derived prompt                                        |
+| DM-INV-02 | Testing     | ✅   | ◻   | —   | setState() auto-rebuilds prompt                                          |
+| DM-INV-03 | Testing     | ✅   | ◻   | —   | Snapshot test passes (TST-01)                                            |
+| DM-DEF-01 | Testing     | ✅   | ◻   | —   | deepMerge for flow defaults → user overrides                             |
+| DM-DEF-02 | Testing     | ✅   | —   | —   | YAML→JSON + schema validation via Vite plugin                            |
+| DM-DEF-03 | Testing     | ✅   | ◻   | ◻   | applyFlowDefaults() resets panels/steps fully                            |
+| CFG-01    | Testing     | ✅   | ◻   | ◻   | PAT field + show/hide + clear action                                     |
 | CFG-02    | 🏁 Approved | ✅   | ◻   | ◻   | Username + auto-fetch repos on load                                      |
 | CFG-03    | 🏁 Approved | ✅   | —   | ◻   | Repo button grid + single-tap select                                     |
 | CFG-04    | 🏁 Approved | ✅   | ◻   | ◻   | Branch buttons + auto-select default                                     |
 | CFG-05    | 🏁 Approved | ✅   | ◻   | ◻   | Background fetch branches + file tree                                    |
-| SCT-01    | Testing | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + unified `.icon` class (Phase 12)          |
-| SCT-02    | Testing | ✅   | —   | ◻   | Dual-panel layout (new)                                                  |
+| SCT-01    | Testing     | ✅   | ◻   | ◻   | Flow selector grid (4 flows) + unified `.icon` class (Phase 12)          |
+| SCT-02    | Testing     | ✅   | —   | ◻   | Dual-panel layout (new)                                                  |
 | SCT-03    | 🏁 Approved | ✅   | ◻   | ◻   | card-tasks.js renders all field types                                    |
 | SCT-04    | 🏁 Approved | ✅   | —   | ◻   | Panel A/B layout per flow definition                                     |
-| SCT-05    | Testing | ✅   | ◻   | ◻   | Required group dot (7px) + tooltip; error block removed (Phase 12)       |
+| SCT-05    | Testing     | ✅   | ◻   | ◻   | Required group dot (7px) + tooltip; error block removed (Phase 12)       |
 | SCT-06    | 🏁 Approved | ✅   | ◻   | ◻   | Flat searchable file picker with pills                                   |
-| SCT-07    | Testing | ✅   | —   | —   | flows.yaml validated at build-time                                       |
+| SCT-07    | Testing     | ✅   | —   | —   | flows.yaml validated at build-time                                       |
 | SCT-08    | 🏁 Approved | ✅   | ◻   | ◻   | Quality Meter                                                            |
 | SCT-09    | 🏁 Approved | ✅   | ◻   | ◻   | Improve multi-file scope selector                                        |
-| STP-01    | Testing | ✅   | ◻   | ◻   | Phase 13: step badge, object icons, file step consolidation              |
-| STP-02    | Testing | ✅   | —   | ◻   | Phase 13: params.files populated from panel data                         |
-| STP-03    | Testing | ✅   | ◻   | ◻   | Phase 13: lens stability via module-level Map; expanded state persists   |
-| STP-04    | Testing | ✅   | —   | ◻   | Phase 13: file pill removal (panel + step); output mode multi-select     |
-| OUT-01    | Testing | ✅   | ◻   | ◻   | Phase 13: prompt-builder handles params.files + outputs_selected array   |
+| STP-01    | Testing     | ✅   | ◻   | ◻   | Phase 13: step badge, object icons, file step consolidation              |
+| STP-02    | Testing     | ✅   | —   | ◻   | Phase 13: params.files populated from panel data                         |
+| STP-03    | Testing     | ✅   | ◻   | ◻   | Phase 13: lens stability via module-level Map; expanded state persists   |
+| STP-04    | Testing     | ✅   | —   | ◻   | Phase 13: file pill removal (panel + step); output mode multi-select     |
+| OUT-01    | Testing     | ✅   | ◻   | ◻   | Phase 13: prompt-builder handles params.files + outputs_selected array   |
 | OUT-02    | 🏁 Approved | ✅   | ◻   | ◻   | Phase 13: multi-mode feedback combines all selected output modes         |
-| OUT-03    | Testing | ✅   | ◻   | —   | Live re-render via state subscription                                    |
+| OUT-03    | Testing     | ✅   | ◻   | —   | Live re-render via state subscription                                    |
 | OUT-04    | 🏁 Approved | ✅   | —   | —   | @ prefix in prompt-builder.js                                            |
-| OUT-05    | Testing | ✅   | ◻   | ◻   | Phase 14: copy icon swap (clipboard→check), aria-live kept hidden        |
+| OUT-05    | Testing     | ✅   | ◻   | ◻   | Phase 14: copy icon swap (clipboard→check), aria-live kept hidden        |
 | OUT-06    | 🏁 Approved | ✅   | —   | ◻   | Phase 14: notes textarea (no change)                                     |
 | OUT-07    | 🏁 Approved | ✅   | —   | ◻   | Phase 14: Prompt Claude solid-accent primary button                      |
 | OUT-08    | 🏁 Approved | —    | ◻   | ◻   | Phase 14: card stays expanded; only manual collapse                      |
-| VIS-01    | Testing | —    | —   | ◻   | Phase 12: unified icon rule, panel accent border, · subtitle separator   |
-| VIS-02    | Testing | —    | —   | ◻   | Phase 0: touch targets set                                               |
-| VIS-03    | Testing | —    | —   | ◻   | Phase 0: card layout CSS done                                            |
+| VIS-01    | Testing     | —    | —   | ◻   | Phase 12: unified icon rule, panel accent border, · subtitle separator   |
+| VIS-02    | Testing     | —    | —   | ◻   | Phase 0: touch targets set                                               |
+| VIS-03    | Testing     | —    | —   | ◻   | Phase 0: card layout CSS done                                            |
 | TST-01    | 🏁 Approved | ✅   | ✅  | —   | Snapshot test in prompt-builder.test.js + e2e determinism test           |
 | TST-02    | 🏁 Approved | ✅   | ✅  | —   | E2e tests: Fix + Review journeys, card transitions, flow reset, PAT flow |
 | TST-03    | 🏁 Approved | ✅   | —   | —   | Schema validation errors tested in flow-loader                           |

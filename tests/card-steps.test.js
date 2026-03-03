@@ -114,7 +114,7 @@ afterEach(() => {
 describe('initStepsCard', () => {
   it('renders step list from state', () => {
     initStepsCard();
-    const steps = document.querySelectorAll('.step-row');
+    const steps = document.querySelectorAll('.output-field');
     expect(steps.length).toBe(4);
   });
 
@@ -138,14 +138,15 @@ describe('initStepsCard', () => {
 describe('step rendering (STP-01)', () => {
   it('renders step labels with operation and object', () => {
     initStepsCard();
-    const labels = document.querySelectorAll('.step-label');
-    expect(labels[0].textContent).toContain('Read: @claude.md');
-    expect(labels[1].textContent).toContain('Analyze: issue');
+    // Labels are the 2nd child of each step li (index 1)
+    const rows = document.querySelectorAll('.output-field');
+    expect(rows[0].children[1].textContent).toContain('Read: @claude.md');
+    expect(rows[1].children[1].textContent).toContain('Analyze: issue');
   });
 
   it('uses ordered list for step numbering', () => {
     initStepsCard();
-    const list = document.querySelector('.step-list');
+    const list = document.querySelector('#bd-steps ol');
     expect(list.tagName).toBe('OL');
   });
 
@@ -158,7 +159,9 @@ describe('step rendering (STP-01)', () => {
 describe('step deletion (STP-04)', () => {
   it('renders delete buttons with aria-labels', () => {
     initStepsCard();
-    const deleteButtons = document.querySelectorAll('.step-delete');
+    const deleteButtons = document.querySelectorAll(
+      '.btn-icon[aria-label^="Remove step"]'
+    );
     expect(deleteButtons.length).toBe(4);
     expect(deleteButtons[0].getAttribute('aria-label')).toMatch(
       /^Remove step:/
@@ -167,7 +170,7 @@ describe('step deletion (STP-04)', () => {
 
   it('calls setState when delete is clicked', () => {
     initStepsCard();
-    document.querySelector('.step-delete').click();
+    document.querySelector('.btn-icon[aria-label^="Remove step"]').click();
     expect(setState).toHaveBeenCalled();
   });
 });
@@ -176,7 +179,7 @@ describe('lens pills (STP-03)', () => {
   it('renders lens pills on steps with lenses, marks active correctly', () => {
     initStepsCard();
     const row = document.querySelector('[data-step-id="identify-cause"]');
-    const pills = row.querySelectorAll('.pill');
+    const pills = row.querySelectorAll('.btn-pill');
 
     expect(pills.length).toBeGreaterThan(0);
 
@@ -184,7 +187,7 @@ describe('lens pills (STP-03)', () => {
       (p) => p.textContent === 'semantics'
     );
     expect(semanticsPill.getAttribute('aria-checked')).toBe('true');
-    expect(semanticsPill.classList.contains('pill--on')).toBe(true);
+    expect(semanticsPill.classList.contains('btn-pill--on')).toBe(true);
 
     const securityPill = Array.from(pills).find(
       (p) => p.textContent === 'security'
@@ -194,7 +197,7 @@ describe('lens pills (STP-03)', () => {
 
   it('calls setState when lens pill is clicked', () => {
     initStepsCard();
-    document.querySelector('[data-step-id="identify-cause"] .pill').click();
+    document.querySelector('[data-step-id="identify-cause"] .btn-pill').click();
     expect(setState).toHaveBeenCalledWith(
       'steps.enabled_steps',
       expect.any(Array)
@@ -203,7 +206,10 @@ describe('lens pills (STP-03)', () => {
 
   it('shows "more" button for extra lenses', () => {
     initStepsCard();
-    const moreBtn = document.querySelector('.step-more-lenses');
+    const row = document.querySelector('[data-step-id="identify-cause"]');
+    const moreBtn = Array.from(row.querySelectorAll('.btn-action')).find((b) =>
+      b.textContent.includes('more')
+    );
     expect(moreBtn).toBeTruthy();
     expect(moreBtn.textContent).toContain('more');
   });
@@ -212,9 +218,10 @@ describe('lens pills (STP-03)', () => {
 describe('step badges', () => {
   it('renders numbered badges', () => {
     initStepsCard();
-    const badges = document.querySelectorAll('.step-badge');
-    expect(badges[0].textContent).toBe('1');
-    expect(badges[1].textContent).toBe('2');
+    // Badges are the first child (index 0) of each step row
+    const rows = document.querySelectorAll('.output-field');
+    expect(rows[0].children[0].textContent).toBe('1');
+    expect(rows[1].children[0].textContent).toBe('2');
   });
 });
 
@@ -238,16 +245,18 @@ describe('file pills', () => {
     });
   });
 
-  it('renders file pills with remove buttons', () => {
+  it('renders file tags with remove buttons', () => {
     initStepsCard();
-    const pills = document.querySelectorAll('.step-file-pill');
-    expect(pills.length).toBe(2);
-    expect(document.querySelectorAll('.step-file-remove').length).toBe(2);
+    const tags = document.querySelectorAll('.tag');
+    expect(tags.length).toBe(2);
+    expect(
+      document.querySelectorAll('.tag .btn-icon[aria-label^="Remove"]').length
+    ).toBe(2);
   });
 
   it('clicking remove calls setState', () => {
     initStepsCard();
-    document.querySelector('.step-file-remove').click();
+    document.querySelector('.tag .btn-icon[aria-label^="Remove"]').click();
     expect(setState).toHaveBeenCalledWith('panel_a.files', ['src/utils.js']);
   });
 });
@@ -257,16 +266,16 @@ describe('optional text inputs', () => {
     initStepsCard();
 
     const branchRow = document.querySelector('[data-step-id="create-branch"]');
-    expect(branchRow.querySelector('.step-optional-text')).toBeTruthy();
+    expect(branchRow.querySelector('input.input-field')).toBeTruthy();
 
     const prRow = document.querySelector('[data-step-id="commit-pr"]');
-    expect(prRow.querySelector('.step-optional-text')).toBeTruthy();
+    expect(prRow.querySelector('input.input-field')).toBeTruthy();
   });
 
   it('calls setState on input change', () => {
     initStepsCard();
     const input = document.querySelector(
-      '[data-step-id="create-branch"] .step-optional-text'
+      '[data-step-id="create-branch"] input.input-field'
     );
     input.value = 'fix/bug-123';
     input.dispatchEvent(new Event('input'));
@@ -295,7 +304,7 @@ describe('output mode buttons', () => {
 
   it('renders output buttons with correct roles', () => {
     initStepsCard();
-    const btns = document.querySelectorAll('.output-mode-btn');
+    const btns = document.querySelectorAll('.btn-pill[role="checkbox"]');
     expect(btns.length).toBe(3);
     expect(btns[0].getAttribute('role')).toBe('checkbox');
     expect(btns[0].getAttribute('aria-checked')).toBe('true');
@@ -303,7 +312,7 @@ describe('output mode buttons', () => {
 
   it('calls setState on click', () => {
     initStepsCard();
-    document.querySelectorAll('.output-mode-btn')[1].click();
+    document.querySelectorAll('.btn-pill[role="checkbox"]')[1].click();
     expect(setState).toHaveBeenCalled();
   });
 });

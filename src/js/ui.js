@@ -1,5 +1,5 @@
 /**
- * ui.js — Component factory for the redesigned UI framework.
+ * ui.js — Component factory for the UI framework.
  *
  * Exports functions that create DOM elements with correct CSS class names,
  * ARIA attributes, and event wiring. Card files call these instead of
@@ -11,8 +11,14 @@
  *
  * Litmus test: if a function would only be called from one card file,
  * it does NOT belong here.
- *
  */
+
+import { icon } from './icons.js';
+
+// ============================================================
+// BUTTONS
+// ============================================================
+
 export function createButton(type, options = {}) {
   const {
     label,
@@ -29,27 +35,27 @@ export function createButton(type, options = {}) {
   btn.type = 'button';
 
   const classMap = {
-    primary: 'v2-btn-primary',
-    select: 'v2-btn-select',
-    action: 'v2-btn-action',
-    pill: 'v2-btn-pill',
-    icon: 'v2-btn-icon',
+    primary: 'btn-primary',
+    select: 'btn-select',
+    action: 'btn-action',
+    pill: 'btn-pill',
+    icon: 'btn-icon',
   };
 
   btn.className = classMap[type] || classMap.action;
 
   // Icon-with-label variant
   if (type === 'icon' && label) {
-    btn.classList.add('v2-btn-icon--labeled');
+    btn.classList.add('btn-icon--labeled');
   }
 
   // Selected/on state
   if (selected) {
     if (type === 'select') {
-      btn.classList.add('v2-btn-select--selected');
+      btn.classList.add('btn-select--selected');
       btn.setAttribute('aria-selected', 'true');
     } else if (type === 'pill') {
-      btn.classList.add('v2-btn-pill--on');
+      btn.classList.add('btn-pill--on');
       btn.setAttribute('aria-checked', 'true');
     }
   } else {
@@ -122,12 +128,12 @@ export function createInputField(options = {}) {
 
   if (type === 'textarea') {
     field = document.createElement('textarea');
-    field.className = 'v2-input-field v2-input-field--textarea';
+    field.className = 'input-field input-field--textarea';
     field.rows = rows;
   } else {
     field = document.createElement('input');
     field.type = type;
-    field.className = 'v2-input-field';
+    field.className = 'input-field';
   }
 
   field.placeholder = placeholder;
@@ -142,7 +148,7 @@ export function createInputField(options = {}) {
   // If icon requested, wrap in a search row
   if (iconName) {
     const row = document.createElement('div');
-    row.className = 'v2-field-picker-search';
+    row.className = 'field-picker-search';
     row.appendChild(icon(iconName, 'icon-btn'));
     row.appendChild(field);
     // Expose the actual input via a property so callers can access it
@@ -184,11 +190,11 @@ export function createPicker(options = {}) {
   } = options;
 
   const container = document.createElement('div');
-  container.className = 'v2-field-picker';
+  container.className = 'field-picker';
 
   // Search input
   const searchRow = document.createElement('div');
-  searchRow.className = 'v2-field-picker-search';
+  searchRow.className = 'field-picker-search';
 
   if (searchIconName) {
     searchRow.appendChild(icon(searchIconName, 'icon-btn'));
@@ -196,7 +202,7 @@ export function createPicker(options = {}) {
 
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
-  searchInput.className = 'v2-input-field';
+  searchInput.className = 'input-field';
   searchInput.placeholder = placeholder;
   searchInput.setAttribute('autocomplete', 'off');
   searchInput.setAttribute('aria-label', placeholder);
@@ -204,7 +210,7 @@ export function createPicker(options = {}) {
 
   // Dropdown
   const dropdown = document.createElement('div');
-  dropdown.className = 'v2-field-picker-dropdown';
+  dropdown.className = 'field-picker-dropdown';
 
   const searchWrapper = document.createElement('div');
   searchWrapper.style.position = 'relative';
@@ -215,7 +221,7 @@ export function createPicker(options = {}) {
 
   // Tags container (for multi-select)
   const tagsContainer = document.createElement('div');
-  tagsContainer.className = 'v2-field-picker-tags';
+  tagsContainer.className = 'field-picker-tags';
   if (multiSelect) {
     container.appendChild(tagsContainer);
   }
@@ -239,7 +245,7 @@ export function createPicker(options = {}) {
 
     if (filtered.length === 0) {
       const empty = document.createElement('div');
-      empty.className = 'v2-field-picker-empty';
+      empty.className = 'field-picker-empty';
       empty.textContent = filter ? 'No matches' : 'No items available';
       dropdown.appendChild(empty);
       return;
@@ -247,14 +253,14 @@ export function createPicker(options = {}) {
 
     for (const item of filtered) {
       const el = document.createElement('div');
-      el.className = 'v2-field-picker-item';
+      el.className = 'field-picker-item';
       el.textContent = item.label;
       if (item.title) el.title = item.title;
 
       el.addEventListener('click', () => {
         if (onSelect) onSelect(item);
         searchInput.value = '';
-        dropdown.classList.remove('v2-field-picker-dropdown--open');
+        dropdown.classList.remove('field-picker-dropdown--open');
       });
 
       dropdown.appendChild(el);
@@ -284,17 +290,17 @@ export function createPicker(options = {}) {
   // Events
   searchInput.addEventListener('focus', () => {
     renderDropdown(searchInput.value);
-    dropdown.classList.add('v2-field-picker-dropdown--open');
+    dropdown.classList.add('field-picker-dropdown--open');
   });
 
   searchInput.addEventListener('input', () => {
     renderDropdown(searchInput.value);
-    dropdown.classList.add('v2-field-picker-dropdown--open');
+    dropdown.classList.add('field-picker-dropdown--open');
   });
 
   document.addEventListener('click', (e) => {
     if (!searchWrapper.contains(e.target)) {
-      dropdown.classList.remove('v2-field-picker-dropdown--open');
+      dropdown.classList.remove('field-picker-dropdown--open');
     }
   });
 
@@ -322,7 +328,7 @@ export function createTag(options = {}) {
   const { label, iconName, onRemove, title } = options;
 
   const tag = document.createElement('span');
-  tag.className = 'v2-tag';
+  tag.className = 'tag';
   if (title) tag.title = title;
 
   if (iconName) {
@@ -330,7 +336,7 @@ export function createTag(options = {}) {
   }
 
   const text = document.createElement('span');
-  text.className = 'v2-tag-text';
+  text.className = 'tag-text';
   text.textContent = label;
   tag.appendChild(text);
 

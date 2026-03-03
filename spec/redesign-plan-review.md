@@ -63,7 +63,6 @@
 | **btn-pill**    | Pill shape, neutral border, darker bg when selected | Multi-select toggle              | `.pill` + `.pill--on`               | Lenses, output modes                          |
 | **btn-icon**    | No bg (transparent/inherit), icon ± label           | Tertiary action, collapse/expand | `.btn-icon`, `.card-header`         | Clear, remove, info, card headers, eye toggle |
 
-
 ### Other Elements
 
 | Element   | Description                                                                                                                                      |
@@ -74,11 +73,11 @@
 
 ### Special Components (isolated CSS allowed)
 
-| Component          | Reuses                                      | Own styling                                                                   |
-| :----------------- | :------------------------------------------ | :---------------------------------------------------------------------------- |
-| **Quality meter**  | btn-icon (for info button), tooltip pattern | Bar + track + thresholds                                                      |
-| **Shimmer/loader** | —                                           | Animation keyframes |
-| **Notifications**  | —                                           | Float animation (if these are actually used; PO hasn't seen them trigger)                                                  |
+| Component          | Reuses                                      | Own styling                                                               |
+| :----------------- | :------------------------------------------ | :------------------------------------------------------------------------ |
+| **Quality meter**  | btn-icon (for info button), tooltip pattern | Bar + track + thresholds                                                  |
+| **Shimmer/loader** | —                                           | Animation keyframes                                                       |
+| **Notifications**  | —                                           | Float animation (if these are actually used; PO hasn't seen them trigger) |
 
 ---
 
@@ -95,7 +94,7 @@
 | **Reduced spacing rules**            | Grid `gap` handles most spacing. Elements fill their parents.                                                                                                                                                                                                                      |
 | **CSS variables updates**            | Fix accent colors (`light-dark()`), add `--bg-inset-darker` if needed, apply `clamp()` to spacing/font values (see roadmap dependency assessment).                                                                                                                                 |
 | **Test simplification**              | See testing strategy below.                                                                                                                                                                                                                                                        |
-| **Max-width → 800px**                | Wider container for more breathing room
+| **Max-width → 800px**                | Wider container for more breathing room                                                                                                                                                                                                                                            |
 
 ---
 
@@ -174,13 +173,13 @@
 
 **Estimated sizes (post-redesign):**
 
-| File           | Current equivalent                          | Target                                                         |
-| :------------- | :------------------------------------------ | :------------------------------------------------------------- |
+| File           | Current equivalent                          | Target                                                     |
+| :------------- | :------------------------------------------ | :--------------------------------------------------------- |
 | variables.css  | 54 lines                                    | ~60 lines (adding `clamp()` values, fixing `light-dark()`) |
 | layout.css     | ~150 lines scattered in styles.css          | ~100 lines                                                 |
-| components.css | ~650 lines scattered in styles.css          | ~250-300 lines                                                 |
-| special.css    | ~120 lines (meter + shimmer + notification) | ~60 lines (if kept)                                         |
-| **Total**      | **926 lines**                               | **~450-550 lines (40-50% reduction)**                          |
+| components.css | ~650 lines scattered in styles.css          | ~250-300 lines                                             |
+| special.css    | ~120 lines (meter + shimmer + notification) | ~60 lines (if kept)                                        |
+| **Total**      | **926 lines**                               | **~450-550 lines (40-50% reduction)**                      |
 
 ---
 
@@ -404,7 +403,7 @@ Card migration order: card-prompt → card-steps → card-configuration → card
 | :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | **btn-action vs btn-select merge → reach 4 button types?**                                                                                                                                                                                                                                                                                   | **Closed — keep 5.** The semantic distinction aids accessibility (screen readers announce selected state for `btn-select` but not `btn-action`) and maintainability. See section c. |
 | 2   | **Input grid: fixed 20%/80% vs subgrid for flexibility?** If subgrid can keep labels consistent across cards while adapting to content, it's the best of both worlds.                                                                                                                                                                        | Open — will prototype both                                                                                                                                                          |
-| 3   | **notifications: obsoleted?** PO hasn't seen them. Verify if functional before including in framework. If unused, remove.                                                                                                                                                                                                       | Open|
+| 3   | **notifications: obsoleted?** PO hasn't seen them. Verify if functional before including in framework. If unused, remove.                                                                                                                                                                                                                    | Open                                                                                                                                                                                |
 | 5   | **CSS file split: `layout.css` + `components.css` + `special.css`?** PO proposed this split. Adopted in plan. Confirm naming convention before Phase 2.                                                                                                                                                                                      | Adopted — naming TBD                                                                                                                                                                |
 | 6   | **`ui.js` scope: just DOM creation or also event wiring?** If `ui.js` only creates elements, card files still wire events. If `ui.js` also wires events (via callback params), card files shrink more but `ui.js` grows. Recommendation: include callback params in factory functions (like `onClick`, `onInput`) — this is the natural API. | Open — prototype will clarify                                                                                                                                                       |
 

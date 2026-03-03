@@ -3,6 +3,7 @@
 ## Table of Contents
 
 1. [Architecture & File Map](#1-architecture--file-map)
+
 ## Table of Contents
 
 1. [Architecture & File Map](#1-architecture--file-map)
@@ -130,14 +131,12 @@ fully address the remaining feedback.
 
 ---
 
- ## 12. Phase 9 — Global Visual Foundation
+## 12. Phase 9 — Global Visual Foundation
 
 [x] **Shadow System**: Implement `--shadow-sm` and `--shadow-md` for elevation; apply to cards and modals for improved cognitive mapping of layers.
 [x] **Icon Migration**: Replace CSS-transform "diamonds" with inline Octicon SVGs; unify all iconography under a single `.icon` class with standard scaling.
 [x] **Contrast & State**: Refine `--accent-subtle` for ≥4.5:1 contrast; use `oklch` for perceptually uniform selection states.
 [x] **Field Depth**: Add internal shadows to `.input-field` to create a "recessed" affordance, distinguishing interactive areas from surface containers.
-
-
 
 ## 13. Phase 10 — Config Card Refinement
 

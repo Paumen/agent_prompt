@@ -5,19 +5,24 @@
  * Users can toggle lenses, delete any step, and provide optional text.
  *
  * Req IDs: STP-01..04
- * Phase 13: step badge, object icons, file pills, output multi-select, lens stability
  */
 
 import { getState, setState, subscribe } from './state.js';
 import { getFlowById, ALL_LENSES } from './flow-loader.js';
 import { generateSteps, reconcileSteps } from './step-generator.js';
 import { setInteracting } from './components.js';
-import { icon, fileIconName } from './icons.js';
+import { fileIconName } from './icons.js';
+import {
+  createButton,
+  createTag,
+  createInputField,
+  createMoreLess,
+} from './ui.js';
 
 // Show first 7 lenses. Rest behind "more" button.
 const INITIAL_LENS_COUNT = 7;
 
-// Output mode full labels
+// Output mode labels
 const OUTPUT_LABELS = {
   here: 'Here (in chat)',
   pr_comment: 'PR comment',
@@ -26,7 +31,6 @@ const OUTPUT_LABELS = {
   report_file: 'Report file',
 };
 
-// Output mode short labels for icon buttons (≤6 chars)
 const OUTPUT_SHORT_LABELS = {
   here: 'Here',
   pr_comment: 'PR Com',
@@ -35,7 +39,6 @@ const OUTPUT_SHORT_LABELS = {
   report_file: 'File',
 };
 
-// Output mode → Octicon name
 const OUTPUT_ICON_MAP = {
   here: 'comment',
   pr_comment: 'git-pull-request',
@@ -49,7 +52,7 @@ const OUTPUT_ICON_MAP = {
 let elBody = null;
 let previousStepSnapshot = '';
 
-// Module-level lens expanded state — persists across re-renders; resets on flow switch (Phase 13)
+// Lens expanded state — persists across re-renders; resets on flow switch
 const expandedSteps = new Map();
 
 // --- Step label formatting ---
@@ -58,12 +61,10 @@ function formatStepLabel(step) {
   const op = step.operation.charAt(0).toUpperCase() + step.operation.slice(1);
   const obj = step.object.replace(/_/g, ' ');
 
-  // Single file (e.g. read-claude)
   if (step.params?.file) {
     return `${op}: @${step.params.file}`;
   }
 
-  // Multi-file consolidated step: show count in label; files shown as pills below
   if (step.params?.files?.length > 0) {
     const n = step.params.files.length;
     return `${op}: ${n} file${n > 1 ? 's' : ''}`;
@@ -102,7 +103,6 @@ function renderStepList() {
   const state = getState();
   const steps = state.steps?.enabled_steps || [];
 
-  // Skip re-render if steps haven't changed
   const stepSnapshot = JSON.stringify(steps);
   if (stepSnapshot === previousStepSnapshot) return;
   previousStepSnapshot = stepSnapshot;
@@ -118,12 +118,17 @@ function renderStepList() {
   }
 
   const list = document.createElement('ol');
-  list.className = 'step-list';
+  list.style.listStyle = 'none';
+  list.style.display = 'flex';
+  list.style.flexDirection = 'column';
+  list.style.padding = '0';
+  list.style.margin = '0';
+  list.style.width = '100%';
+  list.style.gap = 'var(--sp-4)';
   list.setAttribute('role', 'list');
 
   steps.forEach((step, index) => {
-    const li = renderStepRow(step, index);
-    list.appendChild(li);
+    list.appendChild(renderStepRow(step, index));
   });
 
   elBody.appendChild(list);
@@ -131,91 +136,66 @@ function renderStepList() {
 
 function renderStepRow(step, index) {
   const li = document.createElement('li');
-  li.className = 'step-row';
+  li.className = 'output output-field';
   li.dataset.stepId = step.id;
 
-  // Step header: badge + icon + label + delete button
-  const header = document.createElement('div');
-  header.className = 'step-header';
-
-  // Step number badge (replaces CSS counter, Phase 13)
+  // Badge (col 1)
   const badge = document.createElement('span');
-  badge.className = 'step-badge';
   badge.textContent = String(index + 1);
   badge.setAttribute('aria-hidden', 'true');
-  header.appendChild(badge);
+  badge.style.cssText =
+    'background:var(--bg);border-radius:50%;width:16px;height:16px;display:grid;place-content:center;font-weight:800;flex-shrink:0;font-size:var(--text)';
+  li.appendChild(badge);
 
+  // Label (col 2)
   const label = document.createElement('span');
-  label.className = 'step-label';
+  label.style.cssText =
+    'display:flex;align-items:center;flex:1;min-width:0;font-size:var(--text);text-align:left';
   label.textContent = formatStepLabel(step);
-  header.appendChild(label);
+  li.appendChild(label);
 
-  // Delete button — all steps are removable (STP-04)
-  const deleteBtn = document.createElement('button');
-  deleteBtn.type = 'button';
-  deleteBtn.className = 'btn-icon step-delete';
-  deleteBtn.appendChild(icon('trash', 'icon-remove'));
-  deleteBtn.title = 'Remove step';
-  deleteBtn.setAttribute('aria-label', `Remove step: ${formatStepLabel(step)}`);
-  deleteBtn.addEventListener('click', () => onDeleteStep(step.id));
-  header.appendChild(deleteBtn);
+  // Delete button (col 3)
+  const deleteBtn = createButton('icon', {
+    iconName: 'trash',
+    iconClass: 'icon-remove',
+    title: 'Remove step',
+    ariaLabel: `Remove step: ${formatStepLabel(step)}`,
+    onClick: () => onDeleteStep(step.id),
+  });
+  li.appendChild(deleteBtn);
 
-  li.appendChild(header);
+  // --- Sub-items (auto-placed to col 2/-1 via CSS nth-child rule) ---
 
-  // PR pill — show when step references a pull request
-  if (step.object === 'pull_request' && step.source) {
-    const prPill = renderSourcePill(step.source, 'git-pull-request', 'PR');
-    if (prPill) li.appendChild(prPill);
+  // Source pill (PR/Issue reference)
+  if (
+    (step.object === 'pull_request' || step.object === 'issue') &&
+    step.source
+  ) {
+    const iconName =
+      step.object === 'pull_request' ? 'git-pull-request' : 'issue-opened';
+    const prefix = step.object === 'pull_request' ? 'PR' : 'Issue';
+    const pill = renderSourcePill(step.source, iconName, prefix);
+    if (pill) li.appendChild(pill);
   }
 
-  // Issue pill — show when step references an issue
-  if (step.object === 'issue' && step.source) {
-    const issuePill = renderSourcePill(step.source, 'issue-opened', 'Issue');
-    if (issuePill) li.appendChild(issuePill);
-  }
-
-  // File pills — for consolidated file steps (Phase 13)
+  // File pills
   if (step.params?.files?.length > 0) {
-    const filesContainer = renderFilePills(step);
-    li.appendChild(filesContainer);
+    li.appendChild(renderFilePills(step));
   }
 
-  // Optional text input — on one flex row with label (Phase 13)
+  // Optional text input
   if (hasOptionalText(step)) {
-    const placeholder = getOptionalTextPlaceholder(step);
-    const textLabel = getOptionalTextLabel(step);
-
-    const row = document.createElement('div');
-    row.className = 'step-optional-row';
-
-    const lbl = document.createElement('span');
-    lbl.className = 'step-sub-label';
-    lbl.textContent = textLabel;
-    row.appendChild(lbl);
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'input-field step-optional-text';
-    input.placeholder = placeholder;
-    input.value = step.name_provided || '';
-    input.addEventListener('input', () => {
-      onOptionalTextChange(index, input.value);
-    });
-    row.appendChild(input);
-
-    li.appendChild(row);
+    li.appendChild(renderOptionalTextRow(step, index));
   }
 
-  // Output mode icon buttons (Phase 13 multi-select)
+  // Output mode buttons
   if (Array.isArray(step.output) && step.output.length > 0) {
-    const outputContainer = renderOutputIcons(step, index);
-    li.appendChild(outputContainer);
+    li.appendChild(renderOutputIcons(step, index));
   }
 
-  // Lens pills (if step has lenses array)
+  // Lens pills
   if (step.lenses !== undefined) {
-    const lensContainer = renderStepLenses(step, index);
-    li.appendChild(lensContainer);
+    li.appendChild(renderStepLenses(step, index));
   }
 
   return li;
@@ -227,115 +207,94 @@ function renderSourcePill(source, iconName, labelPrefix) {
   const value = state[panel]?.[field];
   if (!value) return null;
 
-  const container = document.createElement('div');
-  container.className = 'step-source-pill-row';
-
-  const pill = document.createElement('span');
-  pill.className = 'step-source-pill';
-  pill.appendChild(icon(iconName, 'icon-btn'));
-
-  const text = document.createElement('span');
-  text.textContent = `${labelPrefix} #${value}`;
-  pill.appendChild(text);
-
-  container.appendChild(pill);
-  return container;
+  return createTag({
+    label: `${labelPrefix} #${value}`,
+    iconName,
+  });
 }
 
 function renderFilePills(step) {
   const container = document.createElement('div');
-  container.className = 'step-files';
+  container.className = 'field-picker-tags';
 
   for (const filePath of step.params.files) {
-    const pill = document.createElement('span');
-    pill.className = 'step-file-pill';
-
-    pill.appendChild(icon(fileIconName(filePath), 'icon-btn'));
-
-    const nameSpan = document.createElement('span');
-    // Show last path segment; full path on hover
     const segments = filePath.split('/');
-    nameSpan.textContent = '@' + segments[segments.length - 1];
-    nameSpan.title = filePath;
-    pill.appendChild(nameSpan);
-
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'step-file-remove';
-    removeBtn.appendChild(icon('x', 'icon-remove'));
-    removeBtn.setAttribute('aria-label', `Remove ${filePath}`);
-    removeBtn.addEventListener('click', () => {
-      onRemoveFileFromStep(step, filePath);
+    const tag = createTag({
+      label: '@' + segments[segments.length - 1],
+      iconName: fileIconName(filePath),
+      title: filePath,
+      onRemove: () => onRemoveFileFromStep(step, filePath),
     });
-    pill.appendChild(removeBtn);
-
-    container.appendChild(pill);
+    container.appendChild(tag);
   }
 
   return container;
 }
 
-function renderOutputIcons(step, stepIndex) {
+function renderOptionalTextRow(step, index) {
+  const row = document.createElement('div');
+  row.style.cssText =
+    'display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap';
+
+  const lbl = document.createElement('span');
+  lbl.style.cssText =
+    'font-size:var(--text-sm);color:var(--text-secondary);white-space:nowrap';
+  lbl.textContent = getOptionalTextLabel(step);
+  row.appendChild(lbl);
+
+  const input = createInputField({
+    placeholder: getOptionalTextPlaceholder(step),
+    value: step.name_provided || '',
+    onInput: (e) => onOptionalTextChange(index, e.target.value),
+  });
+  input.style.width = '160px';
+  input.style.fontSize = 'var(--text-sm)';
+  row.appendChild(input);
+
+  return row;
+}
+
+function renderOutputIcons(step, index) {
   const container = document.createElement('div');
-  container.className = 'step-output-modes';
+  container.style.cssText =
+    'display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap';
 
   const label = document.createElement('span');
-  label.className = 'step-sub-label';
+  label.style.cssText =
+    'font-size:var(--text-sm);color:var(--text-secondary);white-space:nowrap';
   label.textContent = 'Deliver via:';
   container.appendChild(label);
 
-  const iconRow = document.createElement('div');
-  iconRow.className = 'step-output-icons';
-
-  // Resolve selected modes — support old output_selected string for migration
   const selected =
     step.outputs_selected ||
     (step.output_selected ? [step.output_selected] : [step.output[0]]);
 
   for (const mode of step.output) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'output-mode-btn';
-    btn.setAttribute('role', 'checkbox');
-    btn.setAttribute('aria-label', OUTPUT_LABELS[mode] || mode);
-
     const isOn = selected.includes(mode);
-    btn.setAttribute('aria-checked', String(isOn));
-    if (isOn) btn.classList.add('output-mode-btn--on');
-
-    // Icon
-    const iconName = OUTPUT_ICON_MAP[mode] || 'comment';
-    btn.appendChild(icon(iconName, 'icon-btn'));
-
-    // Static short label
-    const shortLabel = document.createElement('span');
-    shortLabel.className = 'output-label';
-    shortLabel.textContent = OUTPUT_SHORT_LABELS[mode] || mode;
-    btn.appendChild(shortLabel);
-
-    btn.addEventListener('click', () => {
-      onSelectOutput(stepIndex, mode, btn);
+    const btn = createButton('pill', {
+      label: OUTPUT_SHORT_LABELS[mode] || mode,
+      iconName: OUTPUT_ICON_MAP[mode] || 'comment',
+      selected: isOn,
+      ariaLabel: OUTPUT_LABELS[mode] || mode,
+      onClick: () => onSelectOutput(index, mode, btn),
     });
-
-    iconRow.appendChild(btn);
+    btn.setAttribute('role', 'checkbox');
+    container.appendChild(btn);
   }
 
-  container.appendChild(iconRow);
   return container;
 }
 
 function renderStepLenses(step, stepIndex) {
   const container = document.createElement('div');
-  container.className = 'step-lenses';
 
   const activeLenses = step.lenses || [];
-
-  // Fixed order (no sort) — active lenses stay in fixed position (STP-03 / Phase 13)
   const initial = ALL_LENSES.slice(0, INITIAL_LENS_COUNT);
   const remainder = ALL_LENSES.slice(INITIAL_LENS_COUNT);
 
+  // Primary lenses
   const pillGroup = document.createElement('div');
-  pillGroup.className = 'pill-group step-lens-pills';
+  pillGroup.className = 'field-picker-tags';
 
   for (const lens of initial) {
     pillGroup.appendChild(createLensPill(lens, activeLenses, stepIndex));
@@ -346,45 +305,28 @@ function renderStepLenses(step, stepIndex) {
   // "More" button for remaining lenses
   if (remainder.length > 0) {
     const activeRemainder = remainder.filter((l) => activeLenses.includes(l));
-
-    const moreBtn = document.createElement('button');
-    moreBtn.type = 'button';
-    moreBtn.className = 'step-more-lenses';
-
-    // Restore expanded state from module-level map (Phase 13 lens stability)
     const isExpanded = expandedSteps.get(step.id) || false;
 
     const extraGroup = document.createElement('div');
-    extraGroup.className = 'pill-group step-lens-pills step-lens-extra';
+    extraGroup.className = 'field-picker-tags';
     extraGroup.style.display = isExpanded ? 'flex' : 'none';
-
-    moreBtn.textContent = isExpanded
-      ? 'Show fewer'
-      : activeRemainder.length > 0
-        ? `+${remainder.length} more (${activeRemainder.length} active)`
-        : `+${remainder.length} more`;
+    extraGroup.style.marginTop = 'var(--sp-2)';
 
     for (const lens of remainder) {
       extraGroup.appendChild(createLensPill(lens, activeLenses, stepIndex));
     }
 
-    moreBtn.addEventListener('click', () => {
-      const nowExpanded = !expandedSteps.get(step.id);
-      expandedSteps.set(step.id, nowExpanded);
-      extraGroup.style.display = nowExpanded ? 'flex' : 'none';
-      if (nowExpanded) {
-        moreBtn.textContent = 'Show fewer';
-      } else {
-        const updatedActive = remainder.filter((l) => {
-          const st = getState();
-          const stepLenses = st.steps?.enabled_steps?.[stepIndex]?.lenses || [];
-          return stepLenses.includes(l);
-        });
-        moreBtn.textContent =
-          updatedActive.length > 0
-            ? `+${remainder.length} more (${updatedActive.length} active)`
-            : `+${remainder.length} more`;
-      }
+    const moreBtn = createMoreLess({
+      hiddenCount: remainder.length,
+      expanded: isExpanded,
+      activeLabel:
+        activeRemainder.length > 0
+          ? `${activeRemainder.length} active`
+          : undefined,
+      onToggle: (nowExpanded) => {
+        expandedSteps.set(step.id, nowExpanded);
+        extraGroup.style.display = nowExpanded ? 'flex' : 'none';
+      },
     });
 
     container.appendChild(moreBtn);
@@ -395,21 +337,12 @@ function renderStepLenses(step, stepIndex) {
 }
 
 function createLensPill(lens, activeLenses, stepIndex) {
-  const pill = document.createElement('button');
-  pill.type = 'button';
-  pill.className = 'pill';
-  pill.textContent = lens.replace(/_/g, ' ');
-  pill.setAttribute('role', 'switch');
-
   const isOn = activeLenses.includes(lens);
-  pill.setAttribute('aria-checked', String(isOn));
-  if (isOn) pill.classList.add('pill--on');
-
-  pill.addEventListener('click', () => {
-    onToggleLens(stepIndex, lens);
+  return createButton('pill', {
+    label: lens.replace(/_/g, ' '),
+    selected: isOn,
+    onClick: () => onToggleLens(stepIndex, lens),
   });
-
-  return pill;
 }
 
 // --- Event handlers ---
@@ -430,14 +363,8 @@ function onDeleteStep(stepId) {
   }));
 }
 
-/**
- * Remove a file from the step's source panel field (Phase 13).
- * Since the step source == panel field, removing from panel auto-removes from step
- * via regenerateIfNeeded. If the panel field becomes empty, the conditional step
- * is automatically excluded from generated steps.
- */
 function onRemoveFileFromStep(step, filePath) {
-  const source = step.source; // e.g. 'panel_a.files'
+  const source = step.source;
   if (!source) return;
 
   const state = getState();
@@ -449,7 +376,7 @@ function onRemoveFileFromStep(step, filePath) {
 }
 
 function onToggleLens(stepIndex, lens) {
-  setInteracting(); // GL-05: flag mid-interaction to defer background refresh
+  setInteracting();
   const state = getState();
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
 
@@ -465,18 +392,14 @@ function onToggleLens(stepIndex, lens) {
   setState('steps.enabled_steps', steps);
 }
 
-/**
- * Toggle an output mode in/out of outputs_selected array (Phase 13 multi-select).
- */
 function onSelectOutput(stepIndex, mode, btn) {
-  setInteracting(); // GL-05: flag mid-interaction to defer background refresh
+  setInteracting();
   const state = getState();
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
 
   if (stepIndex < 0 || stepIndex >= steps.length) return;
 
   const step = steps[stepIndex];
-  // Migrate from old single-string format if needed
   const current =
     step.outputs_selected ||
     (step.output_selected
@@ -490,7 +413,12 @@ function onSelectOutput(stepIndex, mode, btn) {
   steps[stepIndex] = { ...step, outputs_selected: newSelected };
   setState('steps.enabled_steps', steps);
 
-  // Float-up toast showing the full mode name (Phase 13)
+  // Update button state visually
+  const isNowOn = newSelected.includes(mode);
+  btn.setAttribute('aria-checked', String(isNowOn));
+  btn.classList.toggle('btn-pill--on', isNowOn);
+
+  // Float-up toast
   const float = document.createElement('span');
   float.className = 'output-float';
   float.textContent = OUTPUT_LABELS[mode] || mode;
@@ -521,7 +449,6 @@ function regenerateIfNeeded(snapshot) {
   const panelASnap = JSON.stringify(snapshot.panel_a || {});
   const panelBSnap = JSON.stringify(snapshot.panel_b || {});
 
-  // Only regenerate when flow or panel data changed
   if (
     flowId === lastFlowId &&
     panelASnap === lastPanelASnapshot &&
@@ -530,7 +457,6 @@ function regenerateIfNeeded(snapshot) {
     return;
   }
 
-  // Reset lens expanded state on flow switch (Phase 13)
   if (flowId !== lastFlowId) {
     expandedSteps.clear();
   }
@@ -549,7 +475,6 @@ function regenerateIfNeeded(snapshot) {
     snapshot.steps.removed_step_ids
   );
 
-  // Only update if steps actually changed
   const currentJson = JSON.stringify(snapshot.steps.enabled_steps);
   const newJson = JSON.stringify(reconciled);
   if (currentJson !== newJson) {
@@ -570,10 +495,7 @@ export function initStepsCard() {
   elBody = document.getElementById('bd-steps');
   if (!elBody) return;
 
-  // Reset snapshot to force initial render
   previousStepSnapshot = '';
-
-  // Clear lens expanded state on card (re-)init
   expandedSteps.clear();
 
   renderStepList();

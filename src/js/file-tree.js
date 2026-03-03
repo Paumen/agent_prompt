@@ -3,14 +3,15 @@
  *
  * Uses a flat alphabetical searchable list (per SCT-06).
  * Files are picked one at a time from a search dropdown.
- * Selected files are displayed as removable pills below the picker.
+ * Selected files are displayed as removable tags below the picker.
  *
  * Spec/Guideline file pickers show helper text explaining the distinction (SCT-06):
  *   - spec_files:     "WHAT to build (requirements, user stories, design docs)"
  *   - guideline_files: "HOW to build (coding standards, style guides)"
  */
 
-import { icon, fileIconName } from './icons.js';
+import { fileIconName } from './icons.js';
+import { createTag, createInputField } from './ui.js';
 
 /**
  * Create a multi-select file picker widget.
@@ -44,75 +45,58 @@ export function createFilePicker(container, config) {
   // --- Build UI ---
 
   const wrapper = document.createElement('div');
-  wrapper.className = 'file-picker-wrapper';
+  wrapper.className = 'field-picker';
 
   // Helper text (SCT-06: tooltip/helper for spec vs guideline distinction)
   if (helperText) {
     const helper = document.createElement('div');
-    helper.className = 'file-picker-helper';
+    helper.style.cssText =
+      'font-size:var(--text-sm);color:var(--text-secondary)';
     helper.textContent = helperText;
     wrapper.appendChild(helper);
   }
 
-  // Search input with icon
-  const inputRow = document.createElement('div');
-  inputRow.className = 'input-row';
-  inputRow.appendChild(icon('file', 'icon-btn'));
-
-  const searchInput = document.createElement('input');
-  searchInput.type = 'text';
-  searchInput.className = 'input-field file-picker-search';
-  searchInput.placeholder = placeholder;
-  searchInput.setAttribute('autocomplete', 'off');
-  searchInput.setAttribute('aria-label', placeholder);
-  inputRow.appendChild(searchInput);
+  // Search input with icon (creates a .field-picker-search wrapper)
+  const searchRow = createInputField({
+    iconName: 'file',
+    placeholder,
+    ariaLabel: placeholder,
+  });
+  const searchInput = searchRow._inputEl;
 
   // Dropdown list
   const dropdownList = document.createElement('div');
-  dropdownList.className = 'dropdown-list file-picker-list';
+  dropdownList.className = 'field-picker-dropdown';
 
   const searchWrapper = document.createElement('div');
-  searchWrapper.className = 'dropdown-wrapper';
-  searchWrapper.appendChild(inputRow);
+  searchWrapper.style.position = 'relative';
+  searchWrapper.appendChild(searchRow);
   searchWrapper.appendChild(dropdownList);
   wrapper.appendChild(searchWrapper);
 
-  // Selected files pills container
-  const pillsContainer = document.createElement('div');
-  pillsContainer.className = 'selected-files';
-  wrapper.appendChild(pillsContainer);
+  // Selected files tags container
+  const tagsContainer = document.createElement('div');
+  tagsContainer.className = 'field-picker-tags';
+  wrapper.appendChild(tagsContainer);
 
   container.appendChild(wrapper);
 
   // --- Render functions ---
 
-  function renderPills() {
-    pillsContainer.innerHTML = '';
+  function renderTags() {
+    tagsContainer.innerHTML = '';
     for (const path of selectedPaths) {
-      const pill = document.createElement('div');
-      pill.className = 'selected-file-pill';
-      pill.title = path;
-
-      pill.appendChild(icon(fileIconName(path), 'icon-btn'));
-
-      const name = document.createElement('span');
-      name.className = 'selected-file-name';
-      name.textContent = path;
-
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.className = 'selected-file-remove btn-icon';
-      removeBtn.setAttribute('aria-label', `Remove ${path}`);
-      removeBtn.appendChild(icon('x', 'icon-remove'));
-      removeBtn.addEventListener('click', () => {
-        selectedPaths = selectedPaths.filter((p) => p !== path);
-        renderPills();
-        onChange([...selectedPaths]);
+      const tag = createTag({
+        label: path,
+        iconName: fileIconName(path),
+        title: path,
+        onRemove: () => {
+          selectedPaths = selectedPaths.filter((p) => p !== path);
+          renderTags();
+          onChange([...selectedPaths]);
+        },
       });
-
-      pill.appendChild(name);
-      pill.appendChild(removeBtn);
-      pillsContainer.appendChild(pill);
+      tagsContainer.appendChild(tag);
     }
   }
 
@@ -125,7 +109,7 @@ export function createFilePicker(container, config) {
 
     if (allPaths.length === 0) {
       const empty = document.createElement('div');
-      empty.className = 'dropdown-empty';
+      empty.className = 'field-picker-empty';
       empty.textContent = 'No files available. Select a repo first.';
       dropdownList.appendChild(empty);
       return;
@@ -133,7 +117,7 @@ export function createFilePicker(container, config) {
 
     if (available.length === 0) {
       const empty = document.createElement('div');
-      empty.className = 'dropdown-empty';
+      empty.className = 'field-picker-empty';
       empty.textContent = filter ? 'No matches' : 'All files selected';
       dropdownList.appendChild(empty);
       return;
@@ -141,14 +125,14 @@ export function createFilePicker(container, config) {
 
     for (const path of available) {
       const item = document.createElement('div');
-      item.className = 'dropdown-item';
+      item.className = 'field-picker-item';
       item.title = path;
       item.textContent = path;
       item.addEventListener('click', () => {
         selectedPaths = [...selectedPaths, path];
         searchInput.value = '';
-        dropdownList.classList.remove('dropdown-list--open');
-        renderPills();
+        dropdownList.classList.remove('field-picker-dropdown--open');
+        renderTags();
         renderDropdown('');
         onChange([...selectedPaths]);
       });
@@ -160,20 +144,20 @@ export function createFilePicker(container, config) {
 
   searchInput.addEventListener('focus', () => {
     renderDropdown(searchInput.value);
-    dropdownList.classList.add('dropdown-list--open');
+    dropdownList.classList.add('field-picker-dropdown--open');
   });
 
   searchInput.addEventListener('input', () => {
     renderDropdown(searchInput.value);
-    dropdownList.classList.add('dropdown-list--open');
+    dropdownList.classList.add('field-picker-dropdown--open');
   });
 
   document.addEventListener('click', (e) => {
     if (!searchWrapper.contains(e.target)) {
-      dropdownList.classList.remove('dropdown-list--open');
+      dropdownList.classList.remove('field-picker-dropdown--open');
     }
   });
 
   // Initial render
-  renderPills();
+  renderTags();
 }
