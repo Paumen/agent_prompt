@@ -70,4 +70,3 @@ PRs require product owner approval before merge.
 
 - The product owner is non-technical. Use plain language in PR descriptions, status summaries, and questions — explain _what it does and why_, not just _what files changed_.
 - When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
-- "Keep it basic" means the minimum setup that prevents downstream rework — not the minimum number of files or features.
