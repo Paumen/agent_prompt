@@ -6,6 +6,40 @@ Single-page web app that generates prompts agentic llm.
 
 **Current phase**: Repository setup complete. Implementation v1 completed, V2 phase 0, 1, and 2 complete, phase 3 to start.
 
+## Phase Status Summary
+
+### Initial Implementation (IMPL-00 to IMPL-14)
+Core app build and UAT remediation — **COMPLETE (Phase 14 signed off by PO)**
+
+| ID | Phase | Status | Summary |
+|---|---|---|---|
+| IMPL-00 | CSS Foundation | ✅ Complete | Design tokens, card shell, feedback styles, a11y |
+| IMPL-01 | State Management | ✅ Complete | setState/subscribe, localStorage persistence, deterministic prompt |
+| IMPL-02 | Build Pipeline & Flow Loading | ✅ Complete | YAML→JSON plugin, schema validation, runtime loader |
+| IMPL-03 | GitHub API & Caching | ✅ Complete | Repos/branches/trees/PRs/issues, 15-min TTL cache, limit enforcement |
+| IMPL-04 | Config Card | ✅ Complete | PAT/username fields, repo/branch selection, background fetch |
+| IMPL-05 | Task Card (Dual-Panel) | ✅ Complete | Flow selection, Situation/Target fields, Quality Meter |
+| IMPL-06 | Steps Card (Auto-Gen) | ✅ Complete | Dynamic step generation, lens pills, delete actions |
+| IMPL-07 | Prompt Output | ✅ Complete | XML generation, Copy action, Claude.ai deep-link, notes field |
+| IMPL-08 | Polish & Constraints | ✅ Complete | ≤2 clicks, zero h-scroll, mobile-first audit |
+| IMPL-09 | Global Visual Foundation | ✅ Complete | Shadow system, icon migration to Octicon SVGs, field depth |
+| IMPL-10 | Config Card Refinement | ✅ Complete | Expansion logic, credential UI, iconography |
+| IMPL-11 | Task Card (Dual-Panel) | ✅ Complete | Visual separation, validation UI, hierarchy, compact layout |
+| IMPL-12 | Steps & Output Logic | ✅ Complete | Step styling, multi-select outputs, file consolidation, lens stability |
+| IMPL-13 | Prompt Card & Actions | ✅ Complete | Header actions, icon animation, XML highlighting, quality tooltip |
+| IMPL-14 | Final UAT & Regression | ✅ Complete | Viewport audit, performance, a11y validation, PO approved |
+
+### Redesign Framework (REDESIGN-00 to REDESIGN-04)
+CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases 0–1 complete, Phase 2 starting)**
+
+| ID | Phase | Status | Summary |
+|---|---|---|---|
+| REDESIGN-00 | CSS Quick Wins | ✅ Complete | Pill/flex/surface consolidation, accent light-dark fix, shadow-inset-sm fix |
+| REDESIGN-01 | Framework Definition | ✅ Complete | 4 CSS files (layout/components/special), ui.js factories, clamp() responsive, container queries |
+| REDESIGN-02 | Structural Application | 🔄 In Progress | Migrate cards to new framework (prompt → steps → config → tasks order) |
+| REDESIGN-03 | Pattern Cleanup | ⏳ Pending | Remove card-specific CSS, target <50 core classes, delete old styles.css |
+| REDESIGN-04 | Test Simplification | ⏳ Pending | Replace DOM tests with behavior tests, reduce count to 200–250 |
+
 ## Authority Hierarchy
 
 In case of conflicts between files, the higher-ranked file is always correct:
