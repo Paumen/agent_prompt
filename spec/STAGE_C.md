@@ -128,11 +128,11 @@
 
 | Phase                               | What                                                                                                                                                | Impact     | Effort                  | Dependencies                                                     |
 | :---------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- | :--------- | :---------------------- | :--------------------------------------------------------------- |
-| **0. Quick wins**                   | CSS consolidation: merge near-duplicate pills, extract shared flex patterns, extract shared surface pattern                                         | Medium     | Low (CSS-only)          | None                                                             |
-| **1. Framework**                    | Define new CSS grid classes (body, card, card-in-card, input, output, btn-\*). Container queries on cards. `clamp()` values. Fix accent light-dark. | High       | Medium                  | Phase 0                                                          |
-| **2. Apply structurally**           | Update HTML skeleton + all card JS files to use new framework. Remove card-specific classes. Flatten DOM.                                           | High       | High (majority of work) | Phase 1                                                          |
-| **3. Pattern cleanup**              | Standardize remaining patterns (field-picker, tags, icons). Remove old CSS.                                                                         | Medium     | Medium                  | Phase 2                                                          |
-| **4. Test simplification**          | Reduce to ~200-250 focused tests. Remove DOM-structure tests.                                                                                       | Medium     | Medium                  | Phase 2-3                                                        |
+| **C1 Quick wins**                   | CSS consolidation: merge near-duplicate pills, extract shared flex patterns, extract shared surface pattern                                         | Medium     | Low (CSS-only)          | None                                                             |
+| **C2 Framework**                    | Define new CSS grid classes (body, card, card-in-card, input, output, btn-\*). Container queries on cards. `clamp()` values. Fix accent light-dark. | High       | Medium                  | Phase 0                                                          |
+| **C3 Apply structurally**           | Update HTML skeleton + all card JS files to use new framework. Remove card-specific classes. Flatten DOM.                                           | High       | High (majority of work) | Phase 1                                                          |
+| **C4 Pattern cleanup**              | Standardize remaining patterns (field-picker, tags, icons). Remove old CSS.                                                                         | Medium     | Medium                  | Phase 2                                                          |
+| **C5 Test simplification**          | Reduce to ~200-250 focused tests. Remove DOM-structure tests.                                                                                       | Medium     | Medium                  | Phase 2-3                                                        |
 | **Separate: Repos → pickers**       | Convert repo/branch grids to field-picker pattern                                                                                                   | Low-Medium | Medium                  | Phase 1 (needs field-picker class), no conflict with grid layout |
 | **Roadmap: Focus modes**            | `:focus-within` / `:has()` to dim non-active cards                                                                                                  | Medium     | Low-Medium              | Phase 2 complete                                                 |
 | **Roadmap: Progressive disclosure** | Advanced collapse/expand beyond basic card-in-card                                                                                                  | Medium     | Medium                  | Phase 2 complete                                                 |
@@ -367,13 +367,13 @@ Each phase must pass its exit gate before the next phase begins.
 
 Exit gate applies _after each card migration_, not just at the end:
 
-- [ ] Card uses only new framework classes — zero card-specific CSS classes remain for that card
-- [ ] Card DOM is flatter: no `dual-panel`, `panel-area`, `input-row`, or `dropdown-wrapper` wrappers
-- [ ] Card JS uses `ui.js` factory functions — no direct `className` or `classList.add` for framework components
-- [ ] All functional tests for that card pass (state changes, user interactions produce correct results)
-- [ ] Accessibility spot-check: ARIA attributes preserved, keyboard navigation works, focus outlines visible
-- [ ] `npm run build` passes
-- [ ] PO visual review: card looks correct at mobile (375px), tablet (768px), and desktop (1200px) widths
+- [x] Card uses only new framework classes — zero card-specific CSS classes remain for that card
+- [x] Card DOM is flatter: no `dual-panel`, `panel-area`, `input-row`, or `dropdown-wrapper` wrappers
+- [x] Card JS uses `ui.js` factory functions — no direct `className` or `classList.add` for framework components
+- [x] All functional tests for that card pass (state changes, user interactions produce correct results)
+- [x] Accessibility spot-check: ARIA attributes preserved, keyboard navigation works, focus outlines visible
+- [x] `npm run build` passes
+- [x] PO visual review: card looks correct at mobile (375px), tablet (768px), and desktop (1200px) widths
 
 Card migration order: card-prompt → card-steps → card-configuration → card-tasks
 
@@ -381,8 +381,9 @@ Card migration order: card-prompt → card-steps → card-configuration → card
 
 - [ ] Zero card-specific CSS classes remain across entire app
 - [ ] Core class count < 50 (excluding special.css)
-- [ ] Old `styles.css` deleted entirely — all styles live in 4 new files
+- [x] Old `styles.css` deleted entirely — all styles live in 4 new files
 - [ ] No orphaned CSS rules (every rule is referenced by at least one element)
+- [ ] No inline styles in .js or .html
 - [ ] `ALL_LENSES` and other duplicated constants extracted to shared module
 - [ ] `npm run build` + `npm run lint` + `npm test` all pass
 
