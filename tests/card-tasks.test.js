@@ -40,8 +40,6 @@ vi.mock('../src/js/state.js', () => ({
 vi.mock('../src/js/flow-loader.js', () => ({
   getFlows: vi.fn(() => ({
     fix: {
-      label: 'Fix / Debug',
-      icon: 'bug',
       panel_a: {
         label: 'Current State',
         subtitle: "What's happening now",
@@ -59,8 +57,6 @@ vi.mock('../src/js/flow-loader.js', () => ({
       steps: [],
     },
     review: {
-      label: 'Review / Analyze',
-      icon: 'codescan',
       panel_a: {
         label: 'Review Subject',
         subtitle: 'The PR or code to examine',
@@ -80,30 +76,13 @@ vi.mock('../src/js/flow-loader.js', () => ({
       steps: [],
     },
     improve: {
-      label: 'Improve / Modify',
-      icon: 'compose',
       panel_a: { label: 'Current', subtitle: 'What exists', fields: {} },
       panel_b: { label: 'Desired', subtitle: 'Improvements', fields: {} },
       steps: [],
     },
   })),
   getFlowById: vi.fn(() => null),
-  ALL_LENSES: [
-    'semantics',
-    'syntax',
-    'security',
-    'performance',
-    'structure',
-    'dependencies',
-    'duplications',
-    'redundancies',
-    'error_handling',
-    'naming_conventions',
-    'test_coverage',
-    'type_safety',
-    'documentation_completeness',
-    'accessibility',
-  ],
+
 }));
 
 vi.mock('../src/js/card-configuration.js', () => ({
