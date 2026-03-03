@@ -1,17 +1,56 @@
-# Agent Prompt — Claude Code Instructions
+# Claude Code Instructions
 
-## Project Overview
+## Product Overview
 
-Single-page web app that generates prompts agentic llm.
+Single-page web app that generates prompts for agentic llm.
 
-**Current phase**: Repository setup complete. Implementation v1 completed, V2 phase 0, 1, and 2 complete, phase 3 to start.
+This product is build in stages (A-Z), phases (1-9), steps (1-99).
+
+### Stage A: Initial Implementation (A1-A9) 
+Core app build — **COMPLETE**
+
+| ID | Phase | Status | Summary |
+|---|---|---|---|
+| A1 | CSS Foundation | ✅ Complete | Design tokens, card shell, feedback styles, a11y |
+| A2 | State Management | ✅ Complete | setState/subscribe, localStorage persistence, deterministic prompt |
+| A3 | Build Pipeline & Flow Loading | ✅ Complete | YAML→JSON plugin, schema validation, runtime loader |
+| A4 | GitHub API & Caching | ✅ Complete | Repos/branches/trees/PRs/issues, 15-min TTL cache, limit enforcement |
+| A5 | Config Card | ✅ Complete | PAT/username fields, repo/branch selection, background fetch |
+| A6 | Task Card (Dual-Panel) | ✅ Complete | Flow selection, Situation/Target fields, Quality Meter |
+| A7 | Steps Card (Auto-Gen) | ✅ Complete | Dynamic step generation, lens pills, delete actions |
+| A8 | Prompt Output | ✅ Complete | XML generation, Copy action, Claude.ai deep-link, notes field |
+| A9 | Polish & Constraints | ✅ Complete | ≤2 clicks, zero h-scroll, mobile-first audit |
+
+### Stage B: UX/UI fixes and improvements (B1-B6) 
+
+UAT remediation — **COMPLETE**
+
+| B1 | Global Visual Foundation | ✅ Complete | Shadow system, icon migration to Octicon SVGs, field depth |
+| B2 | Config Card Refinement | ✅ Complete | Expansion logic, credential UI, iconography |
+| B3 | Task Card (Dual-Panel) | ✅ Complete | Visual separation, validation UI, hierarchy, compact layout |
+| B4 | Steps & Output Logic | ✅ Complete | Step styling, multi-select outputs, file consolidation, lens stability |
+| B5 | Prompt Card & Actions | ✅ Complete | Header actions, icon animation, XML highlighting, quality tooltip |
+| B6 | Final UAT & Regression | ✅ Complete | Viewport audit, performance, a11y validation, PO approved |
+
+### Stage C: Redesign Framework (C1-C5)
+CSS framework consolidation to eliminate bloat — **IN PROGRESS (Phases C1–C2 complete, Phase C3 starting)**
+
+Details in @spec/redesign-plan-review.md
+
+| ID | Phase | Status | Summary |
+|---|---|---|---|
+| C1 | CSS Quick Wins | ✅ Complete | Pill/flex/surface consolidation, accent light-dark fix, shadow-inset-sm fix |
+| C2 | Framework Definition | ✅ Complete | 4 CSS files (layout/components/special), ui.js factories, clamp() responsive, container queries |
+| C3 | Structural Application |  ✅ Complete | Migrate cards to new framework (prompt → steps → config → tasks order) |
+| C4 | Pattern Cleanup | ⏳ Pending | Remove card-specific CSS, target <40 core classes, delete old styles.css, no inline styles |
+| C5 | Test Simplification | ⏳ Pending | Replace DOM tests with behavior tests, reduce count to <150-200 |
 
 ## Authority Hierarchy
 
 In case of conflicts between files, the higher-ranked file is always correct:
 
 ```
-@spec/spec_concept.md  > @src/config/flows.yaml > @source code
+@spec/spec_concept.md  > other files @spec/ > @src/config/flows.yaml > @src/ and @tests/
 ```
 
 If a conflict exists, update the lower-ranked file to match. If unclear, ask the user.
@@ -63,6 +102,7 @@ npm test          # Run all tests
 - **Claude Code (lead engineer)**: Implements features, writes tests, creates PRs. Handles cross-file changes.
 - **Z.ai / GLM-5 (dev support)**: Single-file fixes, maintenance, prototyping.
 - **Gemini Code Assist (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
+- **Llamapreview (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
 
 PRs require product owner approval before merge.
 
