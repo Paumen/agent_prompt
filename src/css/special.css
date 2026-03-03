@@ -172,6 +172,7 @@
    ============================================================ */
 
 .prompt-output {
+  position: relative;
   background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -179,17 +180,22 @@
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
   padding: var(--sp-8) var(--sp-4) var(--sp-4);
-  white-space: pre-wrap;
-  word-break: break-word;
   min-height: 140px;
   max-height: 300px;
+}
+
+.prompt-output > code {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
   overflow-y: auto;
+  max-height: calc(300px - var(--sp-8) - var(--sp-4));
 }
 
 .prompt-output > .wrapper {
-  position: sticky;
-  top: 0;
-  float: right;
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
   z-index: 1;
 }
 
