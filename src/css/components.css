@@ -1,7 +1,7 @@
 @import './variables.css';
 
 /**
- * components.css — Component styles
+ * components.css — Component styles.
  *
  * Button taxonomy (5 types), input fields, field-picker, tags, icons.
  * Surface colors, text colors, borders, interaction states.
@@ -216,16 +216,44 @@
   position: relative;
 }
 
+/* Search row: acts as the visible input field (icons appear inside) */
 .field-picker-search {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
   position: relative;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-inset-sm);
+  padding: var(--sp-2);
 }
 
+/* Input inside search row: transparent (container provides the visual) */
 .field-picker-search .input-field {
   flex: 1;
   min-width: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  min-height: auto;
+}
+
+.field-picker-search .input-field:focus {
+  outline: none;
+  background: transparent;
+}
+
+.field-picker-search .input-field:focus-visible {
+  outline: none;
+}
+
+/* Focus on any child highlights the container */
+.field-picker-search:focus-within {
+  border-color: var(--border-focus);
+  background: var(--bg-inset);
 }
 
 .field-picker-dropdown {
@@ -332,18 +360,17 @@
   transition: transform 0.4s ease;
 }
 
-/* Card title inline icons */
-.card-title .icon {
+/* Card header inline icons */
+.card-header .icon {
   display: inline-block;
   vertical-align: middle;
 }
 
 /* ============================================================
-   SURFACES (card, card-in-card, output backgrounds)
+   SURFACES (card, output backgrounds)
    ============================================================ */
 
-.card,
-.card-in-card {
+.card {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -351,7 +378,8 @@
   padding: var(--sp-4);
 }
 
-.card-in-card {
+/* Nested card: raised surface with accent stripe */
+.card .card {
   background: var(--bg-raised);
   border-left: 3px solid var(--accent);
 }
@@ -363,12 +391,8 @@
   padding: var(--sp-4);
 }
 
-.output--darker {
-  background: var(--bg-inset-darker);
-}
-
 /* ============================================================
-   CARD HEADER (btn-icon variant for collapse/expand)
+   CARD HEADER (clickable collapse/expand bar)
    ============================================================ */
 
 .card-header {
@@ -386,6 +410,20 @@
   color: inherit;
 }
 
+/* Title span: inline-flex for icon + text layout */
+.card-header > :first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text);
+  font-weight: 700;
+}
+
+/* Subtitle within title (semantic <small>) */
+.card-header small {
+  font-weight: 400;
+}
+
 .card-header:hover {
   background: var(--bg-inset);
 }
@@ -395,22 +433,26 @@
   outline-offset: -2px;
 }
 
-.card-title {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-size: var(--text);
-  font-weight: 700;
-}
-
-/* Subtitle within title (semantic <small>) */
-.card-title small {
-  font-weight: 400;
-}
-
 /* Chevron rotation when open */
 .card-header[aria-expanded='true'] .icon--chevron {
   transform: rotate(180deg);
+}
+
+/* ============================================================
+   STEP COUNTER (CSS counter replaces .badge spans)
+   ============================================================ */
+
+.output-field::before {
+  content: counter(steps);
+  display: grid;
+  place-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  font-weight: 800;
+  font-size: var(--text);
+  flex-shrink: 0;
 }
 
 /* ============================================================
@@ -466,19 +508,6 @@
 .xml-tag {
   color: var(--accent);
   font-weight: 800;
-}
-
-/* Badge (step number circle) */
-.badge {
-  display: grid;
-  place-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--bg);
-  font-weight: 800;
-  font-size: var(--text);
-  flex-shrink: 0;
 }
 
 /* Small helper/subtitle text */

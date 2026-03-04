@@ -180,7 +180,7 @@ describe('E2E: Fix Flow Journey', () => {
 
     // Fill panel A
     const textarea = document.querySelector(
-      '.card-in-card .input-field--textarea'
+      '#bd-tasks .card .input-field--textarea'
     );
     textarea.value = 'Login crashes when clicking submit';
     textarea.dispatchEvent(new Event('input'));
@@ -215,7 +215,7 @@ describe('E2E: Fix Flow Journey', () => {
     });
 
     const textarea = document.querySelector(
-      '.card-in-card .input-field--textarea'
+      '#bd-tasks .card .input-field--textarea'
     );
     textarea.value = 'Bug description';
     textarea.dispatchEvent(new Event('input'));

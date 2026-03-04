@@ -49,7 +49,9 @@ export function getFileTree() {
 
 /** Update the configuration card title (called by card-tasks on flow select) */
 export function setConfigCardSummary(text) {
-  const titleEl = document.querySelector('#card-configuration .card-title');
+  const titleEl = document.querySelector(
+    '#card-configuration .card-header > :first-child'
+  );
   if (!titleEl) return;
 
   if (!text) {

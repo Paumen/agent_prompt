@@ -7,6 +7,7 @@ Single-page web app that generates prompts for agentic llm.
 Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99).
 
 ### Stage A: Core Implementation — COMPLETE
+
 - [x] A1 CSS Foundation: Design tokens, card shell, feedback styles, a11y
 - [x] A2 State Management: setState/subscribe, localStorage, deterministic prompt
 - [x] A3 Build Pipeline: YAML→JSON plugin, schema validation, runtime loader
@@ -18,6 +19,7 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99).
 - [x] A9 Polish & Constraints: ≤2 clicks, zero h-scroll, mobile-first audit
 
 ### Stage B: UX/UI Remediation — COMPLETE
+
 - [x] B1 Global Visual Foundation: Shadow system, Octicon SVGs, field depth
 - [x] B2 Config Card Refinement: Expansion logic, credential UI, iconography
 - [x] B3 Task Card: Visual separation, validation UI, hierarchy, compact layout
@@ -26,6 +28,7 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99).
 - [x] B6 Final UAT & Regression: Viewport audit, performance, a11y validation, PO approved
 
 ### Stage C: Redesign Framework — COMPLETE (Ref: @spec/STAGE_C.md)
+
 - [x] C1 CSS Quick Wins: Pill/flex/surface consolidation, accent fix, shadow-inset-sm fix
 - [x] C2 Framework Definition: 4 CSS files, ui.js factories, clamp(), container queries
 - [x] C3 Structural Application: Migrate cards (prompt → steps → config → tasks)

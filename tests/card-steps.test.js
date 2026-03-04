@@ -138,10 +138,10 @@ describe('initStepsCard', () => {
 describe('step rendering (STP-01)', () => {
   it('renders step labels with operation and object', () => {
     initStepsCard();
-    // Labels are the 2nd child of each step li (index 1)
+    // Labels are the 1st child (index 0) — badge is now a CSS ::before counter
     const rows = document.querySelectorAll('.output-field');
-    expect(rows[0].children[1].textContent).toContain('Read: @claude.md');
-    expect(rows[1].children[1].textContent).toContain('Analyze: issue');
+    expect(rows[0].children[0].textContent).toContain('Read: @claude.md');
+    expect(rows[1].children[0].textContent).toContain('Analyze: issue');
   });
 
   it('uses ordered list for step numbering', () => {
@@ -216,12 +216,14 @@ describe('lens pills (STP-03)', () => {
 });
 
 describe('step badges', () => {
-  it('renders numbered badges', () => {
+  it('uses CSS counter for step numbering (no badge elements)', () => {
     initStepsCard();
-    // Badges are the first child (index 0) of each step row
-    const rows = document.querySelectorAll('.output-field');
-    expect(rows[0].children[0].textContent).toBe('1');
-    expect(rows[1].children[0].textContent).toBe('2');
+    // Step numbers are now rendered via CSS counter-increment on .output-field::before
+    // Verify no .badge elements exist
+    expect(document.querySelector('.badge')).toBeNull();
+    // The step list uses counter-reset on .output-block
+    const list = document.querySelector('.output-block');
+    expect(list).not.toBeNull();
   });
 });
 

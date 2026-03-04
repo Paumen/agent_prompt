@@ -28,19 +28,13 @@ ul {
   display: none !important;
 }
 
-/* === Page === */
+/* === Page / App container === */
 
 body {
   background: var(--shell);
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: var(--text);
-  min-height: 100dvh;
-}
-
-/* === Body / App container === */
-
-.app {
   max-width: 800px;
   margin: 0 auto;
   padding: var(--sp-8);
@@ -50,7 +44,7 @@ body {
   gap: var(--sp-8);
 }
 
-/* === Card === */
+/* === Card (top-level and nested) === */
 
 .card {
   display: grid;
@@ -69,22 +63,8 @@ body {
   gap: var(--sp-8);
 }
 
-/* Collapsed state: hide card body */
-.card:not(.card--open) .card-body {
-  display: none;
-}
-
-/* === Card-in-card (replaces panel-a / panel-b) === */
-
-.card-in-card {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-auto-rows: auto;
-  gap: var(--sp-4);
-}
-
-/* Basic collapse support for card-in-card */
-.card-in-card:not(.card-in-card--open) > :not(:first-child) {
+/* Collapsed state: child combinator scopes to direct body only */
+.card:not(.card--open) > .card-body {
   display: none;
 }
 
@@ -98,23 +78,14 @@ body {
 }
 
 /* Label: first column */
-.input > label,
-.input > .input-label {
+.input > label {
   grid-column: 1;
   padding-top: var(--sp-2);
 }
 
 /* Field: second column */
-.input > :not(label):not(.input-label) {
+.input > :not(label) {
   grid-column: 2;
-}
-
-/* Input grid: additional content below the field (pills, helper text) */
-.input-grid {
-  grid-column: 2;
-  display: grid;
-  grid-auto-rows: auto;
-  gap: var(--sp-4);
 }
 
 /* === Output (full-width content area) === */
@@ -124,25 +95,27 @@ body {
   width: 100%;
 }
 
-/* Output field: structured row (step rows) — badge | label | actions */
+/* Output field: structured row — ::before counter | label | actions */
 .output-field {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: var(--sp-4);
   align-items: start;
+  counter-increment: steps;
 }
 
-/* Sub-items in output-field span from label column to end */
-.output-field > :nth-child(n + 4) {
+/* Sub-items span from label column to end (starts at 3rd child, after label + delete btn) */
+.output-field > :nth-child(n + 3) {
   grid-column: 2 / -1;
 }
 
-/* Output block: code/text display (prompt preview) */
+/* Output block: code/text display (prompt preview, step list) */
 .output-block {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
   width: 100%;
+  counter-reset: steps;
 }
 
 /* === Container queries for card-internal layout === */
@@ -153,16 +126,11 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .input > label,
-  .input > .input-label {
+  .input > label {
     grid-column: 1;
   }
 
-  .input > :not(label):not(.input-label) {
-    grid-column: 1;
-  }
-
-  .input-grid {
+  .input > :not(label) {
     grid-column: 1;
   }
 

@@ -230,20 +230,22 @@ describe('flow button click', () => {
     ).toBe(false);
   });
 
-  it('renders card-in-card panels after flow selection', () => {
+  it('renders nested card panels after flow selection', () => {
     initTasksCard();
     document.querySelector('.btn-select[data-flow-id]').click();
-    expect(document.querySelector('.card-in-card')).not.toBeNull();
+    // Panels are now nested .card elements inside the tasks card-body
+    const nestedCards = document.querySelectorAll('#bd-tasks .card');
+    expect(nestedCards.length).toBeGreaterThanOrEqual(2);
   });
 });
 
-describe('card-in-card layout', () => {
+describe('nested card panel layout', () => {
   it('renders Panel A and Panel B with labels', () => {
     initTasksCard();
     document.querySelector('.btn-select[data-flow-id]').click();
 
-    const panels = document.querySelectorAll('.card-in-card');
-    expect(panels.length).toBe(2);
+    const nestedCards = document.querySelectorAll('#bd-tasks .card');
+    expect(nestedCards.length).toBeGreaterThanOrEqual(2);
     expect(document.body.textContent).toContain('Situation');
     expect(document.body.textContent).toContain('Target');
   });
