@@ -115,7 +115,7 @@ body {
 
 @container card (max-width: 599px) {
   .input {
-    grid-template-columns: clamp(60px, 20%, 120px) 1fr;
+    grid-template-columns: clamp(40px, 15%, 80px) 1fr;
   }
 }
 
