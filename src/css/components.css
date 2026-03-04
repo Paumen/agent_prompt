@@ -42,7 +42,7 @@
 }
 
 /* Small helper/subtitle text */
-small {
+small, label {
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
