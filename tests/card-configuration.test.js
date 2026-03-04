@@ -52,7 +52,7 @@ beforeEach(async () => {
   setupHTML();
   globalThis.fetch = mockFetch([]);
   state = await import('../src/core/state.js');
-  cardConfig = await import('../src/js/card-configuration.js');
+  cardConfig = await import('../src/cards/card-configuration.js');
 });
 
 afterEach(() => {

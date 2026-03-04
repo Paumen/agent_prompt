@@ -102,7 +102,7 @@ vi.mock('../src/js/flow-loader.js', () => ({
   ALL_LENSES: [],
 }));
 
-vi.mock('../src/js/card-configuration.js', () => ({
+vi.mock('../src/cards/card-configuration.js', () => ({
   getFileTree: vi.fn(() => [{ path: 'src/index.js' }]),
   setConfigCardSummary: vi.fn(),
 }));
@@ -141,7 +141,7 @@ vi.mock('../src/js/file-tree.js', () => ({
   }),
 }));
 
-import { initTasksCard } from '../src/js/card-tasks.js';
+import { initTasksCard } from '../src/cards/card-tasks.js';
 import { getState, subscribe, applyFlowDefaults } from '../src/core/state.js';
 
 // --- Setup ---

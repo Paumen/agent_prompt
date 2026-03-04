@@ -116,10 +116,10 @@ async function initAllModules() {
   globalThis.fetch = createSmartFetch();
 
   state = await import('../src/core/state.js');
-  cardConfig = await import('../src/js/card-configuration.js');
-  cardTasks = await import('../src/js/card-tasks.js');
-  cardSteps = await import('../src/js/card-steps.js');
-  cardPrompt = await import('../src/js/card-prompt.js');
+  cardConfig = await import('../src/cards/card-configuration.js');
+  cardTasks = await import('../src/cards/card-tasks.js');
+  cardSteps = await import('../src/cards/card-steps.js');
+  cardPrompt = await import('../src/cards/card-prompt.js');
   mainModule = await import('../src/js/main.js');
 }
 

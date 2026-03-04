@@ -50,7 +50,7 @@ vi.mock('../src/js/quality-meter.js', () => ({
   }),
 }));
 
-import { initPromptCard, highlightXml } from '../src/js/card-prompt.js';
+import { initPromptCard, highlightXml } from '../src/cards/card-prompt.js';
 import { getState, setState, subscribe } from '../src/core/state.js';
 
 function createPromptCard() {

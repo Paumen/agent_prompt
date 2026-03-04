@@ -8,17 +8,17 @@
  */
 
 import { getState, setState } from '../core/state.js';
-import { fetchRepos, fetchBranches, fetchTree } from './github-api.js';
-import { cacheGet, cacheSet, cacheClear } from './cache.js';
+import { fetchRepos, fetchBranches, fetchTree } from '../js/github-api.js';
+import { cacheGet, cacheSet, cacheClear } from '../js/cache.js';
 import {
   renderShimmer,
   renderError,
   showNotification,
   isInteracting,
   expandCard,
-} from './components.js';
-import { icon } from './icons.js';
-import { createButton, createInputField } from './ui.js';
+} from '../js/components.js';
+import { icon } from '../js/icons.js';
+import { createButton, createInputField } from '../js/ui.js';
 
 // --- GL-05: Defer re-render until user is not mid-interaction ---
 

@@ -14,20 +14,20 @@ import {
   applyFlowDefaults,
   getValueByPath,
 } from '../core/state.js';
-import { getFlows, getFlowById, ALL_LENSES } from './flow-loader.js';
+import { getFlows, getFlowById, ALL_LENSES } from '../js/flow-loader.js';
 import { getFileTree, setConfigCardSummary } from './card-configuration.js';
-import { fetchPRs, fetchIssues } from './github-api.js';
-import { cacheGet, cacheSet } from './cache.js';
-import { renderShimmer, expandCard, collapseCard } from './components.js';
-import { createFilePicker } from './file-tree.js';
+import { fetchPRs, fetchIssues } from '../js/github-api.js';
+import { cacheGet, cacheSet } from '../js/cache.js';
+import { renderShimmer, expandCard, collapseCard } from '../js/components.js';
+import { createFilePicker } from '../js/file-tree.js';
 import {
   createButton,
   createInputField,
   createLabel,
   createPicker,
   createTag,
-} from './ui.js';
-import { icon } from './icons.js';
+} from '../js/ui.js';
+import { icon } from '../js/icons.js';
 
 // --- Module-level state ---
 

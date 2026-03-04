@@ -8,9 +8,9 @@
  */
 
 import { getState, setState, subscribe } from '../core/state.js';
-import { renderQualityMeter } from './quality-meter.js';
-import { icon } from './icons.js';
-import { createButton, createInputField, createLabel } from './ui.js';
+import { renderQualityMeter } from '../js/quality-meter.js';
+import { icon } from '../js/icons.js';
+import { createButton, createInputField, createLabel } from '../js/ui.js';
 
 // --- Module-level references ---
 
