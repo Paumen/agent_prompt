@@ -74,6 +74,7 @@ Before implementing complex logic, evaluate if there is a simpler alternative th
 ## Commands
 
 ```
+npm install
 npm run dev       # Start local dev server with hot reload
 npm run build     # Production build (outputs to dist/)
 npm run lint      # Check code quality
