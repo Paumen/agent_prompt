@@ -93,7 +93,6 @@ small, label {
 
 .btn-select {
   position: relative;
-  min-width: 48px;
   min-height: 24px;
   padding: var(--sp-4);
   color: var(--text-primary);
