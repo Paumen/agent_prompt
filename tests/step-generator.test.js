@@ -8,7 +8,7 @@ import {
   generateSteps,
   reconcileSteps,
   isSourceFilled,
-} from '../src/js/step-generator.js';
+} from '../src/logic/step-generator.js';
 
 const EMPTY_PANEL_A = {
   description: '',

@@ -8,7 +8,7 @@
  */
 
 import { getState, setState, subscribe } from '../core/state.js';
-import { renderQualityMeter } from '../js/quality-meter.js';
+import { renderQualityMeter } from '../logic/quality-meter.js';
 import { icon } from '../js/icons.js';
 import { createButton, createInputField, createLabel } from '../js/ui.js';
 

@@ -8,8 +8,8 @@
  */
 
 import { getState, setState, subscribe } from '../core/state.js';
-import { getFlowById, ALL_LENSES } from '../js/flow-loader.js';
-import { generateSteps, reconcileSteps } from '../js/step-generator.js';
+import { getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
+import { generateSteps, reconcileSteps } from '../logic/step-generator.js';
 import { setInteracting } from '../js/components.js';
 import { fileIconName } from '../js/icons.js';
 import {
