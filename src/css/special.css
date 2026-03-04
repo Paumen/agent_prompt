@@ -15,7 +15,7 @@
    ============================================================ */
 
 .quality-meter {
-  margin-bottom: var(--sp-2);
+  margin: 0 0 var(--sp-2);
 }
 
 .quality-meter-track {
@@ -39,7 +39,7 @@
   display: flex;
   gap: var(--sp-2);
   align-items: center;
-  margin-top: var(--sp-2);
+  margin: var(--sp-2) 0 0;
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-tertiary);
@@ -54,9 +54,8 @@
 
 .meter-tooltip {
   position: absolute;
-  bottom: calc(100% + var(--sp-4));
-  left: 0;
-  z-index: 10;
+  inset: auto auto calc(100% + var(--sp-4)) 0;
+  z-index: var(--z-dropdown);
   display: none;
   min-width: 240px;
   max-width: 320px;
@@ -96,12 +95,12 @@
 
 .shimmer-bar {
   height: var(--sp-8);
-  margin-bottom: var(--sp-4);
+  margin: 0 0 var(--sp-4);
   border-radius: var(--sp-4);
 }
 
 .shimmer-label {
-  margin-bottom: var(--sp-4);
+  margin: 0 0 var(--sp-4);
   font-size: var(--text-sm);
   color: var(--text-tertiary);
 }
@@ -112,7 +111,7 @@
 
 .notification {
   padding: var(--sp-4);
-  margin-top: var(--sp-4);
+  margin: var(--sp-4) 0 0;
   font-size: var(--text-sm);
   border-radius: var(--radius);
 }
@@ -138,9 +137,8 @@
 
 .output-float {
   position: absolute;
-  bottom: calc(100% + var(--sp-2));
-  left: 50%;
-  z-index: 10;
+  inset: auto auto calc(100% + var(--sp-2)) 50%;
+  z-index: var(--z-dropdown);
   padding: var(--sp-2);
   font-size: var(--text-sm);
   color: var(--text-primary);
@@ -194,9 +192,8 @@
 
 .prompt-output > .wrapper {
   position: absolute;
-  top: var(--sp-4);
-  right: var(--sp-4);
-  z-index: 1;
+  inset: var(--sp-4) var(--sp-4) auto auto;
+  z-index: var(--z-above);
 }
 
 .prompt-output--empty {

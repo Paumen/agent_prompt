@@ -10,6 +10,44 @@
  */
 
 /* ============================================================
+   ICON (standardized size)
+   ============================================================ */
+
+.icon {
+  display: block;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* Icon color variants */
+.icon-remove {
+  color: var(--neutral);
+}
+.icon-remove:hover {
+  color: var(--neutral-dark);
+}
+.icon-btn {
+  color: inherit;
+}
+.icon--chevron {
+  color: var(--text-tertiary);
+  transition: transform 0.4s ease;
+}
+
+/* Card header inline icons */
+.card-header .icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Small helper/subtitle text */
+small {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* ============================================================
    BUTTONS — 5 types
    ============================================================ */
 
@@ -65,7 +103,7 @@
 
 .btn-select[aria-selected='true'],
 .btn-select.btn-select--selected {
-  padding-left: var(--sp-8);
+  padding: var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-8);
   color: var(--text-primary);
   background: var(--accent-subtle);
   border-color: var(--accent);
@@ -74,9 +112,7 @@
 .btn-select[aria-selected='true']::before,
 .btn-select.btn-select--selected::before {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0 auto 0 0;
   width: 4px;
   content: '';
   background: var(--accent-subtle);
@@ -258,10 +294,8 @@
 
 .field-picker-dropdown {
   position: absolute;
-  top: 100%;
-  right: 0;
-  left: 0;
-  z-index: 10;
+  inset: 100% 0 auto;
+  z-index: var(--z-dropdown);
   display: none;
   max-height: 320px;
   overflow-y: auto;
@@ -332,38 +366,6 @@
 
 .tag .btn-icon {
   flex-shrink: 0;
-}
-
-/* ============================================================
-   ICON (standardized size)
-   ============================================================ */
-
-.icon {
-  display: block;
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-}
-
-/* Icon color variants */
-.icon-remove {
-  color: var(--neutral);
-}
-.icon-remove:hover {
-  color: var(--neutral-dark);
-}
-.icon-btn {
-  color: inherit;
-}
-.icon--chevron {
-  color: var(--text-tertiary);
-  transition: transform 0.4s ease;
-}
-
-/* Card header inline icons */
-.card-header .icon {
-  display: inline-block;
-  vertical-align: middle;
 }
 
 /* ============================================================
@@ -464,7 +466,7 @@
   width: 1px;
   height: 1px;
   padding: 0;
-  margin: -1px;
+  margin: 0;
   overflow: hidden;
   white-space: nowrap;
   border: 0;
@@ -508,12 +510,6 @@
 .xml-tag {
   font-weight: 800;
   color: var(--accent);
-}
-
-/* Small helper/subtitle text */
-small {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
 }
 
 /* Required indicator color in labels */

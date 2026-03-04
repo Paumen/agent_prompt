@@ -24,8 +24,8 @@ ul {
   list-style: none;
 }
 
-[hidden] {
-  display: none !important;
+[hidden][hidden] {
+  display: none;
 }
 
 /* === Page / App container === */
@@ -80,7 +80,7 @@ body {
 /* Label: first column */
 .input > label {
   grid-column: 1;
-  padding-top: var(--sp-2);
+  padding: var(--sp-2) 0 0;
 }
 
 /* Field: second column */
