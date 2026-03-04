@@ -70,6 +70,16 @@ body {
   gap: var(--sp-8);
 }
 
+/* Task card: flow buttons directly in card-body (no wrapper) */
+.card-body:has(> .btn-select) {
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: var(--sp-2);
+}
+
+.card-body:has(> .btn-select) > :not(.btn-select) {
+  grid-column: 1 / -1;
+}
+
 /* Collapsed state: child combinator scopes to direct body only */
 .card:not(.card--open) > .card-body {
   display: none;
@@ -120,16 +130,43 @@ body {
   counter-reset: steps;
 }
 
+/* Pills & scope buttons sit directly in .input (no wrapper) */
+.input:has(> .btn-pill),
+.input:has(> .btn-select) {
+  column-gap: var(--sp-2);
+}
+
+.input > .btn-pill,
+.input > .btn-select {
+  grid-column: auto;
+}
+
 /* === Container queries for card-internal layout === */
 
 @container card (max-width: 599px) {
   .input {
     grid-template-columns: clamp(40px, 15%, 80px) 1fr;
   }
+
+  .input:has(> .btn-pill) {
+    grid-template-columns: clamp(40px, 15%, 80px) repeat(5, 1fr);
+  }
+
+  .input:has(> .btn-select) {
+    grid-template-columns: clamp(40px, 15%, 80px) 1fr 1fr;
+  }
 }
 
 @container card (min-width: 600px) {
   .input {
     grid-template-columns: clamp(80px, 20%, 160px) 1fr;
+  }
+
+  .input:has(> .btn-pill) {
+    grid-template-columns: clamp(80px, 20%, 160px) repeat(5, 1fr);
+  }
+
+  .input:has(> .btn-select) {
+    grid-template-columns: clamp(80px, 20%, 160px) 1fr 1fr;
   }
 }
