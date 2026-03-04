@@ -119,11 +119,7 @@ body {
   grid-column: 2 / -1;
 }
 
-.output-field > div:not([class]) {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-2);
-}
+
 
 .output-block {
   display: flex;
