@@ -21,29 +21,29 @@
 .btn-pill,
 .btn-icon {
   display: inline-flex;
-  align-items: center;
+  flex-shrink: 0;
   gap: var(--sp-4);
-  cursor: pointer;
-  border-radius: var(--radius);
+  align-items: center;
   font-family: inherit;
   font-size: var(--text-sm);
   line-height: var(--line-height);
-  text-decoration: none;
-  white-space: nowrap;
-  flex-shrink: 0;
   color: var(--text-secondary);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--radius);
 }
 
 /* --- 1. btn-primary: accent bg, white text, main action --- */
 
 .btn-primary {
-  background: var(--accent);
-  color: #fff;
-  border: 1px solid var(--accent);
+  min-height: 32px;
   padding: var(--sp-4) var(--sp-8);
   font-size: var(--text);
   font-weight: 600;
-  min-height: 32px;
+  color: #fff;
+  background: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 .btn-primary:hover {
@@ -55,30 +55,30 @@
 
 .btn-select {
   position: relative;
-  background: var(--bg-inset);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  padding: var(--sp-2) var(--sp-4);
-  min-height: 24px;
   min-width: 48px;
+  min-height: 24px;
+  padding: var(--sp-2) var(--sp-4);
+  color: var(--text-primary);
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
 }
 
 .btn-select[aria-selected='true'],
 .btn-select.btn-select--selected {
+  padding-left: var(--sp-8);
+  color: var(--text-primary);
   background: var(--accent-subtle);
   border-color: var(--accent);
-  color: var(--text-primary);
-  padding-left: var(--sp-8);
 }
 
 .btn-select[aria-selected='true']::before,
 .btn-select.btn-select--selected::before {
-  content: '';
   position: absolute;
-  left: 0;
   top: 0;
   bottom: 0;
+  left: 0;
   width: 4px;
+  content: '';
   background: var(--accent-subtle);
   border-radius: var(--radius) 0 0 var(--radius);
 }
@@ -91,42 +91,42 @@
 /* --- 3. btn-action: one-shot stateless action --- */
 
 .btn-action {
-  background: var(--bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
+  min-width: 56px;
+  min-height: 32px;
   padding: var(--sp-2) var(--sp-4);
   font-size: var(--text);
-  min-height: 32px;
-  min-width: 56px;
+  color: var(--text-primary);
+  background: var(--bg);
+  border: 1px solid var(--border);
 }
 
 /* --- 4. btn-pill: multi-select toggle (pill shape) --- */
 
 .btn-pill {
+  min-height: 24px;
+  padding: var(--sp-2) var(--sp-4);
   background: var(--bg);
   border: 1px solid var(--border);
-  padding: var(--sp-2) var(--sp-4);
   border-radius: 999px;
-  min-height: 24px;
 }
 
 .btn-pill[aria-checked='true'],
 .btn-pill.btn-pill--on {
-  background: var(--bg-inset);
   color: var(--accent);
+  background: var(--bg-inset);
   border-color: var(--accent);
 }
 
 /* --- 5. btn-icon: transparent, icon-only or icon+label tertiary --- */
 
 .btn-icon {
-  background: none;
-  border: none;
-  padding: 0;
-  min-width: 16px;
-  min-height: 16px;
   display: grid;
   place-content: center;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0;
+  background: none;
+  border: none;
 }
 
 /* btn-icon with label */
@@ -172,26 +172,26 @@
 
 .input-field {
   width: 100%;
-  padding: var(--sp-2);
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   min-height: 24px;
+  padding: var(--sp-2);
   font-family: inherit;
   font-size: var(--text-sm);
   color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   box-shadow: var(--shadow-inset-sm);
 }
 
 .input-field::placeholder {
-  color: var(--text-tertiary);
   font-size: var(--text-sm);
+  color: var(--text-tertiary);
 }
 
 .input-field:focus {
   outline: none;
-  border-color: var(--border-focus);
   background: var(--bg-inset);
+  border-color: var(--border-focus);
 }
 
 .input-field:focus-visible {
@@ -201,8 +201,8 @@
 
 /* Textarea variant */
 .input-field--textarea {
-  resize: vertical;
   min-height: 40px;
+  resize: vertical;
 }
 
 /* ============================================================
@@ -210,35 +210,35 @@
    ============================================================ */
 
 .field-picker {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
-  position: relative;
 }
 
 /* Search row: acts as the visible input field (icons appear inside) */
 .field-picker-search {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
   position: relative;
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  padding: var(--sp-2);
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-inset-sm);
-  padding: var(--sp-2);
 }
 
 /* Input inside search row: transparent (container provides the visual) */
 .field-picker-search .input-field {
   flex: 1;
   min-width: 0;
+  min-height: auto;
+  padding: 0;
   background: transparent;
   border: none;
-  box-shadow: none;
   border-radius: 0;
-  padding: 0;
-  min-height: auto;
+  box-shadow: none;
 }
 
 .field-picker-search .input-field:focus {
@@ -252,22 +252,22 @@
 
 /* Focus on any child highlights the container */
 .field-picker-search:focus-within {
-  border-color: var(--border-focus);
   background: var(--bg-inset);
+  border-color: var(--border-focus);
 }
 
 .field-picker-dropdown {
-  display: none;
   position: absolute;
-  left: 0;
-  right: 0;
   top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 10;
+  display: none;
   max-height: 320px;
   overflow-y: auto;
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  z-index: 10;
 }
 
 .field-picker-dropdown--open {
@@ -275,12 +275,12 @@
 }
 
 .field-picker-item {
-  padding: var(--sp-2);
-  cursor: pointer;
-  min-height: 24px;
   display: flex;
   align-items: center;
+  min-height: 24px;
+  padding: var(--sp-2);
   font-size: var(--text-sm);
+  cursor: pointer;
 }
 
 .field-picker-item:hover {
@@ -289,8 +289,8 @@
 
 .field-picker-empty {
   padding: var(--sp-2);
-  color: var(--text-secondary);
   font-size: var(--text-sm);
+  color: var(--text-secondary);
   text-align: center;
 }
 
@@ -312,22 +312,22 @@
 
 .tag {
   display: inline-flex;
-  align-items: center;
   gap: var(--sp-2);
+  align-items: center;
+  max-width: 200px;
   padding: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
   background: var(--bg-inset-darker);
   border: 1px solid var(--border);
   border-radius: 999px;
-  font-size: var(--text-sm);
-  font-family: var(--font-mono);
-  max-width: 200px;
 }
 
 .tag-text {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  min-width: 0;
 }
 
 .tag .btn-icon {
@@ -339,10 +339,10 @@
    ============================================================ */
 
 .icon {
+  display: block;
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
-  flex-shrink: 0;
-  display: block;
 }
 
 /* Icon color variants */
@@ -371,11 +371,11 @@
    ============================================================ */
 
 .card {
+  padding: var(--sp-4);
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: var(--sp-4);
 }
 
 /* Nested card: raised surface with accent stripe */
@@ -385,10 +385,10 @@
 }
 
 .output {
+  padding: var(--sp-4);
   background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--sp-4);
 }
 
 /* ============================================================
@@ -401,20 +401,20 @@
   justify-content: space-between;
   width: 100%;
   padding: var(--sp-8);
-  cursor: pointer;
-  font-weight: 700;
   font-size: var(--text);
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
   background: none;
   border: none;
   border-radius: var(--radius) var(--radius) 0 0;
-  color: inherit;
 }
 
 /* Title span: inline-flex for icon + text layout */
 .card-header > :first-child {
   display: inline-flex;
-  align-items: center;
   gap: var(--sp-2);
+  align-items: center;
   font-size: var(--text);
   font-weight: 700;
 }
@@ -443,16 +443,16 @@
    ============================================================ */
 
 .output-field::before {
-  content: counter(steps);
   display: grid;
+  flex-shrink: 0;
   place-content: center;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
-  background: var(--bg);
-  font-weight: 800;
   font-size: var(--text);
-  flex-shrink: 0;
+  font-weight: 800;
+  content: counter(steps);
+  background: var(--bg);
+  border-radius: 50%;
 }
 
 /* ============================================================
@@ -466,15 +466,15 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+  clip-path: inset(50%);
 }
 
 .empty-state {
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
   padding: var(--sp-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
   text-align: center;
 }
 
@@ -506,8 +506,8 @@
 
 /* XML syntax highlighting in prompt preview */
 .xml-tag {
-  color: var(--accent);
   font-weight: 800;
+  color: var(--accent);
 }
 
 /* Small helper/subtitle text */
@@ -526,9 +526,9 @@ label > [aria-hidden] {
   display: inline-block;
   width: 6px;
   height: 6px;
-  border-radius: 50%;
-  background: var(--caution-dark);
   vertical-align: middle;
   cursor: help;
+  background: var(--caution-dark);
+  border-radius: 50%;
   transition: opacity 0.3s ease;
 }

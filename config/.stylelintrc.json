@@ -1,5 +1,6 @@
 {
-  "extends": "stylelint-config-standard",
+  "extends": ["stylelint-config-standard", "stylelint-config-recess-order"],
+  "plugins": ["stylelint-declaration-strict-value"],
   "rules": {
     "at-rule-empty-line-before": null,
     "comment-empty-line-before": null,
@@ -7,6 +8,69 @@
     "custom-property-empty-line-before": null,
     "declaration-empty-line-before": null,
     "declaration-block-single-line-max-declarations": null,
-    "rule-empty-line-before": null
+    "rule-empty-line-before": null,
+
+    "selector-class-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+      {
+        "message": "Expected class selector \"%(selector)s\" to be kebab-case or BEM (block__element--modifier)"
+      }
+    ],
+
+    "at-rule-disallowed-list": ["media"],
+    "property-disallowed-list": [
+      "float",
+      "clear",
+      "zoom",
+      "table-layout",
+      "padding-top",
+      "padding-bottom",
+      "padding-left",
+      "padding-right",
+      "top",
+      "bottom",
+      "right",
+      "left",
+      "/^margin-/"
+    ],
+    "declaration-property-value-allowed-list": {
+      "margin": ["0"]
+    },
+    "declaration-property-value-disallowed-list": {
+      "display": ["/^table/"]
+    },
+    "unit-disallowed-list": ["in", "pt", "mm", "cm", "pc", "ex", "ch", "q"],
+
+    "declaration-no-important": true,
+    "max-nesting-depth": 2,
+    "selector-max-id": 0,
+    "selector-max-specificity": "0,3,3",
+    "selector-max-compound-selectors": 4,
+    "color-named": ["never", { "severity": "warning" }],
+    "font-weight-notation": "numeric",
+    "shorthand-property-no-redundant-values": true,
+    "declaration-block-no-redundant-longhand-properties": true,
+    "color-function-notation": "modern",
+    "number-max-precision": 3,
+    "no-unknown-animations": true,
+
+    "scale-unlimited/declaration-strict-value": [
+      ["/color$/", "z-index", "padding", "gap"],
+      {
+        "ignoreValues": [
+          "inherit",
+          "initial",
+          "unset",
+          "revert",
+          "currentColor",
+          "currentcolor",
+          "transparent",
+          "none",
+          "0"
+        ],
+        "severity": "warning",
+        "message": "Expected variable for \"${property}\", found \"${value}\""
+      }
+    ]
   }
 }

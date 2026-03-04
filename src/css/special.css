@@ -20,15 +20,15 @@
 
 .quality-meter-track {
   height: 4px;
+  overflow: hidden;
   background: var(--bg-inset);
   border-radius: 2px;
-  overflow: hidden;
 }
 
 .quality-meter-bar {
+  width: 0%;
   height: 100%;
   border-radius: 2px;
-  width: 0%;
   transition:
     width 0.25s ease,
     background-color 0.25s ease;
@@ -36,13 +36,13 @@
 
 /* Meter label (text + info button) */
 .quality-meter > :last-child {
-  font-size: var(--text-sm);
-  color: var(--text-tertiary);
-  font-weight: 500;
-  margin-top: var(--sp-2);
   display: flex;
-  align-items: center;
   gap: var(--sp-2);
+  align-items: center;
+  margin-top: var(--sp-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
 }
 
 /* Info button (reuses btn-icon pattern) */
@@ -53,21 +53,21 @@
 }
 
 .meter-tooltip {
-  display: none;
   position: absolute;
   bottom: calc(100% + var(--sp-4));
   left: 0;
+  z-index: 10;
+  display: none;
   min-width: 240px;
   max-width: 320px;
+  padding: var(--sp-4);
+  font-size: var(--text-sm);
+  line-height: var(--line-height);
+  color: var(--text-primary);
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  padding: var(--sp-4);
   box-shadow: var(--shadow);
-  line-height: var(--line-height);
-  z-index: 10;
 }
 
 .meter-tooltip--visible {
@@ -96,14 +96,14 @@
 
 .shimmer-bar {
   height: var(--sp-8);
-  border-radius: var(--sp-4);
   margin-bottom: var(--sp-4);
+  border-radius: var(--sp-4);
 }
 
 .shimmer-label {
+  margin-bottom: var(--sp-4);
   font-size: var(--text-sm);
   color: var(--text-tertiary);
-  margin-bottom: var(--sp-4);
 }
 
 /* ============================================================
@@ -112,24 +112,24 @@
 
 .notification {
   padding: var(--sp-4);
-  border-radius: var(--radius);
-  font-size: var(--text-sm);
   margin-top: var(--sp-4);
+  font-size: var(--text-sm);
+  border-radius: var(--radius);
 }
 
 .notification--success {
-  background: var(--accent-subtle);
   color: var(--accent);
+  background: var(--accent-subtle);
 }
 
 .notification--error {
-  background: light-dark(#fff0f0, #2d0000);
   color: var(--caution);
+  background: light-dark(#fff0f0, #2d0000);
 }
 
 .notification--info {
-  background: var(--bg-inset);
   color: var(--text-secondary);
+  background: var(--bg-inset);
 }
 
 /* ============================================================
@@ -140,30 +140,30 @@
   position: absolute;
   bottom: calc(100% + var(--sp-2));
   left: 50%;
-  transform: translateX(-50%) translateY(0);
+  z-index: 10;
+  padding: var(--sp-2);
   font-size: var(--text-sm);
+  color: var(--text-primary);
   white-space: nowrap;
   pointer-events: none;
-  animation: float-up 1.5s ease-out forwards;
-  color: var(--text-primary);
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--sp-2);
-  z-index: 10;
+  transform: translateX(-50%) translateY(0);
+  animation: float-up 1.5s ease-out forwards;
 }
 
 @keyframes float-up {
   0% {
-    transform: translateX(-50%) translateY(0);
     opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
   70% {
     opacity: 1;
   }
   100% {
-    transform: translateX(-50%) translateY(-24px);
     opacity: 0;
+    transform: translateX(-50%) translateY(-24px);
   }
 }
 
@@ -173,23 +173,23 @@
 
 .prompt-output {
   position: relative;
-  background: var(--bg-inset);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  min-height: 140px;
+  max-height: 300px;
+  padding: var(--sp-8) var(--sp-4) var(--sp-4);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
-  padding: var(--sp-8) var(--sp-4) var(--sp-4);
-  min-height: 140px;
-  max-height: 300px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .prompt-output > code {
   display: block;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-y: auto;
   max-height: calc(300px - var(--sp-8) - var(--sp-4));
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .prompt-output > .wrapper {
@@ -200,6 +200,6 @@
 }
 
 .prompt-output--empty {
-  color: var(--text-tertiary);
   font-family: var(--font-body);
+  color: var(--text-tertiary);
 }
