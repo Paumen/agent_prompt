@@ -1,4 +1,4 @@
-@import './variables.css';
+@import url('./variables.css');
 
 /**
  * layout.css — Grid definitions + structural rules
@@ -19,29 +19,29 @@
 
 ol,
 ul {
-  margin: 0;
   padding: 0;
+  margin: 0;
   list-style: none;
 }
 
-[hidden] {
-  display: none !important;
+[hidden][hidden] {
+  display: none;
 }
 
 /* === Page / App container === */
 
 body {
-  background: var(--shell);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: var(--text);
-  max-width: 800px;
-  margin: 0 auto;
-  padding: var(--sp-8);
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
   gap: var(--sp-8);
+  max-width: 800px;
+  padding: var(--sp-8);
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: var(--text);
+  color: var(--text-primary);
+  background: var(--shell);
 }
 
 /* === Card (top-level and nested) === */
@@ -51,8 +51,8 @@ body {
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
   gap: var(--sp-4);
-  container-type: inline-size;
   container-name: card;
+  container-type: inline-size;
 }
 
 /* Card body: grid child, holds card content when expanded */
@@ -80,7 +80,7 @@ body {
 /* Label: first column */
 .input > label {
   grid-column: 1;
-  padding-top: var(--sp-2);
+  padding: var(--sp-2) 0 0;
 }
 
 /* Field: second column */

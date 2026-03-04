@@ -13,6 +13,8 @@
     "lint": "eslint src/ tests/ --config config/eslint.config.js",
     "lint:fix": "eslint src/ tests/ --fix --config config/eslint.config.js",
     "format": "prettier --write . --config config/.prettierrc --ignore-path config/.prettierignore",
+    "stylelint": "stylelint \"src/**/*.css\" --config config/.stylelintrc.json",
+    "stylelint:fix": "stylelint \"src/**/*.css\" --fix --config config/.stylelintrc.json",
     "test": "vitest run --config config/vite.config.js"
   },
   "devDependencies": {
@@ -21,6 +23,11 @@
     "js-yaml": "^4.1.1",
     "jsdom": "^28.1.0",
     "prettier": "^3.0.0",
+    "stylelint": "^17.4.0",
+    "stylelint-config-recess-order": "^7.6.1",
+    "stylelint-config-standard": "^40.0.0",
+    "stylelint-declaration-strict-value": "^1.11.1",
+    "stylelint-order": "^7.0.1",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
   }
