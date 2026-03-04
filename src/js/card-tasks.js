@@ -27,6 +27,7 @@ import {
   createPicker,
   createTag,
 } from './ui.js';
+import { icon } from './icons.js';
 
 // --- Module-level state ---
 
@@ -116,27 +117,39 @@ function renderDualPanels(flowId, flowDef) {
   elPanelArea.innerHTML = '';
   elScopeSelector = null;
 
-  // Panel A — Situation (card-in-card)
+  // Panel A — Situation (nested card)
   const panelA = document.createElement('div');
-  panelA.className = 'card-in-card card-in-card--open';
+  panelA.className = 'card card--open';
 
   const panelAHeader = renderPanelHeader(
     'Situation',
-    flowDef.panel_a.subtitle || ''
+    flowDef.panel_a.subtitle || '',
+    'situation-body'
   );
   panelA.appendChild(panelAHeader);
-  renderPanelFields(panelA, flowDef.panel_a.fields, 'panel_a');
 
-  // Panel B — Target (card-in-card)
+  const panelABody = document.createElement('div');
+  panelABody.className = 'card-body';
+  panelABody.id = 'situation-body';
+  renderPanelFields(panelABody, flowDef.panel_a.fields, 'panel_a');
+  panelA.appendChild(panelABody);
+
+  // Panel B — Target (nested card)
   const panelB = document.createElement('div');
-  panelB.className = 'card-in-card card-in-card--open';
+  panelB.className = 'card card--open';
 
   const panelBHeader = renderPanelHeader(
     'Target',
-    flowDef.panel_b.subtitle || ''
+    flowDef.panel_b.subtitle || '',
+    'target-body'
   );
   panelB.appendChild(panelBHeader);
-  renderPanelFields(panelB, flowDef.panel_b.fields, 'panel_b');
+
+  const panelBBody = document.createElement('div');
+  panelBBody.className = 'card-body';
+  panelBBody.id = 'target-body';
+  renderPanelFields(panelBBody, flowDef.panel_b.fields, 'panel_b');
+  panelB.appendChild(panelBBody);
 
   elPanelArea.appendChild(panelA);
   elPanelArea.appendChild(panelB);
@@ -152,19 +165,33 @@ function renderDualPanels(flowId, flowDef) {
   updateRequiredGroupIndicators();
 }
 
-function renderPanelHeader(genericLabel, flowSubtitle) {
-  const header = document.createElement('div');
-  header.className = 'card-title';
+function renderPanelHeader(genericLabel, flowSubtitle, bodyId) {
+  const header = document.createElement('button');
+  header.type = 'button';
+  header.className = 'card-header';
+  header.setAttribute('aria-expanded', 'true');
+  header.setAttribute('aria-controls', bodyId);
 
-  const label = document.createElement('span');
-  label.textContent = genericLabel;
-  header.appendChild(label);
-
+  const titleSpan = document.createElement('span');
+  titleSpan.textContent = genericLabel;
   if (flowSubtitle) {
     const subtitle = document.createElement('small');
-    subtitle.textContent = `· ${flowSubtitle}`;
-    header.appendChild(subtitle);
+    subtitle.textContent = ` · ${flowSubtitle}`;
+    titleSpan.appendChild(subtitle);
   }
+  header.appendChild(titleSpan);
+
+  const chevron = icon('chevron-down', 'icon-btn');
+  chevron.classList.add('icon--chevron');
+  header.appendChild(chevron);
+
+  // Wire collapse/expand
+  header.addEventListener('click', () => {
+    const card = header.closest('.card');
+    if (!card) return;
+    const isOpen = card.classList.toggle('card--open');
+    header.setAttribute('aria-expanded', String(isOpen));
+  });
 
   return header;
 }

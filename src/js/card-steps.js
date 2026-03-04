@@ -133,14 +133,7 @@ function renderStepRow(step, index) {
   li.className = 'output output-field';
   li.dataset.stepId = step.id;
 
-  // Badge (col 1)
-  const badge = document.createElement('span');
-  badge.className = 'badge';
-  badge.textContent = String(index + 1);
-  badge.setAttribute('aria-hidden', 'true');
-  li.appendChild(badge);
-
-  // Label (col 2)
+  // Label (col 1 — col 0 is the CSS counter ::before)
   const label = document.createElement('span');
   label.textContent = formatStepLabel(step);
   li.appendChild(label);
