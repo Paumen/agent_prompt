@@ -28,7 +28,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 - **NEVER** edit `spec/spec_concept.md`, `src/config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/specials.css` without asking the user for explicit permission first. 
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
   - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
-  - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
+- **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
 
 
 ## Code Conventions
@@ -43,7 +43,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 - **NEVER** apply inline styles in .js or .html without asking the user first.
 - Use CSS custom properties (variables) defined in `src/css/variables.css`. Ask before adding or adjusting variables.
 - Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
-- Use modern feutures like light-dark, @container, cqi, dvh, clamp(), :is(), :has(), :where(), etc.
+- Use modern features like light-dark, @container, cqi, dvh, clamp(), :is(), :has(), :where(), etc.
 - Plain CSS only.
 - Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after user approval.
 
@@ -70,7 +70,6 @@ npm test          # Run all tests
 - **Claude Code (lead engineer)**: Implements features, writes tests, creates PRs. Handles cross-file changes.
 - **Z.ai / GLM-5 (dev support)**: Single-file fixes, maintenance, prototyping.
 - **Gemini Code Assist (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
-- **Llamapreview (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
 
 - PRs require product owner approval before merge.
 - When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
@@ -78,7 +77,7 @@ npm test          # Run all tests
 ## Context Efficiency
 
 - Default to `Edit` over `Write` unless creating new files or rewriting >50% of lines.
-- Only `Read` a file immediately before editing it — don't pre-read for planning.
+- If you already know you will edit a file, only `Read` the file immediately before editing it — don't pre-read.
 - Use Explore agent (not direct reads) when research spans 4+ files.
 - **NEVER** re-read files already in context window — treat this as a hard rule.
 - Batch related questions into a single Explore query where possible.
