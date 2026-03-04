@@ -1,4 +1,4 @@
-@import './variables.css';
+@import url('./variables.css');
 
 /**
  * special.css — One-off component styles

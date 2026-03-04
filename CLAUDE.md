@@ -29,6 +29,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
   - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
 - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
+- **Exception**: Stylelint auto-fix changes applied via `npm run stylelint:fix` are permitted without asking.
 
 
 ## Code Conventions
@@ -53,10 +54,12 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 npm install
 npm run dev       # Start local dev server with hot reload
 npm run build     # Production build (outputs to dist/)
-npm run lint      # Check code quality
-npm run lint:fix  # Auto-fix lint issues
-npm run format    # Auto-format all files with Prettier
-npm test          # Run all tests
+npm run lint          # Check code quality (ESLint)
+npm run lint:fix      # Auto-fix lint issues (ESLint)
+npm run stylelint     # Check CSS code quality
+npm run stylelint:fix # Auto-fix CSS lint issues
+npm run format        # Auto-format all files with Prettier
+npm test              # Run all tests
 ```
 
 ## Testing
