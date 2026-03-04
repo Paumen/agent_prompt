@@ -328,13 +328,69 @@ small, label {
   text-align: center;
 }
 
+/* ============================================================
+   WRAPPER (flex container - use display: contents to simplify DOM)
+   ============================================================ */
+
+/*
+ * display: contents makes the wrapper "invisible" for layout.
+ * Children become direct children of the grandparent.
+ *
+ * Context-specific handling:
+ * - Inside .input: buttons flow inline in grid cell (gap via margin)
+ * - Inside .card-body: use .wrapper--grid for grid layout
+ * - Inside .output-field: use .wrapper--grid for grid layout
+ */
 .wrapper {
+  display: contents;
+}
+
+/* Fallback: explicit grid layout class for non-.input contexts */
+.wrapper--grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+}
+
+/* Flex layout for specific use cases (e.g., credentials row) */
+.wrapper--flex {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
 }
 
-/* Credentials: field-picker-search children grow to fill */
+/* Gap simulation for buttons now direct children via display: contents */
+.input > :is(.btn-select, .btn-pill, .btn-action, .tag) {
+  margin: calc(var(--sp-2) / 2);
+}
+
+/* Remove outer margins for flush alignment */
+.input > :is(.btn-select, .btn-pill, .btn-action, .tag):first-of-type {
+  margin-top: 0;
+  margin-left: 0;
+}
+
+.input > :is(.btn-select, .btn-pill, .btn-action, .tag):last-of-type {
+  margin-bottom: 0;
+  margin-right: 0;
+}
+
+/* Same for .output-field context */
+.output-field > :is(.btn-select, .btn-pill, .btn-action, .tag) {
+  margin: calc(var(--sp-2) / 2);
+}
+
+.output-field > :is(.btn-select, .btn-pill, .btn-action, .tag):first-of-type {
+  margin-top: 0;
+  margin-left: 0;
+}
+
+.output-field > :is(.btn-select, .btn-pill, .btn-action, .tag):last-of-type {
+  margin-bottom: 0;
+  margin-right: 0;
+}
+
+/* Credentials row: keep flex layout for field-picker-search children */
 .wrapper > .field-picker-search {
   flex: 1;
   min-width: 200px;

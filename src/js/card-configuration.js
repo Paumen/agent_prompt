@@ -116,7 +116,7 @@ function renderShell(container) {
 
   // Credentials row: PAT + Username side by side
   elCredentials = document.createElement('div');
-  elCredentials.className = 'wrapper';
+  elCredentials.className = 'wrapper wrapper--flex';
 
   // --- PAT ---
   const patWrapper = createInputField({

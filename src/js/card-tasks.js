@@ -49,7 +49,7 @@ let elScopeSelector = null;
 
 function renderFlowSelector() {
   elFlowGrid = document.createElement('div');
-  elFlowGrid.className = 'wrapper';
+  elFlowGrid.className = 'wrapper wrapper--grid';
   elFlowGrid.setAttribute('role', 'listbox');
   elFlowGrid.setAttribute('aria-label', 'Select a flow');
 

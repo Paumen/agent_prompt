@@ -172,7 +172,7 @@ export function initPromptCard() {
 
   // Action bar: positioned top-right inside preview via .prompt-output > .wrapper
   const actionBar = document.createElement('div');
-  actionBar.className = 'wrapper';
+  actionBar.className = 'wrapper wrapper--flex';
 
   // Screen reader copy status
   elCopyStatus = document.createElement('span');

@@ -199,7 +199,7 @@ function renderSourcePill(source, iconName, labelPrefix) {
 
 function renderFilePills(step) {
   const container = document.createElement('div');
-  container.className = 'wrapper';
+  container.className = 'wrapper wrapper--flex';
 
   for (const filePath of step.params.files) {
     const segments = filePath.split('/');
@@ -274,7 +274,7 @@ function renderStepLenses(step, stepIndex) {
 
   // Primary lenses
   const pillGroup = document.createElement('div');
-  pillGroup.className = 'wrapper';
+  pillGroup.className = 'wrapper wrapper--flex';
 
   for (const lens of initial) {
     pillGroup.appendChild(createLensPill(lens, activeLenses, stepIndex));
@@ -288,7 +288,7 @@ function renderStepLenses(step, stepIndex) {
     const isExpanded = expandedSteps.get(step.id) || false;
 
     const extraGroup = document.createElement('div');
-    extraGroup.className = 'wrapper';
+    extraGroup.className = 'wrapper wrapper--flex';
     extraGroup.hidden = !isExpanded;
 
     for (const lens of remainder) {
