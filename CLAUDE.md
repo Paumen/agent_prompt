@@ -45,6 +45,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 - Use modern features like light-dark, @container, cqi, dvh, clamp(), :is(), :has(), :where(), etc.
 - Plain CSS only.
 - Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after user approval.
+- **No compensating CSS when removing elements.** When removing a wrapper/container, do NOT add new CSS rules to replicate what it provided. First verify whether the parent's existing layout handles the children naturally. If it doesn't, flag it — don't silently add structural selectors.
 
 ## Commands
 
