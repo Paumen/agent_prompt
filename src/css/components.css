@@ -95,7 +95,7 @@ small {
   position: relative;
   min-width: 48px;
   min-height: 24px;
-  padding: var(--sp-2) var(--sp-4);
+  padding: var(--sp-4);
   color: var(--text-primary);
   background: var(--bg-inset);
   border: 1px solid var(--border);
@@ -103,7 +103,7 @@ small {
 
 .btn-select[aria-selected='true'],
 .btn-select.btn-select--selected {
-  padding: var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-8);
+  padding:  var(--sp-4);
   color: var(--text-primary);
   background: var(--accent-subtle);
   border-color: var(--accent);
@@ -129,7 +129,7 @@ small {
 .btn-action {
   min-width: 56px;
   min-height: 32px;
-  padding: var(--sp-2) var(--sp-4);
+  padding: var(--sp-4);
   font-size: var(--text);
   color: var(--text-primary);
   background: var(--bg);
@@ -140,7 +140,7 @@ small {
 
 .btn-pill {
   min-height: 24px;
-  padding: var(--sp-2) var(--sp-4);
+  padding: var(--sp-2) ;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -209,7 +209,7 @@ small {
 .input-field {
   width: 100%;
   min-height: 24px;
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   font-family: inherit;
   font-size: var(--text-sm);
   color: var(--text-primary);
@@ -380,7 +380,6 @@ small {
   box-shadow: var(--shadow);
 }
 
-/* Nested card: raised surface with accent stripe */
 .card .card {
   background: var(--bg-raised);
   border-left: 3px solid var(--accent);

@@ -54,8 +54,6 @@
   --sp-2: clamp(2px, 1px + 0.1vw, 3px);
   --sp-4: clamp(4px, 3px + 0.15vw, 6px);
   --sp-8: clamp(6px, 5px + 0.25vw, 10px);
-  --sp-12: clamp(8px, 6px + 0.4vw, 14px);
-  --sp-16: clamp(12px, 10px + 0.5vw, 18px);
 
   /* === Z-index scale === */
   --z-above: 1;

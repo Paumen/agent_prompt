@@ -44,7 +44,6 @@ body {
   background: var(--shell);
 }
 
-/* === Card (top-level and nested) === */
 
 .card {
   display: grid;
@@ -55,7 +54,6 @@ body {
   container-type: inline-size;
 }
 
-/* Card body: grid child, holds card content when expanded */
 .card-body {
   display: grid;
   grid-template-columns: 1fr;
@@ -77,13 +75,11 @@ body {
   align-items: start;
 }
 
-/* Label: first column */
 .input > label {
   grid-column: 1;
   padding: var(--sp-2) 0 0;
 }
 
-/* Field: second column */
 .input > :not(label) {
   grid-column: 2;
 }
@@ -95,7 +91,6 @@ body {
   width: 100%;
 }
 
-/* Output field: structured row — ::before counter | label | actions */
 .output-field {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -104,12 +99,10 @@ body {
   counter-increment: steps;
 }
 
-/* Sub-items span from label column to end (starts at 3rd child, after label + delete btn) */
 .output-field > :nth-child(n + 3) {
   grid-column: 2 / -1;
 }
 
-/* Output block: code/text display (prompt preview, step list) */
 .output-block {
   display: flex;
   flex-direction: column;
@@ -120,34 +113,12 @@ body {
 
 /* === Container queries for card-internal layout === */
 
-/* Small cards (< 400px): stack input label above field */
-@container card (max-width: 399px) {
-  .input {
-    grid-template-columns: 1fr;
-  }
-
-  .input > label {
-    grid-column: 1;
-  }
-
-  .input > :not(label) {
-    grid-column: 1;
-  }
-
-  .output-field {
-    grid-template-columns: auto 1fr auto;
-    gap: var(--sp-2);
-  }
-}
-
-/* Medium cards (400–600px): standard 2-column input */
-@container card (min-width: 400px) and (max-width: 599px) {
+@container card (max-width: 599px) {
   .input {
     grid-template-columns: clamp(60px, 20%, 120px) 1fr;
   }
 }
 
-/* Large cards (600px+): wider label column */
 @container card (min-width: 600px) {
   .input {
     grid-template-columns: clamp(80px, 20%, 160px) 1fr;
