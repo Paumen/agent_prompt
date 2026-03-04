@@ -364,11 +364,23 @@ function onToggleLens(stepIndex, lens) {
   const step = steps[stepIndex];
   const current = step.lenses || [];
 
-  step.lenses = current.includes(lens)
+  const newLenses = current.includes(lens)
     ? current.filter((l) => l !== lens)
     : [...current, lens];
 
+  // Sync all lens-enabled steps to the same selection
+  for (let i = 0; i < steps.length; i++) {
+    if (steps[i].lenses !== undefined) {
+      steps[i] = { ...steps[i], lenses: newLenses };
+    }
+  }
+
   setState('steps.enabled_steps', steps);
+
+  // Sync to task card lens picker if this flow uses one (panel_b.lenses)
+  if (state.panel_b?.lenses !== undefined) {
+    setState('panel_b.lenses', newLenses);
+  }
 }
 
 function onSelectOutput(stepIndex, mode, btn) {
