@@ -16,18 +16,18 @@ import {
 } from '../core/state.js';
 import { getFlows, getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { getFileTree, setConfigCardSummary } from './card-configuration.js';
-import { fetchPRs, fetchIssues } from '../js/github-api.js';
-import { cacheGet, cacheSet } from '../js/cache.js';
-import { renderShimmer, expandCard, collapseCard } from '../js/components.js';
-import { createFilePicker } from '../js/file-tree.js';
+import { fetchPRs, fetchIssues } from '../common/github-api.js';
+import { cacheGet, cacheSet } from '../common/cache.js';
+import { renderShimmer, expandCard, collapseCard } from '../common/components.js';
+import { createFilePicker } from '../common/file-tree.js';
 import {
   createButton,
   createInputField,
   createLabel,
   createPicker,
   createTag,
-} from '../js/ui.js';
-import { icon } from '../js/icons.js';
+} from '../common/ui.js';
+import { icon } from '../common/icons.js';
 
 // --- Module-level state ---
 

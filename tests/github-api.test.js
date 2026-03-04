@@ -17,7 +17,7 @@ function mockFetchNetworkError() {
 
 beforeEach(async () => {
   vi.resetModules();
-  api = await import('../src/js/github-api.js');
+  api = await import('../src/common/github-api.js');
 });
 
 afterEach(() => {

@@ -10,14 +10,14 @@
 import { getState, setState, subscribe } from '../core/state.js';
 import { getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { generateSteps, reconcileSteps } from '../logic/step-generator.js';
-import { setInteracting } from '../js/components.js';
-import { fileIconName } from '../js/icons.js';
+import { setInteracting } from '../common/components.js';
+import { fileIconName } from '../common/icons.js';
 import {
   createButton,
   createTag,
   createInputField,
   createMoreLess,
-} from '../js/ui.js';
+} from '../common/ui.js';
 
 // Show first 7 lenses. Rest behind "more" button.
 const INITIAL_LENS_COUNT = 7;

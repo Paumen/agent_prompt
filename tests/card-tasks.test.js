@@ -107,17 +107,17 @@ vi.mock('../src/cards/card-configuration.js', () => ({
   setConfigCardSummary: vi.fn(),
 }));
 
-vi.mock('../src/js/github-api.js', () => ({
+vi.mock('../src/common/github-api.js', () => ({
   fetchPRs: vi.fn(() => Promise.resolve({ data: [], error: null })),
   fetchIssues: vi.fn(() => Promise.resolve({ data: [], error: null })),
 }));
 
-vi.mock('../src/js/cache.js', () => ({
+vi.mock('../src/common/cache.js', () => ({
   cacheGet: vi.fn(() => null),
   cacheSet: vi.fn(),
 }));
 
-vi.mock('../src/js/components.js', () => ({
+vi.mock('../src/common/components.js', () => ({
   renderShimmer: vi.fn(),
   renderError: vi.fn(),
   showNotification: vi.fn(),
@@ -135,7 +135,7 @@ vi.mock('../src/logic/quality-meter.js', () => ({
   renderQualityMeter: vi.fn(() => ({ update: vi.fn() })),
 }));
 
-vi.mock('../src/js/file-tree.js', () => ({
+vi.mock('../src/common/file-tree.js', () => ({
   createFilePicker: vi.fn((container) => {
     container.appendChild(document.createElement('div'));
   }),

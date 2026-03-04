@@ -6,7 +6,7 @@ let components;
 beforeEach(async () => {
   vi.resetModules();
   document.body.innerHTML = '<div id="target"></div>';
-  components = await import('../src/js/components.js');
+  components = await import('../src/common/components.js');
 });
 
 afterEach(() => {

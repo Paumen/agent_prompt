@@ -120,7 +120,7 @@ async function initAllModules() {
   cardTasks = await import('../src/cards/card-tasks.js');
   cardSteps = await import('../src/cards/card-steps.js');
   cardPrompt = await import('../src/cards/card-prompt.js');
-  mainModule = await import('../src/js/main.js');
+  mainModule = await import('../src/common/main.js');
 }
 
 async function setupRepoAndBranch() {

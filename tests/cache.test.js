@@ -7,7 +7,7 @@ async function freshImport() {
   localStorage.clear();
   vi.resetModules();
   vi.useRealTimers();
-  cacheModule = await import('../src/js/cache.js');
+  cacheModule = await import('../src/common/cache.js');
 }
 
 beforeEach(async () => {
