@@ -368,23 +368,6 @@ small, label {
   flex-shrink: 0;
 }
 
-/* ============================================================
-   SURFACES (card, output backgrounds)
-   ============================================================ */
-
-.card {
-  padding: var(--sp-4);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.card .card {
-  background: var(--bg-raised);
-  border-left: 3px solid var(--accent);
-}
-
 .output {
   padding: var(--sp-4);
   background: var(--bg-inset);

@@ -44,7 +44,6 @@ body {
   background: var(--shell);
 }
 
-
 .card {
   display: grid;
   grid-template-columns: 1fr;
@@ -52,6 +51,16 @@ body {
   gap: var(--sp-4);
   container-name: card;
   container-type: inline-size;
+  padding: var(--sp-4);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card .card {
+  background: var(--bg-raised);
+  border-left: 3px solid var(--accent);
 }
 
 .card-body {
