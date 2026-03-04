@@ -97,11 +97,8 @@ let elPatInput,
   elUsername,
   elUserClear,
   elRepoSection,
-  elRepoGrid,
   elBranchSection,
-  elBranchGrid,
-  elCardBody,
-  elCredentials;
+  elCardBody;
 
 // Track collapsed state for repo/branch grids (VIS-03)
 // NOTE: do NOT reset these inside the render functions — only set explicitly.
@@ -113,10 +110,6 @@ let branchesCollapsed = true;
 
 function renderShell(container) {
   container.innerHTML = '';
-
-  // Credentials row: PAT + Username side by side
-  elCredentials = document.createElement('div');
-  elCredentials.className = 'wrapper';
 
   // --- PAT ---
   const patWrapper = createInputField({
@@ -167,16 +160,14 @@ function renderShell(container) {
   elUserClear.hidden = true;
   userWrapper.appendChild(elUserClear);
 
-  elCredentials.appendChild(patWrapper);
-  elCredentials.appendChild(userWrapper);
-
   // Repo section
   elRepoSection = document.createElement('div');
 
   // Branch section
   elBranchSection = document.createElement('div');
 
-  container.appendChild(elCredentials);
+  container.appendChild(patWrapper);
+  container.appendChild(userWrapper);
   container.appendChild(elRepoSection);
   container.appendChild(elBranchSection);
 }
@@ -223,8 +214,6 @@ function onPatClear() {
     return s;
   });
   fileTree = [];
-  // Show credentials again when clearing
-  if (elCredentials) elCredentials.hidden = false;
   reposCollapsed = false;
   branchesCollapsed = true;
   renderRepoSection([]);
@@ -261,7 +250,6 @@ function onUserClear() {
     return s;
   });
   fileTree = [];
-  if (elCredentials) elCredentials.hidden = false;
   reposCollapsed = false;
   branchesCollapsed = true;
   renderRepoSection([]);
@@ -281,18 +269,14 @@ function renderRepoSection(repos, selectedRepo) {
   label.textContent = 'Repos';
   elRepoSection.appendChild(label);
 
-  elRepoGrid = document.createElement('div');
-  elRepoGrid.className = 'wrapper';
-  elRepoGrid.setAttribute('role', 'listbox');
-  elRepoGrid.setAttribute('aria-label', 'Repositories');
-
   renderRepoButtons(repos, selectedRepo);
-  elRepoSection.appendChild(elRepoGrid);
 }
 
 function renderRepoButtons(repos, selectedRepo) {
-  if (!elRepoGrid) return;
-  elRepoGrid.innerHTML = '';
+  if (!elRepoSection?.classList.contains('input')) return;
+  elRepoSection
+    .querySelectorAll(':scope > :not(label)')
+    .forEach((el) => el.remove());
   // NOTE: do NOT reset reposCollapsed here — only set explicitly.
 
   let visibleRepos;
@@ -315,8 +299,7 @@ function renderRepoButtons(repos, selectedRepo) {
       selected: repo.name === selectedRepo,
       onClick: () => onRepoSelect(repo, repos),
     });
-    btn.setAttribute('role', 'option');
-    elRepoGrid.appendChild(btn);
+    elRepoSection.appendChild(btn);
   }
 
   // "More" / "https://paumen.github.io/agent_prompt/" button when repos exceed display limit
@@ -329,7 +312,7 @@ function renderRepoButtons(repos, selectedRepo) {
         renderRepoButtons(repos, selectedRepo);
       },
     });
-    elRepoGrid.appendChild(moreBtn);
+    elRepoSection.appendChild(moreBtn);
   }
 }
 
@@ -346,8 +329,6 @@ function onRepoSelect(repo, allRepos) {
 
   renderRepoButtons(allRepos, repo.name);
   renderBranchSection([]);
-
-  if (elCredentials) elCredentials.hidden = true;
 
   // Expand Tasks card; Config card stays open (full collapse happens on flow select)
   expandCard('card-tasks');
@@ -368,18 +349,14 @@ function renderBranchSection(branches, selectedBranch) {
   label.textContent = 'Branch';
   elBranchSection.appendChild(label);
 
-  elBranchGrid = document.createElement('div');
-  elBranchGrid.className = 'wrapper';
-  elBranchGrid.setAttribute('role', 'listbox');
-  elBranchGrid.setAttribute('aria-label', 'Branches');
-
   renderBranchButtons(branches, selectedBranch);
-  elBranchSection.appendChild(elBranchGrid);
 }
 
 function renderBranchButtons(branches, selectedBranch) {
-  if (!elBranchGrid) return;
-  elBranchGrid.innerHTML = '';
+  if (!elBranchSection?.classList.contains('input')) return;
+  elBranchSection
+    .querySelectorAll(':scope > :not(label)')
+    .forEach((el) => el.remove());
   // NOTE: do NOT reset branchesCollapsed here — only set explicitly.
 
   let visibleBranches;
@@ -402,8 +379,7 @@ function renderBranchButtons(branches, selectedBranch) {
       selected: branch.name === selectedBranch,
       onClick: () => onBranchSelect(branch, branches),
     });
-    btn.setAttribute('role', 'option');
-    elBranchGrid.appendChild(btn);
+    elBranchSection.appendChild(btn);
   }
 
   const hiddenCount = Math.max(0, branches.length - BRANCH_DISPLAY_LIMIT);
@@ -415,7 +391,7 @@ function renderBranchButtons(branches, selectedBranch) {
         renderBranchButtons(branches, selectedBranch);
       },
     });
-    elBranchGrid.appendChild(moreBtn);
+    elBranchSection.appendChild(moreBtn);
   }
 }
 
@@ -596,12 +572,11 @@ export function initConfigurationCard() {
   elUsername.addEventListener('change', onUsernameChange);
   elUserClear.addEventListener('click', onUserClear);
 
-  // When config card is re-opened by user click, show credentials again
+  // When config card is re-opened by user click, clear the summary title
   const cfgCard = document.getElementById('card-configuration');
   cfgCard?.querySelector('.card-header')?.addEventListener('click', () => {
     const willBeOpen = !cfgCard.classList.contains('card--open');
     if (willBeOpen) {
-      if (elCredentials) elCredentials.hidden = false;
       setConfigCardSummary('');
     }
   });

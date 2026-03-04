@@ -161,18 +161,14 @@ export function initPromptCard() {
   if (labelEl) initMeterTooltip(labelEl);
 
   // === Prompt preview ===
-  const preEl = document.createElement('pre');
+  const preEl = document.createElement('div');
   preEl.className = 'prompt-output';
   preEl.setAttribute('role', 'region');
   preEl.setAttribute('aria-label', 'Generated prompt');
 
-  // Code element holds the text content (survives action bar)
+  // Code element holds the text content
   elPreview = document.createElement('code');
   preEl.appendChild(elPreview);
-
-  // Action bar: positioned top-right inside preview via .prompt-output > .wrapper
-  const actionBar = document.createElement('div');
-  actionBar.className = 'wrapper';
 
   // Screen reader copy status
   elCopyStatus = document.createElement('span');
@@ -200,11 +196,9 @@ export function initPromptCard() {
       'Open Claude in a new tab with this prompt pre-filled in the chat input',
   });
 
-  actionBar.appendChild(elCopyStatus);
-  actionBar.appendChild(copyBtn);
-  actionBar.appendChild(promptClaudeBtn);
-
-  preEl.appendChild(actionBar);
+  preEl.appendChild(elCopyStatus);
+  preEl.appendChild(copyBtn);
+  preEl.appendChild(promptClaudeBtn);
 
   // === Notes section (OUT-06) — uses .input grid layout ===
   const notesRow = document.createElement('div');

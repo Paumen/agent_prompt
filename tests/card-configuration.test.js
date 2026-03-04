@@ -164,7 +164,7 @@ describe('auto-fetch repos (CFG-02)', () => {
 
     await vi.waitFor(() => {
       const buttons = document.querySelectorAll(
-        '[aria-label="Repositories"] .btn-select'
+        '#bd-configuration .input .btn-select'
       );
       expect(buttons.length).toBe(3);
     });
@@ -204,7 +204,7 @@ describe('repo selection (CFG-03)', () => {
 
     await vi.waitFor(() => {
       expect(
-        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
+        document.querySelectorAll('#bd-configuration .input .btn-select')
           .length
       ).toBe(3);
     });
@@ -214,7 +214,7 @@ describe('repo selection (CFG-03)', () => {
     await setupWithRepos();
 
     const repoBtn = document.querySelector(
-      '[aria-label="Repositories"] .btn-select'
+      '#bd-configuration .input .btn-select'
     );
     repoBtn.click();
 
@@ -224,17 +224,14 @@ describe('repo selection (CFG-03)', () => {
     });
   });
 
-  it('expands Tasks card and hides credentials on repo select', async () => {
+  it('expands Tasks card on repo select', async () => {
     await setupWithRepos();
 
-    document.querySelector('[aria-label="Repositories"] .btn-select').click();
+    document.querySelector('#bd-configuration .input .btn-select').click();
 
     expect(
       document.getElementById('card-tasks').classList.contains('card--open')
     ).toBe(true);
-    // Credentials div gets hidden attribute
-    const credDiv = document.getElementById('bd-configuration').children[0];
-    expect(credDiv.hidden).toBe(true);
   });
 });
 
@@ -264,12 +261,12 @@ describe('branch auto-select (CFG-04)', () => {
 
     await vi.waitFor(() => {
       expect(
-        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
+        document.querySelectorAll('#bd-configuration .input .btn-select')
           .length
       ).toBe(3);
     });
 
-    document.querySelector('[aria-label="Repositories"] .btn-select').click();
+    document.querySelector('#bd-configuration .input .btn-select').click();
 
     await vi.waitFor(() => {
       expect(state.getState().configuration.branch).toBe('main');
@@ -297,7 +294,7 @@ describe('error handling (GL-04)', () => {
 });
 
 describe('accessibility', () => {
-  it('repo grid has role="listbox" and buttons have role="option"', async () => {
+  it('repo buttons render inside the input section', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
     globalThis.fetch = mockFetch(SAMPLE_REPOS);
@@ -305,13 +302,10 @@ describe('accessibility', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      const grid = document.querySelector('[aria-label="Repositories"]');
-      expect(grid.getAttribute('role')).toBe('listbox');
-      expect(
-        document
-          .querySelector('[aria-label="Repositories"] .btn-select')
-          .getAttribute('role')
-      ).toBe('option');
+      const buttons = document.querySelectorAll(
+        '#bd-configuration .input .btn-select'
+      );
+      expect(buttons.length).toBe(3);
     });
   });
 });
@@ -347,7 +341,7 @@ describe('username clear button', () => {
 
     await vi.waitFor(() => {
       expect(
-        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
+        document.querySelectorAll('#bd-configuration .input .btn-select')
           .length
       ).toBe(3);
     });
@@ -370,7 +364,7 @@ describe('icons on repo/branch buttons', () => {
 
     await vi.waitFor(() => {
       const btn = document.querySelector(
-        '[aria-label="Repositories"] .btn-select'
+        '#bd-configuration .input .btn-select'
       );
       expect(btn.querySelector('svg')).not.toBeNull();
     });

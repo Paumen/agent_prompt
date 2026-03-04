@@ -49,9 +49,9 @@ body {
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
   gap: var(--sp-4);
+  padding: var(--sp-4);
   container-name: card;
   container-type: inline-size;
-  padding: var(--sp-4);
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -70,6 +70,11 @@ body {
   gap: var(--sp-8);
 }
 
+/* Card bodies that directly contain field-picker-search (credentials) use 2 columns */
+.card-body:has(> .field-picker-search) {
+  grid-template-columns: 1fr 1fr;
+}
+
 /* Collapsed state: child combinator scopes to direct body only */
 .card:not(.card--open) > .card-body {
   display: none;
@@ -81,16 +86,15 @@ body {
   display: grid;
   /* Explicitly define only the first column */
   grid-template-columns: clamp(40px, 15%, 80px);
-  /* Force all other items into new columns automatically */
-  grid-auto-flow: column;
   /* Ensure those automatic columns only take up the width of their content */
   grid-auto-columns: min-content;
+  /* Force all other items into new columns automatically */
+  grid-auto-flow: column;
   gap: var(--sp-4);
   align-items: start;
   /* Keep everything packed to the left */
   justify-content: start;
 }
-
 
 .input > label {
   grid-column: 1;
@@ -99,6 +103,11 @@ body {
 
 .input > :not(label) {
   grid-column: 2;
+}
+
+/* Credentials row inputs span full width in 2-column card-body */
+.card-body:has(> .field-picker-search) > .input {
+  grid-column: 1 / -1;
 }
 
 /* === Output (full-width content area) === */

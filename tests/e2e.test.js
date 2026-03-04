@@ -130,13 +130,13 @@ async function setupRepoAndBranch() {
 
   await vi.waitFor(() => {
     const buttons = document.querySelectorAll(
-      '[aria-label="Repositories"] .btn-select'
+      '#bd-configuration .input .btn-select'
     );
     expect(buttons.length).toBeGreaterThan(0);
   });
 
   const repoBtn = document.querySelector(
-    '[aria-label="Repositories"] .btn-select'
+    '#bd-configuration .input .btn-select'
   );
   repoBtn.click();
 

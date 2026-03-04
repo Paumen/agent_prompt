@@ -171,6 +171,9 @@
 
 .prompt-output {
   position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--sp-2);
   max-height: 320px;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
@@ -182,16 +185,28 @@
 
 .prompt-output > code {
   display: block;
+  grid-row: 1;
+  grid-column: 1 / -1;
   max-height: 320px;
   overflow-y: auto;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
-.prompt-output > .wrapper {
-  position: absolute;
-  inset: var(--sp-4) auto;
+.prompt-output > .btn-copy {
   z-index: var(--z-above);
+  grid-row: 1;
+  grid-column: 2;
+  align-self: start;
+  margin: var(--sp-4) 0 0;
+}
+
+.prompt-output > .btn-primary {
+  z-index: var(--z-above);
+  grid-row: 1;
+  grid-column: 3;
+  align-self: start;
+  margin: var(--sp-4) 0 0;
 }
 
 .prompt-output--empty {
