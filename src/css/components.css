@@ -328,8 +328,8 @@ small, label {
 }
 
 .wrapper {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr;  /* Single column, each child fills full width */
   gap: var(--sp-2);
 }
 
