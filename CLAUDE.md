@@ -25,17 +25,15 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 ## File Permissions
 
-- **NEVER** edit `spec/spec_concept.md`, `src/config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/specials.css` without asking the user for explicit permission first. 
+- **NEVER** edit `spec/spec_concept.md`, `src/config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/specials.css` without asking the user for explicit permission first.
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
   - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
 - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
 - **Exception**: Stylelint auto-fix changes applied via `npm run stylelint:fix` are permitted without asking.
 
-
 ## Code Conventions
 
 - **Simplicity first**: Before implementing complex logic, evaluate if there is a simpler alternative that achieves the same result. If the spec seems over-engineered for the use case, flag it and suggest a simpler approach before proceeding. Prefer the simplest solution that fully satisfies the requirement.
-  
 - Vanilla JavaScript with ES modules.
 - No unnecessary abstractions — keep code direct and readable.
 - One feature per file where practical.
