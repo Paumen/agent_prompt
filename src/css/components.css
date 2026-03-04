@@ -329,7 +329,7 @@ small, label {
 
 .wrapper {
   display: grid;
-  grid-template-rows: 1fr;  /* Single column, each child fills full width */
+  grid-template-columns: repeat(4, 1fr);  
   gap: var(--sp-2);
 }
 
