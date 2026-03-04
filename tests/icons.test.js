@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { icon } from '../src/js/icons.js';
+import { icon } from '../src/common/icons.js';
 
 // All icon names that must exist in the registry
 const EXPECTED_ICONS = [
