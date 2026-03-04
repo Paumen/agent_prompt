@@ -1,4 +1,4 @@
-import { getState } from './state.js';
+import { getState } from '../core/state.js';
 import { initConfigurationCard } from './card-configuration.js';
 import { initTasksCard } from './card-tasks.js';
 import { initStepsCard } from './card-steps.js';

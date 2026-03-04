@@ -7,7 +7,7 @@
  * Req IDs: OUT-01..08
  */
 
-import { getState, setState, subscribe } from './state.js';
+import { getState, setState, subscribe } from '../core/state.js';
 import { renderQualityMeter } from './quality-meter.js';
 import { icon } from './icons.js';
 import { createButton, createInputField, createLabel } from './ui.js';

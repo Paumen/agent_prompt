@@ -51,7 +51,7 @@ beforeEach(async () => {
   localStorage.clear();
   setupHTML();
   globalThis.fetch = mockFetch([]);
-  state = await import('../src/js/state.js');
+  state = await import('../src/core/state.js');
   cardConfig = await import('../src/js/card-configuration.js');
 });
 

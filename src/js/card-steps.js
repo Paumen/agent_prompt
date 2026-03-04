@@ -7,7 +7,7 @@
  * Req IDs: STP-01..04
  */
 
-import { getState, setState, subscribe } from './state.js';
+import { getState, setState, subscribe } from '../core/state.js';
 import { getFlowById, ALL_LENSES } from './flow-loader.js';
 import { generateSteps, reconcileSteps } from './step-generator.js';
 import { setInteracting } from './components.js';

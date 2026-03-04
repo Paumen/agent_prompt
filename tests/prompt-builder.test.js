@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildPrompt } from '../src/js/prompt-builder.js';
+import { buildPrompt } from '../src/core/prompt-builder.js';
 
 // Helper: minimal valid state
 function baseState(overrides = {}) {

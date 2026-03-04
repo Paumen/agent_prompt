@@ -11,7 +11,7 @@
  *   0–50: Poor (red) | 51–60: Minimal | 61–70: Basic | 71–80: Good | 81–90: Strong | 91–100: Excellent (green)
  */
 
-import { subscribe, getState, getValueByPath } from './state.js';
+import { subscribe, getState, getValueByPath } from '../core/state.js';
 
 // --- Field weights ---
 

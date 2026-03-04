@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
 // --- Mock dependencies ---
 
-vi.mock('../src/js/state.js', () => ({
+vi.mock('../src/core/state.js', () => ({
   getState: vi.fn(() => ({
     task: { flow_id: '' },
     configuration: {
@@ -142,7 +142,7 @@ vi.mock('../src/js/file-tree.js', () => ({
 }));
 
 import { initTasksCard } from '../src/js/card-tasks.js';
-import { getState, subscribe, applyFlowDefaults } from '../src/js/state.js';
+import { getState, subscribe, applyFlowDefaults } from '../src/core/state.js';
 
 // --- Setup ---
 

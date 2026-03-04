@@ -13,7 +13,7 @@ import {
   subscribe,
   applyFlowDefaults,
   getValueByPath,
-} from './state.js';
+} from '../core/state.js';
 import { getFlows, getFlowById, ALL_LENSES } from './flow-loader.js';
 import { getFileTree, setConfigCardSummary } from './card-configuration.js';
 import { fetchPRs, fetchIssues } from './github-api.js';
