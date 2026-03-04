@@ -115,11 +115,11 @@ async function initAllModules() {
   vi.spyOn(window, 'open').mockImplementation(() => null);
   globalThis.fetch = createSmartFetch();
 
-  state = await import('../src/js/state.js');
-  cardConfig = await import('../src/js/card-configuration.js');
-  cardTasks = await import('../src/js/card-tasks.js');
-  cardSteps = await import('../src/js/card-steps.js');
-  cardPrompt = await import('../src/js/card-prompt.js');
+  state = await import('../src/core/state.js');
+  cardConfig = await import('../src/cards/card-configuration.js');
+  cardTasks = await import('../src/cards/card-tasks.js');
+  cardSteps = await import('../src/cards/card-steps.js');
+  cardPrompt = await import('../src/cards/card-prompt.js');
   mainModule = await import('../src/js/main.js');
 }
 
@@ -251,7 +251,7 @@ describe('TST-01: Prompt Determinism', () => {
   });
 
   it('identical inputs produce identical prompts (10 runs)', async () => {
-    const { buildPrompt } = await import('../src/js/prompt-builder.js');
+    const { buildPrompt } = await import('../src/core/prompt-builder.js');
 
     const fixedState = {
       version: '1.0',
@@ -315,7 +315,7 @@ describe('TST-01: Prompt Determinism', () => {
   });
 
   it('different inputs produce different outputs', async () => {
-    const { buildPrompt } = await import('../src/js/prompt-builder.js');
+    const { buildPrompt } = await import('../src/core/prompt-builder.js');
 
     const state1 = {
       configuration: {

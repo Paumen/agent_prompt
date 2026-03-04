@@ -34,7 +34,7 @@ const mockState = {
   _prompt: MOCK_PROMPT,
 };
 
-vi.mock('../src/js/state.js', () => ({
+vi.mock('../src/core/state.js', () => ({
   getState: vi.fn(() => structuredClone(mockState)),
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
@@ -50,8 +50,8 @@ vi.mock('../src/js/quality-meter.js', () => ({
   }),
 }));
 
-import { initPromptCard, highlightXml } from '../src/js/card-prompt.js';
-import { getState, setState, subscribe } from '../src/js/state.js';
+import { initPromptCard, highlightXml } from '../src/cards/card-prompt.js';
+import { getState, setState, subscribe } from '../src/core/state.js';
 
 function createPromptCard() {
   document.body.innerHTML = `

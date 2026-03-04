@@ -7,17 +7,17 @@
  * Req IDs: STP-01..04
  */
 
-import { getState, setState, subscribe } from './state.js';
-import { getFlowById, ALL_LENSES } from './flow-loader.js';
-import { generateSteps, reconcileSteps } from './step-generator.js';
-import { setInteracting } from './components.js';
-import { fileIconName } from './icons.js';
+import { getState, setState, subscribe } from '../core/state.js';
+import { getFlowById, ALL_LENSES } from '../js/flow-loader.js';
+import { generateSteps, reconcileSteps } from '../js/step-generator.js';
+import { setInteracting } from '../js/components.js';
+import { fileIconName } from '../js/icons.js';
 import {
   createButton,
   createTag,
   createInputField,
   createMoreLess,
-} from './ui.js';
+} from '../js/ui.js';
 
 // Show first 7 lenses. Rest behind "more" button.
 const INITIAL_LENS_COUNT = 7;

@@ -1,8 +1,8 @@
-import { getState } from './state.js';
-import { initConfigurationCard } from './card-configuration.js';
-import { initTasksCard } from './card-tasks.js';
-import { initStepsCard } from './card-steps.js';
-import { initPromptCard } from './card-prompt.js';
+import { getState } from '../core/state.js';
+import { initConfigurationCard } from '../cards/card-configuration.js';
+import { initTasksCard } from '../cards/card-tasks.js';
+import { initStepsCard } from '../cards/card-steps.js';
+import { initPromptCard } from '../cards/card-prompt.js';
 import { icon } from './icons.js';
 
 // --- Card expand/collapse toggle ---

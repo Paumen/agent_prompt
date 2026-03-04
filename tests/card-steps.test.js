@@ -54,7 +54,7 @@ const mockState = {
   _prompt: '',
 };
 
-vi.mock('../src/js/state.js', () => ({
+vi.mock('../src/core/state.js', () => ({
   getState: vi.fn(() => structuredClone(mockState)),
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
@@ -85,8 +85,8 @@ vi.mock('../src/js/step-generator.js', () => ({
   reconcileSteps: vi.fn((generated) => generated),
 }));
 
-import { initStepsCard } from '../src/js/card-steps.js';
-import { getState, setState } from '../src/js/state.js';
+import { initStepsCard } from '../src/cards/card-steps.js';
+import { getState, setState } from '../src/core/state.js';
 
 // --- Setup ---
 

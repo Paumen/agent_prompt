@@ -14,7 +14,7 @@ async function freshImport() {
 
   // Reset module registry so state.js re-initializes
   vi.resetModules();
-  stateModule = await import('../src/js/state.js');
+  stateModule = await import('../src/core/state.js');
 }
 
 describe('state.js', () => {
@@ -362,7 +362,7 @@ describe('state.js', () => {
       );
 
       vi.resetModules();
-      const freshModule = await import('../src/js/state.js');
+      const freshModule = await import('../src/core/state.js');
       const s = freshModule.getState();
       expect(s.configuration.pat).toBe('ghp_saved');
       expect(s.configuration.owner).toBe('saveduser');
@@ -372,7 +372,7 @@ describe('state.js', () => {
       localStorage.setItem('agent_prompt_state', 'not valid json!!!');
 
       vi.resetModules();
-      const freshModule = await import('../src/js/state.js');
+      const freshModule = await import('../src/core/state.js');
       const s = freshModule.getState();
       // Should fall back to defaults without throwing
       expect(s.configuration.pat).toBe('');
@@ -383,7 +383,7 @@ describe('state.js', () => {
       localStorage.setItem('agent_prompt_state', JSON.stringify([1, 2, 3]));
 
       vi.resetModules();
-      const freshModule = await import('../src/js/state.js');
+      const freshModule = await import('../src/core/state.js');
       const s = freshModule.getState();
       expect(s.configuration.pat).toBe('');
       expect(s.configuration.owner).toBe('');
