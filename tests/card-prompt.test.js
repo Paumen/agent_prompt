@@ -40,7 +40,7 @@ vi.mock('../src/core/state.js', () => ({
   subscribe: vi.fn(() => () => {}),
 }));
 
-vi.mock('../src/js/quality-meter.js', () => ({
+vi.mock('../src/logic/quality-meter.js', () => ({
   renderQualityMeter: vi.fn((container) => {
     container.className = 'quality-meter';
     const labelEl = document.createElement('div');

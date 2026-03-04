@@ -14,7 +14,7 @@ import {
   applyFlowDefaults,
   getValueByPath,
 } from '../core/state.js';
-import { getFlows, getFlowById, ALL_LENSES } from '../js/flow-loader.js';
+import { getFlows, getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { getFileTree, setConfigCardSummary } from './card-configuration.js';
 import { fetchPRs, fetchIssues } from '../js/github-api.js';
 import { cacheGet, cacheSet } from '../js/cache.js';

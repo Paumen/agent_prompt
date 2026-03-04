@@ -9,7 +9,7 @@ import {
   calculateScore,
   getThresholdColor,
   getTotalWeight,
-} from '../src/js/quality-meter.js';
+} from '../src/logic/quality-meter.js';
 
 // --- Mock state shapes for each flow ---
 

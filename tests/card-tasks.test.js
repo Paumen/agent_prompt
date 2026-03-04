@@ -44,7 +44,7 @@ vi.mock('../src/core/state.js', () => ({
   ),
 }));
 
-vi.mock('../src/js/flow-loader.js', () => ({
+vi.mock('../src/logic/flow-loader.js', () => ({
   getFlows: vi.fn(() => ({
     fix: {
       icon: 'bug',
@@ -131,7 +131,7 @@ vi.mock('../src/js/components.js', () => ({
   }),
 }));
 
-vi.mock('../src/js/quality-meter.js', () => ({
+vi.mock('../src/logic/quality-meter.js', () => ({
   renderQualityMeter: vi.fn(() => ({ update: vi.fn() })),
 }));
 

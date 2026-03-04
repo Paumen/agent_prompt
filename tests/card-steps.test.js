@@ -60,7 +60,7 @@ vi.mock('../src/core/state.js', () => ({
   subscribe: vi.fn(() => () => {}),
 }));
 
-vi.mock('../src/js/flow-loader.js', () => ({
+vi.mock('../src/logic/flow-loader.js', () => ({
   getFlowById: vi.fn(() => null),
   ALL_LENSES: [
     'semantics',
@@ -80,7 +80,7 @@ vi.mock('../src/js/flow-loader.js', () => ({
   ],
 }));
 
-vi.mock('../src/js/step-generator.js', () => ({
+vi.mock('../src/logic/step-generator.js', () => ({
   generateSteps: vi.fn(() => []),
   reconcileSteps: vi.fn((generated) => generated),
 }));
