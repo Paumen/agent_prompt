@@ -171,9 +171,7 @@
 
 .prompt-output {
   position: relative;
-  min-height: 160px;
   max-height: 320px;
-  padding: var(--sp-4);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
@@ -184,7 +182,7 @@
 
 .prompt-output > code {
   display: block;
-  max-height: calc(320px);
+  max-height: 320px;
   overflow-y: auto;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -192,7 +190,7 @@
 
 .prompt-output > .wrapper {
   position: absolute;
-  inset: var(--sp-4) var(--sp-4) auto auto;
+  inset: var(--sp-4) auto;
   z-index: var(--z-above);
 }
 
