@@ -79,10 +79,18 @@ body {
 
 .input {
   display: grid;
-  grid-template-columns: clamp(40px, 15%, 80px) 1fr;
+  /* Explicitly define only the first column */
+  grid-template-columns: clamp(40px, 15%, 80px);
+  /* Force all other items into new columns automatically */
+  grid-auto-flow: column;
+  /* Ensure those automatic columns only take up the width of their content */
+  grid-auto-columns: min-content;
   gap: var(--sp-4);
   align-items: start;
+  /* Keep everything packed to the left */
+  justify-content: start;
 }
+
 
 .input > label {
   grid-column: 1;
