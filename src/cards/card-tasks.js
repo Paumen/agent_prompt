@@ -36,6 +36,11 @@ let elFlowGrid = null;
 let elPanelArea = null;
 let currentFlowId = null;
 
+// Lens picker sync
+let elLensPillGroup = null;
+let lastLensStatePath = null;
+let lastTaskLensSnapshot = '';
+
 // Cached PR/issue data
 let cachedPRs = null;
 let cachedIssues = null;
@@ -116,6 +121,9 @@ function onFlowSelect(flowId, flowDef) {
 function renderDualPanels(flowId, flowDef) {
   elPanelArea.innerHTML = '';
   elScopeSelector = null;
+  elLensPillGroup = null;
+  lastLensStatePath = null;
+  lastTaskLensSnapshot = '';
 
   // Panel A — Situation (nested card)
   const panelA = document.createElement('div');
@@ -410,6 +418,10 @@ function renderLensPicker(container, statePath, currentLenses) {
   const pillGroup = document.createElement('div');
   pillGroup.className = 'wrapper';
 
+  elLensPillGroup = pillGroup;
+  lastLensStatePath = statePath;
+  lastTaskLensSnapshot = JSON.stringify(currentLenses);
+
   for (const lens of ALL_LENSES) {
     const isOn = currentLenses.includes(lens);
     const pill = createButton('pill', {
@@ -417,6 +429,7 @@ function renderLensPicker(container, statePath, currentLenses) {
       selected: isOn,
     });
     pill.setAttribute('role', 'switch');
+    pill.dataset.lens = lens;
 
     pill.addEventListener('click', () => {
       const state = getState();
@@ -424,7 +437,14 @@ function renderLensPicker(container, statePath, currentLenses) {
       const newLenses = current.includes(lens)
         ? current.filter((l) => l !== lens)
         : [...current, lens];
+
+      // Sync to all lens-enabled steps
+      const updatedSteps = (state.steps?.enabled_steps || []).map((s) =>
+        s.lenses !== undefined ? { ...s, lenses: newLenses } : s
+      );
+
       setState(statePath, newLenses);
+      setState('steps.enabled_steps', updatedSteps);
 
       // Update pill UI
       const nowOn = newLenses.includes(lens);
@@ -436,6 +456,15 @@ function renderLensPicker(container, statePath, currentLenses) {
   }
 
   container.appendChild(pillGroup);
+}
+
+function updateLensPillStates(activeLenses) {
+  if (!elLensPillGroup) return;
+  for (const pill of elLensPillGroup.querySelectorAll('[data-lens]')) {
+    const isOn = activeLenses.includes(pill.dataset.lens);
+    pill.setAttribute('aria-checked', String(isOn));
+    pill.classList.toggle('btn-pill--on', isOn);
+  }
 }
 
 // --- Improve scope selector (SCT-09) ---
@@ -649,10 +678,20 @@ function refreshPickerFields(kind) {
 
 // --- State subscription ---
 
-function onStateChange(_state) {
+function onStateChange(state) {
   // Update scope selector visibility
   if (currentFlowId === 'improve') {
     updateScopeSelector();
+  }
+
+  // Update lens picker pill UI when panel_b.lenses changes externally (e.g. from steps card)
+  if (elLensPillGroup && lastLensStatePath) {
+    const currentLenses = getValueByPath(state, lastLensStatePath) || [];
+    const snap = JSON.stringify(currentLenses);
+    if (snap !== lastTaskLensSnapshot) {
+      lastTaskLensSnapshot = snap;
+      updateLensPillStates(currentLenses);
+    }
   }
 }
 

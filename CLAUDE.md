@@ -11,7 +11,7 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core
 In case of conflicts between files, the higher-ranked file is always correct:
 
 ```
-@spec/spec_concept.md  > other files @spec/ > @src/config/flows.yaml > @src/ and @tests/
+@spec/spec_concept.md  > other files @spec/ > @config/flows.yaml > @src/ and @tests/
 ```
 
 If a conflict exists, update the lower-ranked file to match. If unclear, ask the user.
@@ -21,11 +21,11 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 | File                    | Purpose                                                                   | How to use                                                                   |
 | ----------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | `spec/spec_concept.md`  | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
-| `src/config/flows.yaml` | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
+| `config/flows.yaml` | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
 
 ## File Permissions
 
-- **NEVER** edit `spec/spec_concept.md`, `src/config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/specials.css` without asking the user for explicit permission first.
+- **NEVER** edit `spec/spec_concept.md`, `config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/specials.css` without asking the user for explicit permission first.
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
   - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
 - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.

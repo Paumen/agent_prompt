@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import yaml from 'js-yaml';
 
-const flowsPath = resolve(import.meta.dirname, '../src/config/flows.yaml');
+const flowsPath = resolve(import.meta.dirname, '../config/flows.yaml');
 const rawYaml = readFileSync(flowsPath, 'utf-8');
 const parsedFlows = yaml.load(rawYaml);
 
