@@ -95,3 +95,11 @@ npm test          # Run all tests
 
 - PRs require product owner approval before merge.
 - When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
+
+## Context Efficiency
+
+- Default to `Edit` over `Write` unless creating new files or rewriting >50% of lines.
+- Only `Read` a file immediately before editing it — don't pre-read for planning.
+- Use Explore agent (not direct reads) when research spans 4+ files.
+- Don't re-read files already in context.
+- If a task requires changes across many unrelated files (e.g. CSS + JS + tests + config), suggest the user split it into separate sessions grouped by concern.
