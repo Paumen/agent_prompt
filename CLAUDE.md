@@ -4,35 +4,7 @@
 
 Single-page web app that generates prompts for agentic llm.
 
-Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99).
-
-### Stage A: Core Implementation — COMPLETE
-
-- [x] A1 CSS Foundation: Design tokens, card shell, feedback styles, a11y
-- [x] A2 State Management: setState/subscribe, localStorage, deterministic prompt
-- [x] A3 Build Pipeline: YAML→JSON plugin, schema validation, runtime loader
-- [x] A4 GitHub API & Caching: Repos/branches/trees, 15-min TTL, limit enforcement
-- [x] A5 Config Card: PAT/username fields, repo/branch selection, background fetch
-- [x] A6 Task Card: Flow selection, Situation/Target fields, Quality Meter
-- [x] A7 Steps Card: Dynamic step generation, lens pills, delete actions
-- [x] A8 Prompt Output: XML generation, Copy action, Claude.ai deep-link, notes field
-- [x] A9 Polish & Constraints: ≤2 clicks, zero h-scroll, mobile-first audit
-
-### Stage B: UX/UI Remediation — COMPLETE
-
-- [x] B1 Global Visual Foundation: Shadow system, Octicon SVGs, field depth
-- [x] B2 Config Card Refinement: Expansion logic, credential UI, iconography
-- [x] B3 Task Card: Visual separation, validation UI, hierarchy, compact layout
-- [x] B4 Steps & Output Logic: Step styling, multi-select, file consolidation, lens stability
-- [x] B5 Prompt Card & Actions: Header actions, icon animation, XML highlighting, quality tooltip
-- [x] B6 Final UAT & Regression: Viewport audit, performance, a11y validation, PO approved
-
-### Stage C: Redesign Framework — COMPLETE (Ref: @spec/STAGE_C.md)
-
-- [x] C1 CSS Quick Wins: Pill/flex/surface consolidation, accent fix, shadow-inset-sm fix
-- [x] C2 Framework Definition: 4 CSS files, ui.js factories, clamp(), container queries
-- [x] C3 Structural Application: Migrate cards (prompt → steps → config → tasks)
-- [x] C4 Pattern Cleanup: Remove card-specific CSS, <40 core classes, delete old styles
+Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_C.md` for details. Current work begins at Stage D.
 
 ## Authority Hierarchy
 
@@ -53,26 +25,27 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 ## File Permissions
 
-- **NEVER** edit `spec/spec_concept.md`, `src/config/flows.yaml`, `.github/workflows/`, edit `src/css/variables.css`, OR `src/css/specials.css` without asking the user first.
-- **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
+- **NEVER** edit `spec/spec_concept.md`, `src/config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/specials.css` without asking the user for explicit permission first. 
+  - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
+  - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
+  - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
 
-## Anti-Over-Engineering Rule
-
-Before implementing complex logic, evaluate if there is a simpler alternative that achieves the same result. If the spec seems over-engineered for the use case, flag it and suggest a simpler approach before proceeding. Prefer the simplest solution that fully satisfies the requirement.
 
 ## Code Conventions
 
+- **Simplicity first**: Before implementing complex logic, evaluate if there is a simpler alternative that achieves the same result. If the spec seems over-engineered for the use case, flag it and suggest a simpler approach before proceeding. Prefer the simplest solution that fully satisfies the requirement.
+  
 - Vanilla JavaScript with ES modules.
 - No unnecessary abstractions — keep code direct and readable.
 - One feature per file where practical.
 - All asset references in HTML must use relative paths (starting with `./`), not absolute paths starting with `/`. Vite's `base` config handles path rewriting during build.
 - Run `npm run build` before creating a PR to catch build errors early.
 - **NEVER** apply inline styles in .js or .html without asking the user first.
-- Use CSS custom properties (variables) defined in `src/css/variables.css`. Request if you need other or adjustments.
+- Use CSS custom properties (variables) defined in `src/css/variables.css`. Ask before adding or adjusting variables.
 - Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
-- Use modern futures like light-dark, container queries, cqi, dvh, clamp(), :is(), :had(), :where(), etc.
+- Use modern feutures like light-dark, @container, cqi, dvh, clamp(), :is(), :has(), :where(), etc.
 - Plain CSS only.
-- Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after approval user.
+- Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after user approval.
 
 ## Commands
 
@@ -85,6 +58,11 @@ npm run lint:fix  # Auto-fix lint issues
 npm run format    # Auto-format all files with Prettier
 npm test          # Run all tests
 ```
+
+## Testing
+
+- Run `npm test` before opening a PR. If you change a module that has a corresponding test file, update the tests to match.
+- Don't write tests for trivial changes unless asked.
 
 ## Team
 
@@ -102,5 +80,6 @@ npm test          # Run all tests
 - Default to `Edit` over `Write` unless creating new files or rewriting >50% of lines.
 - Only `Read` a file immediately before editing it — don't pre-read for planning.
 - Use Explore agent (not direct reads) when research spans 4+ files.
-- Don't re-read files already in context.
+- **NEVER** re-read files already in context window — treat this as a hard rule.
+- Batch related questions into a single Explore query where possible.
 - If a task requires changes across many unrelated files (e.g. CSS + JS + tests + config), suggest the user split it into separate sessions grouped by concern.
