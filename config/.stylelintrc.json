@@ -46,11 +46,6 @@
       "margin": [
         "0",
         "0 auto",
-        "place-self",
-        "place-items",
-        "place-content",
-        "inset",
-        "clip-path"
       ]
     },
     "declaration-property-value-disallowed-list": {
@@ -87,8 +82,8 @@
         "z-index", 
         "padding", 
         "Gap", 
-        "background
-        "],
+        "background"
+      ],
       {
         "ignoreValues": [
           "inherit",
