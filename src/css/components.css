@@ -24,12 +24,15 @@
 .icon-remove {
   color: var(--neutral);
 }
+
 .icon-remove:hover {
   color: var(--neutral-dark);
 }
+
 .icon-btn {
   color: inherit;
 }
+
 .icon--chevron {
   color: var(--text-tertiary);
   transition: transform 0.4s ease;
@@ -470,9 +473,11 @@ label {
 .btn-copy .icon-check {
   display: none;
 }
+
 .btn-copy.btn--copied .icon-clipboard {
   display: none;
 }
+
 .btn-copy.btn--copied .icon-check {
   display: block;
 }
@@ -481,9 +486,11 @@ label {
 .js-eye-btn .icon-eye-off {
   display: none;
 }
+
 .js-eye-btn.is-shown .icon-eye-on {
   display: none;
 }
+
 .js-eye-btn.is-shown .icon-eye-off {
   display: block;
 }
