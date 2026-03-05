@@ -25,7 +25,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 
 ## File Permissions
 
-- **NEVER** edit `spec/spec_concept.md`, `config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/specials.css` without asking the user for explicit permission first.
+- **NEVER** edit `spec/spec_concept.md`, `config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/special.css` without asking the user for explicit permission first.
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
   - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
 - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
@@ -40,12 +40,9 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 - All asset references in HTML must use relative paths (starting with `./`), not absolute paths starting with `/`. Vite's `base` config handles path rewriting during build.
 - Run `npm run build` before creating a PR to catch build errors early.
 - **NEVER** apply inline styles in .js or .html without asking the user first.
-- Use CSS custom properties (variables) defined in `src/css/variables.css`. Ask before adding or adjusting variables.
-- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
-- Use modern features like light-dark, @container, cqi, dvh, clamp(), :is(), :has(), :where(), etc.
-- Plain CSS only.
-- Any new color, size, or spacing value must be added as a variable first in `variables.css` and only after user approval.
-
+- **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `.claude/commands/css-guide.md`.
+- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components. 
+- 
 ## Commands
 
 ```

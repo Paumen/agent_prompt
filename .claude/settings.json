@@ -9,7 +9,7 @@
     "PostToolUse": [
       {
         "type": "command",
-        "command": "if echo \"$CLAUDE_TOOL_NAME\" | grep -qE '^(Write|Edit)$'; then FILE=\"$CLAUDE_FILE_PATH\"; if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then echo \"Formatting $FILE\"; npx prettier --write \"$FILE\"; if echo \"$FILE\" | grep -qE '\\.(js|mjs|cjs)$'; then echo \"Linting $FILE\"; npx eslint --fix \"$FILE\"; fi; fi; fi"
+        "command": "if echo \"$CLAUDE_TOOL_NAME\" | grep -qE '^(Write|Edit)$'; then FILE=\"$CLAUDE_FILE_PATH\"; if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then echo \"Formatting $FILE\"; npx prettier --write \"$FILE\"; if echo \"$FILE\" | grep -qE '\\.(js|mjs|cjs)$'; then echo \"Linting $FILE\"; npx eslint --fix \"$FILE\"; elif echo \"$FILE\" | grep -qE '\\.css$'; then echo \"Stylelinting $FILE\"; npx stylelint \"$FILE\" --config config/.stylelintrc.json --fix 2>&1 || echo \"⚠ Stylelint errors remain — invoke /css-guide for guidance.\"; fi; fi; fi"
       }
     ]
   }
