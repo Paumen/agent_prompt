@@ -1,3 +1,8 @@
+---
+name: css-guide
+description: CSS conventions, prohibited patterns, and style architecture. Invoke before editing any .css file or when resolving CSS lint/build errors.
+---
+
 CSS Style Guide — invoke before editing any `.css` file or when resolving CSS lint/build errors.
 
 This skill governs all CSS work. Reference files in `spec/css-guide/` provide deeper guidance for complex work.
@@ -95,6 +100,9 @@ When you need permission, request it individually (not bundled) with:
 5. **Alternatives Considered**
 
 > Example: Request ID: #01 | File: layout.css | Exception: new class `.card-collapsed` | Rationale: no existing class covers this state, `:has()` selector insufficient because [...] | Alternatives: using `[data-state]` attribute (tested, specificity conflict with...)
+
+**Granting Permission:**
+Permission is valid **only** if the human responds with the request ID# and the code: `SESAMOPENU`. This forces deliberate evaluation — not reflexive approval. Permissions are single-use and expire at the end of the session.
 
 ---
 
