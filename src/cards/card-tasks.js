@@ -36,7 +36,6 @@ import { icon } from '../common/icons.js';
 // --- Module-level state ---
 
 let elBody = null;
-let elFlowGrid = null;
 let elPanelArea = null;
 let currentFlowId = null;
 
@@ -57,11 +56,6 @@ let elScopeSelector = null;
 // --- Flow grid ---
 
 function renderFlowSelector() {
-  elFlowGrid = document.createElement('div');
-  elFlowGrid.className = 'wrapper';
-  elFlowGrid.setAttribute('role', 'listbox');
-  elFlowGrid.setAttribute('aria-label', 'Select a flow');
-
   const flows = getFlows();
   for (const [flowId, flowDef] of Object.entries(flows)) {
     const btn = createButton('select', {
@@ -70,11 +64,8 @@ function renderFlowSelector() {
       onClick: () => onFlowSelect(flowId, flowDef),
       dataset: { flowId },
     });
-    btn.setAttribute('role', 'option');
-    elFlowGrid.appendChild(btn);
+    elBody.appendChild(btn);
   }
-
-  elBody.appendChild(elFlowGrid);
 }
 
 // --- Panel area (rendered after flow selection) ---
@@ -95,8 +86,8 @@ function onFlowSelect(flowId, flowDef) {
   // Apply defaults to state (DM-DEF-03)
   applyFlowDefaults(flowId, flowDef);
 
-  // Update flow button selection
-  const buttons = elFlowGrid.querySelectorAll('.btn-select');
+  // Update flow button selection (direct children only, not scope buttons)
+  const buttons = elBody.querySelectorAll(':scope > .btn-select');
   for (const btn of buttons) {
     const isSelected = btn.dataset.flowId === flowId;
     btn.classList.toggle('btn-select--selected', isSelected);
@@ -419,10 +410,7 @@ function renderFilePicker(
 }
 
 function renderLensPicker(container, statePath, currentLenses) {
-  const pillGroup = document.createElement('div');
-  pillGroup.className = 'wrapper';
-
-  elLensPillGroup = pillGroup;
+  elLensPillGroup = container;
   lastLensStatePath = statePath;
   lastTaskLensSnapshot = JSON.stringify(currentLenses);
 
@@ -456,10 +444,8 @@ function renderLensPicker(container, statePath, currentLenses) {
       pill.classList.toggle('btn-pill--on', nowOn);
     });
 
-    pillGroup.appendChild(pill);
+    container.appendChild(pill);
   }
-
-  container.appendChild(pillGroup);
 }
 
 function updateLensPillStates(activeLenses) {
@@ -481,9 +467,6 @@ function renderScopeSelector() {
   const scopeLabel = createLabel('How should files be improved?');
   scopeEl.appendChild(scopeLabel);
 
-  const scopeOptions = document.createElement('div');
-  scopeOptions.className = 'wrapper';
-
   const options = [
     { value: 'each_file', label: 'Each file separately' },
     { value: 'across_files', label: 'Across files together' },
@@ -496,17 +479,16 @@ function renderScopeSelector() {
       dataset: { scope: opt.value },
       onClick: () => {
         setState('improve_scope', opt.value);
-        for (const b of scopeOptions.querySelectorAll('.btn-select')) {
+        for (const b of scopeEl.querySelectorAll('.btn-select')) {
           const isSelected = b.dataset.scope === opt.value;
           b.classList.toggle('btn-select--selected', isSelected);
           b.setAttribute('aria-selected', String(isSelected));
         }
       },
     });
-    scopeOptions.appendChild(btn);
+    scopeEl.appendChild(btn);
   }
 
-  scopeEl.appendChild(scopeOptions);
   return scopeEl;
 }
 

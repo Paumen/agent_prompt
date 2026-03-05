@@ -70,6 +70,16 @@ body {
   gap: var(--sp-8);
 }
 
+/* Task card: flow buttons directly in card-body (no wrapper) */
+.card-body:has(> .btn-select) {
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: var(--sp-2);
+}
+
+.card-body:has(> .btn-select) > :not(.btn-select) {
+  grid-column: 1 / -1;
+}
+
 /* Collapsed state: child combinator scopes to direct body only */
 .card:not(.card--open) > .card-body {
   display: none;
@@ -79,25 +89,12 @@ body {
 
 .input {
   display: grid;
-  /* Explicitly define only the first column */
   grid-template-columns: clamp(40px, 15%, 80px);
-  /* Ensure those automatic columns only take up the width of their content */
   grid-auto-columns: min-content;
-  /* Force all other items into new columns automatically */
   grid-auto-flow: column;
   gap: var(--sp-4);
   align-items: start;
-  /* Keep everything packed to the left */
   justify-content: start;
-}
-
-.input > label {
-  grid-column: 1;
-  padding: var(--sp-2) 0 0;
-}
-
-.input > :not(label) {
-  grid-column: 2;
 }
 
 /* === Output (full-width content area) === */
@@ -133,12 +130,12 @@ body {
 
 @container card (max-width: 599px) {
   .input {
-    grid-template-columns: clamp(40px, 15%, 80px) 1fr;
+    grid-template-columns: clamp(40px, 15%, 80px);
   }
 }
 
 @container card (min-width: 600px) {
   .input {
-    grid-template-columns: clamp(80px, 20%, 160px) 1fr;
+    grid-template-columns: clamp(80px, 20%, 160px);
   }
 }
