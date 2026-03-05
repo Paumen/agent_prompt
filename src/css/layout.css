@@ -124,9 +124,7 @@ body {
   counter-increment: steps;
 }
 
-.output-field > :nth-child(n + 3)
-  grid-column: 2 / -1;
-}
+
 
 
 
