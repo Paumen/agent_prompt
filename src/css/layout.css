@@ -89,9 +89,7 @@ body {
 
 .input {
   display: grid;
-  grid-template-columns: clamp(40px, 15%, 80px);
-  grid-auto-columns: min-content;
-  grid-auto-flow: column;
+  grid-template-columns: clamp(40px, 15%, 80px) 1fr;
   gap: var(--sp-4);
   align-items: start;
   justify-content: start;
