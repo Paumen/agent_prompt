@@ -127,12 +127,12 @@ body {
 
 @container card (max-width: 599px) {
   .input {
-    grid-template-columns: clamp(40px, 15%, 80px);
+    grid-template-columns: clamp(40px, 15%, 80px) 1fr;
   }
 }
 
 @container card (min-width: 600px) {
   .input {
-    grid-template-columns: clamp(80px, 20%, 160px);
+    grid-template-columns: clamp(80px, 20%, 160px) 1fr;
   }
 }
