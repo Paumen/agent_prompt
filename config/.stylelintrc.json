@@ -19,9 +19,9 @@
 
     "at-rule-disallowed-list": [
       "media",
-      "document"
-      "viewport"
-      "apply"
+      "document",
+      "viewport",
+      "apply",
       "charset"
     ],
     
