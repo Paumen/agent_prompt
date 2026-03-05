@@ -1,7 +1,7 @@
 @import url('./variables.css');
 
 /**
- * layout.css — Grid definitions + structural rules
+ * layout.css — Grid definitions + structural rules.
  *
  * Purely spatial: grid templates, container queries, max-width, gaps.
  * No colors, no typography — those live in components.css and variables.css.
