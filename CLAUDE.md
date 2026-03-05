@@ -41,7 +41,8 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 - Run `npm run build` before creating a PR to catch build errors early.
 - **NEVER** apply inline styles in .js or .html without asking the user first.
 - **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `.claude/commands/css-guide.md`.
-
+- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components. 
+- 
 ## Commands
 
 ```

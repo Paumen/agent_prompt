@@ -199,7 +199,6 @@ function renderSourcePill(source, iconName, labelPrefix) {
 
 function renderFilePills(step) {
   const container = document.createElement('div');
-  container.className = 'wrapper';
 
   for (const filePath of step.params.files) {
     const segments = filePath.split('/');
@@ -241,9 +240,6 @@ function renderOutputIcons(step, index) {
   lbl.textContent = 'Deliver via:';
   container.appendChild(lbl);
 
-  const pillGroup = document.createElement('div');
-  pillGroup.className = 'wrapper';
-
   const selected =
     step.outputs_selected ||
     (step.output_selected ? [step.output_selected] : [step.output[0]]);
@@ -258,10 +254,9 @@ function renderOutputIcons(step, index) {
       onClick: () => onSelectOutput(index, mode, btn),
     });
     btn.setAttribute('role', 'checkbox');
-    pillGroup.appendChild(btn);
+    container.appendChild(btn);
   }
 
-  container.appendChild(pillGroup);
   return container;
 }
 
@@ -273,26 +268,20 @@ function renderStepLenses(step, stepIndex) {
   const remainder = ALL_LENSES.slice(INITIAL_LENS_COUNT);
 
   // Primary lenses
-  const pillGroup = document.createElement('div');
-  pillGroup.className = 'wrapper';
-
   for (const lens of initial) {
-    pillGroup.appendChild(createLensPill(lens, activeLenses, stepIndex));
+    container.appendChild(createLensPill(lens, activeLenses, stepIndex));
   }
-
-  container.appendChild(pillGroup);
 
   // "More" button for remaining lenses
   if (remainder.length > 0) {
     const activeRemainder = remainder.filter((l) => activeLenses.includes(l));
     const isExpanded = expandedSteps.get(step.id) || false;
 
-    const extraGroup = document.createElement('div');
-    extraGroup.className = 'wrapper';
-    extraGroup.hidden = !isExpanded;
-
+    const extraPills = [];
     for (const lens of remainder) {
-      extraGroup.appendChild(createLensPill(lens, activeLenses, stepIndex));
+      const pill = createLensPill(lens, activeLenses, stepIndex);
+      pill.hidden = !isExpanded;
+      extraPills.push(pill);
     }
 
     const moreBtn = createMoreLess({
@@ -304,12 +293,16 @@ function renderStepLenses(step, stepIndex) {
           : undefined,
       onToggle: (nowExpanded) => {
         expandedSteps.set(step.id, nowExpanded);
-        extraGroup.hidden = !nowExpanded;
+        for (const pill of extraPills) {
+          pill.hidden = !nowExpanded;
+        }
       },
     });
 
     container.appendChild(moreBtn);
-    container.appendChild(extraGroup);
+    for (const pill of extraPills) {
+      container.appendChild(pill);
+    }
   }
 
   return container;

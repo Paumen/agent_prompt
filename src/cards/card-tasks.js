@@ -18,7 +18,11 @@ import { getFlows, getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { getFileTree, setConfigCardSummary } from './card-configuration.js';
 import { fetchPRs, fetchIssues } from '../common/github-api.js';
 import { cacheGet, cacheSet } from '../common/cache.js';
-import { renderShimmer, expandCard, collapseCard } from '../common/components.js';
+import {
+  renderShimmer,
+  expandCard,
+  collapseCard,
+} from '../common/components.js';
 import { createFilePicker } from '../common/file-tree.js';
 import {
   createButton,
