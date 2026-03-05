@@ -84,17 +84,16 @@ body {
 
 .input {
   display: grid;
-  /* Explicitly define only the first column */
   grid-template-columns: clamp(40px, 15%, 80px);
+
   /* Ensure those automatic columns only take up the width of their content */
   grid-auto-columns: min-content;
-  /* Force all other items into new columns automatically */
   grid-auto-flow: column;
   gap: var(--sp-4);
   align-items: start;
-  /* Keep everything packed to the left */
   justify-content: start;
 }
+
 
 .input > label {
   grid-column: 1;
@@ -125,9 +124,11 @@ body {
   counter-increment: steps;
 }
 
-.output-field > :nth-child(n + 3) {
+.output-field > :nth-child(n + 3)
   grid-column: 2 / -1;
 }
+
+
 
 .output-block {
   display: flex;
@@ -141,12 +142,12 @@ body {
 
 @container card (max-width: 599px) {
   .input {
-    grid-template-columns: clamp(40px, 15%, 80px) 1fr;
+    grid-template-columns: clamp(40px, 15%, 80px);
   }
 }
 
 @container card (min-width: 600px) {
   .input {
-    grid-template-columns: clamp(80px, 20%, 160px) 1fr;
+    grid-template-columns: clamp(80px, 20%, 160px);
   }
 }
