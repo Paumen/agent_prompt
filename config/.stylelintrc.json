@@ -23,21 +23,25 @@
       "clear",
       "zoom",
       "table-layout",
-      "padding-top",
-      "padding-bottom",
-      "padding-left",
-      "padding-right",
       "top",
       "bottom",
       "right",
       "left",
-      "/^margin-/"
+      "/^padding-/",
+      "/^margin-/",
+      "margin",
+      "justify-content",
+      "align-items",
+      "align-self"
     ],
     "declaration-property-value-allowed-list": {
       "margin": [
         "0",
         "0 auto",
-        "/^(0|var\\(--[\\w-]+\\))(\\s+(0|var\\(--[\\w-]+\\)))*$/"
+        "place-self",
+        "place-items",
+        "place-content",
+        "inset"
       ]
     },
     "declaration-property-value-disallowed-list": {
@@ -59,7 +63,7 @@
     "no-unknown-animations": true,
 
     "scale-unlimited/declaration-strict-value": [
-      ["/color$/", "z-index", "padding", "gap"],
+      ["/color$/", "z-index", "padding", "Gap", "background"],
       {
         "ignoreValues": [
           "inherit",
