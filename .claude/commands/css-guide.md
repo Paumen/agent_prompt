@@ -21,9 +21,10 @@ Before making ANY CSS change, complete these steps in order:
 2. **Check permissions** — does this file require explicit human permission? (See Permissions below.)
 3. **Read the current state** of the file you will edit.
 4. **Make the change** following the Do/Don't table below.
-5. **Run `npm run stylelint`** to validate.
-6. **If errors**: read `spec/css-guide/prohibited.md`, fix using the approved alternative, re-run stylelint.
-7. **Run `npm run build`** to catch any remaining issues.
+5. **Validation is automatic** — the PostToolUse hook runs stylelint with `--fix` on every `.css` edit.
+6. **If errors remain**: read `spec/css-guide/prohibited.md`, fix using the approved alternative.
+7. **Run `./scripts/css-check.sh`** for full validation (stylelint + dead code detection).
+8. **Run `npm run build`** to catch any remaining issues.
 
 ---
 
@@ -54,6 +55,7 @@ src/css/
 
 ```
 .claude/commands/css-guide.md          ← This file. Core rules, always loaded.
+scripts/css-check.sh                   ← Stylelint + dead CSS class detection. Run for full validation.
 spec/css-guide/
 ├── prohibited.md                      ← Prohibited properties/values with rationales + alternatives.
 │                                        Read when: stylelint errors, unclear what to use.
@@ -62,6 +64,12 @@ spec/css-guide/
 └── architecture.md                    ← CSS architecture deep-dive (layers, scoping, sizing, theming).
                                          Read when: structural layout work, theming, responsiveness.
 ```
+
+**Automation:**
+
+- **PostToolUse hook** auto-runs `stylelint --fix` on every `.css` file edit.
+- **`./scripts/css-check.sh`** runs full validation: stylelint + dead code detection.
+- **`./scripts/css-check.sh src/css/layout.css`** runs checks on a single file.
 
 ---
 
