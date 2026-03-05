@@ -1,6 +1,13 @@
 {
-  "extends": ["stylelint-config-standard", "stylelint-config-recess-order"],
-  "plugins": ["stylelint-declaration-strict-value"],
+  "extends": [
+    "stylelint-config-standard", 
+    "stylelint-config-recess-order"
+  ],
+  
+  "plugins": [
+    "stylelint-declaration-strict-value"
+  ],
+  
   "rules": {
     "at-rule-empty-line-before": null,
     "comment-empty-line-before": null,
@@ -53,6 +60,7 @@
         "/^table/"
       ] 
     },
+    
     "unit-disallowed-list": [
       "in", 
       "pt", 
