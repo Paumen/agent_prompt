@@ -54,9 +54,20 @@
       ]
     },
     "declaration-property-value-disallowed-list": {
-      "display": ["/^table/"]
+      "display": [
+        "/^table/"
+      ] 
     },
-    "unit-disallowed-list": ["in", "pt", "mm", "cm", "pc", "ex", "ch", "q"],
+    "unit-disallowed-list": [
+      "in", 
+      "pt", 
+      "mm", 
+      "cm", 
+      "pc", 
+      "ex", 
+      "ch", 
+      "q"
+    ],
 
     "declaration-no-important": true,
     "max-nesting-depth": 2,
@@ -72,7 +83,12 @@
     "no-unknown-animations": true,
 
     "scale-unlimited/declaration-strict-value": [
-      ["/color$/", "z-index", "padding", "Gap", "background"],
+      ["/color$/", 
+        "z-index", 
+        "padding", 
+        "Gap", 
+        "background
+        "],
       {
         "ignoreValues": [
           "inherit",
