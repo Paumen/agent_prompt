@@ -118,7 +118,7 @@ Permission is valid **only** if the human responds with the request ID# and the 
 | **Dimensions**     | `width: auto;` / intrinsic                    | `width: 100vw;` / `500px;`         | Hard-coded units break scalability.             |
 | **Interactions**   | `<details>` / `<summary>`                     | `div` + JS click listeners         | Accessible, zero-JS functionality.              |
 | **Shorthand**      | `padding: 1rem;` / `inset: 0;`                | `padding-top` / `top: 0; left: 0;` | Reduces code volume and override complexity.    |
-| **Units**          | `rem` / `clamp()` / `ch`                      | `px` for font or spacing           | `px` ignores user browser/zoom preferences.     |
+| **Units**          | `cqi`/ `rem` / `clamp()`                      | `px` for font or spacing           | `px` ignores user browser/zoom preferences.     |
 | **State**          | `[aria-expanded="true"]`                      | `.is-active` / `.is-open`          | Semantic, accessible, no custom classes needed. |
 | **Colors**         | `var(--color-*)` from variables.css           | Hard-coded hex/rgb/oklch           | Tokens ensure consistency and themeability.     |
 | **Hover**          | `color-mix(in srgb, var(--brand), black 15%)` | Hard-coded hover color             | Derived mathematically from one token.          |
