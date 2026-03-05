@@ -12,5 +12,5 @@ git status --short
 echo '---'
 
 # Install dependencies (idempotent — npm install is a no-op when node_modules is current)
-npm install 2>&1
+npm ci 2>&1 || npm install 2>&1
 echo '--- Ready ---'
