@@ -17,12 +17,20 @@
       }
     ],
 
-    "at-rule-disallowed-list": ["media"],
+    "at-rule-disallowed-list": [
+      "media",
+      "document"
+      "viewport"
+      "apply"
+      "charset"
+    ],
+    
     "property-disallowed-list": [
       "float",
       "clear",
       "zoom",
       "table-layout",
+      "clip",
       "top",
       "bottom",
       "right",
@@ -41,7 +49,8 @@
         "place-self",
         "place-items",
         "place-content",
-        "inset"
+        "inset",
+        "clip-path"
       ]
     },
     "declaration-property-value-disallowed-list": {
