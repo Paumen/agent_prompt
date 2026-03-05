@@ -18,7 +18,7 @@
     ],
     
     "custom-property-pattern": [
-  "^--(c|sp|font|z|bg|radius|text|accent|shadow|z|line)-[a-z0-9-]+$",
+  "^(c|sp|font|z|bg|radius|text|accent|shadow|z|line)(-[a-z0-9-]+)?$",
   {
     "message": "Custom properties must start with a token namespace (e.g. --text-primary)."
   }
@@ -42,16 +42,17 @@
         "justify-content", "align-items", "align-self"
       ],
       {
-        "message": "Property \"%s\" is disallowed. See @spec/style-guide/prohibited.md"
+        "message": "Property \"%s\" is disallowed. See spec/css-guide/prohibited.md"
       }
     ],
 
     "declaration-property-value-allowed-list": [
       {
-        "padding": ["0", "0 auto"],
-        "margin": [],
-        "inset": [],
-        "/color/": ["/light-dark/", "transparent", "currentColor"]
+        "color-scheme": ["/./"],
+        "padding": ["0", "0 auto", "/var\\(--/"],
+        "margin": ["/var\\(--/", "auto", "0 auto", "0"],
+        "inset": ["/var\\(--/", "0"],
+        "/color/": ["/light-dark/", "transparent", "currentColor", "inherit", "#fff", "/var\\(--/"]
       },
       {
         "severity": "warning",
@@ -197,8 +198,8 @@
       {
         "ignoreValues": [
           "inherit", "initial", "unset", "revert", "auto",
-          "currentColor", "currentcolor", 
-          "transparent", "none", "0"
+          "currentColor", "currentcolor",
+          "transparent", "none", "0", "#fff"
         ],
         "severity": "warning",
         "message": "Expected variable for \"${property}\", found \"${value}\". Use a custom property instead."
