@@ -2,8 +2,12 @@
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "echo '--- Session Start ---' && echo \"Branch: $(git branch --show-current)\" && git status --short && echo '---' && if [ ! -d node_modules ]; then echo 'Installing dependencies...' && npm ci 2>&1 || echo 'Warning: npm ci failed. Falling back to npm install...' && npm install 2>&1 || echo 'Warning: npm install failed. You can still read files and debug.'; else echo 'Dependencies ready.'; fi && echo '--- Ready ---'"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
