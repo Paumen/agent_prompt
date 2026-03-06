@@ -1,4 +1,16 @@
 {
+  "permissions": {
+    "deny": [
+      "Edit(/src/css/variables.css)",
+      "Edit(/src/css/special.css)",
+      "Write(/src/css/variables.css)",
+      "Write(/src/css/special.css)"
+    ],
+    "ask": [
+      "Edit(/src/css/**)",
+      "Write(/src/css/**)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
