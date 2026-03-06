@@ -410,8 +410,11 @@ function renderFilePicker(
 }
 
 function renderLensPicker(container, statePath, currentLenses) {
-  container.classList.add('cloud');
-  elLensPillGroup = container;
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud';
+  container.appendChild(cloud);
+
+  elLensPillGroup = cloud;
   lastLensStatePath = statePath;
   lastTaskLensSnapshot = JSON.stringify(currentLenses);
 
@@ -445,7 +448,7 @@ function renderLensPicker(container, statePath, currentLenses) {
       pill.classList.toggle('btn-pill--on', nowOn);
     });
 
-    container.appendChild(pill);
+    cloud.appendChild(pill);
   }
 }
 

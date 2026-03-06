@@ -235,11 +235,15 @@ function renderOptionalTextRow(step, index) {
 
 function renderOutputIcons(step, index) {
   const container = document.createElement('div');
-  container.className = 'input cloud';
+  container.className = 'input';
 
   const lbl = document.createElement('label');
   lbl.textContent = 'Deliver via:';
   container.appendChild(lbl);
+
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud';
+  container.appendChild(cloud);
 
   const selected =
     step.outputs_selected ||
@@ -255,7 +259,7 @@ function renderOutputIcons(step, index) {
       onClick: () => onSelectOutput(index, mode, btn),
     });
     btn.setAttribute('role', 'checkbox');
-    container.appendChild(btn);
+    cloud.appendChild(btn);
   }
 
   return container;
