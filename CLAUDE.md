@@ -6,6 +6,19 @@ Single-page web app that generates prompts for agentic llm.
 
 Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_C.md` for details. Current work begins at Stage D.
 
+## File Restrictions and Permissions
+
+- **NEVER** edit `@spec/spec_concept.md`, `@.github/workflows/`, `@src/css/variables.css`, or `@src/css/special.css`, or `@config/*` without asking the user for explicit permission FIRST. Use PermissionReqiest or AskUserQuestion tool to explicitly request approval per file and per instance.
+  - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
+  - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
+- **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
+- **Exception**: Stylelint auto-fix changes applied via `npm run stylelint:fix` are permitted without asking.
+
+## Other Restrictions and Permissions 
+- **NEVER** apply inline styles in .js or .html without asking the user first.
+- All html div elements must have at least one .class
+- Existing classes must be reused as much as  possible, new classes requires user explicit approval.
+
 ## Authority Hierarchy
 
 In case of conflicts between files, the higher-ranked file is always correct:
@@ -14,22 +27,15 @@ In case of conflicts between files, the higher-ranked file is always correct:
 @spec/spec_concept.md  > other files @spec/ > @config/flows.yaml > @src/ and @tests/
 ```
 
-If a conflict exists, update the lower-ranked file to match. If unclear, ask the user.
+If a conflict exists, update the lower-ranked file to match. If unclear, ask the user. 
 
 ## File Guide
 
 | File                   | Purpose                                                                   | How to use                                                                   |
 | ---------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `spec/spec_concept.md` | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
-| `config/flows.yaml`    | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
+| `@spec/spec_concept.md` | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
+| `@config/flows.yaml`    | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
 
-## File Permissions
-
-- **NEVER** edit `spec/spec_concept.md`, `config/flows.yaml`, `.github/workflows/`, `src/css/variables.css`, or `src/css/special.css` without asking the user for explicit permission first.
-  - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
-  - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
-- **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
-- **Exception**: Stylelint auto-fix changes applied via `npm run stylelint:fix` are permitted without asking.
 
 ## Code Conventions
 
@@ -39,8 +45,7 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 - One feature per file where practical.
 - All asset references in HTML must use relative paths (starting with `./`), not absolute paths starting with `/`. Vite's `base` config handles path rewriting during build.
 - Run `npm run build` before creating a PR to catch build errors early.
-- **NEVER** apply inline styles in .js or .html without asking the user first.
-- **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `.claude/commands/css-guide.md`.
+- **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `@.claude/commands/css-guide.md`.
 - Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
 -
 
