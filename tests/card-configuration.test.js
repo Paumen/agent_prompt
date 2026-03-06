@@ -155,7 +155,7 @@ describe('auto-fetch repos (CFG-02)', () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  it('renders repo buttons after fetch', async () => {
+  it('renders repo picker dropdown after fetch', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
     globalThis.fetch = mockFetch(SAMPLE_REPOS);
@@ -163,10 +163,13 @@ describe('auto-fetch repos (CFG-02)', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      const buttons = document.querySelectorAll(
-        '[aria-label="Repositories"] .btn-select'
+      const searchInput = document.querySelector('.field-picker .input-field');
+      expect(searchInput).not.toBeNull();
+      searchInput.dispatchEvent(new Event('focus'));
+      const items = document.querySelectorAll(
+        '.field-picker .field-picker-item'
       );
-      expect(buttons.length).toBe(3);
+      expect(items.length).toBe(3);
     });
   });
 });
@@ -203,31 +206,32 @@ describe('repo selection (CFG-03)', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
+      const searchInput = document.querySelector('.field-picker .input-field');
+      expect(searchInput).not.toBeNull();
+      searchInput.dispatchEvent(new Event('focus'));
       expect(
-        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
-          .length
+        document.querySelectorAll('.field-picker .field-picker-item').length
       ).toBe(3);
     });
   }
 
-  it('sets state and highlights selected repo', async () => {
+  it('sets state and shows selection tag for repo', async () => {
     await setupWithRepos();
 
-    const repoBtn = document.querySelector(
-      '[aria-label="Repositories"] .btn-select'
-    );
-    repoBtn.click();
+    const repoItem = document.querySelector('.field-picker .field-picker-item');
+    repoItem.click();
 
     expect(state.getState().configuration.repo).toBe('alpha');
     await vi.waitFor(() => {
-      expect(document.querySelector('.btn-select--selected')).not.toBeNull();
+      expect(document.querySelector('.tag')).not.toBeNull();
     });
   });
 
   it('expands Tasks card and hides credentials on repo select', async () => {
     await setupWithRepos();
 
-    document.querySelector('[aria-label="Repositories"] .btn-select').click();
+    // Items are already rendered from setupWithRepos focus
+    document.querySelector('.field-picker .field-picker-item').click();
 
     expect(
       document.getElementById('card-tasks').classList.contains('card--open')
@@ -263,13 +267,15 @@ describe('branch auto-select (CFG-04)', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
+      const searchInput = document.querySelector('.field-picker .input-field');
+      expect(searchInput).not.toBeNull();
+      searchInput.dispatchEvent(new Event('focus'));
       expect(
-        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
-          .length
+        document.querySelectorAll('.field-picker .field-picker-item').length
       ).toBe(3);
     });
 
-    document.querySelector('[aria-label="Repositories"] .btn-select').click();
+    document.querySelector('.field-picker .field-picker-item').click();
 
     await vi.waitFor(() => {
       expect(state.getState().configuration.branch).toBe('main');
@@ -297,7 +303,7 @@ describe('error handling (GL-04)', () => {
 });
 
 describe('accessibility', () => {
-  it('repo grid has role="listbox" and buttons have role="option"', async () => {
+  it('repo picker has search input with aria-label', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
     globalThis.fetch = mockFetch(SAMPLE_REPOS);
@@ -305,13 +311,10 @@ describe('accessibility', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      const grid = document.querySelector('[aria-label="Repositories"]');
-      expect(grid.getAttribute('role')).toBe('listbox');
-      expect(
-        document
-          .querySelector('[aria-label="Repositories"] .btn-select')
-          .getAttribute('role')
-      ).toBe('option');
+      const searchInput = document.querySelector(
+        '.field-picker .input-field[aria-label]'
+      );
+      expect(searchInput).not.toBeNull();
     });
   });
 });
@@ -345,11 +348,9 @@ describe('username clear button', () => {
 
     cardConfig.initConfigurationCard();
 
+    // Wait for repos to load and render (selected repo shows as tag)
     await vi.waitFor(() => {
-      expect(
-        document.querySelectorAll('[aria-label="Repositories"] .btn-select')
-          .length
-      ).toBe(3);
+      expect(document.querySelector('.field-picker')).not.toBeNull();
     });
 
     document.querySelector('[aria-label="Clear username"]').click();
@@ -360,8 +361,8 @@ describe('username clear button', () => {
   });
 });
 
-describe('icons on repo/branch buttons', () => {
-  it('repo buttons contain SVG icon', async () => {
+describe('icons on repo picker', () => {
+  it('repo picker search row contains SVG icon', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
     globalThis.fetch = mockFetch(SAMPLE_REPOS);
@@ -369,10 +370,8 @@ describe('icons on repo/branch buttons', () => {
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      const btn = document.querySelector(
-        '[aria-label="Repositories"] .btn-select'
-      );
-      expect(btn.querySelector('svg')).not.toBeNull();
+      const searchRow = document.querySelector('.field-picker-search');
+      expect(searchRow.querySelector('svg')).not.toBeNull();
     });
   });
 });

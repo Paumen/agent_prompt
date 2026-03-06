@@ -18,7 +18,12 @@ import {
   expandCard,
 } from '../common/components.js';
 import { icon } from '../common/icons.js';
-import { createButton, createInputField } from '../common/ui.js';
+import {
+  createButton,
+  createInputField,
+  createPicker,
+  createTag,
+} from '../common/ui.js';
 
 // --- GL-05: Defer re-render until user is not mid-interaction ---
 
@@ -30,14 +35,6 @@ function deferIfInteracting(fn, maxRetries = 5) {
   if (maxRetries <= 0) return;
   setTimeout(() => deferIfInteracting(fn, maxRetries - 1), 2000);
 }
-
-// --- Display limits ---
-
-// Max repos visible in the collapsed state (approx. one row)
-const REPO_DISPLAY_LIMIT = 4;
-
-// Max branches visible in the collapsed state
-const BRANCH_DISPLAY_LIMIT = 3;
 
 // --- Module-level UI data ---
 let fileTree = [];
@@ -97,18 +94,10 @@ let elPatInput,
   elUsername,
   elUserClear,
   elRepoSection,
-  elRepoGrid,
   elBranchSection,
-  elBranchGrid,
   elCardBody,
   elPatSection,
   elUserSection;
-
-// Track collapsed state for repo/branch grids (VIS-03)
-// NOTE: do NOT reset these inside the render functions — only set explicitly.
-let reposCollapsed = false;
-// Branches start collapsed (show first 3 by default)
-let branchesCollapsed = true;
 
 // --- Render static UI shell ---
 
@@ -236,8 +225,6 @@ function onPatClear() {
   fileTree = [];
   // Show credentials again when clearing
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
-  reposCollapsed = false;
-  branchesCollapsed = true;
   renderRepoSection([]);
   renderBranchSection([]);
   setConfigCardSummary('');
@@ -273,75 +260,77 @@ function onUserClear() {
   });
   fileTree = [];
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
-  reposCollapsed = false;
-  branchesCollapsed = true;
   renderRepoSection([]);
   renderBranchSection([]);
   setConfigCardSummary('');
 }
 
-// --- Repo grid rendering ---
+// --- Repo picker rendering ---
 
 function renderRepoSection(repos, selectedRepo) {
   elRepoSection.innerHTML = '';
   if (!repos || repos.length === 0) return;
-
   elRepoSection.className = 'input';
 
   const label = document.createElement('label');
   label.textContent = 'Repos';
   elRepoSection.appendChild(label);
 
-  elRepoGrid = document.createElement('div');
-  elRepoGrid.className = 'cloud';
-  elRepoGrid.setAttribute('role', 'listbox');
-  elRepoGrid.setAttribute('aria-label', 'Repositories');
+  const pickerWrapper = document.createElement('div');
+  pickerWrapper.className = 'field-picker';
 
-  renderRepoButtons(repos, selectedRepo);
-  elRepoSection.appendChild(elRepoGrid);
+  if (selectedRepo) {
+    renderRepoSelection(pickerWrapper, selectedRepo, repos);
+  } else {
+    renderRepoDropdown(pickerWrapper, repos);
+  }
+
+  elRepoSection.appendChild(pickerWrapper);
 }
 
-function renderRepoButtons(repos, selectedRepo) {
-  if (!elRepoGrid) return;
-  elRepoGrid.innerHTML = '';
-  // NOTE: do NOT reset reposCollapsed here — only set explicitly.
+function renderRepoDropdown(pickerWrapper, repos) {
+  pickerWrapper.innerHTML = '';
 
-  let visibleRepos;
-  if (!reposCollapsed || repos.length <= REPO_DISPLAY_LIMIT) {
-    visibleRepos = repos;
-  } else {
-    const firstN = repos.slice(0, REPO_DISPLAY_LIMIT);
-    if (selectedRepo && !firstN.find((r) => r.name === selectedRepo)) {
-      const selectedR = repos.find((r) => r.name === selectedRepo);
-      visibleRepos = selectedR ? [...firstN, selectedR] : firstN;
-    } else {
-      visibleRepos = firstN;
-    }
-  }
+  const pickerItems = repos.map((r) => ({
+    value: r.name,
+    label: r.name,
+    _repoData: r,
+  }));
 
-  for (const repo of visibleRepos) {
-    const btn = createButton('select', {
-      label: repo.name,
-      iconName: 'repo',
-      selected: repo.name === selectedRepo,
-      onClick: () => onRepoSelect(repo, repos),
-    });
-    btn.setAttribute('role', 'option');
-    elRepoGrid.appendChild(btn);
-  }
+  const picker = createPicker({
+    items: pickerItems,
+    placeholder: 'Search repositories…',
+    searchIconName: 'repo',
+    onSelect: (item) => {
+      const repo = repos.find((r) => r.name === item.value);
+      if (repo) onRepoSelect(repo, repos);
+    },
+  });
 
-  // "More" / "https://paumen.github.io/agent_prompt/" button when repos exceed display limit
-  const hiddenCount = repos.length - REPO_DISPLAY_LIMIT;
-  if (hiddenCount > 0 && selectedRepo) {
-    const moreBtn = createButton('icon', {
-      label: reposCollapsed ? `+${hiddenCount} more` : 'Less',
-      onClick: () => {
-        reposCollapsed = !reposCollapsed;
-        renderRepoButtons(repos, selectedRepo);
-      },
-    });
-    elRepoGrid.appendChild(moreBtn);
-  }
+  pickerWrapper.appendChild(picker);
+}
+
+function renderRepoSelection(pickerWrapper, selectedRepo, repos) {
+  pickerWrapper.innerHTML = '';
+
+  const tag = createTag({
+    label: selectedRepo,
+    iconName: 'repo',
+    onRemove: () => {
+      setState((s) => {
+        s.configuration.repo = '';
+        s.configuration.branch = '';
+        return s;
+      });
+      fileTree = [];
+      renderBranchSection([]);
+      renderRepoDropdown(pickerWrapper, repos);
+      if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
+      setConfigCardSummary('');
+    },
+  });
+
+  pickerWrapper.appendChild(tag);
 }
 
 function onRepoSelect(repo, allRepos) {
@@ -355,7 +344,8 @@ function onRepoSelect(repo, allRepos) {
   });
   fileTree = [];
 
-  renderRepoButtons(allRepos, repo.name);
+  // Re-render repo section with selection tag
+  renderRepoSection(allRepos, repo.name);
   renderBranchSection([]);
 
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = true;
@@ -367,72 +357,69 @@ function onRepoSelect(repo, allRepos) {
   loadBranches(owner, repo.name, pat, repo.default_branch);
 }
 
-// --- Branch grid rendering ---
+// --- Branch picker rendering ---
 
 function renderBranchSection(branches, selectedBranch) {
   elBranchSection.innerHTML = '';
   if (!branches || branches.length === 0) return;
-
   elBranchSection.className = 'input';
 
   const label = document.createElement('label');
   label.textContent = 'Branch';
   elBranchSection.appendChild(label);
 
-  elBranchGrid = document.createElement('div');
-  elBranchGrid.className = 'cloud';
-  elBranchGrid.setAttribute('role', 'listbox');
-  elBranchGrid.setAttribute('aria-label', 'Branches');
+  const pickerWrapper = document.createElement('div');
+  pickerWrapper.className = 'field-picker';
 
-  renderBranchButtons(branches, selectedBranch);
-  elBranchSection.appendChild(elBranchGrid);
+  if (selectedBranch) {
+    renderBranchSelection(pickerWrapper, selectedBranch, branches);
+  } else {
+    renderBranchDropdown(pickerWrapper, branches);
+  }
+
+  elBranchSection.appendChild(pickerWrapper);
 }
 
-function renderBranchButtons(branches, selectedBranch) {
-  if (!elBranchGrid) return;
-  elBranchGrid.innerHTML = '';
-  // NOTE: do NOT reset branchesCollapsed here — only set explicitly.
+function renderBranchDropdown(pickerWrapper, branches) {
+  pickerWrapper.innerHTML = '';
 
-  let visibleBranches;
-  if (!branchesCollapsed || branches.length <= BRANCH_DISPLAY_LIMIT) {
-    visibleBranches = branches;
-  } else {
-    const firstN = branches.slice(0, BRANCH_DISPLAY_LIMIT);
-    if (selectedBranch && !firstN.find((b) => b.name === selectedBranch)) {
-      const selectedB = branches.find((b) => b.name === selectedBranch);
-      visibleBranches = selectedB ? [...firstN, selectedB] : firstN;
-    } else {
-      visibleBranches = firstN;
-    }
-  }
+  const pickerItems = branches.map((b) => ({
+    value: b.name,
+    label: b.name,
+  }));
 
-  for (const branch of visibleBranches) {
-    const btn = createButton('select', {
-      label: branch.name,
-      iconName: 'git-branch',
-      selected: branch.name === selectedBranch,
-      onClick: () => onBranchSelect(branch, branches),
-    });
-    btn.setAttribute('role', 'option');
-    elBranchGrid.appendChild(btn);
-  }
+  const picker = createPicker({
+    items: pickerItems,
+    placeholder: 'Search branches…',
+    searchIconName: 'git-branch',
+    onSelect: (item) => {
+      const branch = branches.find((b) => b.name === item.value);
+      if (branch) onBranchSelect(branch, branches);
+    },
+  });
 
-  const hiddenCount = Math.max(0, branches.length - BRANCH_DISPLAY_LIMIT);
-  if (hiddenCount > 0) {
-    const moreBtn = createButton('action', {
-      label: branchesCollapsed ? `+${hiddenCount} more` : 'Less',
-      onClick: () => {
-        branchesCollapsed = !branchesCollapsed;
-        renderBranchButtons(branches, selectedBranch);
-      },
-    });
-    elBranchGrid.appendChild(moreBtn);
-  }
+  pickerWrapper.appendChild(picker);
+}
+
+function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
+  pickerWrapper.innerHTML = '';
+
+  const tag = createTag({
+    label: selectedBranch,
+    iconName: 'git-branch',
+    onRemove: () => {
+      setState('configuration.branch', '');
+      fileTree = [];
+      renderBranchDropdown(pickerWrapper, branches);
+    },
+  });
+
+  pickerWrapper.appendChild(tag);
 }
 
 function onBranchSelect(branch, allBranches) {
   setState('configuration.branch', branch.name);
-  renderBranchButtons(allBranches, branch.name);
+  renderBranchSection(allBranches, branch.name);
 
   const state = getState();
   const { owner, repo, pat } = state.configuration;

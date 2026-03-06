@@ -129,16 +129,15 @@ async function setupRepoAndBranch() {
   cardConfig.initConfigurationCard();
 
   await vi.waitFor(() => {
-    const buttons = document.querySelectorAll(
-      '[aria-label="Repositories"] .btn-select'
-    );
-    expect(buttons.length).toBeGreaterThan(0);
+    const searchInput = document.querySelector('.field-picker .input-field');
+    expect(searchInput).not.toBeNull();
+    searchInput.dispatchEvent(new Event('focus'));
+    const items = document.querySelectorAll('.field-picker .field-picker-item');
+    expect(items.length).toBeGreaterThan(0);
   });
 
-  const repoBtn = document.querySelector(
-    '[aria-label="Repositories"] .btn-select'
-  );
-  repoBtn.click();
+  const repoItem = document.querySelector('.field-picker .field-picker-item');
+  repoItem.click();
 
   await vi.waitFor(() => {
     expect(state.getState().configuration.branch).toBe('main');
