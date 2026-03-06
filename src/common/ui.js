@@ -217,7 +217,7 @@ export function createPicker(options = {}) {
 
   // Tags container (for multi-select)
   const tagsContainer = document.createElement('div');
-  tagsContainer.className = 'wrapper';
+  tagsContainer.className = 'cloud';
   if (multiSelect) {
     container.appendChild(tagsContainer);
   }
@@ -355,49 +355,6 @@ export function createTag(options = {}) {
 // ============================================================
 // BUTTON GRID
 // ============================================================
-
-/**
- * Create a grid of buttons (e.g. flow selector, repo list).
- *
- * @param {object[]} buttons - array of button configs
- * @param {string} buttons[].label - button text
- * @param {string} [buttons[].iconName] - icon name
- * @param {boolean} [buttons[].selected] - selected state
- * @param {Function} [buttons[].onClick] - click handler
- * @param {object} [buttons[].dataset] - data attributes
- * @param {object} [gridOptions]
- * @param {'select'|'pill'|'action'} [gridOptions.buttonType='select'] - type of buttons
- * @param {string} [gridOptions.role='listbox'] - ARIA role for the grid
- * @param {string} [gridOptions.ariaLabel] - accessible label
- * @returns {HTMLElement}
- */
-export function createButtonGrid(buttons, gridOptions = {}) {
-  const { buttonType = 'select', role = 'listbox', ariaLabel } = gridOptions;
-
-  const grid = document.createElement('div');
-  grid.className = 'wrapper';
-
-  if (role) grid.setAttribute('role', role);
-  if (ariaLabel) grid.setAttribute('aria-label', ariaLabel);
-
-  for (const btnConfig of buttons) {
-    const btn = createButton(buttonType, {
-      label: btnConfig.label,
-      iconName: btnConfig.iconName,
-      selected: btnConfig.selected,
-      onClick: btnConfig.onClick,
-      dataset: btnConfig.dataset,
-    });
-
-    if (role === 'listbox') {
-      btn.setAttribute('role', 'option');
-    }
-
-    grid.appendChild(btn);
-  }
-
-  return grid;
-}
 
 // ============================================================
 // MORE/LESS TOGGLE

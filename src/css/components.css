@@ -331,18 +331,6 @@ label {
   text-align: center;
 }
 
-.wrapper {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-2);
-}
-
-/* Credentials: field-picker-search children grow to fill */
-.wrapper > .field-picker-search {
-  flex: 1;
-  min-width: 200px;
-}
-
 /* ============================================================
    TAG (selected items with remove button)
    ============================================================ */

@@ -101,7 +101,8 @@ let elPatInput,
   elBranchSection,
   elBranchGrid,
   elCardBody,
-  elCredentials;
+  elPatSection,
+  elUserSection;
 
 // Track collapsed state for repo/branch grids (VIS-03)
 // NOTE: do NOT reset these inside the render functions — only set explicitly.
@@ -114,11 +115,14 @@ let branchesCollapsed = true;
 function renderShell(container) {
   container.innerHTML = '';
 
-  // Credentials row: PAT + Username side by side
-  elCredentials = document.createElement('div');
-  elCredentials.className = 'wrapper';
-
   // --- PAT ---
+  elPatSection = document.createElement('div');
+  elPatSection.className = 'input';
+  const patLabel = document.createElement('label');
+  patLabel.htmlFor = 'cfg-pat';
+  patLabel.textContent = 'Token';
+  elPatSection.appendChild(patLabel);
+
   const patWrapper = createInputField({
     type: 'password',
     id: 'cfg-pat',
@@ -149,8 +153,16 @@ function renderShell(container) {
   });
   elPatClear.hidden = true;
   patWrapper.appendChild(elPatClear);
+  elPatSection.appendChild(patWrapper);
 
   // --- Username ---
+  elUserSection = document.createElement('div');
+  elUserSection.className = 'input';
+  const userLabel = document.createElement('label');
+  userLabel.htmlFor = 'cfg-username';
+  userLabel.textContent = 'Username';
+  elUserSection.appendChild(userLabel);
+
   const userWrapper = createInputField({
     iconName: 'mark-github',
     id: 'cfg-username',
@@ -166,9 +178,7 @@ function renderShell(container) {
   });
   elUserClear.hidden = true;
   userWrapper.appendChild(elUserClear);
-
-  elCredentials.appendChild(patWrapper);
-  elCredentials.appendChild(userWrapper);
+  elUserSection.appendChild(userWrapper);
 
   // Repo section
   elRepoSection = document.createElement('div');
@@ -176,7 +186,8 @@ function renderShell(container) {
   // Branch section
   elBranchSection = document.createElement('div');
 
-  container.appendChild(elCredentials);
+  container.appendChild(elPatSection);
+  container.appendChild(elUserSection);
   container.appendChild(elRepoSection);
   container.appendChild(elBranchSection);
 }
@@ -224,7 +235,7 @@ function onPatClear() {
   });
   fileTree = [];
   // Show credentials again when clearing
-  if (elCredentials) elCredentials.hidden = false;
+  if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   reposCollapsed = false;
   branchesCollapsed = true;
   renderRepoSection([]);
@@ -261,7 +272,7 @@ function onUserClear() {
     return s;
   });
   fileTree = [];
-  if (elCredentials) elCredentials.hidden = false;
+  if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   reposCollapsed = false;
   branchesCollapsed = true;
   renderRepoSection([]);
@@ -347,7 +358,7 @@ function onRepoSelect(repo, allRepos) {
   renderRepoButtons(allRepos, repo.name);
   renderBranchSection([]);
 
-  if (elCredentials) elCredentials.hidden = true;
+  if (elPatSection) elPatSection.hidden = elUserSection.hidden = true;
 
   // Expand Tasks card; Config card stays open (full collapse happens on flow select)
   expandCard('card-tasks');
@@ -601,7 +612,7 @@ export function initConfigurationCard() {
   cfgCard?.querySelector('.card-header')?.addEventListener('click', () => {
     const willBeOpen = !cfgCard.classList.contains('card--open');
     if (willBeOpen) {
-      if (elCredentials) elCredentials.hidden = false;
+      if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
       setConfigCardSummary('');
     }
   });

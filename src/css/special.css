@@ -191,10 +191,11 @@
   white-space: pre-wrap;
 }
 
-.prompt-output > .wrapper {
+.prompt-output > .cloud {
   position: absolute;
   inset: var(--sp-4) auto;
   z-index: var(--z-above);
+  width: fit-content;
 }
 
 .prompt-output--empty {
