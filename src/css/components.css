@@ -3,6 +3,7 @@
 /**
  * components.css — Component styles.
  *
+ * DOM level L5, L6, L7
  * Button taxonomy (5 types), input fields, field-picker, tags, icons.
  * Surface colors, text colors, borders, interaction states.
  *
@@ -209,19 +210,6 @@ label {
    INPUT FIELD
    ============================================================ */
 
-.input-field {
-  width: 100%;
-  min-height: 24px;
-  padding: var(--sp-4);
-  font-family: inherit;
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  background: var(--bg-raised);
-  border: 1px solid var(--text-tertiary);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-inset-sm);
-}
-
 .input-field::placeholder {
   font-size: var(--text-sm);
   color: var(--text-tertiary);
@@ -359,33 +347,10 @@ label {
   flex-shrink: 0;
 }
 
-.output {
-  padding: var(--sp-4);
-  background: var(--bg-inset);
-  border: 1px solid var(--text-tertiary);
-  border-radius: var(--radius);
-}
-
 /* ============================================================
    CARD HEADER (clickable collapse/expand bar)
    ============================================================ */
 
-.card-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  place-items: center stretch;
-  width: 100%;
-  padding: var(--sp-8);
-  font-size: var(--text);
-  font-weight: 700;
-  color: inherit;
-  cursor: pointer;
-  background: none;
-  border: none;
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-
-/* Title span: inline-flex for icon + text layout */
 .card-header > :first-child {
   display: inline-flex;
   gap: var(--sp-2);
@@ -394,21 +359,6 @@ label {
   font-weight: 700;
 }
 
-/* Subtitle within title (semantic <small>) */
-.card-header small {
-  font-weight: 400;
-}
-
-.card-header:hover {
-  background: var(--bg-inset);
-}
-
-.card-header:focus-visible {
-  outline: 2px solid var(--accent-a);
-  outline-offset: -2px;
-}
-
-/* Chevron rotation when open */
 .card-header[aria-expanded='true'] .icon--chevron {
   transform: rotate(180deg);
 }
@@ -428,6 +378,10 @@ label {
   content: counter(steps);
   background: var(--bg);
   border-radius: var(--radius-pill);
+}
+
+.output-field > :nth-child(n + 3) {
+  grid-column: 2 / -1;
 }
 
 /* ============================================================
