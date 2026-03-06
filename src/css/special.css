@@ -22,13 +22,13 @@
   height: 4px;
   overflow: hidden;
   background: var(--bg-inset);
-  border-radius: 2px;
+  border-radius: var(--radius);
 }
 
 .quality-meter-bar {
   width: 0%;
   height: 100%;
-  border-radius: 2px;
+  border-radius: var(--radius);
   transition:
     width 0.25s ease,
     background-color 0.25s ease;
@@ -38,7 +38,7 @@
 .quality-meter > :last-child {
   display: flex;
   gap: var(--sp-2);
-  align-items: center;
+  place-items: center;
   margin: var(--sp-2) 0 0;
   font-size: var(--text-sm);
   font-weight: 500;
@@ -49,7 +49,7 @@
 .meter-info-wrapper {
   position: relative;
   display: inline-flex;
-  align-items: center;
+  place-items: center;
 }
 
 .meter-tooltip {
@@ -64,7 +64,7 @@
   line-height: var(--line-height);
   color: var(--text-primary);
   background: var(--bg-raised);
-  border: 1px solid var(--border);
+  border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -82,6 +82,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.45;
   }
@@ -117,12 +118,12 @@
 }
 
 .notification--success {
-  color: var(--accent);
-  background: var(--accent-subtle);
+  color: var(--accent-a);
+  background: var(--accent-b);
 }
 
 .notification--error {
-  color: var(--caution);
+  color: var(--accent-caution);
   background: light-dark(#fff0f0, #2d0000);
 }
 
@@ -145,7 +146,7 @@
   white-space: nowrap;
   pointer-events: none;
   background: var(--bg-raised);
-  border: 1px solid var(--border);
+  border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
   transform: translateX(-50%) translateY(0);
   animation: float-up 1.5s ease-out forwards;
@@ -156,9 +157,11 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+
   70% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
     transform: translateX(-50%) translateY(-24px);
@@ -176,7 +179,7 @@
   font-size: var(--text-sm);
   line-height: var(--line-height-sm);
   background: var(--bg-inset);
-  border: 1px solid var(--border);
+  border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
 }
 

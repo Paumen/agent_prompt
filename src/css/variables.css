@@ -2,7 +2,7 @@
   color-scheme: light dark;
 
   /* === Surfaces === */
-  --shell: light-dark(#f6f8fa, #010409);
+  --bg-shell: light-dark(#f6f8fa, #010409);
   --bg: light-dark(#f1f1f1, #0d1117);
   --bg-raised: light-dark(#fff, #161b22);
   --bg-inset: light-dark(#ddd, #010409);
@@ -13,27 +13,17 @@
   --text-secondary: light-dark(#656d76, #848d97);
   --text-tertiary: light-dark(#8c959f, #7d8590);
 
-  /* === Borders === */
-  --border: light-dark(#d0d7de, #30363d);
-  --border-focus: light-dark(#326a89, #326a89);
-
   /* === Accent (fixed: all use light-dark()) === */
-  --accent: light-dark(#42767a, #42767a);
-  --accent-subtle: light-dark(oklch(78% 0.075 196deg), oklch(78% 0.075 196deg));
+  --accent-a: light-dark(#3b696d, #bfe6ed);
+  --accent-b: light-dark(#bfe6ed, #3b696d);
   --accent-hover: light-dark(#326a89, #326a89);
+  --accent-caution: light-dark(#bc4c00, #bc4c00);
+  --accent-caution-dark: light-dark(#953800, #e68431);
 
   /* === Shadows === */
   --shadow: 0 1px 0 rgb(31 35 40 / 4%);
   --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 20%);
   --shadow-inset-sm: inset 0 1px 2px rgb(31 35 40 / 7.5%);
-
-  /* === Icon colors === */
-  --neutral: light-dark(#656d76, #848d97);
-  --neutral-dark: light-dark(#1f2328, #e6edf3);
-  --caution: light-dark(#bc4c00, #bc4c00);
-  --caution-dark: light-dark(#953800, #e68431);
-  --attention: light-dark(#9d8700, #9d8700);
-  --attention-dark: light-dark(#7c6c00, #c4a800);
 
   /* === Typography === */
   --font-body:
@@ -42,18 +32,16 @@
   --font-mono:
     ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, 'Liberation Mono',
     monospace;
-
-  --text-sm: clamp(0.625rem, 0.6rem + 0.15vw, 0.75rem);
-  --text: clamp(0.813rem, 0.775rem + 0.2vw, 0.938rem);
-  --text-lg: clamp(1rem, 0.95rem + 0.25vw, 1.188rem);
-
+  --text-sm: clamp(0.625rem, 0.6rem + 0.15cqi, 0.75rem);
+  --text: clamp(0.813rem, 0.775rem + 0.2cqi, 0.938rem);
+  --text-lg: clamp(1rem, 0.95rem + 0.25cqi, 1.188rem);
   --line-height-sm: 1.1;
   --line-height: 1.4;
 
   /* === Spacing (clamp for responsive) === */
-  --sp-2: clamp(2px, 1px + 0.1vw, 3px);
-  --sp-4: clamp(4px, 3px + 0.15vw, 6px);
-  --sp-8: clamp(6px, 5px + 0.25vw, 10px);
+  --sp-2: clamp(2px, 1px + 0.1cqi, 3px);
+  --sp-4: clamp(4px, 3px + 0.15cqi, 6px);
+  --sp-8: clamp(6px, 5px + 0.25cqi, 10px);
 
   /* === Z-index scale === */
   --z-above: 1;
@@ -61,4 +49,5 @@
 
   /* === Border radius === */
   --radius: 6px;
+  --radius-pill: 999px;
 }
