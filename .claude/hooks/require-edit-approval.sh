@@ -25,7 +25,7 @@ PROTECTED_PATTERNS=(
   ".github/workflows/"
   "src/css/variables.css"
   "src/css/special.css"
-  "readme.md"
+  "READEME.md"
 )
 
 # Normalize path before checking
