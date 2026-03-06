@@ -1,3 +1,7 @@
+import fs from 'fs';
+import { globSync } from 'glob';
+import * as cheerio from 'cheerio';
+
 const fs = require('fs');
 const { globSync } = require('glob');
 const cheerio = require('cheerio');
