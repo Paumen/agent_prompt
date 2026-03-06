@@ -83,9 +83,9 @@ label {
   padding: var(--sp-4) var(--sp-8);
   font-size: var(--text);
   font-weight: 600;
-  color: var(--accent-subtle);
-  background: var(--accent);
-  border: 1px solid var(--accent);
+  color: var(--accent-b);
+  background: var(--accent-a);
+  border: 1px solid var(--accent-a);
 }
 
 .btn-primary:hover {
@@ -108,8 +108,8 @@ label {
 .btn-select.btn-select--selected {
   padding: var(--sp-4);
   color: var(--text-primary);
-  background: var(--accent-subtle);
-  border-color: var(--accent);
+  background: var(--accent-b);
+  border-color: var(--accent-a);
 }
 
 .btn-select[aria-selected='true']::before,
@@ -118,13 +118,13 @@ label {
   inset: 0 auto 0 0;
   width: 4px;
   content: '';
-  background: var(--accent-subtle);
+  background: var(--accent-b);
   border-radius: var(--radius) 0 0 var(--radius);
 }
 
 .btn-select[aria-selected='true'] .icon,
 .btn-select.btn-select--selected .icon {
-  color: var(--accent);
+  color: var(--accent-a);
 }
 
 /* --- 3. btn-action: one-shot stateless action --- */
@@ -151,9 +151,9 @@ label {
 
 .btn-pill[aria-checked='true'],
 .btn-pill.btn-pill--on {
-  color: var(--accent);
+  color: var(--accent-a);
   background: var(--bg-inset);
-  border-color: var(--accent);
+  border-color: var(--accent-a);
 }
 
 /* --- 5. btn-icon: transparent, icon-only or icon+label tertiary --- */
@@ -201,7 +201,7 @@ label {
   .btn-pill,
   .btn-icon
 ):focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-a);
   outline-offset: 2px;
 }
 
@@ -234,7 +234,7 @@ label {
 }
 
 .input-field:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-a);
   outline-offset: 0;
 }
 
@@ -416,7 +416,7 @@ label {
 }
 
 .card-header:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-a);
   outline-offset: -2px;
 }
 
@@ -498,7 +498,7 @@ label {
 /* XML syntax highlighting in prompt preview */
 .xml-tag {
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-a);
 }
 
 /* Required indicator color in labels */

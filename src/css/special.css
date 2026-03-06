@@ -118,8 +118,8 @@
 }
 
 .notification--success {
-  color: var(--accent);
-  background: var(--accent-subtle);
+  color: var(--accent-a);
+  background: var(--accent-b);
 }
 
 .notification--error {

@@ -60,7 +60,7 @@ body {
 
 .card .card {
   background: var(--bg-raised);
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--accent-a);
 }
 
 .card-body {
