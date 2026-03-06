@@ -139,4 +139,7 @@ body {
 
 .cloud {
   display: flex;
+  flex-wrap: wrap;
+  grid-column: 2;
+  width: 100%;
 }
