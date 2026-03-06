@@ -1,7 +1,5 @@
-name: 
-
 on: 
-  workflow_dispatch: # Enables the one-click manual trigger
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -16,7 +14,7 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        run: npm install glob cheerio
+        run: npm install glob cheerio css
 
       - name: Run Analysis Script
         run: node analyze.js
