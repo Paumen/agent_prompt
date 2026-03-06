@@ -70,7 +70,7 @@ export function createFilePicker(container, config) {
 
   // Selected files tags container
   const tagsContainer = document.createElement('div');
-  tagsContainer.className = 'wrapper';
+  tagsContainer.className = 'cloud';
   wrapper.appendChild(tagsContainer);
 
   container.appendChild(wrapper);

@@ -170,9 +170,9 @@ export function initPromptCard() {
   elPreview = document.createElement('code');
   preEl.appendChild(elPreview);
 
-  // Action bar: positioned top-right inside preview via .prompt-output > .wrapper
+  // Action bar: positioned top-right inside preview via .prompt-output > .cloud
   const actionBar = document.createElement('div');
-  actionBar.className = 'wrapper';
+  actionBar.className = 'cloud';
 
   // Screen reader copy status
   elCopyStatus = document.createElement('span');

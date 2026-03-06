@@ -199,6 +199,7 @@ function renderSourcePill(source, iconName, labelPrefix) {
 
 function renderFilePills(step) {
   const container = document.createElement('div');
+  container.className = 'cloud';
 
   for (const filePath of step.params.files) {
     const segments = filePath.split('/');
@@ -240,6 +241,10 @@ function renderOutputIcons(step, index) {
   lbl.textContent = 'Deliver via:';
   container.appendChild(lbl);
 
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud';
+  container.appendChild(cloud);
+
   const selected =
     step.outputs_selected ||
     (step.output_selected ? [step.output_selected] : [step.output[0]]);
@@ -254,7 +259,7 @@ function renderOutputIcons(step, index) {
       onClick: () => onSelectOutput(index, mode, btn),
     });
     btn.setAttribute('role', 'checkbox');
-    container.appendChild(btn);
+    cloud.appendChild(btn);
   }
 
   return container;
@@ -262,6 +267,7 @@ function renderOutputIcons(step, index) {
 
 function renderStepLenses(step, stepIndex) {
   const container = document.createElement('div');
+  container.className = 'cloud';
 
   const activeLenses = step.lenses || [];
   const initial = ALL_LENSES.slice(0, INITIAL_LENS_COUNT);

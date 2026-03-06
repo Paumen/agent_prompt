@@ -27,10 +27,10 @@ PROTECTED_PATTERNS=(
   "src/css/special.css"
 )
 
+# Normalize path before checking
+NORMALIZED_PATH=$(echo "$FILE_PATH" | sed 's#//*#/#g; s#/\./#/#g; s#^\./##')
+
 for pattern in "${PROTECTED_PATTERNS[@]}"; do
-  # Normalize path before checking
-  NORMALIZED_PATH=$(echo "$FILE_PATH" | sed 's#//*#/#g; s#/"./#/#g; s#^\./##')
-  echo "Checking: '$NORMALIZED_PATH' against '$pattern'" >> "$LOG"
   if [[ "$NORMALIZED_PATH" == *"$pattern"* ]]; then
     echo "MATCH: '$FILE_PATH' matches '$pattern'. Exiting 2." >> "$LOG"
     echo "Protected file: $FILE_PATH matches '$pattern'. Approval required." >&2

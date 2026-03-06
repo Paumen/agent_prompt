@@ -185,3 +185,11 @@ body {
     grid-template-columns: clamp(80px, 20%, 160px) 1fr;
   }
 }
+
+.cloud {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 2;
+  width: 100%;
+  gap: var(--sp-2);
+}
