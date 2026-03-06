@@ -8,14 +8,15 @@ import css from 'css';
  * CONFIGURATION & FILTERS
  */
 const LAYOUT_PROPS = ['display', 'grid-template-columns', 'grid-template-rows', 'flex-direction', 'justify-content', 'align-items', 'width', 'height', 'position'];
-const IGNORE_TAGS = ['html', 'head', 'meta', 'link', 'script', 'style', 'title', 'noscript'];
-// Words commonly found in JS strings that aren't CSS classes
-const JS_NOISE_THRESHOLD = 3; // Ignore strings shorter than this
-const JS_IGNORE_PATTERN = /^(node:|utf8|module|click|change|input|true|false|null|undefined|DOMContentLoaded|px|vh|vw|%)/i;
+const IGNORE_TAGS = ['html', 'head', 'meta', 'link', 'script', 'style', 'title', 'noscript', 'body'];
+
+// Regex for likely CSS classes: kebab-case or BEM (e.g., card--open)
+const CLASS_LIKE_REGEX = /['"`]([a-z0-9]+(?:-[a-z0-9]+)+|card(?:--[a-z0-9]+)?)['"`]/g;
+const JS_IGNORE_PATTERN = /^(node:|utf8|module|click|change|input|true|false|null|undefined|DOMContentLoaded|px|vh|vw|%|utf-8|js-yaml)/i;
 
 const CSS_FILES = globSync('**/*.css', { ignore: 'node_modules/**' });
 const HTML_FILES = globSync('**/*.html', { ignore: 'node_modules/**' });
-const JS_FILES = globSync('**/*.js', { ignore: ['node_modules/**', 'analyze.js'] }); // Ignore this script
+const JS_FILES = globSync('**/*.js', { ignore: ['node_modules/**', 'analyze.js'] });
 
 const cssData = {
     classes: new Map(),
@@ -39,11 +40,11 @@ CSS_FILES.forEach(file => {
         ast.stylesheet.rules.forEach(rule => {
             if (rule.type === 'rule') {
                 rule.selectors.forEach(selector => {
-                    // Refined regex to exclude trailing commas and brackets
                     const classMatches = selector.match(/\.[_a-zA-Z0-9-][^ .#:[>+~,()]* /g);
                     if (classMatches) {
                         classMatches.forEach(match => {
-                            const className = match.substring(1).trim().replace(/,$/, '');
+                            // Clean up trailing commas, newlines, or parens found in your previous report
+                            const className = match.substring(1).trim().replace(/[,\n)]/g, '');
                             cssData.allDefinedClasses.add(className);
                             
                             if (!cssData.classes.has(className)) {
@@ -95,14 +96,16 @@ HTML_FILES.forEach(file => {
  */
 JS_FILES.forEach(file => {
     const content = fs.readFileSync(file, 'utf8');
-    // Look for strings that look like kebab-case or BEM classes specifically
-    const stringMatches = content.match(/['"`]([a-z0-9]+(?:-[a-z0-9]+)+|card(?:--[a-z0-9]+)?)['"`]/g);
+    const stringMatches = content.match(CLASS_LIKE_REGEX);
     
     if (stringMatches) {
         stringMatches.forEach(match => {
             const className = match.replace(/['"`]/g, '');
-            if (className.length >= JS_NOISE_THRESHOLD && !JS_IGNORE_PATTERN.test(className)) {
-                usageData.classesInJs.add(className);
+            // Only flag if it's a known CSS class or fits the visual naming convention
+            if (!JS_IGNORE_PATTERN.test(className)) {
+                if (cssData.allDefinedClasses.has(className) || usageData.classesInHtml.has(className)) {
+                    usageData.classesInJs.add(className);
+                }
             }
         });
     }
@@ -117,7 +120,7 @@ let report = `# DOM & CSS Analysis Report\n\n`;
 // Section: HTML Elements without CSS Classes
 const elementsNoClass = usageData.elements.filter(e => !e.hasClass);
 report += `## Elements without CSS Classes (${elementsNoClass.length})\n`;
-report += `*Excluding structural tags like <head>, <meta>, <script>*\n\n`;
+report += `*Excluding structural metadata tags like <head>, <meta>, etc.*\n\n`;
 elementsNoClass.slice(0, 50).forEach(e => {
     report += `- \`<${e.tag}>\` in \`${e.file}\`\n`;
 });
@@ -130,7 +133,6 @@ unusedCss.forEach(c => report += `- \`.${c}\`\n`);
 // Section: Undefined Classes used in HTML/JS
 const orphanedClasses = [...allUsedClasses].filter(c => !cssData.allDefinedClasses.has(c));
 report += `\n## Undefined Classes used in HTML/JS (${orphanedClasses.length})\n`;
-report += `*Classes found in code but missing from .css files*\n\n`;
 orphanedClasses.forEach(c => report += `- \`.${c}\`\n`);
 
 // Section: Tree View
@@ -175,5 +177,4 @@ HTML_FILES.forEach(file => {
 });
 
 fs.writeFileSync('analysis_report.md', report);
-console.log('Analysis complete. Report saved to analysis_report.md');
  
