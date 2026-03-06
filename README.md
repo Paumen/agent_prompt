@@ -1,4 +1,4 @@
-# Agent Prompt
+# Agent Prompt Generator
 
 Prompt generator web app for AI-powered GitHub automation.
 
