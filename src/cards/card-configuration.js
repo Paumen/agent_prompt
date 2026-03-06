@@ -104,23 +104,31 @@ let elPatInput,
 function renderShell(container) {
   container.innerHTML = '';
 
-  // --- PAT ---
-  elPatSection = document.createElement('div');
-  elPatSection.className = 'input';
-  const patLabel = document.createElement('label');
-  patLabel.htmlFor = 'cfg-pat';
-  patLabel.textContent = 'Token';
-  elPatSection.appendChild(patLabel);
+  // --- Username (top-left) ---
+  elUserSection = createInputField({
+    iconName: 'mark-github',
+    id: 'cfg-username',
+    placeholder: 'GitHub username',
+  });
+  elUsername = elUserSection._inputEl;
 
-  const patWrapper = createInputField({
+  elUserClear = createButton('icon', {
+    iconName: 'x',
+    iconClass: 'icon-remove',
+    ariaLabel: 'Clear username',
+  });
+  elUserClear.hidden = true;
+  elUserSection.appendChild(elUserClear);
+
+  // --- PAT (top-right) ---
+  elPatSection = createInputField({
     type: 'password',
     id: 'cfg-pat',
     iconName: 'key',
     placeholder: 'GitHub personal access token',
   });
-  elPatInput = patWrapper._inputEl;
+  elPatInput = elPatSection._inputEl;
 
-  // Eye toggle (dual-icon CSS swap via .js-eye-btn)
   elPatToggle = createButton('icon', { ariaLabel: 'Show token' });
   elPatToggle.classList.add('js-eye-btn');
   elPatToggle.hidden = true;
@@ -132,51 +140,27 @@ function renderShell(container) {
   eyeOff.appendChild(icon('eye-closed', 'icon-btn'));
   elPatToggle.appendChild(eyeOn);
   elPatToggle.appendChild(eyeOff);
-  patWrapper.appendChild(elPatToggle);
+  elPatSection.appendChild(elPatToggle);
 
-  // Clear button (starts hidden)
   elPatClear = createButton('icon', {
     iconName: 'x',
     iconClass: 'icon-remove',
     ariaLabel: 'Clear token',
   });
   elPatClear.hidden = true;
-  patWrapper.appendChild(elPatClear);
-  elPatSection.appendChild(patWrapper);
+  elPatSection.appendChild(elPatClear);
 
-  // --- Username ---
-  elUserSection = document.createElement('div');
-  elUserSection.className = 'input';
-  const userLabel = document.createElement('label');
-  userLabel.htmlFor = 'cfg-username';
-  userLabel.textContent = 'Username';
-  elUserSection.appendChild(userLabel);
-
-  const userWrapper = createInputField({
-    iconName: 'mark-github',
-    id: 'cfg-username',
-    placeholder: 'GitHub username',
-  });
-  elUsername = userWrapper._inputEl;
-
-  // Username clear button (starts hidden)
-  elUserClear = createButton('icon', {
-    iconName: 'x',
-    iconClass: 'icon-remove',
-    ariaLabel: 'Clear username',
-  });
-  elUserClear.hidden = true;
-  userWrapper.appendChild(elUserClear);
-  elUserSection.appendChild(userWrapper);
-
-  // Repo section
+  // --- Repo (bottom-left) ---
   elRepoSection = document.createElement('div');
+  elRepoSection.className = 'field-picker';
 
-  // Branch section
+  // --- Branch (bottom-right) ---
   elBranchSection = document.createElement('div');
+  elBranchSection.className = 'field-picker';
 
-  container.appendChild(elPatSection);
+  // Order: username (top-left), PAT (top-right), repo (bottom-left), branch (bottom-right)
   container.appendChild(elUserSection);
+  container.appendChild(elPatSection);
   container.appendChild(elRepoSection);
   container.appendChild(elBranchSection);
 }
@@ -270,22 +254,12 @@ function onUserClear() {
 function renderRepoSection(repos, selectedRepo) {
   elRepoSection.innerHTML = '';
   if (!repos || repos.length === 0) return;
-  elRepoSection.className = 'input';
-
-  const label = document.createElement('label');
-  label.textContent = 'Repos';
-  elRepoSection.appendChild(label);
-
-  const pickerWrapper = document.createElement('div');
-  pickerWrapper.className = 'field-picker';
 
   if (selectedRepo) {
-    renderRepoSelection(pickerWrapper, selectedRepo, repos);
+    renderRepoSelection(elRepoSection, selectedRepo, repos);
   } else {
-    renderRepoDropdown(pickerWrapper, repos);
+    renderRepoDropdown(elRepoSection, repos);
   }
-
-  elRepoSection.appendChild(pickerWrapper);
 }
 
 function renderRepoDropdown(pickerWrapper, repos) {
@@ -362,22 +336,12 @@ function onRepoSelect(repo, allRepos) {
 function renderBranchSection(branches, selectedBranch) {
   elBranchSection.innerHTML = '';
   if (!branches || branches.length === 0) return;
-  elBranchSection.className = 'input';
-
-  const label = document.createElement('label');
-  label.textContent = 'Branch';
-  elBranchSection.appendChild(label);
-
-  const pickerWrapper = document.createElement('div');
-  pickerWrapper.className = 'field-picker';
 
   if (selectedBranch) {
-    renderBranchSelection(pickerWrapper, selectedBranch, branches);
+    renderBranchSelection(elBranchSection, selectedBranch, branches);
   } else {
-    renderBranchDropdown(pickerWrapper, branches);
+    renderBranchDropdown(elBranchSection, branches);
   }
-
-  elBranchSection.appendChild(pickerWrapper);
 }
 
 function renderBranchDropdown(pickerWrapper, branches) {
@@ -442,13 +406,7 @@ async function loadRepos(owner, pat, isBackground = false) {
 
   if (!isBackground) {
     elRepoSection.innerHTML = '';
-    elRepoSection.className = 'input';
-    const label = document.createElement('label');
-    label.textContent = 'Repos';
-    elRepoSection.appendChild(label);
-    const shimmerContainer = document.createElement('div');
-    elRepoSection.appendChild(shimmerContainer);
-    renderShimmer(shimmerContainer, 'Loading repositories\u2026', 3);
+    renderShimmer(elRepoSection, 'Loading repositories\u2026', 3);
   }
 
   const result = await fetchRepos(owner, pat);
@@ -499,13 +457,7 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   }
 
   elBranchSection.innerHTML = '';
-  elBranchSection.className = 'input';
-  const label = document.createElement('label');
-  label.textContent = 'Branch';
-  elBranchSection.appendChild(label);
-  const shimmerContainer = document.createElement('div');
-  elBranchSection.appendChild(shimmerContainer);
-  renderShimmer(shimmerContainer, 'Loading branches\u2026', 2);
+  renderShimmer(elBranchSection, 'Loading branches\u2026', 2);
 
   const result = await fetchBranches(owner, repo, pat);
 
