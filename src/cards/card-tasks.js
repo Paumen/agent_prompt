@@ -410,6 +410,7 @@ function renderFilePicker(
 }
 
 function renderLensPicker(container, statePath, currentLenses) {
+  container.classList.add('cloud');
   elLensPillGroup = container;
   lastLensStatePath = statePath;
   lastTaskLensSnapshot = JSON.stringify(currentLenses);

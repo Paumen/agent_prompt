@@ -282,7 +282,7 @@ function renderRepoSection(repos, selectedRepo) {
   elRepoSection.appendChild(label);
 
   elRepoGrid = document.createElement('div');
-  elRepoGrid.className = 'wrapper';
+  elRepoGrid.className = 'wrapper cloud';
   elRepoGrid.setAttribute('role', 'listbox');
   elRepoGrid.setAttribute('aria-label', 'Repositories');
 
@@ -369,7 +369,7 @@ function renderBranchSection(branches, selectedBranch) {
   elBranchSection.appendChild(label);
 
   elBranchGrid = document.createElement('div');
-  elBranchGrid.className = 'wrapper';
+  elBranchGrid.className = 'wrapper cloud';
   elBranchGrid.setAttribute('role', 'listbox');
   elBranchGrid.setAttribute('aria-label', 'Branches');
 

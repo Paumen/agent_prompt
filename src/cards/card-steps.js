@@ -199,6 +199,7 @@ function renderSourcePill(source, iconName, labelPrefix) {
 
 function renderFilePills(step) {
   const container = document.createElement('div');
+  container.className = 'cloud';
 
   for (const filePath of step.params.files) {
     const segments = filePath.split('/');
@@ -234,7 +235,7 @@ function renderOptionalTextRow(step, index) {
 
 function renderOutputIcons(step, index) {
   const container = document.createElement('div');
-  container.className = 'input';
+  container.className = 'input cloud';
 
   const lbl = document.createElement('label');
   lbl.textContent = 'Deliver via:';
@@ -262,6 +263,7 @@ function renderOutputIcons(step, index) {
 
 function renderStepLenses(step, stepIndex) {
   const container = document.createElement('div');
+  container.className = 'cloud';
 
   const activeLenses = step.lenses || [];
   const initial = ALL_LENSES.slice(0, INITIAL_LENS_COUNT);

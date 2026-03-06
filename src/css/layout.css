@@ -136,3 +136,7 @@ body {
     grid-template-columns: clamp(80px, 20%, 160px) 1fr;
   }
 }
+
+.cloud {
+  display: flex;
+}
