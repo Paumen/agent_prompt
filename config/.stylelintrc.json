@@ -1,28 +1,22 @@
 {
-"extends": [
-  "stylelint-config-standard",
-  "stylelint-config-recess-order"
-],
+  "extends": ["stylelint-config-standard", "stylelint-config-recess-order"],
 
-"plugins": [
-  "stylelint-declaration-strict-value"
-],
+  "plugins": ["stylelint-declaration-strict-value"],
 
-"rules": {
-
+  "rules": {
     "selector-class-pattern": [
       "^[a-z][a-z0-9]*(-[a-z0-9]+)*(-[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
       {
         "message": "Expected class selector \"%(selector)s\" to be kebab-case"
       }
     ],
-    
+
     "custom-property-pattern": [
-  "^(c|sp|font|z|bg|radius|text|accent|shadow|z|line)(-[a-z0-9-]+)?$",
-  {
-    "message": "Custom properties must start with a token namespace (e.g. --text-primary)."
-  }
-],
+      "^(c|sp|font|z|bg|radius|text|accent|shadow|z|line)(-[a-z0-9-]+)?$",
+      {
+        "message": "Custom properties must start with a token namespace (e.g. --text-primary)."
+      }
+    ],
 
     "at-rule-disallowed-list": [
       ["media", "document", "viewport", "apply", "charset"],
@@ -33,13 +27,30 @@
 
     "property-disallowed-list": [
       [
-        "float", "clear", "zoom", "table-layout", "clip",
-        "top", "bottom", "right", "left",
-        "padding-top", "padding-bottom", "padding-right", "padding-left",
-        "padding-block", "padding-inline",
-        "margin-top", "margin-bottom", "margin-right", "margin-left",
-        "margin-block", "margin-inline",
-        "justify-content", "align-items", "align-self"
+        "float",
+        "clear",
+        "zoom",
+        "table-layout",
+        "clip",
+        "top",
+        "bottom",
+        "right",
+        "left",
+        "padding-top",
+        "padding-bottom",
+        "padding-right",
+        "padding-left",
+        "padding-block",
+        "padding-inline",
+        "margin-top",
+        "margin-bottom",
+        "margin-right",
+        "margin-left",
+        "margin-block",
+        "margin-inline",
+        "justify-content",
+        "align-items",
+        "align-self"
       ],
       {
         "message": "Property \"%s\" is disallowed. See spec/css-guide/prohibited.md"
@@ -52,14 +63,20 @@
         "padding": ["0", "0 auto", "/var\\(--/"],
         "margin": ["/var\\(--/", "auto", "0 auto", "0"],
         "inset": ["/var\\(--/", "0"],
-        "/color/": ["/light-dark/", "transparent", "currentColor", "inherit", "/var\\(--/"]
+        "/color/": [
+          "/light-dark/",
+          "transparent",
+          "currentColor",
+          "inherit",
+          "/var\\(--/"
+        ]
       },
       {
         "severity": "warning",
         "message": "Value \"%s\" is not allowed for this property. Use allowed values or see @.claude/commands/css-guide.md"
       }
     ],
-    
+
     "declaration-property-value-disallowed-list": [
       {
         "display": ["/^table/"]
@@ -70,7 +87,7 @@
     ],
 
     "unit-disallowed-list": [
-      ["in", "pt", "mm", "cm", "pc", "ex", "ch", "q", "vh", "vw" ],
+      ["in", "pt", "mm", "cm", "pc", "ex", "ch", "q", "vh", "vw"],
       {
         "message": "Unit \"%s\" is disallowed. Use cqi, rem, em, dvh, or % instead."
       }
@@ -96,14 +113,14 @@
         "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] also not allowed"
       }
     ],
-    
+
     "selector-disallowed-list": [
-      ["/\\id[~|^$*]?=/" ],
+      ["/\\id[~|^$*]?=/"],
       {
         "message": "Attribute selectors targeting IDs are disallowed. Use class selectors instead."
       }
     ],
-    
+
     "selector-max-specificity": [
       "0,2,0",
       {
@@ -160,10 +177,8 @@
         "message": "Numbers should not exceed %d decimal places."
       }
     ],
-    
-    "length-zero-no-unit":[
-      true
-    ],
+
+    "length-zero-no-unit": [true],
 
     "no-unknown-animations": [
       true,
@@ -172,13 +187,15 @@
         "message": "Unknown animation name. Ensure the animation is defined with @keyframes."
       }
     ],
-    
-    "no-descending-specificity": [
-  true,
-  { "message": "Avoid selectors that may override earlier rules unintentionally." }
-],
 
-"no-duplicate-selectors": true,
+    "no-descending-specificity": [
+      true,
+      {
+        "message": "Avoid selectors that may override earlier rules unintentionally."
+      }
+    ],
+
+    "no-duplicate-selectors": true,
 
     "scale-unlimited/declaration-strict-value": [
       [
@@ -197,9 +214,16 @@
       ],
       {
         "ignoreValues": [
-          "inherit", "initial", "unset", "revert", "auto",
-          "currentColor", "currentcolor",
-          "transparent", "none", "0"
+          "inherit",
+          "initial",
+          "unset",
+          "revert",
+          "auto",
+          "currentColor",
+          "currentcolor",
+          "transparent",
+          "none",
+          "0"
         ],
         "severity": "warning",
         "message": "Expected variable for \"${property}\", found \"${value}\". Use a custom property instead."
