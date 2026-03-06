@@ -7,6 +7,7 @@
   --bg-raised: light-dark(#fff, #161b22);
   --bg-inset: light-dark(#ddd, #010409);
   --bg-inset-darker: light-dark(#ccc, #000);
+  --bg-test: #AAAAAA;
 
   /* === Text === */
   --text-primary: light-dark(#1f2328, #ddd);
