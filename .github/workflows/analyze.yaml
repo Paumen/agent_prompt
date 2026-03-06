@@ -1,0 +1,28 @@
+name: 
+
+on: 
+  workflow_dispatch: # Enables the one-click manual trigger
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install glob cheerio
+
+      - name: Run Analysis Script
+        run: node analyze.js
+
+      - name: Upload Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DOM-CSS-Analysis-Report
+          path: analysis_report.md
