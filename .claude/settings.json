@@ -1,10 +1,6 @@
 {
   "permissions": {
-    "deny": [
-  "Edit(**/*.css)",
-  "Write(**/*.css)"
-      
-    ],
+    "deny": ["Edit(**/*.css)", "Write(**/*.css)"]
   },
   "hooks": {
     "PreToolUse": [

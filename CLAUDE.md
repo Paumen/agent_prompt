@@ -14,10 +14,11 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core
 - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
 - **Exception**: Stylelint auto-fix changes applied via `npm run stylelint:fix` are permitted without asking.
 
-## Other Restrictions and Permissions 
+## Other Restrictions and Permissions
+
 - **NEVER** apply inline styles in .js or .html without asking the user first.
 - All html div elements must have at least one .class
-- Existing classes must be reused as much as  possible, new classes requires user explicit approval.
+- Existing classes must be reused as much as possible, new classes requires user explicit approval.
 
 ## Authority Hierarchy
 
@@ -27,15 +28,14 @@ In case of conflicts between files, the higher-ranked file is always correct:
 @spec/spec_concept.md  > other files @spec/ > @config/flows.yaml > @src/ and @tests/
 ```
 
-If a conflict exists, update the lower-ranked file to match. If unclear, ask the user. 
+If a conflict exists, update the lower-ranked file to match. If unclear, ask the user.
 
 ## File Guide
 
-| File                   | Purpose                                                                   | How to use                                                                   |
-| ---------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| File                    | Purpose                                                                   | How to use                                                                   |
+| ----------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | `@spec/spec_concept.md` | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
 | `@config/flows.yaml`    | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
-
 
 ## Code Conventions
 
