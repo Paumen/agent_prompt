@@ -17,7 +17,9 @@ PROTECTED_PATTERNS=(
 )
 
 for pattern in "${PROTECTED_PATTERNS[@]}"; do
-  if [[ "$FILE_PATH" == *"$pattern"* ]]; then
+  # Normalize path before checking
+  NORMALIZED_PATH=$(echo "$FILE_PATH" | sed 's#//*#/#g; s#/"./#/#g; s#^\./##')
+  if [[ "$NORMALIZED_PATH" == *"$pattern"* ]]; then
     echo "Protected file: $FILE_PATH matches '$pattern'. Approval required." >&2
     exit 2
   fi
