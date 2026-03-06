@@ -142,4 +142,5 @@ body {
   flex-wrap: wrap;
   grid-column: 2;
   width: 100%;
+  gap: var(--sp-2);
 }
