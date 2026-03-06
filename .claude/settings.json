@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/require-edit-approval.sh"
+            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/require-edit-approval.sh"
           }
         ]
       }
