@@ -14,8 +14,8 @@
   --text-tertiary: light-dark(#8c959f, #7d8590);
 
   /* === Accent (fixed: all use light-dark()) === */
-  --accent: light-dark(#42767a, #42767a);
-  --accent-subtle: light-dark(oklch(78% 0.075 196deg), oklch(78% 0.075 196deg));
+  --accent: light-dark(#3b696d, #bfe6ed);
+  --accent-subtle: light-dark(#bfe6ed, #3b696d);
   --accent-hover: light-dark(#326a89, #326a89);
   --accent-caution: light-dark(#bc4c00, #bc4c00);
   --accent-caution-dark: light-dark(#953800, #e68431);

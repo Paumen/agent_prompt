@@ -83,7 +83,7 @@ label {
   padding: var(--sp-4) var(--sp-8);
   font-size: var(--text);
   font-weight: 600;
-  color: #fff;
+  color: var(--accent-subtle);
   background: var(--accent);
   border: 1px solid var(--accent);
 }

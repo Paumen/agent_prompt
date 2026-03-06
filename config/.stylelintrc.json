@@ -52,7 +52,7 @@
         "padding": ["0", "0 auto", "/var\\(--/"],
         "margin": ["/var\\(--/", "auto", "0 auto", "0"],
         "inset": ["/var\\(--/", "0"],
-        "/color/": ["/light-dark/", "transparent", "currentColor", "inherit", "#fff", "/var\\(--/"]
+        "/color/": ["/light-dark/", "transparent", "currentColor", "inherit", "/var\\(--/"]
       },
       {
         "severity": "warning",
@@ -199,7 +199,7 @@
         "ignoreValues": [
           "inherit", "initial", "unset", "revert", "auto",
           "currentColor", "currentcolor",
-          "transparent", "none", "0", "#fff"
+          "transparent", "none", "0"
         ],
         "severity": "warning",
         "message": "Expected variable for \"${property}\", found \"${value}\". Use a custom property instead."
