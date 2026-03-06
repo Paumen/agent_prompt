@@ -2,10 +2,6 @@ import fs from 'fs';
 import { globSync } from 'glob';
 import * as cheerio from 'cheerio';
 
-const fs = require('fs');
-const { globSync } = require('glob');
-const cheerio = require('cheerio');
-
 const cssFiles = globSync('**/*.css', { ignore: 'node_modules/**' });
 const htmlFiles = globSync('**/*.html', { ignore: 'node_modules/**' });
 const jsFiles = globSync('**/*.js', { ignore: 'node_modules/**' });
@@ -25,7 +21,7 @@ cssFiles.forEach(file => {
     }
 });
 
-// 2. Extract HTML Elements and Classes, Build approximate tree
+// 2. Extract HTML Elements and Classes
 report += '## Approximate DOM Trees (HTML Files)\n';
 htmlFiles.forEach(file => {
     const content = fs.readFileSync(file, 'utf-8');
@@ -44,12 +40,13 @@ htmlFiles.forEach(file => {
 
             const indent = '  '.repeat(depth);
             const classString = className ? `.${classes.join('.')}` : '';
-            // Note: Inline styles are captured, but computed layout (grid/flex) requires a browser engine.
             const styleString = node.attribs.style ? ` { style: ${node.attribs.style} }` : '';
             
             report += `${indent}${tagName}${classString}${styleString}\n`;
             
-            node.children.forEach(child => traverse(child, depth + 1));
+            if (node.children) {
+                node.children.forEach(child => traverse(child, depth + 1));
+            }
         }
     }
     
@@ -57,10 +54,9 @@ htmlFiles.forEach(file => {
     report += `\`\`\`\n\n`;
 });
 
-// 3. Extract Classes from JS (Approximate via Regex)
+// 3. Extract Classes from JS
 jsFiles.forEach(file => {
     const content = fs.readFileSync(file, 'utf-8');
-    // Match class="x", className="x", or classList.add('x')
     const jsClassRegex = /(?:class|className)\s*=\s*['"]([^'"]+)['"]|classList\.(?:add|remove|toggle)\(['"]([^'"]+)['"]\)/g;
     let match;
     while ((match = jsClassRegex.exec(content)) !== null) {
@@ -69,23 +65,18 @@ jsFiles.forEach(file => {
     }
 });
 
-// 4. Compute Discrepancies
+// 4. Compute Results
 const unusedCss = [...definedCssClasses].filter(c => !usedClasses.has(c));
 const missingCss = [...usedClasses].filter(c => !definedCssClasses.has(c));
 
 report += '## Analysis Results\n\n';
-
-report += '### ⚠️ CSS Classes Defined but NOT Used in HTML/JS\n';
+report += '### ⚠️ CSS Classes Defined but NOT Used\n';
 report += unusedCss.length ? unusedCss.map(c => `- \`${c}\``).join('\n') : 'None found.\n';
 report += '\n\n';
 
-report += '### ⚠️ CSS Classes Used in HTML/JS but NOT Defined in CSS\n';
+report += '### ⚠️ CSS Classes Used but NOT Defined\n';
 report += missingCss.length ? missingCss.map(c => `- \`${c}\``).join('\n') : 'None found.\n';
 report += '\n\n';
 
-report += '### 📊 All HTML Elements Found\n';
-report += [...definedHtmlElements].map(e => `- \`<${e}>\``).join('\n');
-report += '\n\n';
-
 fs.writeFileSync('analysis_report.md', report);
-console.log('Analysis complete. Report generated.');
+console.log('Analysis complete.');
