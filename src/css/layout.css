@@ -159,7 +159,7 @@ body {
   counter-reset: steps;
 }
 
-/* wrapper */ 
+/* wrapper */
 
 .wrapper {
   display: grid;
@@ -171,7 +171,6 @@ body {
   flex: 1;
   min-width: 200px;
 }
-
 
 /* === Container queries for card-internal layout === */
 

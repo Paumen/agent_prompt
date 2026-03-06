@@ -210,7 +210,6 @@ label {
    INPUT FIELD
    ============================================================ */
 
-
 .input-field::placeholder {
   font-size: var(--text-sm);
   color: var(--text-tertiary);
@@ -320,7 +319,6 @@ label {
   text-align: center;
 }
 
-
 /* ============================================================
    TAG (selected items with remove button)
    ============================================================ */
@@ -382,7 +380,7 @@ label {
   border-radius: var(--radius-pill);
 }
 
-.output-field> :nth-child(n + 3) {
+.output-field > :nth-child(n + 3) {
   grid-column: 2 / -1;
 }
 
