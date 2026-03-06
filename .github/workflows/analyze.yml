@@ -1,9 +1,13 @@
+name: DOM-CSS Analysis
+
 on: 
   workflow_dispatch:
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push the report back
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -19,8 +23,10 @@ jobs:
       - name: Run Analysis Script
         run: node analyze.js
 
-      - name: Upload Report Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: DOM-CSS-Analysis-Report
-          path: analysis_report.md
+      - name: Commit and Push Report
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add analysis_report.md
+          git commit -m "docs: update DOM-CSS analysis report [skip ci]" || echo "No changes to commit"
+          git push
