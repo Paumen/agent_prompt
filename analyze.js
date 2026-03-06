@@ -5,21 +5,27 @@ import * as cheerio from 'cheerio';
 import css from 'css';
 
 /**
- * CONFIGURATION & SELECTORS
+ * CONFIGURATION & FILTERS
  */
 const LAYOUT_PROPS = ['display', 'grid-template-columns', 'grid-template-rows', 'flex-direction', 'justify-content', 'align-items', 'width', 'height', 'position'];
+const IGNORE_TAGS = ['html', 'head', 'meta', 'link', 'script', 'style', 'title', 'noscript'];
+// Words commonly found in JS strings that aren't CSS classes
+const JS_NOISE_THRESHOLD = 3; // Ignore strings shorter than this
+const JS_IGNORE_PATTERN = /^(node:|utf8|module|click|change|input|true|false|null|undefined|DOMContentLoaded|px|vh|vw|%)/i;
+
 const CSS_FILES = globSync('**/*.css', { ignore: 'node_modules/**' });
 const HTML_FILES = globSync('**/*.html', { ignore: 'node_modules/**' });
-const JS_FILES = globSync('**/*.js', { ignore: 'node_modules/**' });
+const JS_FILES = globSync('**/*.js', { ignore: ['node_modules/**', 'analyze.js'] }); // Ignore this script
 
 const cssData = {
-    classes: new Map(), // className -> { properties: {} }
+    classes: new Map(),
     allDefinedClasses: new Set()
 };
 
 const usageData = {
-    classesInHtmlJs: new Set(),
-    elements: [], // { tag, classes, file, hasClass: bool }
+    classesInHtml: new Set(),
+    classesInJs: new Set(),
+    elements: [],
 };
 
 /**
@@ -33,10 +39,11 @@ CSS_FILES.forEach(file => {
         ast.stylesheet.rules.forEach(rule => {
             if (rule.type === 'rule') {
                 rule.selectors.forEach(selector => {
-                    const classMatches = selector.match(/\.[_a-zA-Z0-9-][^ .#:[>+~]*/g);
+                    // Refined regex to exclude trailing commas and brackets
+                    const classMatches = selector.match(/\.[_a-zA-Z0-9-][^ .#:[>+~,()]* /g);
                     if (classMatches) {
                         classMatches.forEach(match => {
-                            const className = match.substring(1);
+                            const className = match.substring(1).trim().replace(/,$/, '');
                             cssData.allDefinedClasses.add(className);
                             
                             if (!cssData.classes.has(className)) {
@@ -66,11 +73,13 @@ HTML_FILES.forEach(file => {
     const $ = cheerio.load(content);
 
     $('*').each((i, el) => {
-        const tagName = el.tagName;
+        const tagName = el.tagName.toLowerCase();
+        if (IGNORE_TAGS.includes(tagName)) return;
+
         const classAttr = $(el).attr('class') || '';
         const classes = classAttr.split(/\s+/).filter(Boolean);
         
-        classes.forEach(c => usageData.classesInHtmlJs.add(c));
+        classes.forEach(c => usageData.classesInHtml.add(c));
         
         usageData.elements.push({
             tag: tagName,
@@ -86,11 +95,15 @@ HTML_FILES.forEach(file => {
  */
 JS_FILES.forEach(file => {
     const content = fs.readFileSync(file, 'utf8');
-    const stringMatches = content.match(/['"`]([_a-zA-Z0-9-]+)['"`]/g);
+    // Look for strings that look like kebab-case or BEM classes specifically
+    const stringMatches = content.match(/['"`]([a-z0-9]+(?:-[a-z0-9]+)+|card(?:--[a-z0-9]+)?)['"`]/g);
+    
     if (stringMatches) {
         stringMatches.forEach(match => {
             const className = match.replace(/['"`]/g, '');
-            usageData.classesInHtmlJs.add(className);
+            if (className.length >= JS_NOISE_THRESHOLD && !JS_IGNORE_PATTERN.test(className)) {
+                usageData.classesInJs.add(className);
+            }
         });
     }
 });
@@ -98,23 +111,26 @@ JS_FILES.forEach(file => {
 /**
  * 4. ANALYSIS & REPORT GENERATION
  */
+const allUsedClasses = new Set([...usageData.classesInHtml, ...usageData.classesInJs]);
 let report = `# DOM & CSS Analysis Report\n\n`;
 
-// Section: Elements without CSS Classes
+// Section: HTML Elements without CSS Classes
 const elementsNoClass = usageData.elements.filter(e => !e.hasClass);
 report += `## Elements without CSS Classes (${elementsNoClass.length})\n`;
+report += `*Excluding structural tags like <head>, <meta>, <script>*\n\n`;
 elementsNoClass.slice(0, 50).forEach(e => {
     report += `- \`<${e.tag}>\` in \`${e.file}\`\n`;
 });
 
 // Section: Unused CSS Classes
-const unusedCss = [...cssData.allDefinedClasses].filter(c => !usageData.classesInHtmlJs.has(c));
+const unusedCss = [...cssData.allDefinedClasses].filter(c => !allUsedClasses.has(c));
 report += `\n## Unused CSS Classes (${unusedCss.length})\n`;
 unusedCss.forEach(c => report += `- \`.${c}\`\n`);
 
 // Section: Undefined Classes used in HTML/JS
-const orphanedClasses = [...usageData.classesInHtmlJs].filter(c => !cssData.allDefinedClasses.has(c));
+const orphanedClasses = [...allUsedClasses].filter(c => !cssData.allDefinedClasses.has(c));
 report += `\n## Undefined Classes used in HTML/JS (${orphanedClasses.length})\n`;
+report += `*Classes found in code but missing from .css files*\n\n`;
 orphanedClasses.forEach(c => report += `- \`.${c}\`\n`);
 
 // Section: Tree View
@@ -125,11 +141,12 @@ HTML_FILES.forEach(file => {
     const $ = cheerio.load(content);
     
     function walk(el, depth = 0) {
-        if (!el || (el.type !== 'tag' && el.name === undefined)) return "";
+        if (!el || el.type !== 'tag') return "";
+        const tagName = el.tagName.toLowerCase();
+        if (IGNORE_TAGS.includes(tagName)) return "";
+
         const node = $(el);
         const indent = "  ".repeat(depth);
-        
-        const tagName = el.name || el.tagName;
         const classAttr = node.attr('class');
         const classNames = classAttr ? classAttr.split(/\s+/) : [];
         const classStr = classNames.length ? `.${classNames.join('.')}` : "";
@@ -151,7 +168,7 @@ HTML_FILES.forEach(file => {
         return line;
     }
 
-    $('body').children().each((i, el) => {
+    $('body').each((i, el) => {
         report += walk(el);
     });
     report += `\`\`\`\n`;
