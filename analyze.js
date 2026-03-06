@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const { globSync } = require('glob');
-const cheerio = require('cheerio');
-const css = require('css');
+import fs from 'node:fs';
+import path from 'node:path';
+import { globSync } from 'glob';
+import * as cheerio from 'cheerio';
+import css from 'css';
 
 /**
  * CONFIGURATION & SELECTORS
@@ -19,7 +19,7 @@ const cssData = {
 
 const usageData = {
     classesInHtmlJs: new Set(),
-    elements: [], // { tag, classes, file, hasClass: bool, tree: string }
+    elements: [], // { tag, classes, file, hasClass: bool }
 };
 
 /**
@@ -33,7 +33,6 @@ CSS_FILES.forEach(file => {
         ast.stylesheet.rules.forEach(rule => {
             if (rule.type === 'rule') {
                 rule.selectors.forEach(selector => {
-                    // Extract classes from selectors like .my-class or div.my-class
                     const classMatches = selector.match(/\.[_a-zA-Z0-9-][^ .#:[>+~]*/g);
                     if (classMatches) {
                         classMatches.forEach(match => {
@@ -44,7 +43,6 @@ CSS_FILES.forEach(file => {
                                 cssData.classes.set(className, { layout: {} });
                             }
                             
-                            // Extract key layout properties
                             rule.declarations?.forEach(decl => {
                                 if (LAYOUT_PROPS.includes(decl.property)) {
                                     cssData.classes.get(className).layout[decl.property] = decl.value;
@@ -88,8 +86,6 @@ HTML_FILES.forEach(file => {
  */
 JS_FILES.forEach(file => {
     const content = fs.readFileSync(file, 'utf8');
-    
-    // Simple regex for string literals that might be classes (e.g., classList.add('foo') or className = 'bar')
     const stringMatches = content.match(/['"`]([_a-zA-Z0-9-]+)['"`]/g);
     if (stringMatches) {
         stringMatches.forEach(match => {
@@ -104,53 +100,50 @@ JS_FILES.forEach(file => {
  */
 let report = `# DOM & CSS Analysis Report\n\n`;
 
-// Section: HTML Elements without CSS Classes
+// Section: Elements without CSS Classes
 const elementsNoClass = usageData.elements.filter(e => !e.hasClass);
 report += `## Elements without CSS Classes (${elementsNoClass.length})\n`;
 elementsNoClass.slice(0, 50).forEach(e => {
     report += `- \`<${e.tag}>\` in \`${e.file}\`\n`;
 });
-if (elementsNoClass.length > 50) report += `- ... and ${elementsNoClass.length - 50} more.\n`;
 
-// Section: Unused CSS Classes (Defined in CSS, not found in HTML/JS)
+// Section: Unused CSS Classes
 const unusedCss = [...cssData.allDefinedClasses].filter(c => !usageData.classesInHtmlJs.has(c));
 report += `\n## Unused CSS Classes (${unusedCss.length})\n`;
-report += `*Defined in .css but never referenced in .html or .js*\n\n`;
 unusedCss.forEach(c => report += `- \`.${c}\`\n`);
 
-// Section: Orphaned Classes (Used in HTML/JS, not defined in CSS)
+// Section: Undefined Classes used in HTML/JS
 const orphanedClasses = [...usageData.classesInHtmlJs].filter(c => !cssData.allDefinedClasses.has(c));
 report += `\n## Undefined Classes used in HTML/JS (${orphanedClasses.length})\n`;
-report += `*Referenced in code but no definition found in .css files*\n\n`;
 orphanedClasses.forEach(c => report += `- \`.${c}\`\n`);
 
-// Section: Approximate DOM Tree View
-report += `\n## Approximate DOM Tree View (Sample from HTML files)\n`;
+// Section: Tree View
+report += `\n## Approximate DOM Tree View\n`;
 HTML_FILES.forEach(file => {
     report += `\n### File: \`${file}\`\n\`\`\`text\n`;
     const content = fs.readFileSync(file, 'utf8');
     const $ = cheerio.load(content);
     
     function walk(el, depth = 0) {
-        let node = $(el);
-        if (!el.tagName) return "";
-        
+        if (!el || (el.type !== 'tag' && el.name === undefined)) return "";
+        const node = $(el);
         const indent = "  ".repeat(depth);
-        const classes = node.attr('class') ? `.${node.attr('class').split(/\s+/).join('.')}` : "";
         
-        // Get combined layout props for all classes on this element
+        const tagName = el.name || el.tagName;
+        const classAttr = node.attr('class');
+        const classNames = classAttr ? classAttr.split(/\s+/) : [];
+        const classStr = classNames.length ? `.${classNames.join('.')}` : "";
+        
         let layoutInfo = [];
-        if (node.attr('class')) {
-            node.attr('class').split(/\s+/).forEach(cls => {
-                const data = cssData.classes.get(cls);
-                if (data && Object.keys(data.layout).length > 0) {
-                    Object.entries(data.layout).forEach(([k, v]) => layoutInfo.push(`${k}: ${v}`));
-                }
-            });
-        }
+        classNames.forEach(cls => {
+            const data = cssData.classes.get(cls);
+            if (data && Object.keys(data.layout).length > 0) {
+                Object.entries(data.layout).forEach(([k, v]) => layoutInfo.push(`${k}: ${v}`));
+            }
+        });
         
         const layoutStr = layoutInfo.length > 0 ? ` [${layoutInfo.join('; ')}]` : "";
-        let line = `${indent}${el.tagName}${classes}${layoutStr}\n`;
+        let line = `${indent}${tagName}${classStr}${layoutStr}\n`;
         
         node.children().each((i, child) => {
             line += walk(child, depth + 1);
