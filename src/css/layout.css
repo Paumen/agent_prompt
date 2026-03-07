@@ -108,6 +108,8 @@ body {
 
 .card-body > .btn-select {
   grid-column: span 2;
+  place-content: center;
+  font-size: var(--text);
 }
 
 .card:not(.card--open) > .card-body {
