@@ -212,6 +212,7 @@ function onUsernameInput() {
 function onUsernameChange() {
   const owner = elUsername.value.trim();
   setState('configuration.owner', owner);
+  updateConfigCardMeta();
   const pat = getState().configuration.pat;
   if (pat && owner) {
     cacheClear();
@@ -366,6 +367,7 @@ function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
       setState('configuration.branch', '');
       fileTree = [];
       renderBranchDropdown(pickerWrapper, branches);
+      updateConfigCardMeta();
     },
   });
 
@@ -547,6 +549,9 @@ export function initConfigurationCard() {
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
     }
   });
+
+  // Update card-meta with restored state (D203)
+  updateConfigCardMeta();
 
   // Auto-fetch repos on page load if credentials exist (CFG-02)
   if (state.configuration.pat && state.configuration.owner) {

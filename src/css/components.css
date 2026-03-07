@@ -341,8 +341,7 @@ label {
   gap: var(--sp-4);
   place-items: center;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible; /* Allow tooltip to escape (D204) */
   font-size: var(--text-sm);
   font-weight: 400;
   color: var(--text-secondary);

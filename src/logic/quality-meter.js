@@ -164,8 +164,9 @@ export function renderQualityMeter(container) {
   label.appendChild(labelTextEl);
 
   track.appendChild(bar);
-  container.appendChild(track);
+  // Label first (above bar), then track (D204)
   container.appendChild(label);
+  container.appendChild(track);
 
   function update(state) {
     const score = calculateScore(state);
