@@ -12,7 +12,7 @@
 
 ## Elements Without Classes 🔴
 
-| Element | Occurrences | Without Class | Violations |
+| Element | Q | Q no-Class | Violations |
 |---------|-------------|---------------|------------|
 | `<span>` | 20 | 12 | index.html:19, index.html:33, index.html:47, index.html:61, cards/card-configuration.js:69, cards/card-configuration.js:78, cards/card-configuration.js:87, cards/card-steps.js:137, cards/card-tasks.js:178, common/components.js:106, common/ui.js:427, logic/quality-meter.js:163 |
 | `<div>` | 46 | 4 | cards/card-configuration.js:462, cards/card-configuration.js:519, cards/card-prompt.js:158, logic/quality-meter.js:159 |
