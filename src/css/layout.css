@@ -92,9 +92,18 @@ body {
 
 .card-body {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(8, 1fr);
   grid-auto-rows: auto;
   gap: var(--sp-8);
+}
+
+.card-body > * {
+  grid-column: 1 / -1;
+}
+
+.card-body > .field-picker-search,
+.card-body > .field-picker {
+  grid-column: span 4;
 }
 
 .card-body:has(> .btn-select) {
@@ -177,6 +186,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   grid-column: 2;
-  width: 100%;
   gap: var(--sp-2);
+  width: 100%;
 }
