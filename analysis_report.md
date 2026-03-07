@@ -2,17 +2,18 @@
 
 | Metric | Count |
 |--------|-------|
-| CSS classes defined | 59 |
+| CSS classes defined | 57 |
 | Classes used (HTML+JS) | 63 |
 | Unused CSS classes | 0 |
-| Undefined classes | 4 |
+| Undefined classes | 6 |
 | Inline style violations | 5 |
 
 ## Elements Without Classes
 
 | Element | Occurrences | Without Class | Violations |
 |---------|-------------|---------------|------------|
-| `<span>` | 20 | 12 | index.html:19, index.html:33, index.html:47, index.html:61, cards/card-configuration.js:66, cards/card-configuration.js:75, cards/card-configuration.js:84, cards/card-steps.js:137, cards/card-tasks.js:178, common/components.js:106, common/ui.js:427, logic/quality-meter.js:163 |
+| `<span>` | 17 | 9 | index.html:47, cards/card-configuration.js:66, cards/card-configuration.js:75, cards/card-configuration.js:84, cards/card-steps.js:137, cards/card-tasks.js:178, common/components.js:106, common/ui.js:427, logic/quality-meter.js:163 |
+| `<h3>` | 3 | 3 | index.html:19, index.html:33, index.html:61 |
 | `<label>` | 3 | 3 | cards/card-steps.js:222, cards/card-steps.js:240, common/ui.js:421 |
 | `<div>` | 44 | 2 | cards/card-prompt.js:158, logic/quality-meter.js:159 |
 | `<small>` | 2 | 2 | cards/card-tasks.js:181, common/file-tree.js:52 |
@@ -28,6 +29,8 @@ None detected.
 - `.btn-retry` — used at common/components.js:115
 - `.error-actions` — used at common/components.js:111
 - `.error-inline` — used at common/components.js:103
+- `.is-shown` — used at cards/card-configuration.js:189, cards/card-configuration.js:199
+- `.js-eye-btn` — used at cards/card-configuration.js:133
 
 ## Inline Style Violations
 
@@ -42,7 +45,7 @@ None detected.
 ```
 L3 section#card-configuration.card.card--open [Grid 1fr] — index.html:13
 ├─ L4 button.card-header [Grid 1fr auto] — index.html:14
-│  └─ L5 span — index.html:19
+│  └─ L5 h3 — index.html:19
 └─ L4 div#bd-configuration.card-body [Grid 8×1fr] — index.html:21
    ├─ L5 span — cards/card-configuration.js:66
    ├─ L5 span — cards/card-configuration.js:75
@@ -52,7 +55,7 @@ L3 section#card-configuration.card.card--open [Grid 1fr] — index.html:13
 
 L3 section#card-tasks.card [Grid 1fr] — index.html:27
 ├─ L4 button.card-header [Grid 1fr auto] — index.html:28
-│  └─ L5 span — index.html:33
+│  └─ L5 h3 — index.html:33
 └─ L4 div#bd-tasks.card-body [Grid 8×1fr] — index.html:35
    ├─ L5 div.card.card--open [Grid 1fr] — cards/card-tasks.js:124
    │  └─ L6 div.card-body [Grid 8×1fr] — cards/card-tasks.js:134
@@ -86,7 +89,7 @@ L3 section#card-steps.card [Grid 1fr] — index.html:41
 
 L3 section#card-prompt.card [Grid 1fr] — index.html:55
 ├─ L4 button.card-header [Grid 1fr auto] — index.html:56
-│  └─ L5 span — index.html:61
+│  └─ L5 h3 — index.html:61
 └─ L4 div#bd-prompt.card-body [Grid 8×1fr] — index.html:63
    ├─ L5 span.meter-info-wrapper [Flex row] — cards/card-prompt.js:116
    │  └─ L6 div.meter-tooltip — cards/card-prompt.js:125
