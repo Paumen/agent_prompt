@@ -12,12 +12,12 @@
 
 ## Elements Without Classes 🔴
 
-| Element | Q | Q no-Class | Violations |
-|---------|-------------|---------------|------------|
-| `<span>` | 20 | 12 | index.html:19, index.html:33, index.html:47, index.html:61, card-configuration.js:69, card-configuration.js:78, cards/card-configuration.js:87, card-steps.js:137, cards/card-tasks.js:178, ccomponents.js:106, common/ui.js:427, quality-meter.js:163 |
-| `<div>` | 46 | 4 | card-configuration.js:462, cards/card-configuration.js:519, cards/card-prompt.js:158, quality-meter.js:159 |
-| `<small>` | 2 | 2 | card-tasks.js:181, common/file-tree.js:52 |
-| `<template>` | 1 | 1 | icons.js:103 |
+| Element | no-Class | Violations |
+|---------|-----------------|------------|
+| `<span>` | 12/20  | index.html:19, index.html:33, index.html:47, index.html:61, card-configuration.js:69, card-configuration.js:78, card-configuration.js:87, card-steps.js:137, card-tasks.js:178, ccomponents.js:106, ui.js:427, quality-meter.js:163 |
+| `<div>` | 4/46 | card-configuration.js:462, card-configuration.js:519, card-prompt.js:158, quality-meter.js:159 |
+| `<small>` | 2/2 | card-tasks.js:181, file-tree.js:52 |
+| `<template>` | 1/1 | icons.js:103 |
 
 ## Unused CSS Classes 🔴
 
