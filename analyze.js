@@ -13,42 +13,42 @@
  *
  * Zero external dependencies beyond jsdom (already in devDependencies).
  */
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs';
+import path from 'node:path';
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
-const SRC_DIR = "src";
-const REPORT_FILE = "analysis_report.md";
+const SRC_DIR = 'src';
+const REPORT_FILE = 'analysis_report.md';
 
 const LAYOUT_PROPS = new Set([
-  "display",
-  "grid-template-columns",
-  "grid-template-rows",
-  "grid-template-areas",
-  "gap",
-  "column-gap",
-  "row-gap",
-  "flex-direction",
-  "flex-wrap",
-  "justify-content",
-  "align-items",
-  "width",
-  "height",
-  "position",
+  'display',
+  'grid-template-columns',
+  'grid-template-rows',
+  'grid-template-areas',
+  'gap',
+  'column-gap',
+  'row-gap',
+  'flex-direction',
+  'flex-wrap',
+  'justify-content',
+  'align-items',
+  'width',
+  'height',
+  'position',
 ]);
 
 const IGNORE_HTML_TAGS = new Set([
-  "html",
-  "head",
-  "meta",
-  "link",
-  "script",
-  "style",
-  "title",
-  "noscript",
-  "body",
-  "!doctype",
+  'html',
+  'head',
+  'meta',
+  'link',
+  'script',
+  'style',
+  'title',
+  'noscript',
+  'body',
+  '!doctype',
 ]);
 
 // ─── File Scanner ────────────────────────────────────────────────────────────
@@ -64,8 +64,8 @@ function findFiles(dir, extensions) {
       const full = path.join(dir, String(entry));
       if (
         extensions.some((ext) => full.endsWith(ext)) &&
-        !full.includes("node_modules") &&
-        !full.includes("dist")
+        !full.includes('node_modules') &&
+        !full.includes('dist')
       ) {
         results.push(full);
       }
@@ -83,21 +83,21 @@ function parseCss(files) {
   const classes = new Map();
 
   for (const file of files) {
-    const raw = fs.readFileSync(file, "utf8");
+    const raw = fs.readFileSync(file, 'utf8');
     // Preserve newlines so line counts stay correct; blank out comment content
     const content = raw.replace(/\/\*[\s\S]*?\*\//g, (m) =>
-      m.replace(/[^\n]/g, " "),
+      m.replace(/[^\n]/g, ' ')
     );
 
     // Remove @keyframes blocks (they don't define class selectors)
     const noKf = content.replace(
       /@keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,
-      (m) => m.replace(/[^\n]/g, " "),
+      (m) => m.replace(/[^\n]/g, ' ')
     );
 
     // Remove @import lines (url paths like './variables.css' would be false positives)
     const noImport = noKf.replace(/@import\s+[^;]+;/g, (m) =>
-      m.replace(/[^\n]/g, " "),
+      m.replace(/[^\n]/g, ' ')
     );
 
     // Match rule blocks: selector { declarations }
@@ -105,10 +105,10 @@ function parseCss(files) {
     let m;
     while ((m = ruleRe.exec(noImport)) !== null) {
       const selectorText = m[1].trim();
-      if (!selectorText || selectorText.startsWith("@")) continue;
+      if (!selectorText || selectorText.startsWith('@')) continue;
 
       const bodyText = m[2];
-      const line = content.substring(0, m.index).split("\n").length;
+      const line = content.substring(0, m.index).split('\n').length;
 
       // Extract layout properties
       const layout = {};
@@ -128,11 +128,11 @@ function parseCss(files) {
       // Skip pseudo-element selectors (::before, ::after) — layout is for the pseudo, not the element
       const hasPseudoElement = /::/.test(selectorText);
       const segments = selectorText.split(/\s*[>+~]\s*|\s+/).filter(Boolean);
-      const lastSegment = segments[segments.length - 1] || "";
+      const lastSegment = segments[segments.length - 1] || '';
       const targetClasses = hasPseudoElement
         ? new Set() // pseudo-element layout doesn't apply to the element itself
         : new Set(
-            [...lastSegment.matchAll(/\.([a-zA-Z_][\w-]*)/g)].map((x) => x[1]),
+            [...lastSegment.matchAll(/\.([a-zA-Z_][\w-]*)/g)].map((x) => x[1])
           );
 
       while ((c = classRe.exec(selectorText)) !== null) {
@@ -161,15 +161,15 @@ function parseHtml(files) {
   const inlineStyles = [];
 
   for (const file of files) {
-    const content = fs.readFileSync(file, "utf8");
-    const lines = content.split("\n");
+    const content = fs.readFileSync(file, 'utf8');
+    const lines = content.split('\n');
 
     // Simple tag-based parser (sufficient for well-formed HTML)
     const tagRe = /<(\/?)([\w-]+)([^>]*)>/g;
     let depth = 0;
     let m;
     while ((m = tagRe.exec(content)) !== null) {
-      const isClosing = m[1] === "/";
+      const isClosing = m[1] === '/';
       const tag = m[2].toLowerCase();
       const attrs = m[3];
 
@@ -180,7 +180,7 @@ function parseHtml(files) {
         continue;
       }
 
-      const lineNum = content.substring(0, m.index).split("\n").length;
+      const lineNum = content.substring(0, m.index).split('\n').length;
 
       // Extract classes
       const classMatch = attrs.match(/class\s*=\s*"([^"]*)"/);
@@ -190,7 +190,7 @@ function parseHtml(files) {
 
       // Extract id
       const idMatch = attrs.match(/id\s*=\s*"([^"]*)"/);
-      const id = idMatch ? idMatch[1] : "";
+      const id = idMatch ? idMatch[1] : '';
 
       // Inline style check
       if (/style\s*=\s*"/.test(attrs)) {
@@ -202,8 +202,8 @@ function parseHtml(files) {
       }
 
       const isSelfClosing =
-        attrs.endsWith("/") ||
-        ["br", "hr", "img", "input", "meta", "link"].includes(tag);
+        attrs.endsWith('/') ||
+        ['br', 'hr', 'img', 'input', 'meta', 'link'].includes(tag);
 
       elements.push({
         file: shortPath(file),
@@ -247,8 +247,8 @@ function parseJs(files, cssDefinedClasses) {
   }
 
   for (const file of files) {
-    const content = fs.readFileSync(file, "utf8");
-    const lines = content.split("\n");
+    const content = fs.readFileSync(file, 'utf8');
+    const lines = content.split('\n');
     const fp = shortPath(file);
 
     for (let i = 0; i < lines.length; i++) {
@@ -257,7 +257,7 @@ function parseJs(files, cssDefinedClasses) {
 
       // ── createElement ──
       const createMatch = line.match(
-        /(?:const|let|var)\s+(\w+)\s*=\s*document\.createElement\(\s*['"](\w+)['"]\s*\)/,
+        /(?:const|let|var)\s+(\w+)\s*=\s*document\.createElement\(\s*['"](\w+)['"]\s*\)/
       );
       if (createMatch) {
         elementsCreated.push({
@@ -272,7 +272,7 @@ function parseJs(files, cssDefinedClasses) {
       const cnLiteralMatch = line.match(/(\w+)\.className\s*=\s*'([^']+)'/);
       if (cnLiteralMatch) {
         for (const cls of cnLiteralMatch[2].split(/\s+/).filter(Boolean)) {
-          addRef(cls, file, ln, "className");
+          addRef(cls, file, ln, 'className');
         }
         markVarWithClass(file, cnLiteralMatch[1]);
       }
@@ -281,7 +281,7 @@ function parseJs(files, cssDefinedClasses) {
       const cnDblMatch = line.match(/(\w+)\.className\s*=\s*"([^"]+)"/);
       if (cnDblMatch && !cnLiteralMatch) {
         for (const cls of cnDblMatch[2].split(/\s+/).filter(Boolean)) {
-          addRef(cls, file, ln, "className");
+          addRef(cls, file, ln, 'className');
         }
         markVarWithClass(file, cnDblMatch[1]);
       }
@@ -292,16 +292,16 @@ function parseJs(files, cssDefinedClasses) {
         markVarWithClass(file, cnTemplateMatch[1]);
         const parts = cnTemplateMatch[2].split(/\s+/).filter(Boolean);
         for (const part of parts) {
-          if (!part.includes("$")) {
-            addRef(part, file, ln, "className");
+          if (!part.includes('$')) {
+            addRef(part, file, ln, 'className');
           } else {
             // Extract static prefix
-            const prefix = part.split("${")[0];
+            const prefix = part.split('${')[0];
             if (prefix) {
               // Find CSS classes that match this prefix
               for (const cssCls of cssDefinedClasses) {
                 if (cssCls.startsWith(prefix)) {
-                  addRef(cssCls, file, ln, "className (dynamic)");
+                  addRef(cssCls, file, ln, 'className (dynamic)');
                 }
               }
             }
@@ -312,7 +312,7 @@ function parseJs(files, cssDefinedClasses) {
       // ── classList.add/remove/toggle/contains ──
       const clMatches = [
         ...line.matchAll(
-          /(\w+)\.classList\.(add|remove|toggle|contains)\(\s*'([^']+)'/g,
+          /(\w+)\.classList\.(add|remove|toggle|contains)\(\s*'([^']+)'/g
         ),
       ];
       for (const m of clMatches) {
@@ -322,7 +322,7 @@ function parseJs(files, cssDefinedClasses) {
       // Also handle double-quoted
       const clMatchesDbl = [
         ...line.matchAll(
-          /(\w+)\.classList\.(add|remove|toggle|contains)\(\s*"([^"]+)"/g,
+          /(\w+)\.classList\.(add|remove|toggle|contains)\(\s*"([^"]+)"/g
         ),
       ];
       for (const m of clMatchesDbl) {
@@ -332,18 +332,18 @@ function parseJs(files, cssDefinedClasses) {
 
       // ── setAttribute('class', '...') ──
       const setAttrMatch = line.match(
-        /(\w+)\.setAttribute\(\s*['"]class['"]\s*,\s*['"]([^'"]+)['"]\s*\)/,
+        /(\w+)\.setAttribute\(\s*['"]class['"]\s*,\s*['"]([^'"]+)['"]\s*\)/
       );
       if (setAttrMatch) {
         for (const cls of setAttrMatch[2].split(/\s+/).filter(Boolean)) {
-          addRef(cls, file, ln, "setAttribute");
+          addRef(cls, file, ln, 'setAttribute');
         }
         markVarWithClass(file, setAttrMatch[1]);
       }
 
       // ── Inline style: element.style.X = ... ──
       const styleMatch = line.match(/(\w+)\.style\.\w+\s*=/);
-      if (styleMatch && !line.includes("// ")) {
+      if (styleMatch && !line.includes('// ')) {
         inlineStyles.push({ file: fp, line: ln, code: line.trim() });
       }
 
@@ -379,10 +379,10 @@ function parseJs(files, cssDefinedClasses) {
           continue;
 
         // Look for exact string literal match
-        const escaped = cssCls.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const escaped = cssCls.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const litRe = new RegExp(`['"\`]${escaped}['"\`]`);
         if (litRe.test(line)) {
-          addRef(cssCls, file, ln, "string literal");
+          addRef(cssCls, file, ln, 'string literal');
           // Only add once per file per class
           break;
         }
@@ -431,10 +431,10 @@ function buildDomTree(htmlElements, jsData, cssClasses) {
 
   // Merge JS-created elements into each card body
   const cardFileMap = {
-    "bd-configuration": "cards/card-configuration.js",
-    "bd-tasks": "cards/card-tasks.js",
-    "bd-steps": "cards/card-steps.js",
-    "bd-prompt": "cards/card-prompt.js",
+    'bd-configuration': 'cards/card-configuration.js',
+    'bd-tasks': 'cards/card-tasks.js',
+    'bd-steps': 'cards/card-steps.js',
+    'bd-prompt': 'cards/card-prompt.js',
   };
 
   for (const root of roots) {
@@ -453,7 +453,7 @@ function buildDomTree(htmlElements, jsData, cssClasses) {
 function buildJsTree(targetFile, jsData, cssClasses) {
   const { elementsCreated, appends } = jsData;
   const fileElements = elementsCreated.filter((e) =>
-    e.file.endsWith(targetFile),
+    e.file.endsWith(targetFile)
   );
   const fileAppends = appends.filter((a) => a.file.endsWith(targetFile));
 
@@ -466,7 +466,7 @@ function buildJsTree(targetFile, jsData, cssClasses) {
       classes: [],
       file: el.file,
       line: el.line,
-      layout: "",
+      layout: '',
       children: [],
     });
   }
@@ -477,13 +477,13 @@ function buildJsTree(targetFile, jsData, cssClasses) {
   if (filePath) {
     const fullPath = path.join(SRC_DIR, targetFile);
     if (fs.existsSync(fullPath)) {
-      const content = fs.readFileSync(fullPath, "utf8");
-      const lines = content.split("\n");
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const lines = content.split('\n');
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         // className = 'x' or "x" or `x`
         const cnMatch = line.match(
-          /(\w+)\.className\s*=\s*['"`]([^'"`]+)['"`]/,
+          /(\w+)\.className\s*=\s*['"`]([^'"`]+)['"`]/
         );
         if (cnMatch && varMap.has(cnMatch[1])) {
           varMap.get(cnMatch[1]).classes = cnMatch[2]
@@ -526,29 +526,29 @@ function getLayoutSummary(classes, cssClasses) {
     if (!defs) continue;
     for (const def of defs) {
       const l = def.layout;
-      if (!l.display || l.display === "none") continue;
+      if (!l.display || l.display === 'none') continue;
 
-      if (l.display === "grid") {
-        const cols = l["grid-template-columns"];
+      if (l.display === 'grid') {
+        const cols = l['grid-template-columns'];
         const shortCols = cols
           ? cols
-              .replace(/var\(--[^)]+\)/g, "")
-              .replace(/clamp\([^)]+\)/g, "clamp")
-              .replace(/repeat\((\d+),\s*1fr\)/, "$1×1fr")
-              .replace(/\s+/g, " ")
+              .replace(/var\(--[^)]+\)/g, '')
+              .replace(/clamp\([^)]+\)/g, 'clamp')
+              .replace(/repeat\((\d+),\s*1fr\)/, '$1×1fr')
+              .replace(/\s+/g, ' ')
               .trim()
-          : "";
-        parts.push(`Grid${shortCols ? " " + shortCols : ""}`);
-      } else if (l.display === "flex" || l.display === "inline-flex") {
-        const dir = l["flex-direction"] || "row";
-        const wrap = l["flex-wrap"] ? " wrap" : "";
+          : '';
+        parts.push(`Grid${shortCols ? ' ' + shortCols : ''}`);
+      } else if (l.display === 'flex' || l.display === 'inline-flex') {
+        const dir = l['flex-direction'] || 'row';
+        const wrap = l['flex-wrap'] ? ' wrap' : '';
         parts.push(`Flex ${dir}${wrap}`);
-      } else if (l.display !== "block" && l.display !== "inline") {
+      } else if (l.display !== 'block' && l.display !== 'inline') {
         parts.push(l.display);
       }
     }
   }
-  return [...new Set(parts)].join(", ");
+  return [...new Set(parts)].join(', ');
 }
 
 // ─── Analysis ────────────────────────────────────────────────────────────────
@@ -646,85 +646,85 @@ function analyze(cssClasses, htmlData, jsData) {
 
 function generateReport(analysis, domTree, cssClasses) {
   const lines = [];
-  const w = (...args) => lines.push(args.join(""));
+  const w = (...args) => lines.push(args.join(''));
 
   // ── Summary ──
-  w("# DOM-CSS Analysis Report\n");
-  w("| Metric | Count |");
-  w("|--------|-------|");
+  w('# DOM-CSS Analysis Report\n');
+  w('| Metric | Count |');
+  w('|--------|-------|');
   w(`| CSS classes defined | ${analysis.cssClasses.size} |`);
   w(`| Classes used (HTML+JS) | ${analysis.allUsedClasses.size} |`);
   w(`| Unused CSS classes | ${analysis.unusedCss.length} |`);
   w(`| Undefined classes | ${analysis.undefinedClasses.length} |`);
   w(`| Inline style violations | ${analysis.inlineStyles.length} |`);
-  w("");
+  w('');
 
   // ── Elements Without Classes ──
-  w("## Elements Without Classes\n");
-  w("| Element | Occurrences | Without Class | Violations |");
-  w("|---------|-------------|---------------|------------|");
+  w('## Elements Without Classes\n');
+  w('| Element | Occurrences | Without Class | Violations |');
+  w('|---------|-------------|---------------|------------|');
   const sortedTags = [...analysis.elementStats.entries()].sort(
-    (a, b) => b[1].noClass - a[1].noClass,
+    (a, b) => b[1].noClass - a[1].noClass
   );
   for (const [tag, stat] of sortedTags) {
     if (stat.noClass === 0) continue;
-    const viols = stat.violations.map((v) => `${v.file}:${v.line}`).join(", ");
+    const viols = stat.violations.map((v) => `${v.file}:${v.line}`).join(', ');
     w(`| \`<${tag}>\` | ${stat.total} | ${stat.noClass} | ${viols} |`);
   }
-  w("");
+  w('');
 
   // ── Unused CSS Classes ──
-  w("## Unused CSS Classes\n");
+  w('## Unused CSS Classes\n');
   if (analysis.unusedCss.length === 0) {
-    w("None detected.\n");
+    w('None detected.\n');
   } else {
     for (const item of analysis.unusedCss.sort((a, b) =>
-      a.className.localeCompare(b.className),
+      a.className.localeCompare(b.className)
     )) {
       const locs = item.definitions
         .map((d) => `${d.file}:${d.line}`)
-        .join(", ");
+        .join(', ');
       w(`- \`.${item.className}\` — defined at ${locs}`);
     }
-    w("");
+    w('');
   }
 
   // ── Undefined Classes ──
-  w("## Undefined Classes (used but not in CSS)\n");
+  w('## Undefined Classes (used but not in CSS)\n');
   if (analysis.undefinedClasses.length === 0) {
-    w("None detected.\n");
+    w('None detected.\n');
   } else {
     for (const item of analysis.undefinedClasses.sort((a, b) =>
-      a.className.localeCompare(b.className),
+      a.className.localeCompare(b.className)
     )) {
-      const locs = item.references.map((r) => `${r.file}:${r.line}`).join(", ");
+      const locs = item.references.map((r) => `${r.file}:${r.line}`).join(', ');
       w(`- \`.${item.className}\` — used at ${locs}`);
     }
-    w("");
+    w('');
   }
 
   // ── Inline Style Violations ──
-  w("## Inline Style Violations\n");
+  w('## Inline Style Violations\n');
   if (analysis.inlineStyles.length === 0) {
-    w("None detected.\n");
+    w('None detected.\n');
   } else {
     for (const s of analysis.inlineStyles) {
       w(`- **${s.file}:${s.line}** — \`${s.code.substring(0, 100)}\``);
     }
-    w("");
+    w('');
   }
 
   // ── DOM Tree ──
-  w("## Approximate DOM Tree (L3–L7)\n");
-  w("```");
+  w('## Approximate DOM Tree (L3–L7)\n');
+  w('```');
   for (let i = 0; i < domTree.length; i++) {
-    renderTreeNode(domTree[i], 3, "", true, true, lines);
-    if (i < domTree.length - 1) w(""); // blank line between cards
+    renderTreeNode(domTree[i], 3, '', true, true, lines);
+    if (i < domTree.length - 1) w(''); // blank line between cards
   }
-  w("```\n");
+  w('```\n');
 
   // ── Class Usage Map ──
-  w("## Class Usage Map\n");
+  w('## Class Usage Map\n');
   // Group all class refs by file
   const byFile = new Map();
   for (const el of analysis.htmlClassRefs) {
@@ -749,12 +749,12 @@ function generateReport(analysis, domTree, cssClasses) {
     for (const [cls, count] of sorted) {
       w(`- \`.${cls}\` × ${count}`);
     }
-    w("");
+    w('');
   }
 
   // ── Cross-File Class Map (reverse view, classes in 3+ files) ──
-  w("## Cross-File Class Map\n");
-  w("*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*\n");
+  w('## Cross-File Class Map\n');
+  w('*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*\n');
 
   // Build class → Set<file> from all sources: CSS defs, HTML refs, JS refs
   const classToFiles = new Map();
@@ -777,18 +777,18 @@ function generateReport(analysis, domTree, cssClasses) {
     .sort((a, b) => b[1].size - a[1].size || a[0].localeCompare(b[0]));
 
   if (crossFile.length === 0) {
-    w("No classes found in 3+ files.\n");
+    w('No classes found in 3+ files.\n');
   } else {
     for (const [cls, files] of crossFile) {
       w(`### \`.${cls}\` (${files.size} files)\n`);
       for (const f of [...files].sort()) {
         w(`- ${f}`);
       }
-      w("");
+      w('');
     }
   }
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 /**
@@ -801,19 +801,19 @@ function generateReport(analysis, domTree, cssClasses) {
  * @param {string[]} lines    Output array
  */
 function renderTreeNode(node, baseLevel, prefix, isLast, isRoot, lines) {
-  const idStr = node.id ? `#${node.id}` : "";
-  const clsStr = node.classes.length ? `.${node.classes.join(".")}` : "";
-  const layoutStr = node.layout ? ` [${node.layout}]` : "";
+  const idStr = node.id ? `#${node.id}` : '';
+  const clsStr = node.classes.length ? `.${node.classes.join('.')}` : '';
+  const layoutStr = node.layout ? ` [${node.layout}]` : '';
   const fileStr = ` — ${node.file}:${node.line}`;
   const levelTag = `L${baseLevel} `;
 
-  const connector = isRoot ? "" : isLast ? "└─ " : "├─ ";
+  const connector = isRoot ? '' : isLast ? '└─ ' : '├─ ';
   lines.push(
-    `${prefix}${connector}${levelTag}${node.tag}${idStr}${clsStr}${layoutStr}${fileStr}`,
+    `${prefix}${connector}${levelTag}${node.tag}${idStr}${clsStr}${layoutStr}${fileStr}`
   );
 
   const children = node.children || [];
-  const childPrefix = isRoot ? prefix : prefix + (isLast ? "   " : "│  ");
+  const childPrefix = isRoot ? prefix : prefix + (isLast ? '   ' : '│  ');
   for (let i = 0; i < children.length; i++) {
     renderTreeNode(
       children[i],
@@ -821,7 +821,7 @@ function renderTreeNode(node, baseLevel, prefix, isLast, isRoot, lines) {
       childPrefix,
       i === children.length - 1,
       false,
-      lines,
+      lines
     );
   }
 }
@@ -829,20 +829,20 @@ function renderTreeNode(node, baseLevel, prefix, isLast, isRoot, lines) {
 // ─── Utilities ───────────────────────────────────────────────────────────────
 
 function shortPath(p) {
-  return p.replace(/^src\//, "");
+  return p.replace(/^src\//, '');
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 function main() {
-  console.log("Scanning src/ ...");
+  console.log('Scanning src/ ...');
 
-  const cssFiles = findFiles(SRC_DIR, [".css"]);
-  const htmlFiles = findFiles(SRC_DIR, [".html"]);
-  const jsFiles = findFiles(SRC_DIR, [".js"]);
+  const cssFiles = findFiles(SRC_DIR, ['.css']);
+  const htmlFiles = findFiles(SRC_DIR, ['.html']);
+  const jsFiles = findFiles(SRC_DIR, ['.js']);
 
   console.log(
-    `  Found ${cssFiles.length} CSS, ${htmlFiles.length} HTML, ${jsFiles.length} JS files`,
+    `  Found ${cssFiles.length} CSS, ${htmlFiles.length} HTML, ${jsFiles.length} JS files`
   );
 
   // 1. Parse CSS
@@ -856,7 +856,7 @@ function main() {
   // 3. Parse JS
   const jsData = parseJs(jsFiles, new Set(cssClasses.keys()));
   console.log(
-    `  JS: ${jsData.classRefs.size} class refs, ${jsData.elementsCreated.length} elements created`,
+    `  JS: ${jsData.classRefs.size} class refs, ${jsData.elementsCreated.length} elements created`
   );
 
   // 4. Analyze

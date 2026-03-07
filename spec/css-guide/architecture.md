@@ -98,6 +98,7 @@ Maximize use of:
 Use `@starting-style` and `transition-behavior: allow-discrete` for entry/exit animations. Limit transitions to `transform` and `opacity` for hardware acceleration.
 
 ### Development Principles
+
 KISS & DRY: The best solution usually involves removing CSS, not adding it.
 Modern-First (2026+): Optimize for modern engines. Zero legacy fallbacks.
 No Dead Code: Delete unused styles immediately. Don't keep "just in case" rules.

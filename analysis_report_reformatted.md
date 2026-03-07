@@ -1,34 +1,32 @@
 # DOM-CSS Analysis Report
 
-| Metric | Count | Target | Temp | status |
-|--------|-------|-------|-------|-------|
-| CSS classes | 60 | <50 | 55| 🔴 |
-| used (HTML+JS) | 63 | ||
-| Unused | 1 | 0 | 1 | 🟠 |
-| Undefined | 4  | 0 | 1 | 🔴|
-| Inline | 5 | 3 | 5 |🟠|
-
-
+| Metric         | Count | Target | Temp | status |
+| -------------- | ----- | ------ | ---- | ------ |
+| CSS classes    | 60    | <50    | 55   | 🔴     |
+| used (HTML+JS) | 63    |        |      |
+| Unused         | 1     | 0      | 1    | 🟠     |
+| Undefined      | 4     | 0      | 1    | 🔴     |
+| Inline         | 5     | 3      | 5    | 🟠     |
 
 ## Elements Without Classes 🔴
 
-| Element | no-Class | Violations |
-|---------|-----------------|------------|
-| `<span>` | 12/20  | index.html:19, index.html:33, index.html:47, index.html:61, card-configuration.js:69, card-configuration.js:78, card-configuration.js:87, card-steps.js:137, card-tasks.js:178, ccomponents.js:106, ui.js:427, quality-meter.js:163 |
-| `<div>` | 4/46 | card-configuration.js:462, card-configuration.js:519, card-prompt.js:158, quality-meter.js:159 |
-| `<small>` | 2/2 | card-tasks.js:181, file-tree.js:52 |
-| `<template>` | 1/1 | icons.js:103 |
+| Element      | no-Class | Violations                                                                                                                                                                                                                          |
+| ------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<span>`     | 12/20    | index.html:19, index.html:33, index.html:47, index.html:61, card-configuration.js:69, card-configuration.js:78, card-configuration.js:87, card-steps.js:137, card-tasks.js:178, ccomponents.js:106, ui.js:427, quality-meter.js:163 |
+| `<div>`      | 4/46     | card-configuration.js:462, card-configuration.js:519, card-prompt.js:158, quality-meter.js:159                                                                                                                                      |
+| `<small>`    | 2/2      | card-tasks.js:181, file-tree.js:52                                                                                                                                                                                                  |
+| `<template>` | 1/1      | icons.js:103                                                                                                                                                                                                                        |
 
 ## Unused CSS Classes 🔴
 
-- `.wrapper` — defined at css/layout.css:160, css/layout.css:168 
+- `.wrapper` — defined at css/layout.css:160, css/layout.css:168
 
 ## Undefined Classes (used but not in CSS) 🔴
 
-- `.btn-dismiss` — used at components.js:122 
-- `.btn-retry` — used at ccomponents.js:115 
-- `.error-actions` — used at components.js:111 
-- `.error-inline` — used at components.js:103 
+- `.btn-dismiss` — used at components.js:122
+- `.btn-retry` — used at ccomponents.js:115
+- `.error-actions` — used at components.js:111
+- `.error-inline` — used at components.js:103
 
 ## Inline Style Violations
 
@@ -239,7 +237,7 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 
 ## Cross-File Class Map
 
-*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*
+_Classes appearing in 3+ files (CSS definitions + HTML/JS usage)._
 
 ### `.cloud` (8 files)
 

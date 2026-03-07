@@ -1,6 +1,6 @@
 name: DOM-CSS Analysis
 
-on: 
+on:
   workflow_dispatch:
 
 jobs:

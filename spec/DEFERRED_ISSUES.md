@@ -11,6 +11,7 @@ Items deferred from Stage D scope during architectural review. Create as GitHub 
 **Why deferred:** Web Components introduce a new architectural paradigm (shadow DOM boundary, form association, style migration). Stage D should prove the progressive disclosure UX first using `data-valid`/`data-invalid` attributes on native elements. Web Components are a natural Stage E concern once the UX foundation is stable.
 
 **Scope when implemented:**
+
 - Shadow DOM vs light DOM decision
 - Form participation via `ElementInternals`
 - Migration path for existing `.field-picker` CSS
@@ -27,6 +28,7 @@ Items deferred from Stage D scope during architectural review. Create as GitHub 
 **Why deferred:** Zero detail was specified — trigger conditions, content, dismiss behavior, and relationship to progressive disclosure were all undefined. Needs proper UX design before implementation.
 
 **Scope when implemented:**
+
 - Define trigger conditions (first visit? empty state? user action?)
 - Content strategy (what guidance to show per card)
 - Dismiss behavior (one-time? per-session? dismissible?)
