@@ -399,11 +399,11 @@ label {
   display: none;
 }
 
-.btn-copy.btn--copied .icon-clipboard {
+.btn--copied .icon-clipboard {
   display: none;
 }
 
-.btn-copy.btn--copied .icon-check {
+.btn--copied .icon-check {
   display: block;
 }
 
