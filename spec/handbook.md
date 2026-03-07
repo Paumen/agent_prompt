@@ -107,7 +107,7 @@ Using `width: min-content;` on a container similarly shrinks it to the smallest 
 
 `anchor-name` (CSS Anchor Positioning)
 
-The anchor-name CSS property defines an element as an anchor by assigning it a custom name. A positioned element (with position: absolute or fixed) can then set position-anchor: `<name>` to attach itself to that anchor. Using the anchor() function in inset properties (e.g. `left: anchor(right)`) then positions the anchored element relative to the anchor’s edges. This effectively changes the containing block of the positioned element to the anchor, “tethering” them.
+The anchor-name CSS property defines an element as an anchor by assigning it a custom name. A positioned element (with position: absolute or fixed) can then set position-anchor: `<name>` to attach itself to that anchor. Using the `anchor()` function in inset properties (e.g. `left: anchor(right)`) then positions the anchored element relative to the anchor’s edges. This effectively changes the containing block of the positioned element to the anchor, “tethering” them.
 
 Use cases: tooltips, info boxes, or popovers anchored to a specific element on the page. For example, anchoring a tooltip to an icon without extra DOM, purely in CSS. When multiple anchors share the same name, the last in source order is used. Anchors can be any box-generating element or pseudo-element.
 
@@ -137,7 +137,7 @@ In this example (from MDN), `.info-box` stays attached to `.anchor-icon` even on
 
 `:user-valid`, `:user-invalid`
 
-These pseudo-classes target form controls after user interaction. :user-valid matches a control whose value validates correctly after the user has edited it; :user-invalid matches one whose value is invalid after user editing. Unlike :valid/:invalid (which fire on page load or on form submission), :user-valid/invalid only apply after the user has modified the input.
+These pseudo-classes target form controls after user interaction. `:user-valid` matches a control whose value validates correctly after the user has edited it; :user-invalid matches one whose value is invalid after user editing. Unlike `:valid/:invalid` (which fire on page load or on form submission), :user-valid/invalid only apply after the user has modified the input.
 
 Use cases: styling fields only in response to user input. This avoids showing error styles on untouched fields. Common patterns:
 ```css
@@ -160,7 +160,7 @@ These pseudo-classes improve UX by giving feedback only after user attempts to f
 
 The <meter> element represents a gauge of a scalar value within a known range. Common examples include a battery level, disk usage, or progress percentage. It is rendered as a bar (or other native gauge) and can reflect thresholds with low, high, and optimum attributes. If value is outside min/max, it clamps to nearest end. low and high define subranges, and optimum can indicate a target value, allowing the browser to color ranges differently.
 
-Use cases: display of meter-like data in dashboards, forms, or status pages. For example, embedding a CPU usage meter, volume level, or voting result gauge. Unlike <progress>, <meter> is for fractional values not necessarily tied to task completion.
+Use cases: display of meter-like data in dashboards, forms, or status pages. For example, embedding a CPU usage meter, volume level, or voting result gauge. Unlike `<progress>`, `<meter>` is for fractional values not necessarily tied to task completion.
 
 Examples:
 ```html
@@ -210,7 +210,7 @@ img {
   animation-timeline: scroll();
 }
 ```
-The image will fade in gradually as the page scrolls. One can also define named scroll timelines on containers with scroll-timeline-name and use them:
+The image will fade in gradually as the page scrolls. One can also define named scroll timelines on containers with `scroll-timeline-name` and use them:
 ```css
 #container {
   scroll-timeline-name: --myScroll;
@@ -228,11 +228,11 @@ Finally, using the function syntax selects the nearest scrollable container:
   animation-timeline: scroll(inline nearest);
 }
 ```
-In MDN’s examples, switching from a named timeline to scroll(inline nearest) enabled horizontal scroll-driven animation in the same container. Modern browsers now support scroll-linked animation syntax.
+In MDN’s examples, switching from a named timeline to scroll(inline nearest) enabled horizontal scroll-driven animation in the same container. Modern browsers now support `scroll-linked` animation syntax.
 
 `::backdrop`
 
-The `::backdrop` pseudo-element represents the backdrop layer behind an element in the top layer (modal elements). It covers the full viewport under elements like a <dialog> shown with showModal(), any element in fullscreen, or a <popover> opened with showPopover(). Each top-layer element has its own backdrop.
+The `::backdrop` pseudo-element represents the backdrop layer behind an element in the top layer (modal elements). It covers the full viewport under elements like a `<dialog>` shown with `showModal()`, any element in fullscreen, or a <popover> opened with `showPopover()`. Each top-layer element has its own backdrop.
 
 Use cases: styling or dimming the background behind modal dialogs or fullscreen content. For example:
 ```css
@@ -246,13 +246,13 @@ dialog::backdrop {
   background-color: salmon;
 }
 ```
-The backdrop appears only when the element is active (e.g. dialog.showModal() is called). You can apply any CSS to ::backdrop (color, blur via backdrop-filter, etc.) to achieve custom overlay effects. This pseudo-element is widely supported (since 2022).
+The backdrop appears only when the element is active (e.g. dialog.showModal() is called). You can apply any CSS to `::backdrop` (color, blur via backdrop-filter, etc.) to achieve custom overlay effects. This pseudo-element is widely supported (since 2022).
 
 `<dialog>``
 
-The <dialog> element defines a modal or non-modal dialog box. It can be shown programmatically with JavaScript: dialog.showModal() makes it modal (blocking interaction outside and showing a backdrop), and dialog.show() makes it non-modal. Calling dialog.close() or using a form with method="dialog" closes it. The presence of the open attribute or these methods controls visibility (by default, absent/open attribute means hidden).
+The `<dialog>` element defines a modal or non-modal dialog box. It can be shown programmatically with JavaScript: `dialog.showModal()` makes it modal (blocking interaction outside and showing a backdrop), and dialog.show() makes it non-modal. Calling `dialog.close()` or using a form with method="dialog" closes it. The presence of the open attribute or these methods controls visibility (by default, absent/open attribute means hidden).
 
-Use cases: implementing pop-up dialogs, alerts, or input forms without external libraries. Since <dialog> includes focus trapping and backdrop support, it simplifies modals. Example:
+Use cases: implementing pop-up dialogs, alerts, or input forms without external libraries. Since `<dialog>` includes focus trapping and backdrop support, it simplifies modals. Example:
 ```html
 <dialog id="dlg">
   <p>Confirm action?</p>
@@ -264,11 +264,11 @@ Use cases: implementing pop-up dialogs, alerts, or input forms without external 
   document.getElementById('openBtn').onclick = () => dlg.showModal();
 </script>
 ```
-When showModal() is called, the dialog appears centered with a backdrop (modifiable via ::backdrop). The <dialog> element supports attributes like open and closedBy, and works with <form method="dialog"> to automatically close on form submission. It is supported in modern browsers (since around 2022) for building native modals.
+When `showModal()` is called, the dialog appears centered with a backdrop (modifiable via `::backdrop`). The `<dialog>` element supports attributes like open and closedBy, and works with `<form method="dialog">` to automatically close on form submission. It is supported in modern browsers (since around 2022) for building native modals.
 
 `@starting-style`
 
-The @starting-style at-rule provides initial styles for elements upon their first style update, enabling CSS transitions on entry. By default, transitions don’t run when an element first appears or changes from display:none to visible. Using `@starting-style`, you define the “from” state of the element so a transition can occur.
+The `@starting-style` at-rule provides initial styles for elements upon their first style update, enabling CSS transitions on entry. By default, transitions don’t run when an element first appears or changes from display:none to visible. Using `@starting-style`, you define the “from” state of the element so a transition can occur.
 
 Use cases: entry animations for dialogs, popovers, or dynamically added elements. Example – fade in a dialog when shown:
 ```css
@@ -336,7 +336,7 @@ In dynamic forms, enabling/disabling fields via JS will automatically apply :dis
 
 `@layer`
 
-The @layer at-rule creates named cascade layers to group and order CSS rules. Layers affect cascade order: rules in later-declared layers override earlier ones regardless of specificity (except `!important`, which inverts priority). This provides finer control over conflicts. By default, unlayered styles override layered ones, and among layers the last-declared has highest priority.
+The `@layer` at-rule creates named cascade layers to group and order CSS rules. Layers affect cascade order: rules in later-declared layers override earlier ones regardless of specificity (except `!important`, which inverts priority). This provides finer control over conflicts. By default, unlayered styles override layered ones, and among layers the last-declared has highest priority.
 
 Use cases: organizing CSS (e.g. reset, base, components, utilities) to prevent accidental overrides. For example:
 
@@ -349,7 +349,7 @@ Use cases: organizing CSS (e.g. reset, base, components, utilities) to prevent a
   h1 { color: rebeccapurple; }
 }
 ```
-Because theme is declared after base, its color: rebeccapurple wins, while border: green from base still applies. You can also declare anonymous layers:
+Because theme is declared after base, its color: rebeccapurple wins, while `border: green` from base still applies. You can also declare anonymous layers:
 
 ```css
 @layer utilities {
@@ -385,7 +385,7 @@ These only apply to links and background within elements having those classes. A
   img { border: 5px solid black; background: goldenrod; }
 }
 ```
-This styles all <img> under .feature except those inside a <figure>. Inline example (in a `<style>``):
+This styles all `<img>` under .feature except those inside a `<figure>`. Inline example (in a `<style>``):
 
 ```css
 <div class="widget">
@@ -448,7 +448,7 @@ input:not(:placeholder-shown) + .hint { display: none; }
 
 `:focus`, `:focus-within`
 
-The :focus pseudo-class applies to an element that has keyboard or mouse focus (e.g. clicked or tabbed). The :focus-within pseudo-class matches an element if it or any of its descendants is focused. This includes focus within shadow DOMs.
+The `:focus` pseudo-class applies to an element that has keyboard or mouse focus (e.g. clicked or tabbed). The `:focus-within` pseudo-class matches an element if it or any of its descendants is focused. This includes focus within shadow DOMs.
 
 Use cases: highlighting active inputs or their containers. For example:
 ```css
@@ -474,6 +474,6 @@ to mark a group of controls. `:focus-within` is useful for styling parent elemen
 form { border: 1px solid gray; padding: 5px; }
 form:focus-within { background: #eef; border-color: #55f; }
 ```
-Here the form highlights when you click into either input. :focus-within thus helps in building accessible, keyboard-friendly UI.
+Here the form highlights when you click into either input. `:focus-within` thus helps in building accessible, keyboard-friendly UI.
 
 Sources: Authoritative references from MDN and CSS specifications, among others. Each feature is demonstrated with code for fast application. 
