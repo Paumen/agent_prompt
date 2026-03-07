@@ -106,6 +106,10 @@ body {
   grid-column: span 4;
 }
 
+.card-body > .btn-select {
+  grid-column: span 2;
+}
+
 .card:not(.card--open) > .card-body {
   display: none;
 }
