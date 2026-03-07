@@ -4,13 +4,47 @@
 
 ## Overview
 
-Stage D builds on the Stage C redesign framework to add progressive disclosure, validation feedback, and modern CSS techniques. This plan integrates architectural fixes for native HTML5 behaviors, Web Components for robust validation, and the View Transitions API for state cascades.
+Stage D builds on the Stage C redesign framework to add progressive disclosure, validation feedback, and modern CSS techniques. This plan integrates architectural fixes for native HTML5 behaviors, CSS-driven validation, and visually sequenced reset cascades.
 
-**PR Structure:** 3 PRs following dependency order:
+**Target browsers:** Latest stable Chrome, Firefox, Safari, Edge. No legacy fallbacks — users are assumed to be bleeding-edge developers.
 
-1. **PR1 — Infrastructure** (D1 + D2 + D3): `<details>` migration, card header enrichment, flow tab-cards.
-2. **PR2 — Validation & Reset** (D4 + D5): ElementInternals validation + View Transitions reset cascade.
-3. **PR3 — Flow & Polish** (D6 + D7): Progressive disclosure, progress meter, guard states.
+**PR Structure:** 3 PRs grouped by user-facing value:
+
+1. **PR1 — Native Card Foundation** (D1): `<details>`/`<summary>` migration. Ship independently to validate browser behavior before building on top.
+2. **PR2 — Progressive Disclosure & Guards** (D2 + D5 + D6 + D7): The core UX value — reset cascade, guided card flow, guard states, and card-meta enrichment. All serve the same goal: guiding users through the journey.
+3. **PR3 — Validation & Flow Polish** (D3 + D4): CSS-driven validation framework and flow selector upgrade.
+
+**Animation budget:** Max 2 motion types app-wide:
+1. Card open/close (`::details-content` transition)
+2. Reset cascade (staggered `transition-delay` dissolve)
+
+All animations respect `prefers-reduced-motion`.
+
+---
+
+## Card State Machine
+
+Each card has exactly one state at any time, managed via `data-card-state` attribute:
+
+```
+LOCKED → ACTIVE → COMPLETED
+  ↑                    |
+  └──── RESET ←────────┘
+```
+
+| State | Attribute | Visual treatment | Behavior |
+|:------|:----------|:-----------------|:---------|
+| `locked` | `data-card-state="locked"` | Muted, non-interactive body | `<summary>` clickable, shows tooltip explaining prerequisite |
+| `active` | `data-card-state="active"` | Full opacity, highlighted border | Fully interactive, receives focus on transition |
+| `completed` | `data-card-state="completed"` | `opacity: 0.35`, dimmed | `<summary>` clickable to re-expand; `:focus-within` undims for re-editing |
+
+**Transitions:**
+- App init → Card 1 `active`, Cards 2–4 `locked`
+- Card completes prerequisites → next card transitions `locked` → `active`
+- Upstream data cleared → downstream cards transition to `locked` via reset cascade
+- User re-edits completed card → `:focus-within` temporarily undims; downstream cards may reset depending on what changed
+
+**Single source of truth:** The disclosure controller in JS manages `data-card-state` on each `<details>` element. CSS uses `[data-card-state="..."]` selectors exclusively — no parallel `:has()` dependency detection in CSS.
 
 ---
 
@@ -24,26 +58,26 @@ Replace JS-driven `.card--open` toggle with native `<details>`/`<summary>`, remo
 
 [ ] D101 – `<section class="card">` → `<details class="card">`
 [ ] D102 – `<button class="card-header">` → `<summary class="card-header">`
-[ ] D103 – `.card-body` sits after `<summary>`, wrapped by `::details-content` automatically
-[ ] D104 – CSS: Remove `.card:not(:where(.card--open)) > .card-body { display: none }` (layout.css:115-117) – replaced by native `<details>` behavior
-[ ] D105 – JS: Remove `initCardToggles()` from main.js (lines 10-24), `expandCard()`/`collapseCard()` from components.js (lines 20-38)
-[ ] D106 – Chevron icon appending logic relocates from `initCardToggles()` into static `<summary>` HTML or a lightweight init
-[ ] D107 – **Edge Case (Validation):** Intercept form submission to set `open = true` on parent `<details>` of `:invalid` elements before native focus attempts.
-[ ] D108 – **Accessibility:** Explicitly **remove** `aria-expanded` and `aria-controls` from all `<summary>` elements – the browser provides correct semantics natively.
-[ ] D109 – **Caution:** Do **not** use the `name` attribute on `<details>` unless an exclusive accordion is required; the current design allows multiple open cards simultaneously.
-[ ] D110 – Audit and migrate click listeners: Replace click listeners on `.card-header` (or elements becoming `<summary>`) with `toggle` listeners on the parent `<details>` for native compatibility and to prevent browser conflicts.
-  - Example: In `card-configuration.js` (line 551), swap the header click listener for a `<details>` `toggle` listener; check `event.target.open` to detect expansion.
-  - **Edge Case (Ctrl+F):** Use `toggle` listeners to sync app state when browsers auto-expand cards during text searches.
-
+[ ] D103 – Normalize all card header titles to use `<h3>` consistently (Card 3 Steps currently uses `<span>` — align with other cards)
+[ ] D104 – `.card-body` sits after `<summary>`, wrapped by `::details-content` automatically
+[ ] D105 – CSS: Remove `.card:not(:where(.card--open)) > .card-body { display: none }` (layout.css:115-117) — replaced by native `<details>` behavior
+[ ] D106 – JS: Remove `initCardToggles()` from main.js (lines 10-24), `expandCard()`/`collapseCard()` from components.js (lines 20-38)
+[ ] D107 – Chevron icon appending logic relocates from `initCardToggles()` into static `<summary>` HTML or a lightweight init
+[ ] D108 – **Edge Case (Validation):** Intercept form submission to set `open = true` on parent `<details>` of `:invalid` elements before native focus attempts
+[ ] D109 – **Accessibility:** Explicitly **remove** `aria-expanded` and `aria-controls` from all `<summary>` elements — the browser provides correct semantics natively
+[ ] D110 – **Caution:** Do **not** use the `name` attribute on `<details>` unless an exclusive accordion is required; the current design allows multiple open cards simultaneously
+[ ] D111 – Audit and migrate click listeners: Replace click listeners on `.card-header` (or elements becoming `<summary>`) with `toggle` listeners on the parent `<details>` for native compatibility and to prevent browser conflicts
+  - Example: In `card-configuration.js` (line 551), swap the header click listener for a `<details>` `toggle` listener; check `event.target.open` to detect expansion
+  - **Edge Case (Ctrl+F):** Use `toggle` listeners to sync app state when browsers auto-expand cards during text searches
 
 ### Sub-panel migration (card-tasks.js)
 
-[ ] D112 – `renderDualPanels()` (lines 123-169) creates nested cards as `<div class="card card--open">` with `<button class="card-header">`. These must become `<details open class="card">` with `<summary class="card-header">`.
-[ ] D113 – `renderPanelHeader()` (lines 171-200) changes from creating a `<button>` to creating a `<summary>`, and its click handler is removed (native toggle replaces it).
+[ ] D112 – `renderDualPanels()` (lines 123-169) creates nested cards as `<div class="card card--open">` with `<button class="card-header">`. These must become `<details open class="card">` with `<summary class="card-header">`
+[ ] D113 – `renderPanelHeader()` (lines 171-200) changes from creating a `<button>` to creating a `<summary>`, and its click handler is removed (native toggle replaces it)
 
 ### `::details-content` animation
 
-[ ] D114 – 
+[ ] D114 –
 ```css
 details {
   interpolate-size: allow-keywords; /* Enables block-size animation */
@@ -66,11 +100,13 @@ details[open]::details-content {
 }
 ```
 
+---
+
 ## Phase D2: Card Header Enrichment & Summary State
 
 ### Goal
 
-Add inline metadata to `<summary>` elements showing key state when card is collapsed (e.g., owner/repo/branch in config card header, selected flow in task card header).
+Add inline metadata to `<summary>` elements showing key state when card is collapsed (e.g., owner/repo/branch in config card header, selected flow in task card header). This metadata becomes valuable once progressive disclosure (D6) is in place — users need at-a-glance state for regularly collapsed cards.
 
 ### Key Changes
 
@@ -87,27 +123,24 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 | Steps | Step count (e.g., "3 steps") |
 | Prompt | quality meter |
 
-[ ] D204 – Populate `.card-meta` for Task, Steps, and Prompt cards accordingly.
+[ ] D204 – Populate `.card-meta` for Task, Steps, and Prompt cards accordingly
 [ ] D205 – Style the existing quality meter (quality-meter.js) with `color-mix()` for color transitions
-
 
 ---
 
-## Phase D3: Flow Selector as Tab-Cards
+## Phase D3: Flow Selector Visual Upgrade
 
 ### Goal
 
-Convert flow selector buttons to a tab-card metaphor using hidden radio inputs + visible labels, enabling CSS `:checked` state for visual selection without JS class toggling.
+Upgrade flow selector buttons to a tab-card look and feel while keeping the implementation simple. Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling. Keep implementation lightweight — the existing button grid works; this is a visual refinement, not a rewrite.
 
 ### Key Changes
 
-[ ] D301 – Hidden `<input type="radio">` + `<label>` for each flow option
+[ ] D301 – Hidden `<input type="radio">` + `<label>` for each flow option, styled as tab-cards
 [ ] D302 – `:checked` drives visual state (background, border, shadow, z-index)
-[ ] D303 – `@starting-style` for smooth panel entry when switching flows
-
-[ ] D304 – Modify existing `.btn-select--selected` styles 
-[ ] D305 – Wire radio `change` event to `onFlowSelect()`.
-[ ] D306 – Use `@container` queries for mobile row-wrapping fallback.
+[ ] D303 – Reuse existing `.btn-select` styles as base, extend with tab-card appearance (raised selected card, flush unselected)
+[ ] D304 – Wire radio `change` event to `onFlowSelect()`
+[ ] D305 – Use `@container` queries for mobile row-wrapping fallback
 
 ---
 
@@ -115,17 +148,16 @@ Convert flow selector buttons to a tab-card metaphor using hidden radio inputs +
 
 ### Goal
 
-Replace JS-driven `renderError()` and `updateRequiredGroupIndicators()` with CSS-driven validation feedback using `:user-valid`/`:user-invalid` and `:has()`.
+Replace JS-driven `renderError()` and `updateRequiredGroupIndicators()` with CSS-driven validation feedback using `:user-valid`/`:user-invalid` and `:has()` on native elements.
 
 ### Key Changes
 
 [ ] D401 – `:user-valid`/`:user-invalid` on native `<input>`/`<textarea>` with `required` attribute
-[ ] D402 – **Web Components:** Refactor `.field-picker` to `<custom-picker>`. Use `ElementInternals.states` API to apply `:state(valid)` or `:state(invalid)`, matching native behavior without fragile `:has()` structural chains.
-[ ] D403 – JS layer sets `data-next-to-fill` on the first empty required field for CSS highlighting.
+[ ] D402 – For `.field-picker` (non-native element): use `data-valid`/`data-invalid` attributes set by JS, styled with `[data-valid]`/`[data-invalid]` selectors. No Web Components in Stage D
+[ ] D403 – JS layer sets `data-next-to-fill` on the first empty required field for CSS highlighting (single mechanism — replaces both the prior `:placeholder-shown` and `data-next-to-fill` approaches)
 [ ] D404 – `color-mix()` for focus glow effects
-[ ] D405 – `:placeholder-shown` for "next-to-fill" highlighting
-[ ] D406 – Remove `.required-group-dot` system
-[ ] D407 – `field-sizing: content` on text inputs for auto-sizing
+[ ] D405 – Remove `.required-group-dot` system
+[ ] D406 – `field-sizing: content` on text inputs for auto-sizing
 
 ---
 
@@ -138,10 +170,22 @@ When upstream data changes (e.g., user clears PAT, switches repo, changes flow),
 ### Key Changes
 
 [ ] D501 – `resetDownstream(from)` function extending existing `resetSession()` (state.js lines 187-198)
-[ ] D502 – **Focus Management:** Programmatically move `document.activeElement` to the next logical input or the next card's `<summary>` post-transition to prevent focus drop to `<body>`.
-[ ] D503 – State mutation during animation. Batch `setState()` to avoid mid-dissolve re-renders. Defer subscriber notifications until the animation completes using a `_suppressNotify` flag or queue pattern.
-[ ] D504 – Stagger timing: Offset card `transition-delay` by 50–100ms for a sequential reveal. Maintain a 300ms duration for parallel dissolving to ensure the flow is responsive and progressive.
-
+[ ] D502 – **Focus Management:** Programmatically move `document.activeElement` to the next logical input or the next card's `<summary>` post-transition to prevent focus drop to `<body>`
+[ ] D503 – State mutation during animation: Use `requestAnimationFrame` batching to coalesce rapid `setState()` calls. Subscriber notifications are naturally deferred to the next frame — no `_suppressNotify` flag, preserving DM-INV-02 invariant:
+```js
+let notifyScheduled = false;
+function scheduleNotify() {
+  if (notifyScheduled) return;
+  notifyScheduled = true;
+  requestAnimationFrame(() => {
+    notifyScheduled = false;
+    const snapshot = getState();
+    for (const listener of subscribers) listener(snapshot);
+  });
+}
+```
+[ ] D504 – Stagger timing: Offset card `transition-delay` by 50–100ms for a sequential dissolve. Maintain a 300ms duration to ensure the flow is responsive and progressive
+[ ] D505 – `resetDownstream()` updates `data-card-state` on affected cards (transitions them to `locked` via the card state machine)
 
 ### Reset cascade table
 
@@ -155,19 +199,19 @@ When upstream data changes (e.g., user clears PAT, switches repo, changes flow),
 
 ---
 
-## Phase D6: Progressive Disclosure Flow 
+## Phase D6: Progressive Disclosure Flow
 
 ### Goal
 
-Guide users through a step-by-step journey: highlight the next card to fill, dim completed cards.
+Guide users through a step-by-step journey: highlight the active card, dim completed cards. **Lead with guidance, not gating** — users can freely navigate between cards but are visually guided toward the next logical step.
 
 ### Key Changes
 
-[ ] D601 – `.card--completed { opacity: 0.35 }` — visually de-emphasize completed cards
-[ ] D602 – `pointer-events: auto` on `<summary>` for dimmed cards.
-[ ] D603 – `:focus-within` on a card can auto-undim it for re-editing
-[ ] D604 `<dialog>` guidance overlay with `::backdrop` dimming
-[ ] D605 **`animation-timeline: scroll()`**. Consider tying the meter animation to scroll position through the cards (visual "progress through the page" effect). 
+[ ] D601 – `[data-card-state="completed"] { opacity: 0.35 }` — visually de-emphasize completed cards
+[ ] D602 – `pointer-events: auto` on `<summary>` for dimmed cards — always allow expand/collapse
+[ ] D603 – `:focus-within` on a card undims it for re-editing: `[data-card-state="completed"]:focus-within { opacity: 1 }`
+[ ] D604 – `[data-card-state="active"]` receives a subtle highlighted border (e.g., `border-color: var(--accent-a)`) to draw attention
+[ ] D605 – Disclosure controller: JS module that observes state changes and updates `data-card-state` on each `<details>` element. Single orchestration point for both card-level and field-level visibility
 
 ---
 
@@ -175,19 +219,26 @@ Guide users through a step-by-step journey: highlight the next card to fill, dim
 
 ### Goal
 
-When prerequisites are missing (e.g., no repo selected), guard downstream cards with tooltips explaining what's needed.
+When prerequisites are missing (e.g., no repo selected), guard downstream cards with tooltips explaining what's needed. **Limited to truly impossible states** — don't lock cards a user could reasonably want to peek at.
 
 ### Key Changes
 
-[ ] D701 – CSS `:has()` selectors for cross-card dependency detection
-[ ] D702 – `anchor-name` / CSS anchor positioning for guard tooltips
-[ ] D703 – Shake animation on guarded card click attempts
-[ ] D704 – 
-Shake keyframes definition:
-  ```css
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25%      { transform: translateX(-4px); }
-    75%      { transform: translateX(4px); }
+[ ] D701 – `[data-card-state="locked"]` styling: muted body content, `<summary>` remains interactive
+[ ] D702 – `anchor-name` / CSS anchor positioning for guard tooltips on `<summary>` of locked cards
+[ ] D703 – On locked card `<summary>` click: show tooltip with prerequisite message. No shake animation — use a subtle `prefers-reduced-motion`-respecting highlight pulse instead:
+```css
+@keyframes highlight-pulse {
+  0%, 100% { outline-color: transparent; }
+  50% { outline-color: var(--accent-a); }
+}
+[data-card-state="locked"] > summary:active {
+  animation: highlight-pulse 0.6s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-card-state="locked"] > summary:active {
+    animation: none;
+    outline: 2px solid var(--accent-a);
   }
-  ``` 
+}
+```
+[ ] D704 – Guard conditions managed by the disclosure controller (D605), not by scattered CSS `:has()` selectors — keeps dependency logic in one place
