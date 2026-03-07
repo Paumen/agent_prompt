@@ -27,22 +27,35 @@ All animations respect `prefers-reduced-motion`.
 Each card has exactly one state at any time, managed via `data-card-state` attribute:
 
 ```
-LOCKED → ACTIVE → COMPLETED
-  ↑                    |
-  └──── RESET ←────────┘
+LOCKED → SKIPPABLE → ACTIVE → SUFFICIENT → COMPLETE
+  ↑                                 |           |
+  └──────────── RESET ←─────────────┴───────────┘
 ```
 
 | State | Attribute | Visual treatment | Behavior |
 |:------|:----------|:-----------------|:---------|
-| `locked` | `data-card-state="locked"` | Muted, non-interactive body | `<summary>` clickable, shows tooltip explaining prerequisite |
-| `active` | `data-card-state="active"` | Full opacity, highlighted border | Fully interactive, receives focus on transition |
-| `completed` | `data-card-state="completed"` | `opacity: 0.35`, dimmed | `<summary>` clickable to re-expand; `:focus-within` undims for re-editing |
+| `locked` | `data-card-state="locked"` | Muted, non-interactive body | Card cannot open. `<summary>` click shows tooltip explaining missing prerequisite (e.g., "Configure repo first") |
+| `skippable` | `data-card-state="skippable"` | Muted but openable | Card can be manually opened/explored, but upstream card hasn't reached `sufficient` yet. User can peek ahead |
+| `active` | `data-card-state="active"` | Full opacity, highlighted border | The guided "next step" — fully interactive, receives focus on transition |
+| `sufficient` | `data-card-state="sufficient"` | Slightly dimmed (`opacity: 0.6`) | All required fields filled; user can still fill optional fields. Downstream card transitions to `active` |
+| `complete` | `data-card-state="complete"` | Dimmed (`opacity: 0.35`) | All fields filled or no further input possible. Editing triggers downstream reset |
 
 **Transitions:**
 - App init → Card 1 `active`, Cards 2–4 `locked`
-- Card completes prerequisites → next card transitions `locked` → `active`
+- Card 1 hard prerequisites met (repo configured) → Card 2 transitions `locked` → `skippable`
+- Preceding card reaches `sufficient` → next card transitions `skippable` → `active`
+- All required fields filled → card transitions `active` → `sufficient`
+- All fields filled (or no more input possible) → card transitions `sufficient` → `complete`
 - Upstream data cleared → downstream cards transition to `locked` via reset cascade
-- User re-edits completed card → `:focus-within` temporarily undims; downstream cards may reset depending on what changed
+- User re-edits `sufficient`/`complete` card → `:focus-within` temporarily undims; downstream cards may reset depending on what changed
+
+**Locked vs Skippable — when to use which:**
+| Scenario | State | Rationale |
+|:---------|:------|:----------|
+| Steps card, no repo configured | `locked` | Cannot function without repo — hard prerequisite |
+| Steps card, repo set but task optional fields empty | `skippable` | User may want to peek at steps while still filling task details |
+| Prompt card, no flow selected | `locked` | Cannot generate prompt without flow — hard prerequisite |
+| Prompt card, flow selected but steps not reviewed | `skippable` | User may want to preview prompt shape before customizing steps |
 
 **Single source of truth:** The disclosure controller in JS manages `data-card-state` on each `<details>` element. CSS uses `[data-card-state="..."]` selectors exclusively — no parallel `:has()` dependency detection in CSS.
 
@@ -207,11 +220,21 @@ Guide users through a step-by-step journey: highlight the active card, dim compl
 
 ### Key Changes
 
-[ ] D601 – `[data-card-state="completed"] { opacity: 0.35 }` — visually de-emphasize completed cards
-[ ] D602 – `pointer-events: auto` on `<summary>` for dimmed cards — always allow expand/collapse
-[ ] D603 – `:focus-within` on a card undims it for re-editing: `[data-card-state="completed"]:focus-within { opacity: 1 }`
-[ ] D604 – `[data-card-state="active"]` receives a subtle highlighted border (e.g., `border-color: var(--accent-a)`) to draw attention
-[ ] D605 – Disclosure controller: JS module that observes state changes and updates `data-card-state` on each `<details>` element. Single orchestration point for both card-level and field-level visibility
+[ ] D601 – CSS for all five card states:
+```css
+[data-card-state="locked"]     { opacity: 0.3; }
+[data-card-state="skippable"]  { opacity: 0.5; }
+[data-card-state="active"]     { opacity: 1; border-color: var(--accent-a); }
+[data-card-state="sufficient"] { opacity: 0.6; }
+[data-card-state="complete"]   { opacity: 0.35; }
+```
+[ ] D602 – `pointer-events: auto` on `<summary>` for all non-active states — always allow expand/collapse (except `locked` which prevents open)
+[ ] D603 – `:focus-within` undims `sufficient`/`complete` cards for re-editing: `[data-card-state="sufficient"]:focus-within, [data-card-state="complete"]:focus-within { opacity: 1 }`
+[ ] D604 – `[data-card-state="skippable"]` cards can be manually opened — body renders but with muted styling to signal "you can look, but upstream isn't done"
+[ ] D605 – Disclosure controller: JS module that observes state changes and updates `data-card-state` on each `<details>` element. Single orchestration point for both card-level and field-level visibility. Evaluates:
+  - Hard prerequisites (locked vs skippable)
+  - Required field completeness (active → sufficient)
+  - Full field completeness (sufficient → complete)
 
 ---
 
@@ -219,13 +242,13 @@ Guide users through a step-by-step journey: highlight the active card, dim compl
 
 ### Goal
 
-When prerequisites are missing (e.g., no repo selected), guard downstream cards with tooltips explaining what's needed. **Limited to truly impossible states** — don't lock cards a user could reasonably want to peek at.
+When hard prerequisites are missing (e.g., no repo selected), prevent card from opening and show a tooltip explaining what's needed. **`locked` is reserved for truly impossible states** — cards the user could reasonably peek at use `skippable` instead.
 
 ### Key Changes
 
-[ ] D701 – `[data-card-state="locked"]` styling: muted body content, `<summary>` remains interactive
-[ ] D702 – `anchor-name` / CSS anchor positioning for guard tooltips on `<summary>` of locked cards
-[ ] D703 – On locked card `<summary>` click: show tooltip with prerequisite message. No shake animation — use a subtle `prefers-reduced-motion`-respecting highlight pulse instead:
+[ ] D701 – `[data-card-state="locked"]` styling: card cannot be opened (JS prevents `<details>` from toggling open). Body content hidden
+[ ] D702 – `anchor-name` / CSS anchor positioning for guard tooltips on `<summary>` of `locked` cards
+[ ] D703 – On `locked` card `<summary>` click: prevent open, show tooltip with prerequisite message. Subtle `prefers-reduced-motion`-respecting highlight pulse:
 ```css
 @keyframes highlight-pulse {
   0%, 100% { outline-color: transparent; }
@@ -242,3 +265,4 @@ When prerequisites are missing (e.g., no repo selected), guard downstream cards 
 }
 ```
 [ ] D704 – Guard conditions managed by the disclosure controller (D605), not by scattered CSS `:has()` selectors — keeps dependency logic in one place
+[ ] D705 – `[data-card-state="skippable"]` cards allow open but show a subtle banner/hint inside the card body indicating upstream is incomplete (e.g., "Complete Task card for best results")
