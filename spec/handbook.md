@@ -73,20 +73,20 @@ Examples:
   <option value="Safari">
   <option value="Edge">
 </datalist>
-```
+
 <!-- Numeric suggestions -->
 <input type="number" list="nums" min="1" max="10">
 <datalist id="nums">
   <option value="1"><option value="5"><option value="10">
 </datalist>
-
+```
 Browser support is broad but styling is limited. Useful input types include text, number, email, URL, etc., to suggest common values without validation.
 
 `Field Sizing`(field-sizing: content, width: min-content, etc.)
 
-The CSS `field-sizing` property (value content) and intrinsic sizing keywords (min-content, max-content, fit-content) enable automatic sizing of form controls based on their contents. For example, setting field-sizing: content; on an <input> or `<textarea>` makes them shrink to fit their placeholder or typed text, growing as content is added (up to `max-width`). This behavior applies to text-like inputs, <select>, and `<textarea>`.
+The CSS `field-sizing` property (value content) and intrinsic sizing keywords (min-content, max-content, fit-content) enable automatic sizing of form controls based on their contents. For example, setting field-sizing: content; on an `<input>` or `<textarea>` makes them shrink to fit their placeholder or typed text, growing as content is added (up to `max-width`). This behavior applies to text-like inputs, `<select>`, and `<textarea>`.
 
-Use cases: forms where fields adjust to content length without explicit widths. For example, an expanding chat input field or a select box that only fits its chosen value. It avoids overflow or unwanted width. When using intrinsic sizing, remember to set sensible min-width/max-width bounds.
+Use cases: forms where fields adjust to content length without explicit widths. For example, an expanding chat input field or a select box that only fits its chosen value. It avoids overflow or unwanted width. When using intrinsic sizing, remember to set sensible `min-width`/`max-width` bounds.
 
 Examples:
 ```css
