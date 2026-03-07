@@ -96,3 +96,12 @@ Maximize use of:
 ### Motion
 
 Use `@starting-style` and `transition-behavior: allow-discrete` for entry/exit animations. Limit transitions to `transform` and `opacity` for hardware acceleration.
+
+### Development Principles
+KISS & DRY: The best solution usually involves removing CSS, not adding it.
+Modern-First (2026+): Optimize for modern engines. Zero legacy fallbacks.
+No Dead Code: Delete unused styles immediately. Don't keep "just in case" rules.
+Decoupled: Changes in one layer (HTML/CSS/JS) should not force updates in others.
+No Hacks: Never bypass linters (e.g., [id=foo] to dodge ID rules, oklch tricks to avoid variables).
+No Compensating CSS: If a wrapper is removed, verify if the parent handles layout naturally before adding rules.
+Component Reuse: Reuse generic classes (.card, .btn-pill). Don't create new structures for minor visual variations.
