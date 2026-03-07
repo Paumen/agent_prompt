@@ -178,7 +178,7 @@ In the second example, values ≤20 or ≥80 can appear in a different color (gr
 
 The color-mix() CSS function blends two colors in a specified color space. Syntax:
 
-color-mix(in <colorspace> [<hue-method>], <color1> [<percentage>], <color2> [<percentage>])
+`color-mix(in <colorspace> [<hue-method>], <color1> [<percentage>], <color2> [<percentage>])`
 
 It returns the mixed color. For example color-mix(in srgb, red 25%, blue 75%) produces a purple that is 25% red, 75% blue in sRGB space. You can mix in perceptual spaces (e.g. oklab) or add alpha by mixing with transparent.
 
@@ -285,11 +285,11 @@ dialog {
   opacity: 1; transform: none;
 }
 ```
-Note: The @starting-style block must come after the style it complements (or be more specific) so it isn’t overridden. This at-rule is useful only for CSS transitions (not needed for @keyframes). It is relatively new (working in browsers as of mid-2024).
+Note: The `@starting-style` block must come after the style it complements (or be more specific) so it isn’t overridden. This at-rule is useful only for CSS transitions (not needed for `@keyframes`). It is relatively new (working in browsers as of mid-2024).
 
 `:checked`
 
-The :checked pseudo-class matches any <input type="radio">, <input type="checkbox">, or <option> in a <select> that is selected (checked/on).
+The :checked pseudo-class matches any `<input type="radio">`, `<input type="checkbox">`, or `<option>` in a `<select>` that is selected (checked/on).
 
 Use cases: styling form controls when selected or using checkboxes/radios for toggling UI purely via CSS. Examples:
 ```css
@@ -359,11 +359,11 @@ Because theme is declared after base, its color: rebeccapurple wins, while borde
   .alert { border: 1px solid black; }
 }
 ```
-Layers help CSS architecture (e.g. isolating third-party libraries in one layer). The basic syntax is either `@layer name { ... }`` for block or `@layer name`; to declare empty layers. This feature is widely supported (since early 2022) for complex projects.
+Layers help CSS architecture (e.g. isolating third-party libraries in one layer). The basic syntax is either `@layer name { ... }` for block or `@layer name;` to declare empty layers. This feature is widely supported (since early 2022) for complex projects.
 
 `@scope`
 
-The @scope at-rule confines style rules to a specific part of the DOM. You declare a scope root (and optionally a scope limit) so that enclosed selectors only apply within that subtree. This avoids overly-specific selectors and style bleed. Inside an inline <style> (without prelude), @scope implicitly scopes to the parent element of the style tag.
+The `@scope` at-rule confines style rules to a specific part of the DOM. You declare a scope root (and optionally a scope limit) so that enclosed selectors only apply within that subtree. This avoids overly-specific selectors and style bleed. Inside an inline `<style>` (without prelude), `@scope` implicitly scopes to the parent element of the style tag.
 
 Use cases: styling components or themes without affecting rest of page. For example:
 
@@ -414,7 +414,7 @@ Use cases: defining and safeguarding CSS custom properties (variables). For exam
 }
 ```
 
-This registers --logo-color to only accept `<color>` values, not inherit, defaulting to #c0ffee. Now animations or interpolations on --logo-color are type-aware. Similarly:
+This registers `--logo-color` to only accept `<color>` values, not inherit, defaulting to `#c0ffee`. Now animations or interpolations on `--logo-color` are type-aware. Similarly:
 
 ```css
 @property --rotation {
@@ -425,9 +425,9 @@ This registers --logo-color to only accept `<color>` values, not inherit, defaul
 ```
 Means --rotation can only be angles. Without @property, all CSS variables default to inheriting from parent and have no type constraints. Registration (via @property or CSS.registerProperty() in JS) is recommended when animating variables or building component libraries for predictable behavior.
 
-:placeholder-shown
+`:placeholder-shown`
 
-The :placeholder-shown pseudo-class matches `<input>` or `<textarea>` elements that are currently displaying their placeholder text (i.e. empty and with a placeholder attribute).
+The `:placeholder-shown` pseudo-class matches `<input>` or `<textarea>` elements that are currently displaying their placeholder text (i.e. empty and with a placeholder attribute).
 
 Use cases: styling empty fields differently, such as showing hints or hiding floating labels only when input is empty. Examples:
 
@@ -444,7 +444,7 @@ Or to toggle a sibling hint:
 input:placeholder-shown + .hint { display: block; }
 input:not(:placeholder-shown) + .hint { display: none; }
 ```
-:placeholder-shown is supported in all modern browsers (since 2020). It only matches elements with a placeholder attribute; if no placeholder is present, it never matches.
+`:placeholder-shown` is supported in all modern browsers (since 2020). It only matches elements with a placeholder attribute; if no placeholder is present, it never matches.
 
 `:focus`, `:focus-within`
 
@@ -461,18 +461,19 @@ form:focus-within { background: #ffff88; color: black; }
 
 This applies when any form field inside the `<form>`` is focused, drawing attention to the whole form. Or:
 
-fieldset:focus-within { border: 2px solid teal; }
+`fieldset:focus-within { border: 2px solid teal; }`
 
-to mark a group of controls. :focus-within is useful for styling parent elements (menus, containers, cards) when any child is active. It is well-supported (since around 2020) and works in sync with form navigation. Behavioral example:
+to mark a group of controls. `:focus-within` is useful for styling parent elements (menus, containers, cards) when any child is active. It is well-supported (since around 2020) and works in sync with form navigation. Behavioral example:
 ```html
 <form>
   <label>Name: <input type="text"></label>
   <label>Email: <input type="email"></label>
 </form>
 ```
+```css
 form { border: 1px solid gray; padding: 5px; }
 form:focus-within { background: #eef; border-color: #55f; }
-
+```
 Here the form highlights when you click into either input. :focus-within thus helps in building accessible, keyboard-friendly UI.
 
 Sources: Authoritative references from MDN and CSS specifications, among others. Each feature is demonstrated with code for fast application. 
