@@ -239,6 +239,16 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 
 *Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*
 
+### `.card--open` (7 files)
+
+- cards/card-configuration.js
+- cards/card-tasks.js
+- common/components.js
+- common/main.js
+- css/components.css
+- css/layout.css
+- index.html
+
 ### `.cloud` (7 files)
 
 - cards/card-prompt.js
@@ -258,15 +268,6 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 - common/file-tree.js
 - common/ui.js
 - css/layout.css
-
-### `.card--open` (6 files)
-
-- cards/card-configuration.js
-- cards/card-tasks.js
-- common/components.js
-- common/main.js
-- css/layout.css
-- index.html
 
 ### `.field-picker` (6 files)
 
