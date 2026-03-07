@@ -5,7 +5,7 @@
 | CSS classes defined | 60 | <50 | 55| 🔴 |
 | Classes used (HTML+JS) | 63 | ||
 | Unused CSS classes | 1 | 0 | 1 | 🟠 |
-| Undefined classes | 4 | | 0 | 1 | 🔴|
+| Undefined classes | 4  | 0 | 1 | 🔴|
 | Inline style violations | 5 | 3 | 5 |🟠|
 
 
