@@ -40,61 +40,64 @@
 ## Approximate DOM Tree (L3–L7)
 
 ```
-section#card-configuration.card.card--open [Grid 1fr] — index.html:13
-  button.card-header [Grid 1fr auto] — index.html:14
-    span — index.html:19
-  div#bd-configuration.card-body [Grid 1fr] — index.html:21
-    span — cards/card-configuration.js:69
-    span — cards/card-configuration.js:78
-    span — cards/card-configuration.js:87
-    label — cards/card-configuration.js:121
-    span.icon-eye-on — cards/card-configuration.js:138
-    span.icon-eye-off — cards/card-configuration.js:141
-    label — cards/card-configuration.js:161
-    label — cards/card-configuration.js:516
-    div — cards/card-configuration.js:519
-section#card-tasks.card [Grid 1fr] — index.html:27
-  button.card-header [Grid 1fr auto] — index.html:28
-    span — index.html:33
-  div#bd-tasks.card-body [Grid 1fr] — index.html:35
-    div.card.card--open [Grid 1fr] — cards/card-tasks.js:124
-      div.card-body [Grid 1fr] — cards/card-tasks.js:134
-    div.card.card--open [Grid 1fr] — cards/card-tasks.js:141
-      div.card-body [Grid 1fr] — cards/card-tasks.js:151
-    button.card-header [Grid 1fr auto] — cards/card-tasks.js:172
-      span — cards/card-tasks.js:178
-        small — cards/card-tasks.js:181
-    div.input [Grid clamp 1fr] — cards/card-tasks.js:206
-    span.required-group-dot [inline-block] — cards/card-tasks.js:215
-    div.field-picker [Flex column] — cards/card-tasks.js:290
-      div.empty-state — cards/card-tasks.js:328
-      div.empty-state — cards/card-tasks.js:328
-    div.cloud [Flex row wrap] — cards/card-tasks.js:413
-    div.input [Grid clamp 1fr] — cards/card-tasks.js:467
-section#card-steps.card [Grid 1fr] — index.html:41
-  button.card-header [Grid 1fr auto] — index.html:42
-    span — index.html:47
-  div#bd-steps.card-body [Grid 1fr] — index.html:49
-    div.empty-state — cards/card-steps.js:113
-    ol.output-block [Flex column] — cards/card-steps.js:120
-    li.output.output-field [Grid auto 1fr auto] — cards/card-steps.js:132
-      span — cards/card-steps.js:137
-    div.cloud [Flex row wrap] — cards/card-steps.js:269
-      label — cards/card-steps.js:240
-      div.cloud [Flex row wrap] — cards/card-steps.js:244
-    div.input [Grid clamp 1fr] — cards/card-steps.js:219
-      label — cards/card-steps.js:240
-    span.output-float — cards/card-steps.js:412
-section#card-prompt.card [Grid 1fr] — index.html:55
-  button.card-header [Grid 1fr auto] — index.html:56
-    span — index.html:61
-  div#bd-prompt.card-body [Grid 1fr] — index.html:63
-    span.meter-info-wrapper [Flex row] — cards/card-prompt.js:116
-      div.meter-tooltip — cards/card-prompt.js:125
-    div — cards/card-prompt.js:158
-    pre.prompt-output — cards/card-prompt.js:164
-      div.cloud [Flex row wrap] — cards/card-prompt.js:174
-    div.input [Grid clamp 1fr] — cards/card-prompt.js:210
+L3 section#card-configuration.card.card--open [Grid 1fr] — index.html:13
+├─ L4 button.card-header [Grid 1fr auto] — index.html:14
+│  └─ L5 span — index.html:19
+└─ L4 div#bd-configuration.card-body [Grid 1fr] — index.html:21
+   ├─ L5 span — cards/card-configuration.js:69
+   ├─ L5 span — cards/card-configuration.js:78
+   ├─ L5 span — cards/card-configuration.js:87
+   ├─ L5 label — cards/card-configuration.js:121
+   ├─ L5 span.icon-eye-on — cards/card-configuration.js:138
+   ├─ L5 span.icon-eye-off — cards/card-configuration.js:141
+   ├─ L5 label — cards/card-configuration.js:161
+   ├─ L5 label — cards/card-configuration.js:516
+   └─ L5 div — cards/card-configuration.js:519
+
+L3 section#card-tasks.card [Grid 1fr] — index.html:27
+├─ L4 button.card-header [Grid 1fr auto] — index.html:28
+│  └─ L5 span — index.html:33
+└─ L4 div#bd-tasks.card-body [Grid 1fr] — index.html:35
+   ├─ L5 div.card.card--open [Grid 1fr] — cards/card-tasks.js:124
+   │  └─ L6 div.card-body [Grid 1fr] — cards/card-tasks.js:134
+   ├─ L5 div.card.card--open [Grid 1fr] — cards/card-tasks.js:141
+   │  └─ L6 div.card-body [Grid 1fr] — cards/card-tasks.js:151
+   ├─ L5 button.card-header [Grid 1fr auto] — cards/card-tasks.js:172
+   │  └─ L6 span — cards/card-tasks.js:178
+   │     └─ L7 small — cards/card-tasks.js:181
+   ├─ L5 div.input [Grid clamp 1fr] — cards/card-tasks.js:206
+   ├─ L5 span.required-group-dot [inline-block] — cards/card-tasks.js:215
+   ├─ L5 div.field-picker [Flex column] — cards/card-tasks.js:290
+   │  ├─ L6 div.empty-state — cards/card-tasks.js:328
+   │  └─ L6 div.empty-state — cards/card-tasks.js:328
+   ├─ L5 div.cloud [Flex row wrap] — cards/card-tasks.js:413
+   └─ L5 div.input [Grid clamp 1fr] — cards/card-tasks.js:467
+
+L3 section#card-steps.card [Grid 1fr] — index.html:41
+├─ L4 button.card-header [Grid 1fr auto] — index.html:42
+│  └─ L5 span — index.html:47
+└─ L4 div#bd-steps.card-body [Grid 1fr] — index.html:49
+   ├─ L5 div.empty-state — cards/card-steps.js:113
+   ├─ L5 ol.output-block [Flex column] — cards/card-steps.js:120
+   ├─ L5 li.output.output-field [Grid auto 1fr auto] — cards/card-steps.js:132
+   │  └─ L6 span — cards/card-steps.js:137
+   ├─ L5 div.cloud [Flex row wrap] — cards/card-steps.js:269
+   │  ├─ L6 label — cards/card-steps.js:240
+   │  └─ L6 div.cloud [Flex row wrap] — cards/card-steps.js:244
+   ├─ L5 div.input [Grid clamp 1fr] — cards/card-steps.js:219
+   │  └─ L6 label — cards/card-steps.js:240
+   └─ L5 span.output-float — cards/card-steps.js:412
+
+L3 section#card-prompt.card [Grid 1fr] — index.html:55
+├─ L4 button.card-header [Grid 1fr auto] — index.html:56
+│  └─ L5 span — index.html:61
+└─ L4 div#bd-prompt.card-body [Grid 1fr] — index.html:63
+   ├─ L5 span.meter-info-wrapper [Flex row] — cards/card-prompt.js:116
+   │  └─ L6 div.meter-tooltip — cards/card-prompt.js:125
+   ├─ L5 div — cards/card-prompt.js:158
+   ├─ L5 pre.prompt-output — cards/card-prompt.js:164
+   │  └─ L6 div.cloud [Flex row wrap] — cards/card-prompt.js:174
+   └─ L5 div.input [Grid clamp 1fr] — cards/card-prompt.js:210
 ```
 
 ## Class Usage Map
@@ -232,3 +235,161 @@ section#card-prompt.card [Grid 1fr] — index.html:55
 - `.quality-meter` × 1
 - `.quality-meter-track` × 1
 - `.quality-meter-bar` × 1
+
+## Cross-File Class Map
+
+*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*
+
+### `.cloud` (8 files)
+
+- cards/card-configuration.js
+- cards/card-prompt.js
+- cards/card-steps.js
+- cards/card-tasks.js
+- common/file-tree.js
+- common/ui.js
+- css/layout.css
+- css/special.css
+
+### `.input` (7 files)
+
+- cards/card-configuration.js
+- cards/card-prompt.js
+- cards/card-steps.js
+- cards/card-tasks.js
+- common/file-tree.js
+- common/ui.js
+- css/layout.css
+
+### `.card--open` (6 files)
+
+- cards/card-configuration.js
+- cards/card-tasks.js
+- common/components.js
+- common/main.js
+- css/layout.css
+- index.html
+
+### `.icon` (6 files)
+
+- cards/card-configuration.js
+- cards/card-prompt.js
+- cards/card-steps.js
+- common/icons.js
+- common/ui.js
+- css/components.css
+
+### `.icon-btn` (6 files)
+
+- cards/card-configuration.js
+- cards/card-prompt.js
+- cards/card-tasks.js
+- common/main.js
+- common/ui.js
+- css/components.css
+
+### `.btn-pill--on` (4 files)
+
+- cards/card-steps.js
+- cards/card-tasks.js
+- common/ui.js
+- css/components.css
+
+### `.card-header` (4 files)
+
+- cards/card-tasks.js
+- css/components.css
+- css/layout.css
+- index.html
+
+### `.field-picker` (4 files)
+
+- cards/card-tasks.js
+- common/file-tree.js
+- common/ui.js
+- css/components.css
+
+### `.icon-remove` (4 files)
+
+- cards/card-configuration.js
+- cards/card-steps.js
+- common/ui.js
+- css/components.css
+
+### `.btn-select` (3 files)
+
+- common/ui.js
+- css/components.css
+- css/layout.css
+
+### `.btn-select--selected` (3 files)
+
+- cards/card-tasks.js
+- common/ui.js
+- css/components.css
+
+### `.card` (3 files)
+
+- cards/card-tasks.js
+- css/layout.css
+- index.html
+
+### `.card-body` (3 files)
+
+- cards/card-tasks.js
+- css/layout.css
+- index.html
+
+### `.empty-state` (3 files)
+
+- cards/card-steps.js
+- cards/card-tasks.js
+- css/components.css
+
+### `.field-picker-dropdown` (3 files)
+
+- common/file-tree.js
+- common/ui.js
+- css/components.css
+
+### `.field-picker-dropdown--open` (3 files)
+
+- common/file-tree.js
+- common/ui.js
+- css/components.css
+
+### `.field-picker-empty` (3 files)
+
+- common/file-tree.js
+- common/ui.js
+- css/components.css
+
+### `.field-picker-item` (3 files)
+
+- common/file-tree.js
+- common/ui.js
+- css/components.css
+
+### `.field-picker-search` (3 files)
+
+- common/ui.js
+- css/components.css
+- css/layout.css
+
+### `.icon--chevron` (3 files)
+
+- cards/card-tasks.js
+- common/main.js
+- css/components.css
+
+### `.input-field` (3 files)
+
+- common/ui.js
+- css/components.css
+- css/layout.css
+
+### `.output-field` (3 files)
+
+- cards/card-steps.js
+- css/components.css
+- css/layout.css

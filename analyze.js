@@ -717,8 +717,9 @@ function generateReport(analysis, domTree, cssClasses) {
   // ── DOM Tree ──
   w("## Approximate DOM Tree (L3–L7)\n");
   w("```");
-  for (const root of domTree) {
-    renderTreeNode(root, 0, lines);
+  for (let i = 0; i < domTree.length; i++) {
+    renderTreeNode(domTree[i], 3, "", true, true, lines);
+    if (i < domTree.length - 1) w(""); // blank line between cards
   }
   w("```\n");
 
@@ -751,20 +752,77 @@ function generateReport(analysis, domTree, cssClasses) {
     w("");
   }
 
+  // ── Cross-File Class Map (reverse view, classes in 3+ files) ──
+  w("## Cross-File Class Map\n");
+  w("*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*\n");
+
+  // Build class → Set<file> from all sources: CSS defs, HTML refs, JS refs
+  const classToFiles = new Map();
+  for (const [cls, defs] of analysis.cssClasses) {
+    if (!classToFiles.has(cls)) classToFiles.set(cls, new Set());
+    for (const d of defs)
+      classToFiles.get(cls).add(`css/${path.basename(d.file)}`);
+  }
+  for (const [cls, refs] of analysis.htmlClassRefs) {
+    if (!classToFiles.has(cls)) classToFiles.set(cls, new Set());
+    for (const r of refs) classToFiles.get(cls).add(r.file);
+  }
+  for (const [cls, refs] of analysis.jsClassRefs) {
+    if (!classToFiles.has(cls)) classToFiles.set(cls, new Set());
+    for (const r of refs) classToFiles.get(cls).add(r.file);
+  }
+
+  const crossFile = [...classToFiles.entries()]
+    .filter(([, files]) => files.size >= 3)
+    .sort((a, b) => b[1].size - a[1].size || a[0].localeCompare(b[0]));
+
+  if (crossFile.length === 0) {
+    w("No classes found in 3+ files.\n");
+  } else {
+    for (const [cls, files] of crossFile) {
+      w(`### \`.${cls}\` (${files.size} files)\n`);
+      for (const f of [...files].sort()) {
+        w(`- ${f}`);
+      }
+      w("");
+    }
+  }
+
   return lines.join("\n");
 }
 
-function renderTreeNode(node, depth, lines) {
-  const indent = "  ".repeat(depth);
+/**
+ * Render a tree node with box-drawing lines and level labels.
+ * @param {object} node       Tree node
+ * @param {number} baseLevel  DOM level (L3 = top-level cards)
+ * @param {string} prefix     Accumulated prefix of box-drawing chars
+ * @param {boolean} isLast    Whether this node is the last sibling
+ * @param {boolean} isRoot    Whether this is a root call (no connector)
+ * @param {string[]} lines    Output array
+ */
+function renderTreeNode(node, baseLevel, prefix, isLast, isRoot, lines) {
   const idStr = node.id ? `#${node.id}` : "";
   const clsStr = node.classes.length ? `.${node.classes.join(".")}` : "";
   const layoutStr = node.layout ? ` [${node.layout}]` : "";
   const fileStr = ` — ${node.file}:${node.line}`;
+  const levelTag = `L${baseLevel} `;
 
-  lines.push(`${indent}${node.tag}${idStr}${clsStr}${layoutStr}${fileStr}`);
+  const connector = isRoot ? "" : isLast ? "└─ " : "├─ ";
+  lines.push(
+    `${prefix}${connector}${levelTag}${node.tag}${idStr}${clsStr}${layoutStr}${fileStr}`,
+  );
 
-  for (const child of node.children || []) {
-    renderTreeNode(child, depth + 1, lines);
+  const children = node.children || [];
+  const childPrefix = isRoot ? prefix : prefix + (isLast ? "   " : "│  ");
+  for (let i = 0; i < children.length; i++) {
+    renderTreeNode(
+      children[i],
+      baseLevel + 1,
+      childPrefix,
+      i === children.length - 1,
+      false,
+      lines,
+    );
   }
 }
 
