@@ -51,6 +51,7 @@ const OUTPUT_ICON_MAP = {
 
 let elBody = null;
 let previousStepSnapshot = '';
+let elStepsMeta = null;
 
 // Lens expanded state — persists across re-renders; resets on flow switch
 const expandedSteps = new Map();
@@ -106,6 +107,14 @@ function renderStepList() {
   const stepSnapshot = JSON.stringify(steps);
   if (stepSnapshot === previousStepSnapshot) return;
   previousStepSnapshot = stepSnapshot;
+
+  // Update card-meta with step count (D204)
+  if (elStepsMeta) {
+    elStepsMeta.textContent =
+      steps.length > 0
+        ? `${steps.length} step${steps.length !== 1 ? 's' : ''}`
+        : '';
+  }
 
   elBody.innerHTML = '';
 
@@ -485,6 +494,7 @@ export function initStepsCard() {
   elBody = document.getElementById('bd-steps');
   if (!elBody) return;
 
+  elStepsMeta = document.querySelector('#card-steps .card-meta');
   previousStepSnapshot = '';
   expandedSteps.clear();
 

@@ -15,7 +15,7 @@ import {
   getValueByPath,
 } from '../core/state.js';
 import { getFlows, getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
-import { getFileTree, setConfigCardSummary } from './card-configuration.js';
+import { getFileTree } from './card-configuration.js';
 import { fetchPRs, fetchIssues } from '../common/github-api.js';
 import { cacheGet, cacheSet } from '../common/cache.js';
 import {
@@ -52,6 +52,14 @@ let isLoadingIssues = false;
 
 // Scope selector element (for show/hide)
 let elScopeSelector = null;
+
+// --- Card meta (D204) ---
+
+function updateTaskCardMeta(flowLabel) {
+  const metaEl = document.querySelector('#card-tasks .card-meta');
+  if (!metaEl) return;
+  metaEl.textContent = flowLabel || '';
+}
 
 // --- Flow grid ---
 
@@ -94,6 +102,9 @@ function onFlowSelect(flowId, flowDef) {
     btn.setAttribute('aria-selected', String(isSelected));
   }
 
+  // Update card-meta with flow name (D204)
+  updateTaskCardMeta(flowDef.label);
+
   // Render dual panels for this flow
   renderDualPanels(flowId, flowDef);
 
@@ -105,10 +116,6 @@ function onFlowSelect(flowId, flowDef) {
   expandCard('card-steps');
   expandCard('card-prompt');
   collapseCard('card-configuration');
-  const { owner, repo, branch } = getState().configuration;
-  if (repo) {
-    setConfigCardSummary(`${owner} / ${repo} : ${branch}`);
-  }
 }
 
 // --- Dual panel rendering ---

@@ -335,6 +335,24 @@ label {
   transform: rotate(180deg);
 }
 
+/* Card header metadata (D201, D202) */
+.card-meta {
+  display: inline-flex;
+  gap: var(--sp-4);
+  place-items: center;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.card-meta .icon {
+  flex-shrink: 0;
+}
+
 /* ============================================================
    STEP COUNTER (CSS counter replaces .badge spans)
    ============================================================ */
@@ -370,6 +388,15 @@ label {
   white-space: nowrap;
   border: 0;
   clip-path: inset(50%);
+}
+
+.truncate-start {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
 }
 
 .empty-state {

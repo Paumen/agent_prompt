@@ -93,7 +93,7 @@ import { getState, setState } from '../src/core/state.js';
 function createStepsCard() {
   document.body.innerHTML = `
     <details class="card" id="card-steps">
-      <summary class="card-header"></summary>
+      <summary class="card-header"><h3>Steps</h3><span class="card-meta"></span></summary>
       <div class="card-body" id="bd-steps"></div>
     </details>
   `;

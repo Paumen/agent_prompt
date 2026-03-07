@@ -127,9 +127,9 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 
 ### Key Changes
 
-- [ ] D201 – Add `<span class="card-meta">` inside each `<summary>`, after the title
-- [ ] D202 – `:has()` selector: `summary:has(.card-meta:not(:empty))` to style headers with content
-- [ ] D203 – Refactor `setConfigCardSummary()` (card-configuration.js lines 48-88) to populate `.card-meta` instead of directly manipulating the title element's first child
+- [x] D201 – Add `<span class="card-meta">` inside each `<summary>`, after the title
+- [x] D202 – `.card-meta` styles in components.css; `:has()` rule removed (unnecessary — grid `auto` column handles h3 sizing)
+- [x] D203 – Refactor `setConfigCardSummary()` → `updateConfigCardMeta()` to populate `.card-meta` instead of directly manipulating the title element's first child
 
 ### Metadata content per card
 
@@ -140,8 +140,7 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 | Steps         | Step count (e.g., "3 steps")    |
 | Prompt        | quality meter                   |
 
-- [ ] D204 – Populate `.card-meta` for Task, Steps, and Prompt cards accordingly
-
+- [x] D204 – Populate `.card-meta` for Task (flow name), Steps (step count), and Prompt (quality meter moved from body to header) cards
 
 ---
 

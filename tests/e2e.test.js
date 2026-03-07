@@ -35,25 +35,29 @@ function setupFullHTML() {
     <main id="app">
       <details class="card" id="card-configuration" open>
         <summary class="card-header">
-          <span class="card-title">Configuration</span>
+          <h3>Configuration</h3>
+          <span class="card-meta"></span>
         </summary>
         <div class="card-body" id="bd-configuration"></div>
       </details>
       <details class="card" id="card-tasks">
         <summary class="card-header">
-          <span class="card-title">Task</span>
+          <h3>Task</h3>
+          <span class="card-meta"></span>
         </summary>
         <div class="card-body" id="bd-tasks"></div>
       </details>
       <details class="card" id="card-steps">
         <summary class="card-header">
-          <span class="card-title">Steps</span>
+          <h3>Steps</h3>
+          <span class="card-meta"></span>
         </summary>
         <div class="card-body" id="bd-steps"></div>
       </details>
       <details class="card" id="card-prompt">
         <summary class="card-header">
-          <span class="card-title">Prompt</span>
+          <h3>Prompt</h3>
+          <span class="card-meta"></span>
         </summary>
         <div class="card-body" id="bd-prompt"></div>
       </details>
