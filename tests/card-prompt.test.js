@@ -55,10 +55,10 @@ import { getState, setState, subscribe } from '../src/core/state.js';
 
 function createPromptCard() {
   document.body.innerHTML = `
-    <section class="card" id="card-prompt">
-      <button class="card-header" aria-expanded="false"></button>
+    <details class="card" id="card-prompt">
+      <summary class="card-header"></summary>
       <div class="card-body" id="bd-prompt"></div>
-    </section>
+    </details>
   `;
 }
 

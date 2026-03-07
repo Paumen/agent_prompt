@@ -120,37 +120,35 @@ function renderDualPanels(flowId, flowDef) {
   lastLensStatePath = null;
   lastTaskLensSnapshot = '';
 
-  // Panel A — Situation (nested card)
-  const panelA = document.createElement('div');
-  panelA.className = 'card card--open';
+  // Panel A — Situation (nested <details> card, D112)
+  const panelA = document.createElement('details');
+  panelA.className = 'card';
+  panelA.open = true;
 
   const panelAHeader = renderPanelHeader(
     'Situation',
-    flowDef.panel_a.subtitle || '',
-    'situation-body'
+    flowDef.panel_a.subtitle || ''
   );
   panelA.appendChild(panelAHeader);
 
   const panelABody = document.createElement('div');
   panelABody.className = 'card-body';
-  panelABody.id = 'situation-body';
   renderPanelFields(panelABody, flowDef.panel_a.fields, 'panel_a');
   panelA.appendChild(panelABody);
 
-  // Panel B — Target (nested card)
-  const panelB = document.createElement('div');
-  panelB.className = 'card card--open';
+  // Panel B — Target (nested <details> card, D112)
+  const panelB = document.createElement('details');
+  panelB.className = 'card';
+  panelB.open = true;
 
   const panelBHeader = renderPanelHeader(
     'Target',
-    flowDef.panel_b.subtitle || '',
-    'target-body'
+    flowDef.panel_b.subtitle || ''
   );
   panelB.appendChild(panelBHeader);
 
   const panelBBody = document.createElement('div');
   panelBBody.className = 'card-body';
-  panelBBody.id = 'target-body';
   renderPanelFields(panelBBody, flowDef.panel_b.fields, 'panel_b');
   panelB.appendChild(panelBBody);
 
@@ -168,12 +166,10 @@ function renderDualPanels(flowId, flowDef) {
   updateRequiredGroupIndicators();
 }
 
-function renderPanelHeader(genericLabel, flowSubtitle, bodyId) {
-  const header = document.createElement('button');
-  header.type = 'button';
+function renderPanelHeader(genericLabel, flowSubtitle) {
+  // D113: <summary> — native <details> handles toggle, no click handler needed
+  const header = document.createElement('summary');
   header.className = 'card-header';
-  header.setAttribute('aria-expanded', 'true');
-  header.setAttribute('aria-controls', bodyId);
 
   const titleSpan = document.createElement('span');
   titleSpan.textContent = genericLabel;
@@ -187,14 +183,6 @@ function renderPanelHeader(genericLabel, flowSubtitle, bodyId) {
   const chevron = icon('chevron-down', 'icon-btn');
   chevron.classList.add('icon--chevron');
   header.appendChild(chevron);
-
-  // Wire collapse/expand
-  header.addEventListener('click', () => {
-    const card = header.closest('.card');
-    if (!card) return;
-    const isOpen = card.classList.toggle('card--open');
-    header.setAttribute('aria-expanded', String(isOpen));
-  });
 
   return header;
 }

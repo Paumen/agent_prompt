@@ -13,28 +13,26 @@
 
 /**
  * Expand a card by ID.
- * Shared helper used by card-configuration.js and card-tasks.js.
+ * Sets the native `open` attribute on the <details> element.
  *
  * @param {string} id - card element ID (e.g., 'card-steps')
  */
 export function expandCard(id) {
   const card = document.getElementById(id);
   if (!card) return;
-  card.classList.add('card--open');
-  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'true');
+  card.open = true;
 }
 
 /**
  * Collapse a card by ID.
- * Shared helper used by card-configuration.js and card-tasks.js.
+ * Removes the native `open` attribute from the <details> element.
  *
  * @param {string} id - card element ID (e.g., 'card-configuration')
  */
 export function collapseCard(id) {
   const card = document.getElementById(id);
   if (!card) return;
-  card.classList.remove('card--open');
-  card.querySelector('.card-header')?.setAttribute('aria-expanded', 'false');
+  card.open = false;
 }
 
 // --- Mid-interaction tracking (GL-05) ---

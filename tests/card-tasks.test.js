@@ -123,11 +123,11 @@ vi.mock('../src/common/components.js', () => ({
   showNotification: vi.fn(),
   expandCard: vi.fn((id) => {
     const card = document.getElementById(id);
-    if (card) card.classList.add('card--open');
+    if (card) card.open = true;
   }),
   collapseCard: vi.fn((id) => {
     const card = document.getElementById(id);
-    if (card) card.classList.remove('card--open');
+    if (card) card.open = false;
   }),
 }));
 
@@ -148,19 +148,19 @@ import { getState, subscribe, applyFlowDefaults } from '../src/core/state.js';
 
 function createTasksCard() {
   document.body.innerHTML = `
-    <section class="card" id="card-configuration">
-      <button class="card-header" aria-expanded="false"></button>
-    </section>
-    <section class="card card--open" id="card-tasks">
-      <button class="card-header" aria-expanded="true"></button>
+    <details class="card" id="card-configuration">
+      <summary class="card-header"></summary>
+    </details>
+    <details class="card" id="card-tasks" open>
+      <summary class="card-header"></summary>
       <div class="card-body" id="bd-tasks"></div>
-    </section>
-    <section class="card" id="card-steps">
-      <button class="card-header" aria-expanded="false"></button>
-    </section>
-    <section class="card" id="card-prompt">
-      <button class="card-header" aria-expanded="false"></button>
-    </section>
+    </details>
+    <details class="card" id="card-steps">
+      <summary class="card-header"></summary>
+    </details>
+    <details class="card" id="card-prompt">
+      <summary class="card-header"></summary>
+    </details>
   `;
 }
 
@@ -213,21 +213,13 @@ describe('flow button click', () => {
   });
 
   it('expands Steps and Prompt cards, collapses Config', () => {
-    document.getElementById('card-configuration').classList.add('card--open');
+    document.getElementById('card-configuration').open = true;
     initTasksCard();
     document.querySelector('.btn-select[data-flow-id]').click();
 
-    expect(
-      document.getElementById('card-steps').classList.contains('card--open')
-    ).toBe(true);
-    expect(
-      document.getElementById('card-prompt').classList.contains('card--open')
-    ).toBe(true);
-    expect(
-      document
-        .getElementById('card-configuration')
-        .classList.contains('card--open')
-    ).toBe(false);
+    expect(document.getElementById('card-steps').open).toBe(true);
+    expect(document.getElementById('card-prompt').open).toBe(true);
+    expect(document.getElementById('card-configuration').open).toBe(false);
   });
 
   it('renders nested card panels after flow selection', () => {

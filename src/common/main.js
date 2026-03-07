@@ -5,28 +5,21 @@ import { initStepsCard } from '../cards/card-steps.js';
 import { initPromptCard } from '../cards/card-prompt.js';
 import { icon } from './icons.js';
 
-// --- Card expand/collapse toggle ---
+// --- Chevron icon init (D107) ---
 
-function initCardToggles() {
-  const headers = document.querySelectorAll('.card-header');
-  for (const header of headers) {
-    // Append chevron icon to each card header
+function initChevrons() {
+  const summaries = document.querySelectorAll('summary.card-header');
+  for (const summary of summaries) {
     const chevron = icon('chevron-down', 'icon-btn');
     chevron.classList.add('icon--chevron');
-    header.appendChild(chevron);
-
-    header.addEventListener('click', () => {
-      const card = header.closest('.card');
-      const isOpen = card.classList.toggle('card--open');
-      header.setAttribute('aria-expanded', String(isOpen));
-    });
+    summary.appendChild(chevron);
   }
 }
 
 // --- Initialization ---
 
 document.addEventListener('DOMContentLoaded', () => {
-  initCardToggles();
+  initChevrons();
 
   // State is already initialized (hydrated from localStorage on import).
   const initial = getState();
@@ -47,4 +40,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initPromptCard();
 });
 
-export { initCardToggles };
+export { initChevrons };
