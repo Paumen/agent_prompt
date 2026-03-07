@@ -408,15 +408,15 @@ label {
 }
 
 /* Eye toggle: show/hide password */
-.js-eye-btn .icon-eye-off {
+.icon-eye-off {
   display: none;
 }
 
-.js-eye-btn.is-shown .icon-eye-on {
+.icon-eye-on {
   display: none;
 }
 
-.js-eye-btn.is-shown .icon-eye-off {
+.icon-eye-off {
   display: block;
 }
 
