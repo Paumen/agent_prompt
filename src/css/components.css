@@ -101,26 +101,15 @@ label {
   min-height: 32px;
   padding: var(--sp-4);
   color: var(--text-primary);
-  background: var(--bg-inset);
+  background: var(--bg);
   border: 1px solid var(--text-tertiary);
 }
 
-.btn-select[aria-selected='true'],
-.btn-select.btn-select--selected {
-  padding: var(--sp-4);
-  color: var(--text-primary);
+
+.btn-select--selected {
+  color: var(--accent-a);
   background: var(--accent-b);
   border-color: var(--accent-a);
-}
-
-.btn-select[aria-selected='true']::before,
-.btn-select.btn-select--selected::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  content: '';
-  background: var(--accent-b);
-  border-radius: var(--radius) 0 0 var(--radius);
 }
 
 .btn-select[aria-selected='true'] .icon,
