@@ -132,6 +132,7 @@ details::details-content {
 details[open]::details-content {
   block-size: auto;
   content-visibility: visible;
+  overflow: visible;
 }
 
 @starting-style {
