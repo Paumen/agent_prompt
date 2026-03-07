@@ -1,6 +1,6 @@
 # DOM-CSS Analysis Report
 
-| Metric | Count | Target | Tem Accepted | status |
+| Metric | Count | Target | Temp | status |
 |--------|-------|-------|-------|-------|
 | CSS classes defined | 60 | <50 | 55| 🔴 |
 | Classes used (HTML+JS) | 63 | ||
