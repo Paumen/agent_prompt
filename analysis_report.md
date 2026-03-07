@@ -1,43 +1,43 @@
 # DOM-CSS Analysis Report
 
-| Metric | Count |
-|--------|-------|
-| CSS classes defined | 60 |
-| Classes used (HTML+JS) | 63 |
-| Unused CSS classes | 1 |
-| Undefined classes | 4 |
-| Inline style violations | 5 |
+| Metric | Count | Target | Tem Accepted | status |
+|--------|-------|-------|-------|-------|
+| CSS classes defined | 60 | <50 | 55| 🔴 |
+| Classes used (HTML+JS) | 63 | ||
+| Unused CSS classes | 1 | 0 | 1 | 🟠 |
+| Undefined classes | 4 | | 0 | 1 | 🔴|
+| Inline style violations | 5 | 3 | 5 |🟠|
 
-🔴
+
 
 ## Elements Without Classes
 
 | Element | Occurrences | Without Class | Violations |
 |---------|-------------|---------------|------------|
-| `<span>` | 20 | 12 | index.html:19, index.html:33, index.html:47, index.html:61, cards/card-configuration.js:69, cards/card-configuration.js:78, cards/card-configuration.js:87, cards/card-steps.js:137, cards/card-tasks.js:178, common/components.js:106, common/ui.js:427, logic/quality-meter.js:163 |
-| `<label>` | 9 | 9 | cards/card-configuration.js:121, cards/card-configuration.js:161, cards/card-configuration.js:291, cards/card-configuration.js:378, cards/card-configuration.js:459, cards/card-configuration.js:516, cards/card-steps.js:222, cards/card-steps.js:240, common/ui.js:421 |
-| `<div>` | 46 | 4 | cards/card-configuration.js:462, cards/card-configuration.js:519, cards/card-prompt.js:158, logic/quality-meter.js:159 |
-| `<small>` | 2 | 2 | cards/card-tasks.js:181, common/file-tree.js:52 |
-| `<template>` | 1 | 1 | common/icons.js:103 |
+| `<span>` | 20 | 12🔴 | index.html:19, index.html:33, index.html:47, index.html:61, cards/card-configuration.js:69, cards/card-configuration.js:78, cards/card-configuration.js:87, cards/card-steps.js:137, cards/card-tasks.js:178, common/components.js:106, common/ui.js:427, logic/quality-meter.js:163 |
+| `<label>` | 9 | 9🟢 | cards/card-configuration.js:121, cards/card-configuration.js:161, cards/card-configuration.js:291, cards/card-configuration.js:378, cards/card-configuration.js:459, cards/card-configuration.js:516, cards/card-steps.js:222, cards/card-steps.js:240, common/ui.js:421 |
+| `<div>` | 46 | 4🔴 | cards/card-configuration.js:462, cards/card-configuration.js:519, cards/card-prompt.js:158, logic/quality-meter.js:159 |
+| `<small>` | 2 | 2❔ | cards/card-tasks.js:181, common/file-tree.js:52 |
+| `<template>` | 1 | 1❔ | common/icons.js:103 |
 
-## Unused CSS Classes
+## Unused CSS Classes 🔴
 
-- `.wrapper` — defined at css/layout.css:160, css/layout.css:168
+- `.wrapper` — defined at css/layout.css:160, css/layout.css:168 
 
-## Undefined Classes (used but not in CSS)
+## Undefined Classes (used but not in CSS) 🔴
 
-- `.btn-dismiss` — used at common/components.js:122
-- `.btn-retry` — used at common/components.js:115
-- `.error-actions` — used at common/components.js:111
-- `.error-inline` — used at common/components.js:103
+- `.btn-dismiss` — used at common/components.js:122 
+- `.btn-retry` — used at common/components.js:115 
+- `.error-actions` — used at common/components.js:111 
+- `.error-inline` — used at common/components.js:103 
 
 ## Inline Style Violations
 
-- **cards/card-tasks.js:523** — `dot.style.opacity = dot._satisfied ? '0.2' : '1';`
-- **cards/card-tasks.js:551** — `d.style.opacity = isSatisfied ? '0.2' : '1';`
-- **logic/quality-meter.js:173** — `bar.style.width = `${score}%`;`
-- **logic/quality-meter.js:174** — `bar.style.backgroundColor = color;`
-- **logic/quality-meter.js:178** — `labelTextEl.style.color = color;`
+- **cards/card-tasks.js:523** — `dot.style.opacity = dot._satisfied ? '0.2' : '1';`🟠
+- **cards/card-tasks.js:551** — `d.style.opacity = isSatisfied ? '0.2' : '1';`🟠
+- **logic/quality-meter.js:173** — `bar.style.width = `${score}%`;`🟡
+- **logic/quality-meter.js:174** — `bar.style.backgroundColor = color;`🟡
+- **logic/quality-meter.js:178** — `labelTextEl.style.color = color;`🟡
 
 ## Approximate DOM Tree (L3–L7)
 
