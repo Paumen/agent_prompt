@@ -106,15 +106,6 @@ body {
   grid-column: span 4;
 }
 
-.card-body:has(> .btn-select) {
-  grid-template-columns: repeat(4, 1fr);
-  column-gap: var(--sp-2);
-}
-
-.card-body:has(> .btn-select) > :not(.btn-select) {
-  grid-column: 1 / -1;
-}
-
 .card:not(.card--open) > .card-body {
   display: none;
 }
