@@ -35,9 +35,9 @@ Only one in the “grp” will remain open at once.
 
 `:has()`
 
-The `:has()` CSS pseudo-class selects an element if it contains (or is followed/preceded by) elements matching a selector list. It effectively provides a “parent” or relational selector. For example, `section:has(img)` matches any <section> with at least one `<img>`` descendant; `h1:has(+ h2)` matches an `<h1>` followed immediately by an `<h2>`.
+The `:has()` CSS pseudo-class selects an element if it contains (or is followed/preceded by) elements matching a selector list. It effectively provides a “parent” or relational selector. For example, `section:has(img)` matches any `<section>` with at least one `<img>` descendant; `h1:has(+ h2)` matches an `<h1>` followed immediately by an `<h2>`.
 
-Use cases include styling a container based on its children or state, without extra classes. Examples: highlighting a form `<fieldset>"` if it contains an invalid field (fieldset`:has(:invalid`)), styling a menu button if its submenu is open, or applying layout changes only when certain content exists. It can combine multiple conditions, e.g. `article:has(> .featured, .highlighted)` to select an article containing either child. Sibling/child combinations are powerful: for instance, an image gallery page could use `div:has(img[src*="thumbnail"])` to style containers with specific images.
+Use cases include styling a container based on its children or state, without extra classes. Examples: highlighting a form `<fieldset>"` if it contains an invalid field (`fieldset:has(:invalid)`), styling a menu button if its submenu is open, or applying layout changes only when certain content exists. It can combine multiple conditions, e.g. `article:has(> .featured, .highlighted)` to select an article containing either child. Sibling/child combinations are powerful: for instance, an image gallery page could use `div:has(img[src*="thumbnail"])` to style containers with specific images.
 
 Examples:
 ```css
