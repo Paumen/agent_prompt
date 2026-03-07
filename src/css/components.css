@@ -104,10 +104,10 @@ label {
 }
 
 .btn-select--selected {
+  font-weight: 800;
   color: var(--accent-a);
   background: var(--accent-b);
   border-color: var(--accent-a);
-  font-weight: 800;
 }
 
 /* --- 3. btn-action: one-shot stateless action --- */
