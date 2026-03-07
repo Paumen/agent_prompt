@@ -33,7 +33,7 @@ Accordion grouping (same name):
 Only one in the “grp” will remain open at once.
 
 
-`:has()``
+`:has()`
 
 The `:has()` CSS pseudo-class selects an element if it contains (or is followed/preceded by) elements matching a selector list. It effectively provides a “parent” or relational selector. For example, `section:has(img)` matches any <section> with at least one `<img>`` descendant; `h1:has(+ h2)` matches an `<h1>` followed immediately by an `<h2>`.
 
