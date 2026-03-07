@@ -2,9 +2,9 @@
 
 | Metric | Count |
 |--------|-------|
-| CSS classes defined | 60 |
+| CSS classes defined | 59 |
 | Classes used (HTML+JS) | 63 |
-| Unused CSS classes | 1 |
+| Unused CSS classes | 0 |
 | Undefined classes | 4 |
 | Inline style violations | 5 |
 
@@ -12,15 +12,15 @@
 
 | Element | Occurrences | Without Class | Violations |
 |---------|-------------|---------------|------------|
-| `<span>` | 20 | 12 | index.html:19, index.html:33, index.html:47, index.html:61, cards/card-configuration.js:69, cards/card-configuration.js:78, cards/card-configuration.js:87, cards/card-steps.js:137, cards/card-tasks.js:178, common/components.js:106, common/ui.js:427, logic/quality-meter.js:163 |
-| `<label>` | 9 | 9 | cards/card-configuration.js:121, cards/card-configuration.js:161, cards/card-configuration.js:291, cards/card-configuration.js:378, cards/card-configuration.js:459, cards/card-configuration.js:516, cards/card-steps.js:222, cards/card-steps.js:240, common/ui.js:421 |
-| `<div>` | 46 | 4 | cards/card-configuration.js:462, cards/card-configuration.js:519, cards/card-prompt.js:158, logic/quality-meter.js:159 |
+| `<span>` | 20 | 12 | index.html:19, index.html:33, index.html:47, index.html:61, cards/card-configuration.js:66, cards/card-configuration.js:75, cards/card-configuration.js:84, cards/card-steps.js:137, cards/card-tasks.js:178, common/components.js:106, common/ui.js:427, logic/quality-meter.js:163 |
+| `<label>` | 3 | 3 | cards/card-steps.js:222, cards/card-steps.js:240, common/ui.js:421 |
+| `<div>` | 44 | 2 | cards/card-prompt.js:158, logic/quality-meter.js:159 |
 | `<small>` | 2 | 2 | cards/card-tasks.js:181, common/file-tree.js:52 |
 | `<template>` | 1 | 1 | common/icons.js:103 |
 
 ## Unused CSS Classes
 
-- `.wrapper` — defined at css/layout.css:160, css/layout.css:168
+None detected.
 
 ## Undefined Classes (used but not in CSS)
 
@@ -43,25 +43,21 @@
 L3 section#card-configuration.card.card--open [Grid 1fr] — index.html:13
 ├─ L4 button.card-header [Grid 1fr auto] — index.html:14
 │  └─ L5 span — index.html:19
-└─ L4 div#bd-configuration.card-body [Grid 1fr] — index.html:21
-   ├─ L5 span — cards/card-configuration.js:69
-   ├─ L5 span — cards/card-configuration.js:78
-   ├─ L5 span — cards/card-configuration.js:87
-   ├─ L5 label — cards/card-configuration.js:121
-   ├─ L5 span.icon-eye-on — cards/card-configuration.js:138
-   ├─ L5 span.icon-eye-off — cards/card-configuration.js:141
-   ├─ L5 label — cards/card-configuration.js:161
-   ├─ L5 label — cards/card-configuration.js:516
-   └─ L5 div — cards/card-configuration.js:519
+└─ L4 div#bd-configuration.card-body [Grid 8×1fr] — index.html:21
+   ├─ L5 span — cards/card-configuration.js:66
+   ├─ L5 span — cards/card-configuration.js:75
+   ├─ L5 span — cards/card-configuration.js:84
+   ├─ L5 span.icon-eye-on — cards/card-configuration.js:135
+   └─ L5 span.icon-eye-off — cards/card-configuration.js:138
 
 L3 section#card-tasks.card [Grid 1fr] — index.html:27
 ├─ L4 button.card-header [Grid 1fr auto] — index.html:28
 │  └─ L5 span — index.html:33
-└─ L4 div#bd-tasks.card-body [Grid 1fr] — index.html:35
+└─ L4 div#bd-tasks.card-body [Grid 8×1fr] — index.html:35
    ├─ L5 div.card.card--open [Grid 1fr] — cards/card-tasks.js:124
-   │  └─ L6 div.card-body [Grid 1fr] — cards/card-tasks.js:134
+   │  └─ L6 div.card-body [Grid 8×1fr] — cards/card-tasks.js:134
    ├─ L5 div.card.card--open [Grid 1fr] — cards/card-tasks.js:141
-   │  └─ L6 div.card-body [Grid 1fr] — cards/card-tasks.js:151
+   │  └─ L6 div.card-body [Grid 8×1fr] — cards/card-tasks.js:151
    ├─ L5 button.card-header [Grid 1fr auto] — cards/card-tasks.js:172
    │  └─ L6 span — cards/card-tasks.js:178
    │     └─ L7 small — cards/card-tasks.js:181
@@ -76,7 +72,7 @@ L3 section#card-tasks.card [Grid 1fr] — index.html:27
 L3 section#card-steps.card [Grid 1fr] — index.html:41
 ├─ L4 button.card-header [Grid 1fr auto] — index.html:42
 │  └─ L5 span — index.html:47
-└─ L4 div#bd-steps.card-body [Grid 1fr] — index.html:49
+└─ L4 div#bd-steps.card-body [Grid 8×1fr] — index.html:49
    ├─ L5 div.empty-state — cards/card-steps.js:113
    ├─ L5 ol.output-block [Flex column] — cards/card-steps.js:120
    ├─ L5 li.output.output-field [Grid auto 1fr auto] — cards/card-steps.js:132
@@ -91,7 +87,7 @@ L3 section#card-steps.card [Grid 1fr] — index.html:41
 L3 section#card-prompt.card [Grid 1fr] — index.html:55
 ├─ L4 button.card-header [Grid 1fr auto] — index.html:56
 │  └─ L5 span — index.html:61
-└─ L4 div#bd-prompt.card-body [Grid 1fr] — index.html:63
+└─ L4 div#bd-prompt.card-body [Grid 8×1fr] — index.html:63
    ├─ L5 span.meter-info-wrapper [Flex row] — cards/card-prompt.js:116
    │  └─ L6 div.meter-tooltip — cards/card-prompt.js:125
    ├─ L5 div — cards/card-prompt.js:158
@@ -104,9 +100,8 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 
 ### cards/card-configuration.js
 
-- `.input` × 6
+- `.field-picker` × 2
 - `.is-shown` × 2
-- `.cloud` × 2
 - `.js-eye-btn` × 1
 - `.icon-eye-on` × 1
 - `.icon-eye-off` × 1
@@ -114,19 +109,20 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 - `.icon-btn` × 1
 - `.icon` × 1
 - `.icon-remove` × 1
+- `.input` × 1
 
 ### cards/card-prompt.js
 
 - `.meter-tooltip--visible` × 3
 - `.prompt-output--empty` × 2
-- `.input` × 1
-- `.cloud` × 1
 - `.icon-btn` × 1
 - `.icon` × 1
+- `.input` × 1
 - `.btn--copied` × 1
 - `.meter-info-wrapper` × 1
 - `.meter-tooltip` × 1
 - `.prompt-output` × 1
+- `.cloud` × 1
 - `.sr-only` × 1
 - `.btn-copy` × 1
 - `.icon-clipboard` × 1
@@ -155,12 +151,12 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 - `.btn-pill--on` × 2
 - `.btn-select--selected` × 2
 - `.card` × 2
-- `.cloud` × 1
+- `.field-picker` × 1
 - `.icon-btn` × 1
+- `.cloud` × 1
 - `.card-header` × 1
 - `.icon--chevron` × 1
 - `.required-group-dot` × 1
-- `.field-picker` × 1
 
 ### common/components.js
 
@@ -181,9 +177,9 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 
 - `.field-picker-dropdown--open` × 4
 - `.field-picker-empty` × 2
+- `.field-picker` × 1
 - `.input` × 1
 - `.cloud` × 1
-- `.field-picker` × 1
 - `.field-picker-dropdown` × 1
 - `.field-picker-item` × 1
 
@@ -202,14 +198,14 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 - `.field-picker-dropdown--open` × 4
 - `.input-field` × 3
 - `.field-picker-search` × 2
-- `.input` × 1
-- `.cloud` × 1
+- `.field-picker` × 1
 - `.icon-btn` × 1
 - `.icon` × 1
 - `.icon-remove` × 1
+- `.input` × 1
+- `.cloud` × 1
 - `.btn-pill--on` × 1
 - `.btn-select--selected` × 1
-- `.field-picker` × 1
 - `.field-picker-dropdown` × 1
 - `.field-picker-empty` × 1
 - `.field-picker-item` × 1
@@ -240,9 +236,8 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 
 *Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*
 
-### `.cloud` (8 files)
+### `.cloud` (7 files)
 
-- cards/card-configuration.js
 - cards/card-prompt.js
 - cards/card-steps.js
 - cards/card-tasks.js
@@ -269,6 +264,15 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 - common/main.js
 - css/layout.css
 - index.html
+
+### `.field-picker` (6 files)
+
+- cards/card-configuration.js
+- cards/card-tasks.js
+- common/file-tree.js
+- common/ui.js
+- css/components.css
+- css/layout.css
 
 ### `.icon` (6 files)
 
@@ -301,13 +305,6 @@ L3 section#card-prompt.card [Grid 1fr] — index.html:55
 - css/components.css
 - css/layout.css
 - index.html
-
-### `.field-picker` (4 files)
-
-- cards/card-tasks.js
-- common/file-tree.js
-- common/ui.js
-- css/components.css
 
 ### `.icon-remove` (4 files)
 
