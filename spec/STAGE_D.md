@@ -6,7 +6,7 @@
 
 Stage D builds on the Stage C redesign framework to add progressive disclosure, validation feedback, and modern CSS techniques. This plan integrates architectural fixes for native HTML5 behaviors, CSS-driven validation, and visually sequenced reset cascades.
 
-**Target browsers:** Latest stable Chrome, Firefox, Safari, Edge. No legacy fallbacks — users are assumed to be bleeding-edge developers.
+**Target browsers:** Latest Greatest Chrome, Firefox, Edge. No legacy fallbacks — users are assumed to be bleeding-edge developers.
 
 **PR Structure:** 3 PRs grouped by user-facing value:
 
@@ -14,12 +14,10 @@ Stage D builds on the Stage C redesign framework to add progressive disclosure, 
 2. **PR2 — Progressive Disclosure & Guards** (D2 + D5 + D6 + D7): The core UX value — reset cascade, guided card flow, guard states, and card-meta enrichment. All serve the same goal: guiding users through the journey.
 3. **PR3 — Validation & Flow Polish** (D3 + D4): CSS-driven validation framework and flow selector upgrade.
 
-**Animation budget:** Max 2 motion types app-wide:
+**Animation budget:** Max 4 motion types app-wide:
 
 1. Card open/close (`::details-content` transition)
 2. Reset cascade (staggered `transition-delay` dissolve)
-
-All animations respect `prefers-reduced-motion`.
 
 ---
 
