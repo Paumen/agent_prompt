@@ -8,7 +8,7 @@
 | Undefined classes | 4 |
 | Inline style violations | 5 |
 
-/1F534
+🔴
 
 ## Elements Without Classes
 
