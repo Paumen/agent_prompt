@@ -546,11 +546,10 @@ export function initConfigurationCard() {
   elUsername.addEventListener('change', onUsernameChange);
   elUserClear.addEventListener('click', onUserClear);
 
-  // When config card is re-opened by user click, show credentials again
+  // When config card is re-opened, show credentials again (D111: toggle listener)
   const cfgCard = document.getElementById('card-configuration');
-  cfgCard?.querySelector('.card-header')?.addEventListener('click', () => {
-    const willBeOpen = !cfgCard.classList.contains('card--open');
-    if (willBeOpen) {
+  cfgCard?.addEventListener('toggle', () => {
+    if (cfgCard.open) {
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
       setConfigCardSummary('');
     }

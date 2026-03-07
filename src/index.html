@@ -10,60 +10,44 @@
   </head>
   <body id="app">
     <!-- Card 1: Configuration — expanded on page load -->
-    <section class="card card--open" id="card-configuration">
-      <button
-        class="card-header"
-        aria-expanded="true"
-        aria-controls="bd-configuration"
-      >
+    <details class="card" id="card-configuration" open>
+      <summary class="card-header">
         <h3>Configuration</h3>
-      </button>
+      </summary>
       <div class="card-body" id="bd-configuration">
         <!-- populated by card-configuration.js -->
       </div>
-    </section>
+    </details>
 
     <!-- Card 2: Task — collapsed -->
-    <section class="card" id="card-tasks">
-      <button
-        class="card-header"
-        aria-expanded="false"
-        aria-controls="bd-tasks"
-      >
+    <details class="card" id="card-tasks">
+      <summary class="card-header">
         <h3>Task</h3>
-      </button>
+      </summary>
       <div class="card-body" id="bd-tasks">
         <!-- populated by card-tasks.js -->
       </div>
-    </section>
+    </details>
 
     <!-- Card 3: Steps — collapsed -->
-    <section class="card" id="card-steps">
-      <button
-        class="card-header"
-        aria-expanded="false"
-        aria-controls="bd-steps"
-      >
-        <span>Steps</span>
-      </button>
+    <details class="card" id="card-steps">
+      <summary class="card-header">
+        <h3>Steps</h3>
+      </summary>
       <div class="card-body" id="bd-steps">
         <!-- populated by card-steps.js -->
       </div>
-    </section>
+    </details>
 
     <!-- Card 4: Prompt — collapsed (never auto-collapses once opened per OUT-08) -->
-    <section class="card" id="card-prompt">
-      <button
-        class="card-header"
-        aria-expanded="false"
-        aria-controls="bd-prompt"
-      >
+    <details class="card" id="card-prompt">
+      <summary class="card-header">
         <h3>Prompt</h3>
-      </button>
+      </summary>
       <div class="card-body" id="bd-prompt">
         <!-- populated by card-prompt.js -->
       </div>
-    </section>
+    </details>
 
     <script type="module" src="./common/main.js"></script>
   </body>

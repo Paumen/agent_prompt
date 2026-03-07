@@ -92,10 +92,10 @@ import { getState, setState } from '../src/core/state.js';
 
 function createStepsCard() {
   document.body.innerHTML = `
-    <section class="card" id="card-steps">
-      <button class="card-header" aria-expanded="false"></button>
+    <details class="card" id="card-steps">
+      <summary class="card-header"></summary>
       <div class="card-body" id="bd-steps"></div>
-    </section>
+    </details>
   `;
 }
 

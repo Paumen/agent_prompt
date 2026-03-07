@@ -96,7 +96,7 @@ label {
 /* --- 2. btn-select: single-select from options --- */
 
 .btn-select {
-  min-height: 32px; 
+  min-height: 32px;
   padding: var(--sp-4);
   color: var(--text-secondary);
   background: var(--bg-inset);
@@ -331,7 +331,7 @@ label {
   font-weight: 700;
 }
 
-.card--open .icon--chevron {
+:where(details[open]) .icon--chevron {
   transform: rotate(180deg);
 }
 

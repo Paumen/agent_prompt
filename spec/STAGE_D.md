@@ -6,7 +6,7 @@
 
 Stage D builds on the Stage C redesign framework to add progressive disclosure, validation feedback, and modern CSS techniques. This plan integrates architectural fixes for native HTML5 behaviors, CSS-driven validation, and visually sequenced reset cascades.
 
-**Target browsers:** Latest stable Chrome, Firefox, Safari, Edge. No legacy fallbacks — users are assumed to be bleeding-edge developers.
+**Target browsers:** Latest Greatest Chrome, Firefox, Edge. No legacy fallbacks — users are assumed to be bleeding-edge developers.
 
 **PR Structure:** 3 PRs grouped by user-facing value:
 
@@ -14,11 +14,10 @@ Stage D builds on the Stage C redesign framework to add progressive disclosure, 
 2. **PR2 — Progressive Disclosure & Guards** (D2 + D5 + D6 + D7): The core UX value — reset cascade, guided card flow, guard states, and card-meta enrichment. All serve the same goal: guiding users through the journey.
 3. **PR3 — Validation & Flow Polish** (D3 + D4): CSS-driven validation framework and flow selector upgrade.
 
-**Animation budget:** Max 2 motion types app-wide:
+**Animation budget:** Max 4 motion types app-wide:
+
 1. Card open/close (`::details-content` transition)
 2. Reset cascade (staggered `transition-delay` dissolve)
-
-All animations respect `prefers-reduced-motion`.
 
 ---
 
@@ -32,15 +31,16 @@ LOCKED → SKIPPABLE → ACTIVE → SUFFICIENT → COMPLETE
   └──────────── RESET ←─────────────┴───────────┘
 ```
 
-| State | Attribute | Visual treatment | Behavior |
-|:------|:----------|:-----------------|:---------|
-| `locked` | `data-card-state="locked"` | Muted, non-interactive body | Card cannot open. `<summary>` click shows tooltip explaining missing prerequisite (e.g., "Configure repo first") |
-| `skippable` | `data-card-state="skippable"` | Muted but openable | Card can be manually opened/explored, but upstream card hasn't reached `sufficient` yet. User can peek ahead |
-| `active` | `data-card-state="active"` | Full opacity, highlighted border | The guided "next step" — fully interactive, receives focus on transition |
-| `sufficient` | `data-card-state="sufficient"` | Slightly dimmed (`opacity: 0.6`) | All required fields filled; user can still fill optional fields. Downstream card transitions to `active` |
-| `complete` | `data-card-state="complete"` | Dimmed (`opacity: 0.35`) | All fields filled or no further input possible. Editing triggers downstream reset |
+| State        | Attribute                      | Visual treatment                 | Behavior                                                                                                         |
+| :----------- | :----------------------------- | :------------------------------- | :--------------------------------------------------------------------------------------------------------------- |
+| `locked`     | `data-card-state="locked"`     | Muted, non-interactive body      | Card cannot open. `<summary>` click shows tooltip explaining missing prerequisite (e.g., "Configure repo first") |
+| `skippable`  | `data-card-state="skippable"`  | Muted but openable               | Card can be manually opened/explored, but upstream card hasn't reached `sufficient` yet. User can peek ahead     |
+| `active`     | `data-card-state="active"`     | Full opacity, highlighted border | The guided "next step" — fully interactive, receives focus on transition                                         |
+| `sufficient` | `data-card-state="sufficient"` | Slightly dimmed (`opacity: 0.6`) | All required fields filled; user can still fill optional fields. Downstream card transitions to `active`         |
+| `complete`   | `data-card-state="complete"`   | Dimmed (`opacity: 0.35`)         | All fields filled or no further input possible. Editing triggers downstream reset                                |
 
 **Transitions:**
+
 - App init → Card 1 `active`, Cards 2–4 `locked`
 - Card 1 hard prerequisites met (repo configured) → Card 2 transitions `locked` → `skippable`
 - Preceding card reaches `sufficient` → next card transitions `skippable` → `active`
@@ -69,30 +69,30 @@ Replace JS-driven `.card--open` toggle with native `<details>`/`<summary>`, remo
 
 ### Key Changes
 
-- [ ] D101 – `<section class="card">` → `<details class="card">`
+- [x] D101 – `<section class="card">` → `<details class="card">`
 
-- [ ] D102 – `<button class="card-header">` → `<summary class="card-header">`
+- [x] D102 – `<button class="card-header">` → `<summary class="card-header">`
 
-- [ ] D103 – Normalize all card header titles to use `<h3>` consistently (Card 3 Steps currently uses `<span>` — align with other cards)
-- [ ] D104 – `.card-body` sits after `<summary>`, wrapped by `::details-content` automatically
-- [ ] D105 – CSS: Remove `.card:not(:where(.card--open)) > .card-body { display: none }` (layout.css:115-117) — replaced by native `<details>` behavior
-- [ ] D106 – JS: Remove `initCardToggles()` from main.js (lines 10-24), `expandCard()`/`collapseCard()` from components.js (lines 20-38)
-- [ ] D107 – Chevron icon appending logic relocates from `initCardToggles()` into static `<summary>` HTML or a lightweight init
-- [ ] D108 – **Edge Case (Validation):** Intercept form submission to set `open = true` on parent `<details>` of `:invalid` elements before native focus attempts
-- [ ] D109 – **Accessibility:** Explicitly **remove** `aria-expanded` and `aria-controls` from all `<summary>` elements — the browser provides correct semantics natively
-- [ ] D110 – **Caution:** Do **not** use the `name` attribute on `<details>` unless an exclusive accordion is required; the current design allows multiple open cards simultaneously
-- [ ] D111 – Audit and migrate click listeners: Replace click listeners on `.card-header` (or elements becoming `<summary>`) with `toggle` listeners on the parent `<details>` for native compatibility and to prevent browser conflicts
+- [x] D103 – Normalize all card header titles to use `<h3>` consistently (Card 3 Steps currently uses `<span>` — align with other cards)
+- [x] D104 – `.card-body` sits after `<summary>`, wrapped by `::details-content` automatically
+- [x] D105 – CSS: Remove `.card:not(:where(.card--open)) > .card-body { display: none }` (layout.css:115-117) — replaced by native `<details>` behavior
+- [x] D106 – JS: Remove `initCardToggles()` from main.js (lines 10-24), `expandCard()`/`collapseCard()` from components.js (lines 20-38)
+- [x] D107 – Chevron icon appending logic relocates from `initCardToggles()` into lightweight `initChevrons()` init
+- [ ] D108 – **Edge Case (Validation):** Skipped — no `<form>` element exists yet; deferred to future phase
+- [x] D110 – **Caution:** Do **not** use the `name` attribute on `<details>` unless an exclusive accordion is required; the current design allows multiple open cards simultaneously
+- [x] D111 – Audit and migrate click listeners: Replace click listeners on `.card-header` (or elements becoming `<summary>`) with `toggle` listeners on the parent `<details>` for native compatibility and to prevent browser conflicts
   - Example: In `card-configuration.js` (line 551), swap the header click listener for a `<details>` `toggle` listener; check `event.target.open` to detect expansion
   - **Edge Case (Ctrl+F):** Use `toggle` listeners to sync app state when browsers auto-expand cards during text searches
 
 ### Sub-panel migration (card-tasks.js)
 
-- [ ] D112 – `renderDualPanels()` (lines 123-169) creates nested cards as `<div class="card card--open">` with `<button class="card-header">`. These must become `<details open class="card">` with `<summary class="card-header">`
-- [ ] D113 – `renderPanelHeader()` (lines 171-200) changes from creating a `<button>` to creating a `<summary>`, and its click handler is removed (native toggle replaces it)
+- [x] D112 – `renderDualPanels()` creates nested cards as `<details open class="card">` with `<summary class="card-header">`
+- [x] D113 – `renderPanelHeader()` creates `<summary>`, click handler removed (native toggle replaces it)
 
 ### `::details-content` animation
 
-- [ ] D114 –
+- [x] D114 –
+
 ```css
 details {
   interpolate-size: allow-keywords; /* Enables block-size animation */
@@ -100,7 +100,9 @@ details {
 details::details-content {
   block-size: 0;
   overflow: clip;
-  transition: block-size 0.3s ease, content-visibility 0.3s ease;
+  transition:
+    block-size 0.3s ease,
+    content-visibility 0.3s ease;
   content-visibility: hidden;
 }
 details[open]::details-content {
@@ -131,15 +133,15 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 
 ### Metadata content per card
 
-| Card | Collapsed summary shows |
-|:-----|:------------------------|
+| Card          | Collapsed summary shows         |
+| :------------ | :------------------------------ |
 | Configuration | owner/repo/branch icons + names |
-| Task | Selected flow name |
-| Steps | Step count (e.g., "3 steps") |
-| Prompt | quality meter |
+| Task          | Selected flow name              |
+| Steps         | Step count (e.g., "3 steps")    |
+| Prompt        | quality meter                   |
 
 - [ ] D204 – Populate `.card-meta` for Task, Steps, and Prompt cards accordingly
-- [ ] D205 – Style the existing quality meter (quality-meter.js) with `color-mix()` for color transitions
+
 
 ---
 
@@ -155,7 +157,6 @@ Upgrade flow selector buttons to a tab-card look and feel while keeping the impl
 - [ ] D302 – `:checked` drives visual state (background, border, shadow, z-index)
 - [ ] D303 – Reuse existing `.btn-select` styles as base, extend with tab-card appearance (raised selected card, flush unselected)
 - [ ] D304 – Wire radio `change` event to `onFlowSelect()`
-- [ ] D305 – Use `@container` queries for mobile row-wrapping fallback
 
 ---
 
@@ -187,6 +188,7 @@ When upstream data changes (e.g., user clears PAT, switches repo, changes flow),
 - [ ] D501 – `resetDownstream(from)` function extending existing `resetSession()` (state.js lines 187-198)
 - [ ] D502 – **Focus Management:** Programmatically move `document.activeElement` to the next logical input or the next card's `<summary>` post-transition to prevent focus drop to `<body>`
 - [ ] D503 – State mutation during animation: Use `requestAnimationFrame` batching to coalesce rapid `setState()` calls. Subscriber notifications are naturally deferred to the next frame — no `_suppressNotify` flag, preserving DM-INV-02 invariant:
+
 ```js
 let notifyScheduled = false;
 function scheduleNotify() {
@@ -199,18 +201,19 @@ function scheduleNotify() {
   });
 }
 ```
+
 - [ ] D504 – Stagger timing: Offset card `transition-delay` by 50–100ms for a sequential dissolve. Maintain a 300ms duration to ensure the flow is responsive and progressive
 - [ ] D505 – `resetDownstream()` updates `data-card-state` on affected cards (transitions them to `locked` via the card state machine)
 
 ### Reset cascade table
 
-| Trigger | Cards affected | Behavior |
-|:--------|:---------------|:---------|
-| Clear PAT | Task, Steps, Prompt | Dissolve all, clear state |
-| Clear username | Task, Steps, Prompt | Dissolve all, clear state |
-| Clear repo | Task (partial), Steps, Prompt | Dissolve downstream, clear repo-dependent state |
-| Clear branch | Steps, Prompt | Dissolve downstream |
-| Flow switch | Steps, Prompt | Dissolve, apply new flow defaults |
+| Trigger        | Cards affected                | Behavior                                        |
+| :------------- | :---------------------------- | :---------------------------------------------- |
+| Clear PAT      | Task, Steps, Prompt           | Dissolve all, clear state                       |
+| Clear username | Task, Steps, Prompt           | Dissolve all, clear state                       |
+| Clear repo     | Task (partial), Steps, Prompt | Dissolve downstream, clear repo-dependent state |
+| Clear branch   | Steps, Prompt                 | Dissolve downstream                             |
+| Flow switch    | Steps, Prompt                 | Dissolve, apply new flow defaults               |
 
 ---
 
@@ -223,13 +226,26 @@ Guide users through a step-by-step journey: highlight the active card, dim compl
 ### Key Changes
 
 - [ ] D601 – CSS for all five card states:
+
 ```css
-[data-card-state="locked"]     { opacity: 0.3; }
-[data-card-state="skippable"]  { opacity: 0.5; }
-[data-card-state="active"]     { opacity: 1; border-color: var(--accent-a); }
-[data-card-state="sufficient"] { opacity: 0.6; }
-[data-card-state="complete"]   { opacity: 0.35; }
+[data-card-state='locked'] {
+  opacity: 0.3;
+}
+[data-card-state='skippable'] {
+  opacity: 0.5;
+}
+[data-card-state='active'] {
+  opacity: 1;
+  border-color: var(--accent-a);
+}
+[data-card-state='sufficient'] {
+  opacity: 0.6;
+}
+[data-card-state='complete'] {
+  opacity: 0.35;
+}
 ```
+
 - [ ] D602 – `pointer-events: auto` on `<summary>` for all non-active states — always allow expand/collapse (except `locked` which prevents open)
 - [ ] D603 – `:focus-within` undims `sufficient`/`complete` cards for re-editing: `[data-card-state="sufficient"]:focus-within, [data-card-state="complete"]:focus-within { opacity: 1 }`
 - [ ] D604 – `[data-card-state="skippable"]` cards can be manually opened — body renders but with muted styling to signal "you can look, but upstream isn't done"
@@ -251,20 +267,27 @@ When hard prerequisites are missing (e.g., no repo selected), prevent card from 
 - [ ] D701 – `[data-card-state="locked"]` styling: card cannot be opened (JS prevents `<details>` from toggling open). Body content hidden
 - [ ] D702 – `anchor-name` / CSS anchor positioning for guard tooltips on `<summary>` of `locked` cards
 - [ ] D703 – On `locked` card `<summary>` click: prevent open, show tooltip with prerequisite message. Subtle `prefers-reduced-motion`-respecting highlight pulse:
+
 ```css
 @keyframes highlight-pulse {
-  0%, 100% { outline-color: transparent; }
-  50% { outline-color: var(--accent-a); }
+  0%,
+  100% {
+    outline-color: transparent;
+  }
+  50% {
+    outline-color: var(--accent-a);
+  }
 }
-[data-card-state="locked"] > summary:active {
+[data-card-state='locked'] > summary:active {
   animation: highlight-pulse 0.6s ease;
 }
 @media (prefers-reduced-motion: reduce) {
-  [data-card-state="locked"] > summary:active {
+  [data-card-state='locked'] > summary:active {
     animation: none;
     outline: 2px solid var(--accent-a);
   }
 }
 ```
+
 - [ ] D704 – Guard conditions managed by the disclosure controller (D605), not by scattered CSS `:has()` selectors — keeps dependency logic in one place
 - [ ] D705 – `[data-card-state="skippable"]` cards allow open but show a subtle banner/hint inside the card body indicating upstream is incomplete (e.g., "Complete Task card for best results")

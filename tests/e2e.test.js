@@ -33,30 +33,30 @@ const SAMPLE_TREE = {
 function setupFullHTML() {
   document.body.innerHTML = `
     <main id="app">
-      <section class="card card--open" id="card-configuration">
-        <button class="card-header" aria-expanded="true">
+      <details class="card" id="card-configuration" open>
+        <summary class="card-header">
           <span class="card-title">Configuration</span>
-        </button>
+        </summary>
         <div class="card-body" id="bd-configuration"></div>
-      </section>
-      <section class="card" id="card-tasks">
-        <button class="card-header" aria-expanded="false">
+      </details>
+      <details class="card" id="card-tasks">
+        <summary class="card-header">
           <span class="card-title">Task</span>
-        </button>
+        </summary>
         <div class="card-body" id="bd-tasks"></div>
-      </section>
-      <section class="card" id="card-steps">
-        <button class="card-header" aria-expanded="false">
+      </details>
+      <details class="card" id="card-steps">
+        <summary class="card-header">
           <span class="card-title">Steps</span>
-        </button>
+        </summary>
         <div class="card-body" id="bd-steps"></div>
-      </section>
-      <section class="card" id="card-prompt">
-        <button class="card-header" aria-expanded="false">
+      </details>
+      <details class="card" id="card-prompt">
+        <summary class="card-header">
           <span class="card-title">Prompt</span>
-        </button>
+        </summary>
         <div class="card-body" id="bd-prompt"></div>
-      </section>
+      </details>
     </main>
   `;
 }
@@ -161,7 +161,7 @@ describe('E2E: Fix Flow Journey', () => {
   });
 
   it('produces valid prompt for Fix flow with issue', async () => {
-    mainModule.initCardToggles();
+    mainModule.initChevrons();
     cardTasks.initTasksCard();
     cardSteps.initStepsCard();
     cardPrompt.initPromptCard();
@@ -198,7 +198,7 @@ describe('E2E: Fix Flow Journey', () => {
   });
 
   it('step deletion updates prompt', async () => {
-    mainModule.initCardToggles();
+    mainModule.initChevrons();
     cardTasks.initTasksCard();
     cardSteps.initStepsCard();
     cardPrompt.initPromptCard();
@@ -364,7 +364,7 @@ describe('DM-DEF-03: Flow Switch Reset', () => {
   });
 
   it('switching flow resets panel_a, panel_b, steps', async () => {
-    mainModule.initCardToggles();
+    mainModule.initChevrons();
     cardTasks.initTasksCard();
     cardSteps.initStepsCard();
     cardPrompt.initPromptCard();

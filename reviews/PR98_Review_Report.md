@@ -17,12 +17,12 @@ PR #98 introduces `spec/STAGE_D.md` (370 lines), a comprehensive implementation 
 
 ## Issues Summary
 
-| Severity | Count |
-|:---------|:------|
-| 🔴 Critical | 0 |
-| 🟠 Moderate | 4 |
-| 🟡 Minor | 5 |
-| 🔵 Info | 3 |
+| Severity    | Count |
+| :---------- | :---- |
+| 🔴 Critical | 0     |
+| 🟠 Moderate | 4     |
+| 🟡 Minor    | 5     |
+| 🔵 Info     | 3     |
 
 ---
 
@@ -31,15 +31,18 @@ PR #98 introduces `spec/STAGE_D.md` (370 lines), a comprehensive implementation 
 ### 🟠 Moderate Issues
 
 #### M1: PR Structure Contradicts Phase Ordering
+
 **Location:** Lines 9-13 vs. Lines 339-346
 **Category:** Structure
 
 The Overview section defines 3 PRs:
+
 - PR1: D1 + D2
 - PR2: D3 + D4 + D5
 - PR3: D6 + D7 + D8
 
 But the Phase Ordering section states:
+
 ```
 D1 → D2 → D7 → D4 → D3 → D5 → D6 → D8
 ```
@@ -47,6 +50,7 @@ D1 → D2 → D7 → D4 → D3 → D5 → D6 → D8
 This places D7 before D4, meaning D7 would fall in PR1 or PR2, contradicting the PR structure. The document acknowledges D7 was moved before D4, but doesn't update the PR structure accordingly.
 
 **Suggested Fix:** Update the PR structure in the Overview to match the phase ordering:
+
 - PR1: D1 + D2
 - PR2: D7 + D4 + D3 + D5
 - PR3: D6 + D8
@@ -56,10 +60,12 @@ Or add a note explaining that PR boundaries are flexible based on dependencies.
 ---
 
 #### M2: No Test Criteria Defined Per Phase
+
 **Location:** Document-wide
 **Category:** Documentation Completeness
 
 The document lacks acceptance test criteria for each phase. Per spec_concept.md's TST requirements, each phase should define:
+
 - Unit test requirements
 - Integration test scenarios
 - UAT criteria
@@ -69,6 +75,7 @@ The document lacks acceptance test criteria for each phase. Per spec_concept.md'
 ---
 
 #### M3: Missing Rollback Plan
+
 **Location:** Document-wide
 **Category:** Risk
 
@@ -79,10 +86,12 @@ No rollback strategy is defined for each phase. If a phase fails in production, 
 ---
 
 #### M4: D6 Guidance Overlay Lacks Value Proposition
+
 **Location:** Lines 220-241
 **Category:** Effectiveness
 
 D6 mentions an "optional `<dialog>` guidance overlay" but doesn't define:
+
 - What guidance it would provide
 - When it would appear
 - What user problem it solves
@@ -96,6 +105,7 @@ Without clear value, this optional feature may add unnecessary complexity.
 ### 🟡 Minor Issues
 
 #### m1: Critical Issues Tracker is Redundant
+
 **Location:** Lines 349-358
 **Category:** Redundancy
 
@@ -106,6 +116,7 @@ The Critical Issues Tracker duplicates information already present in individual
 ---
 
 #### m2: New CSS Classes Table is Redundant
+
 **Location:** Lines 329-335
 **Category:** Redundancy
 
@@ -116,10 +127,12 @@ The "New CSS Classes Requiring PO Approval" table duplicates information from ea
 ---
 
 #### m3: quality-meter.js Line Reference Inaccurate
+
 **Location:** Line 235
 **Category:** Semantics
 
 The document states "quality-meter.js (line 148) already uses a `<div>` with `role="meter"`". However:
+
 - Line 148 creates the div: `const track = document.createElement('div');`
 - Line 150 sets the role: `track.setAttribute('role', 'meter');`
 
@@ -128,12 +141,14 @@ The document states "quality-meter.js (line 148) already uses a `<div>` with `ro
 ---
 
 #### m4: No Effort Estimates
+
 **Location:** Document-wide
 **Category:** Documentation Completeness
 
 The plan lacks effort estimates (hours/days) for each phase, making project planning difficult.
 
 **Suggested Fix:** Add estimated effort per phase based on complexity:
+
 - D1 (details migration): High effort (JS refactoring + CSS migration)
 - D2 (header enrichment): Low effort
 - D3 (progressive disclosure): Medium effort
@@ -142,6 +157,7 @@ The plan lacks effort estimates (hours/days) for each phase, making project plan
 ---
 
 #### m5: Line Numbers Will Become Stale
+
 **Location:** Multiple (e.g., lines 29, 34, 83, 189)
 **Category:** Risk
 
@@ -154,12 +170,15 @@ References to specific line numbers in source files (e.g., "main.js lines 10-24"
 ### 🔵 Info (Observations)
 
 #### I1: All Critical Issues Already Resolved
+
 The document correctly identifies and resolves all 4 critical issues (C1-C4) from the review. This is excellent proactive work.
 
 ---
 
 #### I2: Line Number References Verified Accurate
+
 All line number references in the document were verified against the current codebase:
+
 - main.js:10-24 ✓
 - components.js:20-38 ✓
 - card-tasks.js:123-169 ✓
@@ -170,6 +189,7 @@ All line number references in the document were verified against the current cod
 ---
 
 #### I3: Handbook Techniques Well-Utilized
+
 The Technique Coverage Summary demonstrates comprehensive use of the handbook's CSS features, with appropriate fallbacks and descope decisions.
 
 ---
@@ -199,12 +219,12 @@ The Technique Coverage Summary demonstrates comprehensive use of the handbook's 
 
 ## Files Reviewed
 
-| File | Status |
-|:-----|:-------|
-| `spec/STAGE_D.md` | Reviewed (370 lines) |
-| `spec/spec_concept.md` | Referenced for evaluation |
-| `spec/handbook.md` | Referenced for evaluation |
-| Source files (line references) | Verified accurate |
+| File                           | Status                    |
+| :----------------------------- | :------------------------ |
+| `spec/STAGE_D.md`              | Reviewed (370 lines)      |
+| `spec/spec_concept.md`         | Referenced for evaluation |
+| `spec/handbook.md`             | Referenced for evaluation |
+| Source files (line references) | Verified accurate         |
 
 ---
 

@@ -34,14 +34,14 @@ let cardConfig, state;
 function setupHTML() {
   document.body.innerHTML = `
     <main id="app">
-      <section class="card card--open" id="card-configuration">
-        <button class="card-header" aria-expanded="true"></button>
+      <details class="card" id="card-configuration" open>
+        <summary class="card-header"></summary>
         <div class="card-body" id="bd-configuration"></div>
-      </section>
-      <section class="card" id="card-tasks">
-        <button class="card-header" aria-expanded="false"></button>
+      </details>
+      <details class="card" id="card-tasks">
+        <summary class="card-header"></summary>
         <div class="card-body" id="bd-tasks"></div>
-      </section>
+      </details>
     </main>
   `;
 }
@@ -233,9 +233,7 @@ describe('repo selection (CFG-03)', () => {
     // Items are already rendered from setupWithRepos focus
     document.querySelector('.field-picker .field-picker-item').click();
 
-    expect(
-      document.getElementById('card-tasks').classList.contains('card--open')
-    ).toBe(true);
+    expect(document.getElementById('card-tasks').open).toBe(true);
     // Credentials div gets hidden attribute
     const credDiv = document.getElementById('bd-configuration').children[0];
     expect(credDiv.hidden).toBe(true);
