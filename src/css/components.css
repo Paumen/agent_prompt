@@ -197,13 +197,13 @@ label {
   color: var(--text-tertiary);
 }
 
-.input-field:focus {
+.input-field:not(:where(.field-picker-search .input-field)):focus {
   outline: none;
   background: var(--bg-inset);
   border-color: var(--accent-hover);
 }
 
-.input-field:focus-visible {
+.input-field:not(:where(.field-picker-search .input-field)):focus-visible {
   outline: 2px solid var(--accent-a);
   outline-offset: 0;
 }
@@ -247,15 +247,6 @@ label {
   border: none;
   border-radius: 0;
   box-shadow: none;
-}
-
-.field-picker-search .input-field:focus {
-  outline: none;
-  background: transparent;
-}
-
-.field-picker-search .input-field:focus-visible {
-  outline: none;
 }
 
 /* Focus on any child highlights the container */
@@ -340,7 +331,7 @@ label {
   font-weight: 700;
 }
 
-.card-header[aria-expanded='true'] .icon--chevron {
+.card--open .icon--chevron {
   transform: rotate(180deg);
 }
 
