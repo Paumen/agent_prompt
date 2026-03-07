@@ -79,7 +79,6 @@ Replace JS-driven `.card--open` toggle with native `<details>`/`<summary>`, remo
 - [x] D106 – JS: Remove `initCardToggles()` from main.js (lines 10-24), `expandCard()`/`collapseCard()` from components.js (lines 20-38)
 - [x] D107 – Chevron icon appending logic relocates from `initCardToggles()` into lightweight `initChevrons()` init
 - [ ] D108 – **Edge Case (Validation):** Skipped — no `<form>` element exists yet; deferred to future phase
-- [x] D109 – **Accessibility:** Explicitly **remove** `aria-expanded` and `aria-controls` from all `<summary>` elements — the browser provides correct semantics natively
 - [x] D110 – **Caution:** Do **not** use the `name` attribute on `<details>` unless an exclusive accordion is required; the current design allows multiple open cards simultaneously
 - [x] D111 – Audit and migrate click listeners: Replace click listeners on `.card-header` (or elements becoming `<summary>`) with `toggle` listeners on the parent `<details>` for native compatibility and to prevent browser conflicts
   - Example: In `card-configuration.js` (line 551), swap the header click listener for a `<details>` `toggle` listener; check `event.target.open` to detect expansion
@@ -142,7 +141,7 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 | Prompt        | quality meter                   |
 
 - [ ] D204 – Populate `.card-meta` for Task, Steps, and Prompt cards accordingly
-- [ ] D205 – Style the existing quality meter (quality-meter.js) with `color-mix()` for color transitions
+
 
 ---
 
@@ -158,7 +157,6 @@ Upgrade flow selector buttons to a tab-card look and feel while keeping the impl
 - [ ] D302 – `:checked` drives visual state (background, border, shadow, z-index)
 - [ ] D303 – Reuse existing `.btn-select` styles as base, extend with tab-card appearance (raised selected card, flush unselected)
 - [ ] D304 – Wire radio `change` event to `onFlowSelect()`
-- [ ] D305 – Use `@container` queries for mobile row-wrapping fallback
 
 ---
 
