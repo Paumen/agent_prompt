@@ -1,10 +1,10 @@
-#HTML and CSS Modern Features Reference
+# HTML and CSS Modern Features Reference
 
 `<details>`, `<summary>`, `::details-content`
 
 The `<details>` element creates a disclosure widget: its first child `<summary>` is the clickable label that toggles visibility of the rest of the content. When closed, only the summary is shown (often with a triangle indicator); when opened, the remaining content is revealed. The open attribute controls initial state. If no `<summary>` is provided, the user agent supplies a default label. The `::details-content` CSS pseudo-element refers to the collapsible part of a `<details>` box (excluding the `<summary>`).
 
-Meaningful use cases include creating accordion sections or progressive disclosure without JavaScript. Developers often use `<details>` for collapsible content panels, FAQ items, or grouping optional advanced settings. The name attribute on multiple <details> elements can link them into a single-selection accordion (only one open at a time).
+Meaningful use cases include creating accordion sections or progressive disclosure without JavaScript. Developers often use `<details>` for collapsible content panels, FAQ items, or grouping optional advanced settings. The name attribute on multiple `<details>` elements can link them into a single-selection accordion (only one open at a time).
 
 Common and edge-case examples:
 
