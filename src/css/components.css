@@ -97,24 +97,18 @@ label {
 /* --- 2. btn-select: single-select from options --- */
 
 .btn-select {
-  position: relative;
   min-height: 32px;
   padding: var(--sp-4);
-  color: var(--text-primary);
-  background: var(--bg);
+  color: var(--text-secondary);
+  background: var(--bg-inset);
   border: 1px solid var(--text-tertiary);
 }
-
 
 .btn-select--selected {
   color: var(--accent-a);
   background: var(--accent-b);
   border-color: var(--accent-a);
-}
-
-.btn-select[aria-selected='true'] .icon,
-.btn-select.btn-select--selected .icon {
-  color: var(--accent-a);
+  font-weight: 800;
 }
 
 /* --- 3. btn-action: one-shot stateless action --- */
