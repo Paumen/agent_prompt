@@ -4,9 +4,11 @@
 |--------|-------|
 | CSS classes defined | 60 |
 | Classes used (HTML+JS) | 63 |
-| Unused CSS classes | 1 |1F534
+| Unused CSS classes | 1 |
 | Undefined classes | 4 |
 | Inline style violations | 5 |
+
+/1F534
 
 ## Elements Without Classes
 
