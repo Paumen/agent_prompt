@@ -112,7 +112,7 @@ body {
   font-size: var(--text);
 }
 
-.card:not(.card--open) > .card-body {
+.card:not(:where(.card--open)) > .card-body {
   display: none;
 }
 
