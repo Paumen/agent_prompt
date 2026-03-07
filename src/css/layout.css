@@ -159,19 +159,6 @@ body {
   counter-reset: steps;
 }
 
-/* wrapper */
-
-.wrapper {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-2);
-}
-
-.wrapper > .field-picker-search {
-  flex: 1;
-  min-width: 200px;
-}
-
 /* === Container queries for card-internal layout === */
 
 @container card (max-width: 599px) {
