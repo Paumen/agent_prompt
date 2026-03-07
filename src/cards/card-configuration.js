@@ -44,46 +44,36 @@ export function getFileTree() {
   return fileTree;
 }
 
-/** Update the configuration card title (called by card-tasks on flow select) */
-export function setConfigCardSummary(text) {
-  const titleEl = document.querySelector(
-    '#card-configuration .card-header > :first-child'
-  );
-  if (!titleEl) return;
+/** Update the configuration card .card-meta with current owner/repo/branch (D203) */
+export function updateConfigCardMeta() {
+  const metaEl = document.querySelector('#card-configuration .card-meta');
+  if (!metaEl) return;
 
-  if (!text) {
-    titleEl.textContent = 'Configuration';
-    return;
-  }
-
-  // Show icons for owner / repo : branch
-  titleEl.textContent = '';
+  metaEl.textContent = '';
   const state = getState();
   const { owner, repo, branch } = state.configuration;
 
   if (owner) {
-    titleEl.appendChild(icon('mark-github', 'icon-btn'));
+    metaEl.appendChild(icon('mark-github', 'icon-btn'));
     const ownerSpan = document.createElement('span');
-    ownerSpan.textContent = ` ${owner}`;
-    titleEl.appendChild(ownerSpan);
+    ownerSpan.textContent = owner;
+    metaEl.appendChild(ownerSpan);
   }
 
   if (repo) {
-    const sep = document.createTextNode(' / ');
-    titleEl.appendChild(sep);
-    titleEl.appendChild(icon('repo', 'icon-btn'));
+    metaEl.appendChild(icon('repo', 'icon-btn'));
     const repoSpan = document.createElement('span');
-    repoSpan.textContent = ` ${repo}`;
-    titleEl.appendChild(repoSpan);
+    repoSpan.textContent = repo;
+    metaEl.appendChild(repoSpan);
   }
 
   if (branch) {
-    const sep = document.createTextNode(' : ');
-    titleEl.appendChild(sep);
-    titleEl.appendChild(icon('git-branch', 'icon-btn'));
+    metaEl.appendChild(icon('git-branch', 'icon-btn'));
     const branchSpan = document.createElement('span');
-    branchSpan.textContent = ` ${branch}`;
-    titleEl.appendChild(branchSpan);
+    branchSpan.className = 'truncate-start';
+    branchSpan.textContent = branch;
+    branchSpan.title = branch;
+    metaEl.appendChild(branchSpan);
   }
 }
 
@@ -211,7 +201,7 @@ function onPatClear() {
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   renderRepoSection([]);
   renderBranchSection([]);
-  setConfigCardSummary('');
+  updateConfigCardMeta();
 }
 
 function onUsernameInput() {
@@ -222,6 +212,7 @@ function onUsernameInput() {
 function onUsernameChange() {
   const owner = elUsername.value.trim();
   setState('configuration.owner', owner);
+  updateConfigCardMeta();
   const pat = getState().configuration.pat;
   if (pat && owner) {
     cacheClear();
@@ -246,7 +237,7 @@ function onUserClear() {
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   renderRepoSection([]);
   renderBranchSection([]);
-  setConfigCardSummary('');
+  updateConfigCardMeta();
 }
 
 // --- Repo picker rendering ---
@@ -300,7 +291,7 @@ function renderRepoSelection(pickerWrapper, selectedRepo, repos) {
       renderBranchSection([]);
       renderRepoDropdown(pickerWrapper, repos);
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
-      setConfigCardSummary('');
+      updateConfigCardMeta();
     },
   });
 
@@ -321,6 +312,7 @@ function onRepoSelect(repo, allRepos) {
   // Re-render repo section with selection tag
   renderRepoSection(allRepos, repo.name);
   renderBranchSection([]);
+  updateConfigCardMeta();
 
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = true;
 
@@ -375,6 +367,7 @@ function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
       setState('configuration.branch', '');
       fileTree = [];
       renderBranchDropdown(pickerWrapper, branches);
+      updateConfigCardMeta();
     },
   });
 
@@ -384,6 +377,7 @@ function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
 function onBranchSelect(branch, allBranches) {
   setState('configuration.branch', branch.name);
   renderBranchSection(allBranches, branch.name);
+  updateConfigCardMeta();
 
   const state = getState();
   const { owner, repo, pat } = state.configuration;
@@ -451,6 +445,7 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
     const autoSelected = defaultBranch || cached[0]?.name || '';
     setState('configuration.branch', autoSelected);
     renderBranchSection(cached, autoSelected);
+    updateConfigCardMeta();
     loadTreeInBackground(owner, repo, autoSelected, pat);
     loadBranchesBackground(owner, repo, pat, cacheKey, cached);
     return;
@@ -475,6 +470,7 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   const autoSelected = match ? match.name : result.data[0]?.name || '';
   setState('configuration.branch', autoSelected);
   renderBranchSection(result.data, autoSelected);
+  updateConfigCardMeta();
 
   if (autoSelected) {
     loadTreeInBackground(owner, repo, autoSelected, pat);
@@ -551,9 +547,11 @@ export function initConfigurationCard() {
   cfgCard?.addEventListener('toggle', () => {
     if (cfgCard.open) {
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
-      setConfigCardSummary('');
     }
   });
+
+  // Update card-meta with restored state (D203)
+  updateConfigCardMeta();
 
   // Auto-fetch repos on page load if credentials exist (CFG-02)
   if (state.configuration.pat && state.configuration.owner) {

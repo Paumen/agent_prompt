@@ -154,11 +154,14 @@ export function initPromptCard() {
   elBody = document.getElementById('bd-prompt');
   if (!elBody) return;
 
-  // === Quality meter ===
-  const meterContainer = document.createElement('div');
-  elBody.appendChild(meterContainer);
-  const { labelEl } = renderQualityMeter(meterContainer);
-  if (labelEl) initMeterTooltip(labelEl);
+  // === Quality meter — rendered in card header .card-meta (D204) ===
+  const metaEl = document.querySelector('#card-prompt .card-meta');
+  if (metaEl) {
+    const meterContainer = document.createElement('div');
+    metaEl.appendChild(meterContainer);
+    const { labelEl } = renderQualityMeter(meterContainer);
+    if (labelEl) initMeterTooltip(labelEl);
+  }
 
   // === Prompt preview ===
   const preEl = document.createElement('pre');

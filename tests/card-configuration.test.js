@@ -35,11 +35,11 @@ function setupHTML() {
   document.body.innerHTML = `
     <main id="app">
       <details class="card" id="card-configuration" open>
-        <summary class="card-header"></summary>
+        <summary class="card-header"><h3>Configuration</h3><span class="card-meta"></span></summary>
         <div class="card-body" id="bd-configuration"></div>
       </details>
       <details class="card" id="card-tasks">
-        <summary class="card-header"></summary>
+        <summary class="card-header"><h3>Task</h3><span class="card-meta"></span></summary>
         <div class="card-body" id="bd-tasks"></div>
       </details>
     </main>

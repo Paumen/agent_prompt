@@ -104,7 +104,6 @@ vi.mock('../src/logic/flow-loader.js', () => ({
 
 vi.mock('../src/cards/card-configuration.js', () => ({
   getFileTree: vi.fn(() => [{ path: 'src/index.js' }]),
-  setConfigCardSummary: vi.fn(),
 }));
 
 vi.mock('../src/common/github-api.js', () => ({
@@ -149,17 +148,17 @@ import { getState, subscribe, applyFlowDefaults } from '../src/core/state.js';
 function createTasksCard() {
   document.body.innerHTML = `
     <details class="card" id="card-configuration">
-      <summary class="card-header"></summary>
+      <summary class="card-header"><h3>Configuration</h3><span class="card-meta"></span></summary>
     </details>
     <details class="card" id="card-tasks" open>
-      <summary class="card-header"></summary>
+      <summary class="card-header"><h3>Task</h3><span class="card-meta"></span></summary>
       <div class="card-body" id="bd-tasks"></div>
     </details>
     <details class="card" id="card-steps">
-      <summary class="card-header"></summary>
+      <summary class="card-header"><h3>Steps</h3><span class="card-meta"></span></summary>
     </details>
     <details class="card" id="card-prompt">
-      <summary class="card-header"></summary>
+      <summary class="card-header"><h3>Prompt</h3><span class="card-meta"></span></summary>
     </details>
   `;
 }
