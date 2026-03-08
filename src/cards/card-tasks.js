@@ -19,11 +19,7 @@ import { getFlows, getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { getFileTree } from './card-configuration.js';
 import { fetchPRs, fetchIssues } from '../common/github-api.js';
 import { cacheGet, cacheSet } from '../common/cache.js';
-import {
-  renderShimmer,
-  expandCard,
-  collapseCard,
-} from '../common/components.js';
+import { renderShimmer } from '../common/components.js';
 import { createFilePicker } from '../common/file-tree.js';
 import {
   createButton,
@@ -119,15 +115,7 @@ function onFlowSelect(flowId, flowDef) {
   if (requiresPRs(flowDef)) prefetchPRs();
   if (requiresIssues(flowDef)) prefetchIssues();
 
-  // Expand Steps + Prompt, collapse Configuration with summary (1.8, UJ table)
-  expandCard('card-steps');
-  expandCard('card-prompt');
-  collapseCard('card-configuration');
-
-  // D502: Focus Steps card summary — deferred via RAF so subscriber re-renders finish first
-  requestAnimationFrame(() => {
-    document.getElementById('card-steps')?.querySelector('summary')?.focus();
-  });
+  // D605: Disclosure controller manages expand/collapse and focus transitions
 }
 
 // --- Dual panel rendering ---
@@ -142,6 +130,7 @@ function renderDualPanels(flowId, flowDef) {
   // Panel A — Situation (nested <details> card, D112)
   const panelA = document.createElement('details');
   panelA.className = 'card';
+  panelA.dataset.panel = 'situation';
   panelA.open = true;
 
   const panelAHeader = renderPanelHeader(
@@ -158,7 +147,8 @@ function renderDualPanels(flowId, flowDef) {
   // Panel B — Target (nested <details> card, D112)
   const panelB = document.createElement('details');
   panelB.className = 'card';
-  panelB.open = true;
+  panelB.dataset.panel = 'target';
+  panelB.open = false; // D605: starts collapsed, disclosure controller manages open state
 
   const panelBHeader = renderPanelHeader(
     'Target',

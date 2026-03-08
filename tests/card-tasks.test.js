@@ -212,14 +212,15 @@ describe('flow button click', () => {
     expect(buttons[1].classList.contains('btn-select--selected')).toBe(true);
   });
 
-  it('expands Steps and Prompt cards, collapses Config', () => {
+  it('delegates expand/collapse to disclosure controller (D605)', () => {
+    // D605: card-tasks no longer calls expandCard/collapseCard directly.
+    // The disclosure controller manages open states reactively.
     document.getElementById('card-configuration').open = true;
     initTasksCard();
     document.querySelector('.btn-select[data-flow-id]').click();
 
-    expect(document.getElementById('card-steps').open).toBe(true);
-    expect(document.getElementById('card-prompt').open).toBe(true);
-    expect(document.getElementById('card-configuration').open).toBe(false);
+    // Cards stay in their initial state — disclosure controller (not initialized here) manages them
+    expect(document.getElementById('card-configuration').open).toBe(true);
   });
 
   it('renders nested card panels after flow selection', () => {

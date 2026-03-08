@@ -227,13 +227,13 @@ describe('repo selection (CFG-03)', () => {
     });
   });
 
-  it('expands Tasks card and hides credentials on repo select', async () => {
+  it('hides credentials on repo select (D605 manages card expand)', async () => {
     await setupWithRepos();
 
     // Items are already rendered from setupWithRepos focus
     document.querySelector('.field-picker .field-picker-item').click();
 
-    expect(document.getElementById('card-tasks').open).toBe(true);
+    // D605: expand is now handled by disclosure controller, not card-configuration
     // Credentials div gets hidden attribute
     const credDiv = document.getElementById('bd-configuration').children[0];
     expect(credDiv.hidden).toBe(true);
