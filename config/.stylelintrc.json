@@ -74,7 +74,7 @@
       },
       {
         "severity": "warning",
-        "message": "Value \"%s\" is not allowed for this property. Use allowed values or see @.claude/commands/css-guide.md"
+        "message": "Value \"%s\" is not allowed here. See @.claude/commands/css-guide.md"
       }
     ],
 
@@ -110,8 +110,8 @@
 
     "selector-max-id": [
       0,
-      {
-        "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] / [bar] also not allowed"
+      { 
+        "message": "ID selector disallowed. Use classes or see @.claude/commands/css-guide.md"
       }
     ],
 
@@ -120,7 +120,7 @@
       "/:.*child/",
       "/\[(?!data-state|aria-hidden|popover)/"
       {
-        "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] / [bar] also not allowed."
+        "message": "Selector pattern disallowed. Use classes or see @.claude/commands/css-guide.md"
       }
     ],
 
