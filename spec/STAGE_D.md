@@ -148,14 +148,14 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 
 ### Goal
 
-Upgrade flow/task selector buttons to a tab-card look and feel with Segmented controls (tasks) and panels/cards (content). Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling.
+Upgrade flow/task selector buttons to a tab-card look and feel with Segmented controls (tasks) and panels/cards (content). I.e. Segmented Nav Tab. Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling. 
 
 ### Key Changes
 
 - [ ] D301 – Hidden `<input type="radio">` + `<label>` for each flow option, styled as tab-cards
-- [ ] D302 – `:checked` drives visual state (background, border, shadow, z-index)
+- [ ] D302 – `:checked` drives visual state (background, border, shadow, z-index). feature a background highlight that slides between options rather than just appearing. 
 - [ ] D303 – Reuse existing `.btn-select` styles as base, extend with tab-card appearance (raised selected card, flush unselected)
-- [ ] D304 – Wire radio `change` event to `onFlowSelect()`
+- [ ] D304 – Wire radio `change` event to `onFlowSelect()`.
 
 ---
 
