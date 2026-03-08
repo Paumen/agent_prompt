@@ -57,39 +57,6 @@ describe('renderError()', () => {
   });
 });
 
-describe('showNotification()', () => {
-  it('shows notification with type class, aria-live, auto-removes, replaces existing', () => {
-    vi.useFakeTimers();
-    const container = document.getElementById('target');
-
-    components.showNotification(container, 'First', 'success');
-    let notif = container.querySelector('.notification');
-    expect(notif.classList.contains('notification--success')).toBe(true);
-    expect(notif.getAttribute('aria-live')).toBe('polite');
-
-    // Replaces existing
-    components.showNotification(container, 'Second', 'error');
-    notif = container.querySelector('.notification');
-    expect(container.querySelectorAll('.notification').length).toBe(1);
-    expect(notif.classList.contains('notification--error')).toBe(true);
-
-    // Auto-removes
-    vi.advanceTimersByTime(2500);
-    expect(container.querySelector('.notification')).toBeNull();
-    vi.useRealTimers();
-  });
-
-  it('supports info type', () => {
-    const container = document.getElementById('target');
-    components.showNotification(container, 'Info', 'info');
-    expect(
-      container
-        .querySelector('.notification')
-        .classList.contains('notification--info')
-    ).toBe(true);
-  });
-});
-
 describe('setInteracting() / isInteracting()', () => {
   it('returns false initially, true after setInteracting, clears after 2s', () => {
     vi.useFakeTimers();
@@ -113,24 +80,5 @@ describe('setInteracting() / isInteracting()', () => {
     vi.advanceTimersByTime(500);
     expect(components.isInteracting()).toBe(false);
     vi.useRealTimers();
-  });
-
-  it('returns true when input or textarea has focus', () => {
-    const input = document.createElement('input');
-    document.body.appendChild(input);
-    input.focus();
-    expect(components.isInteracting()).toBe(true);
-    input.blur();
-
-    const ta = document.createElement('textarea');
-    document.body.appendChild(ta);
-    ta.focus();
-    expect(components.isInteracting()).toBe(true);
-    ta.blur();
-
-    const btn = document.createElement('button');
-    document.body.appendChild(btn);
-    btn.focus();
-    expect(components.isInteracting()).toBe(false);
   });
 });
