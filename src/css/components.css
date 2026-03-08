@@ -7,7 +7,7 @@
  * Button taxonomy (5 types), input fields, field-picker, tags, icons.
  * Surface colors, text colors, borders, interaction states.
  *
- * Import order: variables.css → layout.css → components.css → special.css
+ * Import order: variables.css → layout.css → components.css → Specials.css 
  */
 
 /* ============================================================
@@ -319,38 +319,6 @@ label {
   flex-shrink: 0;
 }
 
-/* ============================================================
-   CARD HEADER (clickable collapse/expand bar)
-   ============================================================ */
-
-.card-header > :first-child {
-  display: inline-flex;
-  gap: var(--sp-2);
-  place-items: center;
-  font-size: var(--text);
-  font-weight: 700;
-}
-
-:where(details[open]) .icon--chevron {
-  transform: rotate(180deg);
-}
-
-/* Card header metadata (D201, D202) */
-.card-meta {
-  display: inline-flex;
-  gap: var(--sp-4);
-  place-items: center;
-  min-width: 0;
-  overflow: visible; /* Allow tooltip to escape (D204) */
-  font-size: var(--text-sm);
-  font-weight: 400;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.card-meta .icon {
-  flex-shrink: 0;
-}
 
 /* ============================================================
    STEP COUNTER (CSS counter replaces .badge spans)
@@ -442,24 +410,6 @@ label > [aria-hidden] {
   color: var(--accent-caution-dark);
 }
 
-/* ============================================================
-   CARD STATE TRANSITIONS (D504, D505)
-   Opacity transition + stagger for reset cascade dissolve.
-   Opacity values defined in D6 via [data-card-state] selectors.
-   ============================================================ */
-
-[data-card-state] {
-  transition: opacity 300ms ease;
-}
-
-/* Stagger downstream cards: tasks→steps→prompt (50ms apart) */
-.card:nth-child(3) {
-  transition-delay: 50ms;
-}
-
-.card:nth-child(4) {
-  transition-delay: 100ms;
-}
 
 /* Required group dot indicator */
 .required-group-dot {

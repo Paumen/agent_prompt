@@ -62,6 +62,48 @@ body {
   border-left: 3px solid var(--accent-a);
 }
 
+[data-card-state] {
+  transition: opacity 300ms ease;
+}
+
+/* Stagger downstream cards: tasks→steps→prompt (50ms apart) */
+.card:nth-child(3) {
+  transition-delay: 50ms;
+}
+
+.card:nth-child(4) {
+  transition-delay: 100ms;
+}
+
+.card-header > :first-child {
+  display: inline-flex;
+  gap: var(--sp-2);
+  place-items: center;
+  font-size: var(--text);
+  font-weight: 700;
+}
+
+:where(details[open]) .icon--chevron {
+  transform: rotate(180deg);
+}
+
+/* Card header metadata (D201, D202) */
+.card-meta {
+  display: inline-flex;
+  gap: var(--sp-4);
+  place-items: center;
+  min-width: 0;
+  overflow: visible; /* Allow tooltip to escape (D204) */
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.card-meta .icon {
+  flex-shrink: 0;
+}
+
 .card-header {
   display: grid;
   grid-template-columns: auto 1fr auto;
