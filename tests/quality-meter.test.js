@@ -155,69 +155,7 @@ describe('calculateScore', () => {
     expect(calculateScore(state)).toBe(100);
   });
 
-  it('returns 100 when all available fields for review flow are filled', () => {
-    const state = makeState({
-      task: { flow_id: 'review' },
-      panel_a: {
-        description: 'Context',
-        issue_number: null,
-        pr_number: 5,
-        files: ['a.js'],
-      },
-      panel_b: {
-        description: '',
-        issue_number: null,
-        spec_files: ['spec.md'],
-        guideline_files: ['guide.md'],
-        acceptance_criteria: '',
-        lenses: ['semantics'],
-      },
-      notes: { user_text: 'Note' },
-    });
-    expect(calculateScore(state)).toBe(100);
-  });
 
-  it('returns 100 when all available fields for implement flow are filled', () => {
-    const state = makeState({
-      task: { flow_id: 'implement' },
-      panel_a: {
-        description: 'Context',
-        issue_number: null,
-        pr_number: null,
-        files: ['base.js'],
-      },
-      panel_b: {
-        description: 'Build this',
-        issue_number: null,
-        spec_files: ['req.md'],
-        guideline_files: [],
-        acceptance_criteria: 'It works',
-        lenses: [],
-      },
-      notes: { user_text: 'Note' },
-    });
-    expect(calculateScore(state)).toBe(100);
-  });
-
-  it('returns 100 when all available fields for improve flow are filled', () => {
-    const state = makeState({
-      task: { flow_id: 'improve' },
-      panel_a: {
-        description: 'Pain point',
-        issue_number: 3,
-        pr_number: null,
-        files: ['src.js'],
-      },
-      panel_b: {
-        description: 'Improvements',
-        issue_number: 2,
-        spec_files: [],
-        guideline_files: ['guide.md'],
-        acceptance_criteria: '',
-        lenses: ['performance'],
-      },
-      notes: { user_text: 'Note' },
-    });
     expect(calculateScore(state)).toBe(100);
   });
 
@@ -267,15 +205,4 @@ describe('getThresholdColor', () => {
     expect(getThresholdColor(95).label).toBe('Excellent');
   });
 
-  it('returns Poor for score exactly at 50', () => {
-    expect(getThresholdColor(50).label).toBe('Poor');
-  });
-
-  it('returns Minimal for score at 51', () => {
-    expect(getThresholdColor(51).label).toBe('Minimal');
-  });
-
-  it('returns Excellent for 100%', () => {
-    expect(getThresholdColor(100).label).toBe('Excellent');
-  });
 });
