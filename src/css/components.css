@@ -316,7 +316,6 @@ label {
   flex-shrink: 0;
 }
 
-
 /* ============================================================
    STEP COUNTER (CSS counter replaces .badge spans)
    ============================================================ */
@@ -406,7 +405,6 @@ label {
 label > [aria-hidden] {
   color: var(--accent-caution-dark);
 }
-
 
 /* Required group dot indicator */
 .required-group-dot {

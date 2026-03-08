@@ -19,13 +19,7 @@
     ],
 
     "at-rule-disallowed-list": [
-      [
-        "media", 
-        "document", 
-        "viewport", 
-        "apply", 
-        "charset"
-      ],
+      ["media", "document", "viewport", "apply", "charset"],
       {
         "message": "At-rule \"%s\" is disallowed. Use custom properties or alternative techniques like @container instead."
       }
@@ -57,7 +51,6 @@
         "justify-content",
         "align-items",
         "align-self"
-        
       ],
       {
         "message": "Property \"%s\" is disallowed. See spec/css-guide/prohibited.md"
@@ -68,9 +61,15 @@
       {
         "color-scheme": ["/./"],
         "padding": ["/var\\(--/", "auto", "0 auto", "0"],
-        "margin":  ["/var\\(--/", "auto", "0 auto", "0"],
-        "inset":   ["/var\\(--/", "0", "/\\d+%/"],
-        "/color/": ["/light-dark/", "transparent", "currentColor","inherit",  "/var\\(--/" ]
+        "margin": ["/var\\(--/", "auto", "0 auto", "0"],
+        "inset": ["/var\\(--/", "0", "/\\d+%/"],
+        "/color/": [
+          "/light-dark/",
+          "transparent",
+          "currentColor",
+          "inherit",
+          "/var\\(--/"
+        ]
       },
       {
         "severity": "warning",
@@ -110,17 +109,16 @@
 
     "selector-max-id": [
       0,
-      { 
+      {
         "message": "ID selector disallowed. Use classes or see @.claude/commands/css-guide.md"
       }
     ],
-    
-      
-   "selector-attribute-name-disallowed-list": [
+
+    "selector-attribute-name-disallowed-list": [
       ["/^((?!data-state|aria-hidden|aria-open|open|closed|popover).)*$/"],
       {
         "message": "Attribute selector \"%s\" is disallowed unless it is data-state, aria-hidden, or popover."
-        }
+      }
     ],
     "selector-disallowed-list": [
       "/\\[id[~|^$*]?=/",
