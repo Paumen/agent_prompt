@@ -155,10 +155,6 @@ describe('calculateScore', () => {
     expect(calculateScore(state)).toBe(100);
   });
 
-
-    expect(calculateScore(state)).toBe(100);
-  });
-
   it('score is always between 0 and 100', () => {
     for (const flowId of ['fix', 'review', 'implement', 'improve']) {
       const empty = makeState({ task: { flow_id: flowId } });
