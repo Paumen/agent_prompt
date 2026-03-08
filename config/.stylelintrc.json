@@ -118,7 +118,7 @@
     "selector-disallowed-list": [
       "/\\[id[~|^$*]?=/",
       "/:.*child/",
-      "/\\[(?!data-state|aria-hidden|popover)/"
+      "/\\[(?!data-state|aria-hidden|popover)/",
       {
         "message": "Selector pattern disallowed. Use classes or see @.claude/commands/css-guide.md"
       }
