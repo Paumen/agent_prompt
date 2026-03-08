@@ -62,11 +62,48 @@ body {
   border-left: 3px solid var(--accent-a);
 }
 
+/* D601: Card state opacity */
+
 [data-card-state] {
   transition: opacity 300ms ease;
 }
 
-/* Stagger downstream cards: tasks→steps→prompt (50ms apart) */
+[data-card-state='locked'] {
+  opacity: 0.3;
+}
+
+[data-card-state='skippable'] {
+  opacity: 0.5;
+}
+
+[data-card-state='active'] {
+  border-color: var(--accent-a);
+  opacity: 1;
+}
+
+[data-card-state='sufficient'] {
+  opacity: 0.6;
+}
+
+[data-card-state='complete'] {
+  opacity: 0.35;
+}
+
+/* D602: summary always clickable for expand/collapse (except locked prevents open in JS) */
+
+[data-card-state] > summary {
+  pointer-events: auto;
+}
+
+/* D603: Focus-within undims sufficient/complete cards for re-editing */
+
+[data-card-state='sufficient']:focus-within,
+[data-card-state='complete']:focus-within {
+  opacity: 1;
+}
+
+/* D504: Stagger downstream cards: tasks→steps→prompt (50ms apart) */
+
 .card:nth-child(3) {
   transition-delay: 50ms;
 }

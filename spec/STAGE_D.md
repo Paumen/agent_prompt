@@ -144,7 +144,6 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 
 ---
 
-
 ## Phase D4: Validation & Feedback Framework
 
 ### Goal
@@ -196,14 +195,14 @@ function scheduleNotify() {
 
 Re-selecting the same flow is a no-op (no reset, no re-render) to prevent accidental data loss.
 
-| Trigger        | Cards affected                | Dissolves cards | Clears state             |
-| :------------- | :---------------------------- | :-------------- | :----------------------- |
-| Clear PAT      | Task, Steps, Prompt           | ✓               | task + panels + steps    |
-| Clear username | Task, Steps, Prompt           | ✓               | task + panels + steps    |
-| Clear repo     | Task, Steps, Prompt           | ✓               | task + panels + steps    |
-| Clear branch   | Steps, Prompt                 | ✓               | — (data preserved)       |
-| Flow switch    | Steps, Prompt                 | ✓               | panels + steps (new flow)|
-| Same-flow click | —                            | —               | — (no-op)                |
+| Trigger         | Cards affected      | Dissolves cards | Clears state              |
+| :-------------- | :------------------ | :-------------- | :------------------------ |
+| Clear PAT       | Task, Steps, Prompt | ✓               | task + panels + steps     |
+| Clear username  | Task, Steps, Prompt | ✓               | task + panels + steps     |
+| Clear repo      | Task, Steps, Prompt | ✓               | task + panels + steps     |
+| Clear branch    | Steps, Prompt       | ✓               | — (data preserved)        |
+| Flow switch     | Steps, Prompt       | ✓               | panels + steps (new flow) |
+| Same-flow click | —                   | —               | — (no-op)                 |
 
 ---
 
@@ -215,7 +214,7 @@ Guide users through a step-by-step journey: highlight the active card, dim compl
 
 ### Key Changes
 
-- [ ] D601 – CSS for all five card states:
+- [x] D601 – CSS for all five card states:
 
 ```css
 [data-card-state='locked'] {
@@ -236,10 +235,10 @@ Guide users through a step-by-step journey: highlight the active card, dim compl
 }
 ```
 
-- [ ] D602 – `pointer-events: auto` on `<summary>` for all non-active states — always allow expand/collapse (except `locked` which prevents open)
-- [ ] D603 – `:focus-within` undims `sufficient`/`complete` cards for re-editing: `[data-card-state="sufficient"]:focus-within, [data-card-state="complete"]:focus-within { opacity: 1 }`
-- [ ] D604 – `[data-card-state="skippable"]` cards can be manually opened — body renders but with muted styling to signal "you can look, but upstream isn't done"
-- [ ] D605 – Disclosure controller: JS module that observes state changes and updates `data-card-state` on each `<details>` element. Single orchestration point for both card-level and field-level visibility. Evaluates:
+- [x] D602 – `pointer-events: auto` on `<summary>` for all non-active states — always allow expand/collapse (except `locked` which prevents open)
+- [x] D603 – `:focus-within` undims `sufficient`/`complete` cards for re-editing: `[data-card-state="sufficient"]:focus-within, [data-card-state="complete"]:focus-within { opacity: 1 }`
+- [x] D604 – `[data-card-state="skippable"]` cards can be manually opened — body renders but with muted styling to signal "you can look, but upstream isn't done"
+- [x] D605 – Disclosure controller: JS module that observes state changes and updates `data-card-state` on each `<details>` element. Single orchestration point for both card-level and field-level visibility. Evaluates:
   - Hard prerequisites (locked vs skippable)
   - Required field completeness (active → sufficient)
   - Full field completeness (sufficient → complete)
