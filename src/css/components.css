@@ -1,18 +1,15 @@
 @import url('./variables.css');
 
 /**
- * components.css — Component styles.
- *
  * DOM level L5, L6, L7
  * Button taxonomy (5 types), input fields, field-picker, tags, icons.
- * Surface colors, text colors, borders, interaction states.
  *
  * Import order: variables.css → layout.css → components.css → Specials.css 
  */
 
-/* ============================================================
+/* ==================================================
    ICON (standardized size)
-   ============================================================ */
+   ============================================== */
 
 .icon {
   display: block;
@@ -51,9 +48,9 @@ label {
   color: var(--text-secondary);
 }
 
-/* ============================================================
+/* ====================================================
    BUTTONS — 5 types
-   ============================================================ */
+   ============================================== */
 
 /* --- Shared button reset --- */
 
@@ -373,9 +370,9 @@ label {
   text-align: center;
 }
 
-/* ============================================================
+/* =================================================
    SPECIAL PATTERNS (icon swap, XML highlight)
-   ============================================================ */
+   ============================================= */
 
 /* Copy button: clipboard → check icon swap */
 .btn-copy .icon-check {
