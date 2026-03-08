@@ -401,6 +401,25 @@ label {
   color: var(--accent-a);
 }
 
+/* D703: Guard tooltip visual */
+
+.guard-tooltip {
+  padding: var(--sp-4);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid var(--text-tertiary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* D705: Guard hint */
+
+.guard-hint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
 /* Required indicator color in labels */
 label > [aria-hidden] {
   color: var(--accent-caution-dark);
