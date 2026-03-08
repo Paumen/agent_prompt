@@ -15,7 +15,6 @@ import {
   renderError,
   showNotification,
   isInteracting,
-  expandCard,
 } from '../common/components.js';
 import { icon } from '../common/icons.js';
 import {
@@ -325,8 +324,7 @@ function onRepoSelect(repo, allRepos) {
 
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = true;
 
-  // Expand Tasks card; Config card stays open (full collapse happens on flow select)
-  expandCard('card-tasks');
+  // D605: Disclosure controller manages task card expand
 
   // Fetch branches + file tree (CFG-05)
   loadBranches(owner, repo.name, pat, repo.default_branch);
