@@ -121,9 +121,10 @@ function onFlowSelect(flowId, flowDef) {
   expandCard('card-prompt');
   collapseCard('card-configuration');
 
-  // D502: Move focus to Steps card summary after flow switch
-  const stepsCard = document.getElementById('card-steps');
-  if (stepsCard) stepsCard.querySelector('summary')?.focus();
+  // D502: Focus Steps card summary — deferred via RAF so subscriber re-renders finish first
+  requestAnimationFrame(() => {
+    document.getElementById('card-steps')?.querySelector('summary')?.focus();
+  });
 }
 
 // --- Dual panel rendering ---
@@ -671,7 +672,20 @@ function refreshPickerFields(kind) {
 
 // --- State subscription ---
 
-function onStateChange(state) {
+function onStateChange(newState) {
+  // Sync flow button selection when flow_id changes externally (e.g. resetDownstream)
+  if (newState.task.flow_id !== currentFlowId) {
+    currentFlowId = newState.task.flow_id || null;
+    const buttons = elBody?.querySelectorAll(':scope > .btn-select');
+    if (buttons) {
+      for (const btn of buttons) {
+        const isSelected = btn.dataset.flowId === currentFlowId;
+        btn.classList.toggle('btn-select--selected', isSelected);
+        btn.setAttribute('aria-selected', String(isSelected));
+      }
+    }
+  }
+
   // Update scope selector visibility
   if (currentFlowId === 'improve') {
     updateScopeSelector();
@@ -679,7 +693,7 @@ function onStateChange(state) {
 
   // Update lens picker pill UI when panel_b.lenses changes externally (e.g. from steps card)
   if (elLensPillGroup && lastLensStatePath) {
-    const currentLenses = getValueByPath(state, lastLensStatePath) || [];
+    const currentLenses = getValueByPath(newState, lastLensStatePath) || [];
     const snap = JSON.stringify(currentLenses);
     if (snap !== lastTaskLensSnapshot) {
       lastTaskLensSnapshot = snap;

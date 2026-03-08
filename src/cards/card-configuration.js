@@ -299,6 +299,8 @@ function renderRepoSelection(pickerWrapper, selectedRepo, repos) {
       renderRepoDropdown(pickerWrapper, repos);
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
       updateConfigCardMeta();
+      // D502: Focus repo search input for easy re-selection
+      pickerWrapper.querySelector('input')?.focus();
     },
   });
 
@@ -376,6 +378,8 @@ function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
       resetDownstream('branch');
       renderBranchDropdown(pickerWrapper, branches);
       updateConfigCardMeta();
+      // D502: Focus branch search input for easy re-selection
+      pickerWrapper.querySelector('input')?.focus();
     },
   });
 
