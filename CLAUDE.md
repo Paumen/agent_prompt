@@ -4,7 +4,7 @@
 
 Single-page web app that generates prompts for agentic llm.
 
-Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_C.md` for details. Current work begins at Stage D.
+Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_D.md` for details. Stage D is nearing completions. Stage E is next but yet to be scoped.
 
 ## File Restrictions and Permissions
 
@@ -19,6 +19,7 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core
 - **NEVER** apply inline styles in .js or .html without asking the user first.
 - All html div elements must have at least one .class
 - Existing classes must be reused as much as possible, new classes requires user explicit approval.
+- - **NEVER** re-read files already in context window, treat this as a hard rule.
 
 ## Authority Hierarchy
 
@@ -40,33 +41,33 @@ If a conflict exists, update the lower-ranked file to match. If unclear, ask the
 ## Code Conventions
 
 - **Simplicity first**: Before implementing complex logic, evaluate if there is a simpler alternative that achieves the same result. If the spec seems over-engineered for the use case, flag it and suggest a simpler approach before proceeding. Prefer the simplest solution that fully satisfies the requirement.
+- - **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `@.claude/commands/css-guide.md`.
+- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
 - Vanilla JavaScript with ES modules.
 - No unnecessary abstractions — keep code direct and readable.
 - One feature per file where practical.
 - All asset references in HTML must use relative paths (starting with `./`), not absolute paths starting with `/`. Vite's `base` config handles path rewriting during build.
-- Run `npm run build` before creating a PR to catch build errors early.
-- **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `@.claude/commands/css-guide.md`.
-- Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
--
+
+## Testing
+- Run auto fixes stylelint, eslint and/or prettier,
+- Run liners + fix issues that cannot be auto fixed.
+- run `npm install` + `npm run build` before pushing commits to catch build errors early. 
+- Run `npm test` before opening a PR. If you change a module that has a corresponding test file, update the tests to match.
+- Don't write tests for trivial changes unless asked. 
 
 ## Commands
 
 ```
+npm run format        # Auto-format all files with Prettier 
+npm run lint:fix      # Auto-fix lint issues (ESLint)
+npm run lint          # Check code quality (ESLint)
+npm run stylelint:fix # Auto-fix CSS lint issues
+npm run stylelint     # Check CSS code quality
+npm test              # Run all tests
 npm install
 npm run dev       # Start local dev server with hot reload
 npm run build     # Production build (outputs to dist/)
-npm run lint          # Check code quality (ESLint)
-npm run lint:fix      # Auto-fix lint issues (ESLint)
-npm run stylelint     # Check CSS code quality
-npm run stylelint:fix # Auto-fix CSS lint issues
-npm run format        # Auto-format all files with Prettier
-npm test              # Run all tests
 ```
-
-## Testing
-
-- Run `npm test` before opening a PR. If you change a module that has a corresponding test file, update the tests to match.
-- Don't write tests for trivial changes unless asked.
 
 ## Team
 
@@ -82,7 +83,5 @@ npm test              # Run all tests
 
 - Default to `Edit` over `Write` unless creating new files or rewriting >50% of lines.
 - If you already know you will edit a file, only `Read` the file immediately before editing it — don't pre-read.
-- Use Explore agent (not direct reads) when research spans 4+ files.
-- **NEVER** re-read files already in context window — treat this as a hard rule.
 - Batch related questions into a single Explore query where possible.
 - If a task requires changes across many unrelated files (e.g. CSS + JS + tests + config), suggest the user split it into separate sessions grouped by concern.
