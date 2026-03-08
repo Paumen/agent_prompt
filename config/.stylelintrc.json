@@ -57,7 +57,7 @@
         "justify-content",
         "align-items",
         "align-self"
-        "​/^:.*child/:"
+        
       ],
       {
         "message": "Property \"%s\" is disallowed. See spec/css-guide/prohibited.md"
@@ -116,9 +116,9 @@
     ],
 
     "selector-disallowed-list": [
-      ["/\\id[~|^$*]?=/"],
-      ["​/^:.*child/:"],
-      ["​/^\[/"]
+      "/\\[id[~|^$*]?=/",
+      "/:.*child/",
+      "/^\\[/"
       {
         "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] / [bar] also not allowed."
       }
