@@ -88,6 +88,9 @@ function renderPanelArea() {
 // --- Flow selection handler ---
 
 function onFlowSelect(flowId, flowDef) {
+  // Re-selecting the same flow: skip reset/defaults to preserve panel fields
+  if (flowId === currentFlowId) return;
+
   currentFlowId = flowId;
   cachedPRs = null;
   cachedIssues = null;
@@ -727,6 +730,7 @@ export function initTasksCard() {
   elBody = document.getElementById('bd-tasks');
   if (!elBody) return;
 
+  currentFlowId = null;
   elBody.innerHTML = '';
 
   renderFlowSelector();

@@ -192,13 +192,18 @@ function scheduleNotify() {
 
 ### Reset cascade table
 
-| Trigger        | Cards affected                | Behavior                                        |
-| :------------- | :---------------------------- | :---------------------------------------------- |
-| Clear PAT      | Task, Steps, Prompt           | Dissolve all, clear state                       |
-| Clear username | Task, Steps, Prompt           | Dissolve all, clear state                       |
-| Clear repo     | Task (partial), Steps, Prompt | Dissolve downstream, clear repo-dependent state |
-| Clear branch   | Steps, Prompt                 | Dissolve downstream                             |
-| Flow switch    | Steps, Prompt                 | Dissolve, apply new flow defaults               |
+"Dissolve" = set `data-card-state="locked"` (visual collapse via D6 CSS). "Clear state" = wipe the corresponding state slice. Branch-level changes only dissolve — step/task data is branch-independent and must be preserved.
+
+Re-selecting the same flow is a no-op (no reset, no re-render) to prevent accidental data loss.
+
+| Trigger        | Cards affected                | Dissolves cards | Clears state             |
+| :------------- | :---------------------------- | :-------------- | :----------------------- |
+| Clear PAT      | Task, Steps, Prompt           | ✓               | task + panels + steps    |
+| Clear username | Task, Steps, Prompt           | ✓               | task + panels + steps    |
+| Clear repo     | Task, Steps, Prompt           | ✓               | task + panels + steps    |
+| Clear branch   | Steps, Prompt                 | ✓               | — (data preserved)       |
+| Flow switch    | Steps, Prompt                 | ✓               | panels + steps (new flow)|
+| Same-flow click | —                            | —               | — (no-op)                |
 
 ---
 

@@ -82,7 +82,7 @@ const DOWNSTREAM_MAP = {
     cards: ['card-tasks', 'card-steps', 'card-prompt'],
   },
   branch: {
-    reset: ['steps'],
+    reset: [], // visual collapse only — step/task data is branch-independent
     cards: ['card-steps', 'card-prompt'],
   },
   flow: {
