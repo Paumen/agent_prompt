@@ -6,6 +6,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { setupFullHTML, cleanupDOM } from './helpers/dom-fixtures.js';
+import { createMockState, createMockSteps } from './helpers/state-factory.js';
 
 // --- Mock data ---
 
@@ -27,43 +29,6 @@ const SAMPLE_TREE = {
   ],
   truncated: false,
 };
-
-// --- Setup helpers ---
-
-function setupFullHTML() {
-  document.body.innerHTML = `
-    <main id="app">
-      <details class="card" id="card-configuration" open>
-        <summary class="card-header">
-          <h3>Configuration</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-configuration"></div>
-      </details>
-      <details class="card" id="card-tasks">
-        <summary class="card-header">
-          <h3>Task</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-tasks"></div>
-      </details>
-      <details class="card" id="card-steps">
-        <summary class="card-header">
-          <h3>Steps</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-steps"></div>
-      </details>
-      <details class="card" id="card-prompt">
-        <summary class="card-header">
-          <h3>Prompt</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-prompt"></div>
-      </details>
-    </main>
-  `;
-}
 
 function createSmartFetch() {
   return vi.fn().mockImplementation((url) => {
@@ -159,7 +124,7 @@ describe('E2E: Fix Flow Journey', () => {
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
+    cleanupDOM();
     localStorage.clear();
     vi.restoreAllMocks();
   });
@@ -248,7 +213,7 @@ describe('TST-01: Prompt Determinism', () => {
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
+    cleanupDOM();
     localStorage.clear();
     vi.restoreAllMocks();
   });
@@ -256,8 +221,7 @@ describe('TST-01: Prompt Determinism', () => {
   it('identical inputs produce identical prompts (10 runs)', async () => {
     const { buildPrompt } = await import('../src/core/prompt-builder.js');
 
-    const fixedState = {
-      version: '1.0',
+    const fixedState = createMockState({
       configuration: {
         owner: 'testuser',
         repo: 'my-app',
@@ -280,26 +244,10 @@ describe('TST-01: Prompt Determinism', () => {
         lenses: [],
       },
       steps: {
-        enabled_steps: [
-          {
-            id: 'read-claude',
-            operation: 'read',
-            object: 'file',
-            params: { file: 'claude.md' },
-          },
-          {
-            id: 'identify-cause',
-            operation: 'analyze',
-            object: 'issue',
-            lenses: ['semantics'],
-          },
-        ],
+        enabled_steps: createMockSteps(2),
         removed_step_ids: [],
       },
-      improve_scope: null,
-      notes: { user_text: '' },
-      output: { destination: 'clipboard' },
-    };
+    });
 
     const results = [];
     for (let i = 0; i < 10; i++) {
@@ -320,7 +268,7 @@ describe('TST-01: Prompt Determinism', () => {
   it('different inputs produce different outputs', async () => {
     const { buildPrompt } = await import('../src/core/prompt-builder.js');
 
-    const state1 = {
+    const state1 = createMockState({
       configuration: {
         owner: 'alice',
         repo: 'foo',
@@ -334,19 +282,7 @@ describe('TST-01: Prompt Determinism', () => {
         pr_number: null,
         files: [],
       },
-      panel_b: {
-        description: '',
-        issue_number: null,
-        spec_files: [],
-        guideline_files: [],
-        acceptance_criteria: '',
-        lenses: [],
-      },
-      steps: { enabled_steps: [], removed_step_ids: [] },
-      improve_scope: null,
-      notes: { user_text: '' },
-      output: { destination: 'clipboard' },
-    };
+    });
 
     const state2 = structuredClone(state1);
     state2.panel_a.description = 'Bug B';
@@ -362,7 +298,7 @@ describe('DM-DEF-03: Flow Switch Reset', () => {
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
+    cleanupDOM();
     localStorage.clear();
     vi.restoreAllMocks();
   });

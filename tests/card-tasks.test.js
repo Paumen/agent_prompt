@@ -5,37 +5,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { setupTasksCard, cleanupDOM } from './helpers/dom-fixtures.js';
+import { createMockState } from './helpers/state-factory.js';
 
 // --- Mock dependencies ---
 
 vi.mock('../src/core/state.js', () => ({
-  getState: vi.fn(() => ({
-    task: { flow_id: '' },
-    configuration: {
-      owner: 'user',
-      repo: 'repo',
-      branch: 'main',
-      pat: 'tok',
-    },
-    panel_a: {
-      description: '',
-      issue_number: null,
-      pr_number: null,
-      files: [],
-    },
-    panel_b: {
-      description: '',
-      issue_number: null,
-      spec_files: [],
-      guideline_files: [],
-      acceptance_criteria: '',
-      lenses: [],
-    },
-    steps: { enabled_steps: [] },
-    improve_scope: null,
-    notes: { user_text: '' },
-    _prompt: '',
-  })),
+  getState: vi.fn(() => createMockState()),
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
   applyFlowDefaults: vi.fn(),
@@ -146,32 +122,14 @@ import { getState, subscribe, applyFlowDefaults } from '../src/core/state.js';
 
 // --- Setup ---
 
-function createTasksCard() {
-  document.body.innerHTML = `
-    <details class="card" id="card-configuration">
-      <summary class="card-header"><h3>Configuration</h3><span class="card-meta"></span></summary>
-    </details>
-    <details class="card" id="card-tasks" open>
-      <summary class="card-header"><h3>Task</h3><span class="card-meta"></span></summary>
-      <div class="card-body" id="bd-tasks"></div>
-    </details>
-    <details class="card" id="card-steps">
-      <summary class="card-header"><h3>Steps</h3><span class="card-meta"></span></summary>
-    </details>
-    <details class="card" id="card-prompt">
-      <summary class="card-header"><h3>Prompt</h3><span class="card-meta"></span></summary>
-    </details>
-  `;
-}
-
 beforeEach(() => {
-  createTasksCard();
+  setupTasksCard();
   vi.clearAllMocks();
   subscribe.mockReturnValue(() => {});
 });
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  cleanupDOM();
 });
 
 // --- Tests ---
@@ -245,33 +203,12 @@ describe('required group validation (SCT-05)', () => {
 
 describe('improve scope selector (SCT-09)', () => {
   it('shows scope selector when 2+ files in improve flow', () => {
-    getState.mockReturnValue({
+    getState.mockReturnValue(createMockState({
       task: { flow_id: 'improve' },
-      configuration: {
-        owner: 'user',
-        repo: 'repo',
-        branch: 'main',
-        pat: 'tok',
-      },
       panel_a: {
-        description: '',
-        issue_number: null,
-        pr_number: null,
         files: ['a.js', 'b.js'],
       },
-      panel_b: {
-        description: '',
-        issue_number: null,
-        spec_files: [],
-        guideline_files: [],
-        acceptance_criteria: '',
-        lenses: [],
-      },
-      steps: { enabled_steps: [] },
-      improve_scope: null,
-      notes: { user_text: '' },
-      _prompt: '',
-    });
+    }));
 
     initTasksCard();
     const improveBtn = Array.from(
@@ -306,33 +243,12 @@ describe('Task Card Polish', () => {
 
 describe('PR clear button', () => {
   it('renders clear button when PR is selected', () => {
-    getState.mockReturnValue({
+    getState.mockReturnValue(createMockState({
       task: { flow_id: 'review' },
-      configuration: {
-        owner: 'user',
-        repo: 'repo',
-        branch: 'main',
-        pat: 'tok',
-      },
       panel_a: {
-        description: '',
-        issue_number: null,
         pr_number: 42,
-        files: [],
       },
-      panel_b: {
-        description: '',
-        issue_number: null,
-        spec_files: [],
-        guideline_files: [],
-        acceptance_criteria: '',
-        lenses: [],
-      },
-      steps: { enabled_steps: [] },
-      improve_scope: null,
-      notes: { user_text: '' },
-      _prompt: '',
-    });
+    }));
 
     initTasksCard();
     const reviewBtn = Array.from(

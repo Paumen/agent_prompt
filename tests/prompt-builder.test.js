@@ -1,35 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { buildPrompt } from '../src/core/prompt-builder.js';
+import { createMockState, createMockSteps } from './helpers/state-factory.js';
 
-// Helper: minimal valid state
+// Helper: create a state with valid owner/repo for prompt generation
 function baseState(overrides = {}) {
-  return {
+  return createMockState({
     configuration: {
       owner: 'alice',
       repo: 'wonderland',
       branch: 'main',
       pat: '',
     },
-    task: { flow_id: '' },
-    panel_a: {
-      description: '',
-      issue_number: null,
-      pr_number: null,
-      files: [],
-    },
-    panel_b: {
-      description: '',
-      issue_number: null,
-      spec_files: [],
-      guideline_files: [],
-      acceptance_criteria: '',
-      lenses: [],
-    },
-    steps: { enabled_steps: [] },
-    improve_scope: null,
-    notes: { user_text: '' },
     ...overrides,
-  };
+  });
 }
 
 describe('prompt-builder.js', () => {

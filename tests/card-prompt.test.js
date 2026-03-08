@@ -5,13 +5,15 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { setupPromptCard, cleanupDOM } from './helpers/dom-fixtures.js';
+import { createMockState } from './helpers/state-factory.js';
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 const MOCK_PROMPT =
   '<prompt><context>Please help debug</context><todo>Step 1: Read @claude.md</todo></prompt>';
 
-const mockState = {
+const mockState = createMockState({
   task: { flow_id: 'fix' },
   configuration: {
     owner: 'testuser',
@@ -19,20 +21,8 @@ const mockState = {
     branch: 'main',
     pat: 'ghp_test',
   },
-  panel_a: { description: '', issue_number: null, pr_number: null, files: [] },
-  panel_b: {
-    description: '',
-    issue_number: null,
-    spec_files: [],
-    guideline_files: [],
-    acceptance_criteria: '',
-    lenses: [],
-  },
-  steps: { enabled_steps: [], removed_step_ids: [] },
-  improve_scope: null,
-  notes: { user_text: '' },
   _prompt: MOCK_PROMPT,
-};
+});
 
 vi.mock('../src/core/state.js', () => ({
   getState: vi.fn(() => structuredClone(mockState)),
@@ -53,27 +43,15 @@ vi.mock('../src/logic/quality-meter.js', () => ({
 import { initPromptCard, highlightXml } from '../src/cards/card-prompt.js';
 import { getState, setState, subscribe } from '../src/core/state.js';
 
-function createPromptCard() {
-  document.body.innerHTML = `
-    <details class="card" id="card-prompt">
-      <summary class="card-header">
-        <h3>Prompt</h3>
-        <span class="card-meta"></span>
-      </summary>
-      <div class="card-body" id="bd-prompt"></div>
-    </details>
-  `;
-}
-
 beforeEach(() => {
-  createPromptCard();
+  setupPromptCard();
   vi.clearAllMocks();
   getState.mockReturnValue(structuredClone(mockState));
   subscribe.mockReturnValue(() => {});
 });
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  cleanupDOM();
 });
 
 describe('highlightXml', () => {
@@ -104,8 +82,8 @@ describe('initPromptCard — rendering', () => {
     ).toBe(false);
 
     // Empty state
-    getState.mockReturnValue({ ...mockState, _prompt: '' });
-    createPromptCard();
+    getState.mockReturnValue(createMockState({ _prompt: '' }));
+    setupPromptCard();
     initPromptCard();
     const emptyCode = document.querySelector('.prompt-output code');
     expect(emptyCode.textContent).toBe('Select a flow to generate a prompt.');
@@ -125,7 +103,7 @@ describe('initPromptCard — rendering', () => {
     initPromptCard();
 
     const newPrompt = '<prompt>updated</prompt>';
-    getState.mockReturnValue({ ...mockState, _prompt: newPrompt });
+    getState.mockReturnValue(createMockState({ _prompt: newPrompt }));
     cb();
 
     expect(document.querySelector('.prompt-output code').textContent).toBe(
@@ -181,7 +159,7 @@ describe('initPromptCard — Copy button', () => {
       configurable: true,
     });
 
-    getState.mockReturnValue({ ...mockState, _prompt: '' });
+    getState.mockReturnValue(createMockState({ _prompt: '' }));
     initPromptCard();
     document.querySelector('.btn-copy').click();
 
@@ -191,7 +169,7 @@ describe('initPromptCard — Copy button', () => {
 
 describe('initPromptCard — Notes textarea', () => {
   it('renders textarea populated from state and updates on input', () => {
-    getState.mockReturnValue({ ...mockState, notes: { user_text: 'my note' } });
+    getState.mockReturnValue(createMockState({ notes: { user_text: 'my note' } }));
     initPromptCard();
 
     const textarea = document.querySelector('textarea');
@@ -217,10 +195,9 @@ describe('initPromptCard — Notes textarea', () => {
       configurable: true,
     });
 
-    getState.mockReturnValue({
-      ...mockState,
+    getState.mockReturnValue(createMockState({
       notes: { user_text: 'from state' },
-    });
+    }));
     cb();
 
     expect(textarea.value).toBe('typing');

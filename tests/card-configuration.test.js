@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { setupConfigurationCard, cleanupDOM } from './helpers/dom-fixtures.js';
 
 // --- Mock helpers ---
 
@@ -31,32 +32,17 @@ const SAMPLE_TREE = {
 
 let cardConfig, state;
 
-function setupHTML() {
-  document.body.innerHTML = `
-    <main id="app">
-      <details class="card" id="card-configuration" open>
-        <summary class="card-header"><h3>Configuration</h3><span class="card-meta"></span></summary>
-        <div class="card-body" id="bd-configuration"></div>
-      </details>
-      <details class="card" id="card-tasks">
-        <summary class="card-header"><h3>Task</h3><span class="card-meta"></span></summary>
-        <div class="card-body" id="bd-tasks"></div>
-      </details>
-    </main>
-  `;
-}
-
 beforeEach(async () => {
   vi.resetModules();
   localStorage.clear();
-  setupHTML();
+  setupConfigurationCard();
   globalThis.fetch = mockFetch([]);
   state = await import('../src/core/state.js');
   cardConfig = await import('../src/cards/card-configuration.js');
 });
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  cleanupDOM();
   localStorage.clear();
   vi.restoreAllMocks();
 });

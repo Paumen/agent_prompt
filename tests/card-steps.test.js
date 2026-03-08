@@ -5,54 +5,18 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { setupStepsCard, cleanupDOM } from './helpers/dom-fixtures.js';
+import { createMockState, createMockSteps } from './helpers/state-factory.js';
 
 // --- Mock dependencies ---
 
-const mockSteps = [
-  {
-    id: 'read-claude',
-    operation: 'read',
-    object: 'file',
-    params: { file: 'claude.md' },
-  },
-  {
-    id: 'identify-cause',
-    operation: 'analyze',
-    object: 'issue',
-    lenses: ['semantics'],
-  },
-  {
-    id: 'create-branch',
-    operation: 'create',
-    object: 'branch',
-    branch_name: 'optional_text',
-  },
-  {
-    id: 'commit-pr',
-    operation: 'commit',
-    object: 'changes',
-    params: { open_draft_pr: true },
-    pr_name: 'optional_text',
-  },
-];
+const mockSteps = createMockSteps(4);
 
-const mockState = {
+const mockState = createMockState({
   task: { flow_id: 'fix' },
   configuration: { owner: 'user', repo: 'repo', branch: 'main', pat: 'tok' },
-  panel_a: { description: '', issue_number: null, pr_number: null, files: [] },
-  panel_b: {
-    description: '',
-    issue_number: null,
-    spec_files: [],
-    guideline_files: [],
-    acceptance_criteria: '',
-    lenses: [],
-  },
   steps: { enabled_steps: mockSteps, removed_step_ids: [] },
-  improve_scope: null,
-  notes: { user_text: '' },
-  _prompt: '',
-};
+});
 
 vi.mock('../src/core/state.js', () => ({
   getState: vi.fn(() => structuredClone(mockState)),
@@ -90,23 +54,14 @@ import { getState, setState } from '../src/core/state.js';
 
 // --- Setup ---
 
-function createStepsCard() {
-  document.body.innerHTML = `
-    <details class="card" id="card-steps">
-      <summary class="card-header"><h3>Steps</h3><span class="card-meta"></span></summary>
-      <div class="card-body" id="bd-steps"></div>
-    </details>
-  `;
-}
-
 beforeEach(() => {
-  createStepsCard();
+  setupStepsCard();
   vi.clearAllMocks();
   getState.mockReturnValue(structuredClone(mockState));
 });
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  cleanupDOM();
 });
 
 // --- Tests ---
@@ -210,8 +165,7 @@ describe('lens pills (STP-03)', () => {
 
 describe('file pills', () => {
   beforeEach(() => {
-    getState.mockReturnValue({
-      ...mockState,
+    getState.mockReturnValue(createMockState({
       panel_a: { files: ['src/app.js', 'src/utils.js'] },
       steps: {
         enabled_steps: [
@@ -225,7 +179,7 @@ describe('file pills', () => {
         ],
         removed_step_ids: [],
       },
-    });
+    }));
   });
 
   it('renders file tags with remove buttons', () => {
@@ -268,8 +222,7 @@ describe('optional text inputs', () => {
 
 describe('output mode buttons', () => {
   beforeEach(() => {
-    getState.mockReturnValue({
-      ...mockState,
+    getState.mockReturnValue(createMockState({
       task: { flow_id: 'review' },
       steps: {
         enabled_steps: [
@@ -282,7 +235,7 @@ describe('output mode buttons', () => {
         ],
         removed_step_ids: [],
       },
-    });
+    }));
   });
 
   it('renders output buttons with correct roles', () => {
