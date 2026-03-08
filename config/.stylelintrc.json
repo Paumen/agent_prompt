@@ -117,8 +117,8 @@
 
     "selector-disallowed-list": [
       ["/\\id[~|^$*]?=/"],
-      [​/^:.*child/:],
-      [​/^\[/:]
+      ["​/^:.*child/:"],
+      ["​/^\[/:"]
       {
         "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] / [bar] also not allowed."
       }
