@@ -1,7 +1,15 @@
 // @vitest-environment jsdom
 /**
  * Tests for card-tasks.js
- * SCT-01..09: Flow selection, dual-panel, required groups.
+ *
+ * Tests UI behaviors specific to tasks card:
+ * - Flow button selection UI
+ * - Panel rendering with labels
+ * - Required group indicators
+ * - Improve scope selector
+ * - PR/Issue clear buttons
+ *
+ * Complete user journeys are tested in e2e.test.js
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -16,9 +24,7 @@ vi.mock('../src/core/state.js', () => ({
   subscribe: vi.fn(() => () => {}),
   applyFlowDefaults: vi.fn(),
   resetDownstream: vi.fn(),
-  getValueByPath: vi.fn((obj, path) =>
-    path.split('.').reduce((o, k) => o?.[k], obj)
-  ),
+  getValueByPath: vi.fn((obj, path) => path.split('.').reduce((o, k) => o?.[k], obj)),
 }));
 
 vi.mock('../src/logic/flow-loader.js', () => ({
@@ -26,101 +32,47 @@ vi.mock('../src/logic/flow-loader.js', () => ({
     fix: {
       icon: 'bug',
       panel_a: {
-        label: 'Current State',
-        subtitle: "What's happening now",
+        label: 'Situation',
+        subtitle: "What's happening",
         fields: {
           description: { type: 'text', required_group: 'a_required' },
-          issue_number: {
-            type: 'issue_picker',
-            required_group: 'a_required',
-          },
-          files: { type: 'file_picker_multi' },
+          issue_number: { type: 'issue_picker', required_group: 'a_required' },
         },
       },
-      panel_b: {
-        label: 'Expected Outcome',
-        subtitle: 'How it should work',
-        fields: { description: { type: 'text' } },
-      },
+      panel_b: { label: 'Target', subtitle: 'Desired outcome', fields: {} },
       steps: [],
     },
     review: {
       icon: 'codescan',
-      panel_a: {
-        label: 'Review Subject',
-        subtitle: 'The PR or code to examine',
-        fields: {
-          description: { type: 'text' },
-          pr_number: { type: 'pr_picker', required_group: 'a_required' },
-        },
-      },
+      panel_a: { label: 'Subject', subtitle: 'To review', fields: { pr_number: { type: 'pr_picker', required_group: 'a_required' } } },
       panel_b: { label: 'Criteria', subtitle: 'Standards', fields: {} },
       steps: [],
     },
-    implement: {
-      label: 'Implement / Build',
-      icon: 'rocket',
-      panel_a: { label: 'Context', subtitle: 'Background', fields: {} },
-      panel_b: {
-        label: 'Requirements',
-        subtitle: 'What to build',
-        fields: {},
-      },
-      steps: [],
-    },
-    improve: {
-      icon: 'compose',
-      panel_a: { label: 'Current', subtitle: 'What exists', fields: {} },
-      panel_b: { label: 'Desired', subtitle: 'Improvements', fields: {} },
-      steps: [],
-    },
+    implement: { icon: 'rocket', panel_a: { label: 'Context', fields: {} }, panel_b: { label: 'Requirements', fields: {} }, steps: [] },
+    improve: { icon: 'compose', panel_a: { label: 'Current', fields: {} }, panel_b: { label: 'Desired', fields: {} }, steps: [] },
   })),
   getFlowById: vi.fn(() => null),
   ALL_LENSES: [],
 }));
 
-vi.mock('../src/cards/card-configuration.js', () => ({
-  getFileTree: vi.fn(() => [{ path: 'src/index.js' }]),
-}));
-
+vi.mock('../src/cards/card-configuration.js', () => ({ getFileTree: vi.fn(() => [{ path: 'src/index.js' }]) }));
 vi.mock('../src/common/github-api.js', () => ({
   fetchPRs: vi.fn(() => Promise.resolve({ data: [], error: null })),
   fetchIssues: vi.fn(() => Promise.resolve({ data: [], error: null })),
 }));
-
-vi.mock('../src/common/cache.js', () => ({
-  cacheGet: vi.fn(() => null),
-  cacheSet: vi.fn(),
-}));
-
+vi.mock('../src/common/cache.js', () => ({ cacheGet: vi.fn(() => null), cacheSet: vi.fn() }));
 vi.mock('../src/common/components.js', () => ({
   renderShimmer: vi.fn(),
   renderError: vi.fn(),
   showNotification: vi.fn(),
-  expandCard: vi.fn((id) => {
-    const card = document.getElementById(id);
-    if (card) card.open = true;
-  }),
-  collapseCard: vi.fn((id) => {
-    const card = document.getElementById(id);
-    if (card) card.open = false;
-  }),
+  expandCard: vi.fn((id) => { const card = document.getElementById(id); if (card) card.open = true; }),
+  collapseCard: vi.fn((id) => { const card = document.getElementById(id); if (card) card.open = false; }),
 }));
-
-vi.mock('../src/logic/quality-meter.js', () => ({
-  renderQualityMeter: vi.fn(() => ({ update: vi.fn() })),
-}));
-
-vi.mock('../src/common/file-tree.js', () => ({
-  createFilePicker: vi.fn((container) => {
-    container.appendChild(document.createElement('div'));
-  }),
-}));
+vi.mock('../src/logic/quality-meter.js', () => ({ renderQualityMeter: vi.fn(() => ({ update: vi.fn() })) }));
+vi.mock('../src/common/file-tree.js', () => ({ createFilePicker: vi.fn((container) => container.appendChild(document.createElement('div'))) }));
 
 import { initTasksCard } from '../src/cards/card-tasks.js';
 import { getState, subscribe, applyFlowDefaults } from '../src/core/state.js';
-
-// --- Setup ---
 
 beforeEach(() => {
   setupTasksCard();
@@ -134,29 +86,19 @@ afterEach(() => {
 
 // --- Tests ---
 
-describe('initTasksCard', () => {
-  it('renders 4 flow buttons', () => {
+describe('Flow button selection', () => {
+  it('renders 4 flow buttons with icons', () => {
     initTasksCard();
     const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
     expect(buttons.length).toBe(4);
+    expect(document.querySelectorAll('.btn-select[data-flow-id] .icon').length).toBe(4);
   });
 
-  it('subscribes to state changes', () => {
-    initTasksCard();
-    expect(subscribe).toHaveBeenCalled();
-  });
-
-  it('handles missing bd-tasks element', () => {
-    document.body.innerHTML = '';
-    expect(() => initTasksCard()).not.toThrow();
-  });
-});
-
-describe('flow button click', () => {
-  it('calls applyFlowDefaults and marks button selected', () => {
+  it('calls applyFlowDefaults and marks button selected on click', () => {
     initTasksCard();
     const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
     buttons[0].click();
+
     expect(applyFlowDefaults).toHaveBeenCalled();
     expect(buttons[0].classList.contains('btn-select--selected')).toBe(true);
   });
@@ -166,100 +108,84 @@ describe('flow button click', () => {
     const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
     buttons[0].click();
     buttons[1].click();
+
     expect(buttons[0].classList.contains('btn-select--selected')).toBe(false);
     expect(buttons[1].classList.contains('btn-select--selected')).toBe(true);
   });
 
+  it('handles missing bd-tasks element gracefully', () => {
+    document.body.innerHTML = '';
+    expect(() => initTasksCard()).not.toThrow();
+  });
+});
 
-
+describe('Panel rendering', () => {
   it('renders nested card panels after flow selection', () => {
     initTasksCard();
     document.querySelector('.btn-select[data-flow-id]').click();
-    // Panels are now nested .card elements inside the tasks card-body
+
     const nestedCards = document.querySelectorAll('#bd-tasks .card');
     expect(nestedCards.length).toBeGreaterThanOrEqual(2);
   });
-});
 
-describe('nested card panel layout', () => {
-  it('renders Panel A and Panel B with labels', () => {
+  it('renders Panel A and Panel B with labels and dot separator', () => {
     initTasksCard();
     document.querySelector('.btn-select[data-flow-id]').click();
 
-    const nestedCards = document.querySelectorAll('#bd-tasks .card');
-    expect(nestedCards.length).toBeGreaterThanOrEqual(2);
     expect(document.body.textContent).toContain('Situation');
     expect(document.body.textContent).toContain('Target');
-  });
-});
-
-describe('required group validation (SCT-05)', () => {
-  it('shows required group dot indicator', () => {
-    initTasksCard();
-    document.querySelector('.btn-select[data-flow-id]').click();
-    expect(document.querySelector('.required-group-dot')).not.toBeNull();
-  });
-});
-
-describe('improve scope selector (SCT-09)', () => {
-  it('shows scope selector when 2+ files in improve flow', () => {
-    getState.mockReturnValue(createMockState({
-      task: { flow_id: 'improve' },
-      panel_a: {
-        files: ['a.js', 'b.js'],
-      },
-    }));
-
-    initTasksCard();
-    const improveBtn = Array.from(
-      document.querySelectorAll('.btn-select[data-flow-id]')
-    ).find((b) => b.dataset.flowId === 'improve');
-    improveBtn.click();
-
-    const subscriberCb = subscribe.mock.calls[0][0];
-    subscriberCb(getState());
-
-    // Scope selector uses .input class and contains scope buttons
-    const scopeButtons = document.querySelectorAll('.btn-select[data-scope]');
-    expect(scopeButtons.length).toBe(2);
-  });
-});
-
-describe('Task Card Polish', () => {
-  it('flow icons use class="icon"', () => {
-    initTasksCard();
-    expect(
-      document.querySelectorAll('.btn-select[data-flow-id] .icon').length
-    ).toBe(4);
-  });
-
-  it('panel header uses dot separator', () => {
-    initTasksCard();
-    document.querySelector('.btn-select[data-flow-id]').click();
-    // Separator is now inline styled, but textContent still contains ·
     expect(document.body.textContent).toContain('·');
   });
 });
 
-describe('PR clear button', () => {
-  it('renders clear button when PR is selected', () => {
+describe('Required group indicator (SCT-05)', () => {
+  it('shows required group dot indicator', () => {
+    initTasksCard();
+    document.querySelector('.btn-select[data-flow-id]').click();
+
+    expect(document.querySelector('.required-group-dot')).not.toBeNull();
+  });
+});
+
+describe('Improve scope selector (SCT-09)', () => {
+  it('shows scope selector when 2+ files in improve flow', () => {
     getState.mockReturnValue(createMockState({
-      task: { flow_id: 'review' },
-      panel_a: {
-        pr_number: 42,
-      },
+      task: { flow_id: 'improve' },
+      panel_a: { files: ['a.js', 'b.js'] },
     }));
 
     initTasksCard();
-    const reviewBtn = Array.from(
-      document.querySelectorAll('.btn-select[data-flow-id]')
-    ).find((b) => b.dataset.flowId === 'review');
-    reviewBtn.click();
+    document.querySelector('.btn-select[data-flow-id="improve"]').click();
 
-    // PR selection now renders as a tag with remove button
-    const clearBtn = document.querySelector(
-      '.tag .btn-icon[aria-label^="Remove"]'
-    );
-    expect(clearBtn).not.toBeNull();
+    const subscriberCb = subscribe.mock.calls[0][0];
+    subscriberCb(getState());
+
+    expect(document.querySelectorAll('.btn-select[data-scope]').length).toBe(2);
+  });
+});
+
+describe('PR/Issue clear buttons', () => {
+  it('renders clear button when PR is selected', () => {
+    getState.mockReturnValue(createMockState({
+      task: { flow_id: 'review' },
+      panel_a: { pr_number: 42 },
+    }));
+
+    initTasksCard();
+    document.querySelector('.btn-select[data-flow-id="review"]').click();
+
+    expect(document.querySelector('.tag .btn-icon[aria-label^="Remove"]')).not.toBeNull();
+  });
+
+  it('renders clear button when Issue is selected', () => {
+    getState.mockReturnValue(createMockState({
+      task: { flow_id: 'fix' },
+      panel_a: { issue_number: 123 },
+    }));
+
+    initTasksCard();
+    document.querySelector('.btn-select[data-flow-id="fix"]').click();
+
+    expect(document.querySelector('.tag .btn-icon[aria-label^="Remove"]')).not.toBeNull();
   });
 });
