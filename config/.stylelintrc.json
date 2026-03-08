@@ -114,11 +114,12 @@
         "message": "ID selector disallowed. Use classes or see @.claude/commands/css-guide.md"
       }
     ],
-
+      {
+     "selector-attribute-name-disallowed-list": ["?!data-state|aria-hidden|popover"]
+      }
     "selector-disallowed-list": [
       "/\\[id[~|^$*]?=/",
       "/:.*child/",
-      "/\\[(?!data-state|aria-hidden|popover)/",
       {
         "message": "Selector pattern disallowed. Use classes or see @.claude/commands/css-guide.md"
       }
