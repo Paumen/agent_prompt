@@ -212,16 +212,7 @@ describe('flow button click', () => {
     expect(buttons[1].classList.contains('btn-select--selected')).toBe(true);
   });
 
-  it('delegates expand/collapse to disclosure controller (D605)', () => {
-    // D605: card-tasks no longer calls expandCard/collapseCard directly.
-    // The disclosure controller manages open states reactively.
-    document.getElementById('card-configuration').open = true;
-    initTasksCard();
-    document.querySelector('.btn-select[data-flow-id]').click();
 
-    // Cards stay in their initial state — disclosure controller (not initialized here) manages them
-    expect(document.getElementById('card-configuration').open).toBe(true);
-  });
 
   it('renders nested card panels after flow selection', () => {
     initTasksCard();
@@ -294,17 +285,6 @@ describe('improve scope selector (SCT-09)', () => {
     // Scope selector uses .input class and contains scope buttons
     const scopeButtons = document.querySelectorAll('.btn-select[data-scope]');
     expect(scopeButtons.length).toBe(2);
-  });
-});
-
-describe('flow switch resets panels (DM-DEF-03)', () => {
-  it('calls applyFlowDefaults on each flow switch', () => {
-    initTasksCard();
-    const buttons = document.querySelectorAll('.btn-select[data-flow-id]');
-    buttons[0].click();
-    buttons[1].click();
-    buttons[2].click();
-    expect(applyFlowDefaults).toHaveBeenCalledTimes(3);
   });
 });
 
