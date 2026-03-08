@@ -442,6 +442,25 @@ label > [aria-hidden] {
   color: var(--accent-caution-dark);
 }
 
+/* ============================================================
+   CARD STATE TRANSITIONS (D504, D505)
+   Opacity transition + stagger for reset cascade dissolve.
+   Opacity values defined in D6 via [data-card-state] selectors.
+   ============================================================ */
+
+[data-card-state] {
+  transition: opacity 300ms ease;
+}
+
+/* Stagger downstream cards: tasks→steps→prompt (50ms apart) */
+.card:nth-child(3) {
+  transition-delay: 50ms;
+}
+
+.card:nth-child(4) {
+  transition-delay: 100ms;
+}
+
 /* Required group dot indicator */
 .required-group-dot {
   display: inline-block;

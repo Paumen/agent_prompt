@@ -170,9 +170,9 @@ When upstream data changes (e.g., user clears PAT, switches repo, changes flow),
 
 ### Key Changes
 
-- [ ] D501 – `resetDownstream(from)` function extending existing `resetSession()` (state.js lines 187-198)
-- [ ] D502 – **Focus Management:** Programmatically move `document.activeElement` to the next logical input or the next card's `<summary>` post-transition to prevent focus drop to `<body>`
-- [ ] D503 – State mutation during animation: Use `requestAnimationFrame` batching to coalesce rapid `setState()` calls. Subscriber notifications are naturally deferred to the next frame — no `_suppressNotify` flag, preserving DM-INV-02 invariant:
+- [x] D501 – `resetDownstream(from)` function extending existing `resetSession()` (state.js lines 187-198)
+- [x] D502 – **Focus Management:** Programmatically move `document.activeElement` to the next logical input or the next card's `<summary>` post-transition to prevent focus drop to `<body>`
+- [x] D503 – State mutation during animation: Use `requestAnimationFrame` batching to coalesce rapid `setState()` calls. Subscriber notifications are naturally deferred to the next frame — no `_suppressNotify` flag, preserving DM-INV-02 invariant:
 
 ```js
 let notifyScheduled = false;
@@ -187,8 +187,8 @@ function scheduleNotify() {
 }
 ```
 
-- [ ] D504 – Stagger timing: Offset card `transition-delay` by 50–100ms for a sequential dissolve. Maintain a 300ms duration to ensure the flow is responsive and progressive
-- [ ] D505 – `resetDownstream()` updates `data-card-state` on affected cards (transitions them to `locked` via the card state machine)
+- [x] D504 – Stagger timing: Offset card `transition-delay` by 50–100ms for a sequential dissolve. Maintain a 300ms duration to ensure the flow is responsive and progressive
+- [x] D505 – `resetDownstream()` updates `data-card-state` on affected cards (transitions them to `locked` via the card state machine)
 
 ### Reset cascade table
 

@@ -12,6 +12,7 @@ import {
   setState,
   subscribe,
   applyFlowDefaults,
+  resetDownstream,
   getValueByPath,
 } from '../core/state.js';
 import { getFlows, getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
@@ -91,7 +92,10 @@ function onFlowSelect(flowId, flowDef) {
   cachedPRs = null;
   cachedIssues = null;
 
-  // Apply defaults to state (DM-DEF-03)
+  // Dissolve downstream cards before applying new flow (D505)
+  resetDownstream('flow');
+
+  // Apply defaults to state (DM-DEF-03) — coalesces with above via RAF
   applyFlowDefaults(flowId, flowDef);
 
   // Update flow button selection (direct children only, not scope buttons)
@@ -116,6 +120,10 @@ function onFlowSelect(flowId, flowDef) {
   expandCard('card-steps');
   expandCard('card-prompt');
   collapseCard('card-configuration');
+
+  // D502: Move focus to Steps card summary after flow switch
+  const stepsCard = document.getElementById('card-steps');
+  if (stepsCard) stepsCard.querySelector('summary')?.focus();
 }
 
 // --- Dual panel rendering ---

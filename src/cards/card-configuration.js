@@ -7,7 +7,7 @@
  * Req IDs: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, APP-04
  */
 
-import { getState, setState } from '../core/state.js';
+import { getState, setState, resetDownstream } from '../core/state.js';
 import { fetchRepos, fetchBranches, fetchTree } from '../common/github-api.js';
 import { cacheGet, cacheSet, cacheClear } from '../common/cache.js';
 import {
@@ -197,11 +197,14 @@ function onPatClear() {
     return s;
   });
   fileTree = [];
+  resetDownstream('pat');
   // Show credentials again when clearing
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   renderRepoSection([]);
   renderBranchSection([]);
   updateConfigCardMeta();
+  // D502: Return focus to PAT input
+  elPatInput.focus();
 }
 
 function onUsernameInput() {
@@ -234,10 +237,13 @@ function onUserClear() {
     return s;
   });
   fileTree = [];
+  resetDownstream('owner');
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   renderRepoSection([]);
   renderBranchSection([]);
   updateConfigCardMeta();
+  // D502: Return focus to username input
+  elUsername.focus();
 }
 
 // --- Repo picker rendering ---
@@ -288,6 +294,7 @@ function renderRepoSelection(pickerWrapper, selectedRepo, repos) {
         return s;
       });
       fileTree = [];
+      resetDownstream('repo');
       renderBranchSection([]);
       renderRepoDropdown(pickerWrapper, repos);
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
@@ -366,6 +373,7 @@ function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
     onRemove: () => {
       setState('configuration.branch', '');
       fileTree = [];
+      resetDownstream('branch');
       renderBranchDropdown(pickerWrapper, branches);
       updateConfigCardMeta();
     },
