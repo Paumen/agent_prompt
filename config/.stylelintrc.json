@@ -118,7 +118,7 @@
     "selector-disallowed-list": [
       "/\\[id[~|^$*]?=/",
       "/:.*child/",
-      /\[(?!data-state|aria-hidden|popover)/
+      "/\[(?!data-state|aria-hidden|popover)/"
       {
         "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] / [bar] also not allowed."
       }
