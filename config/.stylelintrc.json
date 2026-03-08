@@ -19,7 +19,13 @@
     ],
 
     "at-rule-disallowed-list": [
-      ["media", "document", "viewport", "apply", "charset"],
+      [
+        "media", 
+        "document", 
+        "viewport", 
+        "apply", 
+        "charset"
+      ],
       {
         "message": "At-rule \"%s\" is disallowed. Use custom properties or alternative techniques like @container instead."
       }
@@ -51,6 +57,7 @@
         "justify-content",
         "align-items",
         "align-self"
+        "​/^:.*child/:"
       ],
       {
         "message": "Property \"%s\" is disallowed. See spec/css-guide/prohibited.md"
@@ -63,13 +70,7 @@
         "padding": ["0", "0 auto", "/var\\(--/"],
         "margin": ["/var\\(--/", "auto", "0 auto", "0"],
         "inset": ["/var\\(--/", "0", "/\\d+%/"],
-        "/color/": [
-          "/light-dark/",
-          "transparent",
-          "currentColor",
-          "inherit",
-          "/var\\(--/"
-        ]
+        "/color/": ["/light-dark/", "transparent", "currentColor","inherit",  "/var\\(--/" ]
       },
       {
         "severity": "warning",
@@ -110,14 +111,16 @@
     "selector-max-id": [
       0,
       {
-        "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] also not allowed"
+        "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] / [bar] also not allowed"
       }
     ],
 
     "selector-disallowed-list": [
       ["/\\id[~|^$*]?=/"],
+      [​/^:.*child/:],
+      [​/^\[/:]
       {
-        "message": "Attribute selectors targeting IDs are disallowed. Use class selectors instead."
+        "message": "ID selectors are not allowed. Use classes instead. workarounds like [=#foo] / [bar] also not allowed."
       }
     ],
 
