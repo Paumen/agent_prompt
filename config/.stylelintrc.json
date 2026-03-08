@@ -12,7 +12,7 @@
     ],
 
     "custom-property-pattern": [
-      "^(c|sp|font|z|bg|radius|text|accent|shadow|z|line)(-[a-z0-9-]+)?$",
+      "^(c|sp|font|z|bg|radius|text|accent|shadow|line)(-[a-z0-9-]+)?$",
       {
         "message": "Custom properties must start with a token namespace (e.g. --text-primary)."
       }
