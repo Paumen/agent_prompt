@@ -12,7 +12,7 @@ Stage D builds on the Stage C redesign framework to add progressive disclosure, 
 
 1. **PR1 — Native Card Foundation** (D1): `<details>`/`<summary>` migration. Ship independently to validate browser behavior before building on top.
 2. **PR2 — Progressive Disclosure & Guards** (D2 + D5 + D6 + D7): The core UX value — reset cascade, guided card flow, guard states, and card-meta enrichment. All serve the same goal: guiding users through the journey.
-3. **PR3 — Validation & Flow Polish** (D3 + D4): CSS-driven validation framework and flow selector upgrade.
+3. **PR3 — Validation & Flow Polish** (D4): CSS-driven validation framework and flow selector upgrade.
 
 **Animation budget:** Max 4 motion types app-wide:
 
@@ -144,20 +144,6 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 
 ---
 
-## Phase D3: Flow/Task Selector Visual Upgrade
-
-### Goal
-
-Upgrade flow/task selector buttons to a tab-card look and feel with Segmented controls (tasks) and panels/cards (content). I.e. Segmented Nav Tab. Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling. 
-
-### Key Changes
-
-- [ ] D301 – Hidden `<input type="radio">` + `<label>` for each flow option, styled as tab-cards
-- [ ] D302 – `:checked` drives visual state (background, border, shadow, z-index). feature a background highlight that slides between options rather than just appearing. 
-- [ ] D303 – Reuse existing `.btn-select` styles as base, extend with tab-card appearance (raised selected card, flush unselected)
-- [ ] D304 – Wire radio `change` event to `onFlowSelect()`.
-
----
 
 ## Phase D4: Validation & Feedback Framework
 
