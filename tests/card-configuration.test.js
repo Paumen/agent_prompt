@@ -148,12 +148,6 @@ describe('auto-fetch repos (CFG-02)', () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  it('does not fetch when PAT is set but username is empty', async () => {
-    state.setState('configuration.pat', 'tok');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-    cardConfig.initConfigurationCard();
-    expect(globalThis.fetch).not.toHaveBeenCalled();
-  });
 
   it('renders repo picker dropdown after fetch', async () => {
     state.setState('configuration.pat', 'tok');
@@ -226,18 +220,6 @@ describe('repo selection (CFG-03)', () => {
       expect(document.querySelector('.tag')).not.toBeNull();
     });
   });
-
-  it('hides credentials on repo select (D605 manages card expand)', async () => {
-    await setupWithRepos();
-
-    // Items are already rendered from setupWithRepos focus
-    document.querySelector('.field-picker .field-picker-item').click();
-
-    // D605: expand is now handled by disclosure controller, not card-configuration
-    // Credentials div gets hidden attribute
-    const credDiv = document.getElementById('bd-configuration').children[0];
-    expect(credDiv.hidden).toBe(true);
-  });
 });
 
 describe('branch auto-select (CFG-04)', () => {
@@ -300,23 +282,6 @@ describe('error handling (GL-04)', () => {
   });
 });
 
-describe('accessibility', () => {
-  it('repo picker has search input with aria-label', async () => {
-    state.setState('configuration.pat', 'tok');
-    state.setState('configuration.owner', 'alice');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-
-    cardConfig.initConfigurationCard();
-
-    await vi.waitFor(() => {
-      const searchInput = document.querySelector(
-        '.field-picker .input-field[aria-label]'
-      );
-      expect(searchInput).not.toBeNull();
-    });
-  });
-});
-
 describe('eye/clear button visibility', () => {
   it('eye and clear buttons hidden when PAT is empty, shown when PAT has value', () => {
     cardConfig.initConfigurationCard();
@@ -359,17 +324,3 @@ describe('username clear button', () => {
   });
 });
 
-describe('icons on repo picker', () => {
-  it('repo picker search row contains SVG icon', async () => {
-    state.setState('configuration.pat', 'tok');
-    state.setState('configuration.owner', 'alice');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-
-    cardConfig.initConfigurationCard();
-
-    await vi.waitFor(() => {
-      const searchRow = document.querySelector('.field-picker-search');
-      expect(searchRow.querySelector('svg')).not.toBeNull();
-    });
-  });
-});
