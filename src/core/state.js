@@ -52,6 +52,45 @@ let state = structuredClone(DEFAULT_STATE);
 let prompt = '';
 const subscribers = new Set();
 
+// --- RAF notification batching (D503) ---
+
+let notifyScheduled = false;
+
+function scheduleNotify() {
+  if (notifyScheduled) return;
+  notifyScheduled = true;
+  requestAnimationFrame(() => {
+    notifyScheduled = false;
+    const snapshot = getState();
+    for (const listener of subscribers) listener(snapshot);
+  });
+}
+
+// --- Reset cascade map (D501) ---
+
+const DOWNSTREAM_MAP = {
+  pat: {
+    reset: ['task', 'panels', 'steps'],
+    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+  },
+  owner: {
+    reset: ['task', 'panels', 'steps'],
+    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+  },
+  repo: {
+    reset: ['task', 'panels', 'steps'],
+    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+  },
+  branch: {
+    reset: [], // visual collapse only — step/task data is branch-independent
+    cards: ['card-steps', 'card-prompt'],
+  },
+  flow: {
+    reset: [],
+    cards: ['card-steps', 'card-prompt'],
+  },
+};
+
 // --- localStorage helpers ---
 
 function loadPersistent() {
@@ -164,11 +203,8 @@ export function setState(pathOrUpdater, value) {
     savePersistent();
   }
 
-  // Notify subscribers
-  const snapshot = getState();
-  for (const listener of subscribers) {
-    listener(snapshot);
-  }
+  // Notify subscribers (D503: batched via RAF)
+  scheduleNotify();
 }
 
 /**
@@ -190,11 +226,7 @@ export function resetSession() {
   state.configuration.pat = pat;
   state.configuration.owner = owner;
   prompt = buildPrompt(state);
-
-  const snapshot = getState();
-  for (const listener of subscribers) {
-    listener(snapshot);
-  }
+  scheduleNotify();
 }
 
 /**
@@ -225,11 +257,43 @@ export function applyFlowDefaults(flowId, flowDef) {
   }
 
   prompt = buildPrompt(state);
+  scheduleNotify();
+}
 
-  const snapshot = getState();
-  for (const listener of subscribers) {
-    listener(snapshot);
+/**
+ * Reset downstream state when upstream data changes (D501).
+ * Sets data-card-state="locked" on affected cards (D505).
+ * Schedules subscriber notification via RAF (D503).
+ *
+ * @param {'pat'|'owner'|'repo'|'branch'|'flow'} from - trigger source
+ * @returns {string[]} IDs of affected card elements
+ */
+export function resetDownstream(from) {
+  const target = DOWNSTREAM_MAP[from];
+  if (!target) return [];
+
+  if (target.reset.includes('task')) {
+    state.task = structuredClone(DEFAULT_STATE.task);
   }
+  if (target.reset.includes('panels')) {
+    state.panel_a = structuredClone(DEFAULT_STATE.panel_a);
+    state.panel_b = structuredClone(DEFAULT_STATE.panel_b);
+  }
+  if (target.reset.includes('steps')) {
+    state.steps = structuredClone(DEFAULT_STATE.steps);
+    state.improve_scope = null;
+  }
+
+  prompt = buildPrompt(state);
+
+  // D505: mark affected cards as locked (D6 will add opacity CSS)
+  for (const cardId of target.cards) {
+    const el = document.getElementById(cardId);
+    if (el) el.dataset.cardState = 'locked';
+  }
+
+  scheduleNotify();
+  return target.cards;
 }
 
 // --- Deep merge utility ---

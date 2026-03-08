@@ -19,6 +19,11 @@ async function freshImport() {
 
 describe('state.js', () => {
   beforeEach(async () => {
+    // D503: Make requestAnimationFrame synchronous so subscriber tests work
+    vi.stubGlobal('requestAnimationFrame', (cb) => {
+      cb(0);
+      return 1;
+    });
     await freshImport();
   });
 

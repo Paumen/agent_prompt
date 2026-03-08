@@ -39,6 +39,7 @@ vi.mock('../src/core/state.js', () => ({
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
   applyFlowDefaults: vi.fn(),
+  resetDownstream: vi.fn(),
   getValueByPath: vi.fn((obj, path) =>
     path.split('.').reduce((o, k) => o?.[k], obj)
   ),
