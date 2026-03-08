@@ -148,7 +148,7 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 
 ### Goal
 
-Upgrade flow selector buttons to a tab-card look and feel while keeping the implementation simple. Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling. Keep implementation lightweight — the existing button grid works; this is a visual refinement, not a rewrite.
+Upgrade flow selector buttons to a tab-card look and feel. Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling.
 
 ### Key Changes
 
