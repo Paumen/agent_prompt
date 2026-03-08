@@ -73,8 +73,6 @@ npm run build     # Production build (outputs to dist/)
 
 - **Product Owner (user)**: Writes specs, defines requirements, reviews and approves PRs.
 - **Claude Code (lead engineer)**: Implements features, writes tests, creates PRs. Handles cross-file changes.
-- **Z.ai / GLM-5 (dev support)**: Single-file fixes, maintenance, prototyping.
-- **Gemini Code Assist (reviewer)**: Automated PR review, security checks. Check its comments before requesting human review.
 
 - PRs require product owner approval before merge.
 - When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
