@@ -1,18 +1,4 @@
-# Test Helpers
-
-This directory contains shared utilities to improve test maintenance stability.
-
-## Files
-
-### `state-factory.js`
-
-Centralized mock state factory. Use this instead of creating inline mock state objects.
-
-### `dom-fixtures.js`
-
-Shared DOM fixtures for card HTML templates.
-
-## Test Boundaries
+# Test Boundaries
 
 To maintain orthogonality, each test file should focus on its specific responsibility:
 
@@ -26,3 +12,16 @@ To maintain orthogonality, each test file should focus on its specific responsib
 | `flow-loader.test.js` | Flow loading/validation | UI, state |
 | `card-*.test.js` | Card UI behavior | Pure logic (use unit tests) |
 | `e2e.test.js` | User journeys | Individual unit behaviors |
+
+## Test Helpers
+
+This directory contains shared utilities to improve test maintenance stability.
+
+### `state-factory.js`
+
+Centralized mock state factory. Use this instead of creating inline mock state objects.
+
+### `dom-fixtures.js`
+
+Shared DOM fixtures for card HTML templates.
+
