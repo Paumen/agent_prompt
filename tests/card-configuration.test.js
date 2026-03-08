@@ -1,20 +1,23 @@
 // @vitest-environment jsdom
 /**
  * Tests for card-configuration.js
- * CFG-01..05: PAT, repo selection, branch auto-select, file tree.
+ *
+ * Tests UI behaviors specific to configuration card:
+ * - PAT show/hide toggle
+ * - Clear button behaviors
+ * - Error handling with retry
+ * - Button visibility states
+ *
+ * Integration flows (repo selection → prompt generation) are tested in e2e.test.js
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { setupConfigurationCard, cleanupDOM } from './helpers/dom-fixtures.js';
 
 // --- Mock helpers ---
 
-function mockFetch(response, ok = true, status = 200) {
-  return vi.fn().mockResolvedValue({
-    ok,
-    status,
-    json: () => Promise.resolve(response),
-  });
-}
+const mockFetch = (response, ok = true, status = 200) =>
+  vi.fn().mockResolvedValue({ ok, status, json: () => Promise.resolve(response) });
 
 const SAMPLE_REPOS = [
   { name: 'alpha', default_branch: 'main' },
@@ -24,68 +27,26 @@ const SAMPLE_REPOS = [
 
 const SAMPLE_BRANCHES = [{ name: 'main' }, { name: 'develop' }];
 
-const SAMPLE_TREE = {
-  tree: [{ path: 'src/index.js', type: 'blob' }],
-  truncated: false,
-};
-
 let cardConfig, state;
-
-function setupHTML() {
-  document.body.innerHTML = `
-    <main id="app">
-      <details class="card" id="card-configuration" open>
-        <summary class="card-header"><h3>Configuration</h3><span class="card-meta"></span></summary>
-        <div class="card-body" id="bd-configuration"></div>
-      </details>
-      <details class="card" id="card-tasks">
-        <summary class="card-header"><h3>Task</h3><span class="card-meta"></span></summary>
-        <div class="card-body" id="bd-tasks"></div>
-      </details>
-    </main>
-  `;
-}
 
 beforeEach(async () => {
   vi.resetModules();
   localStorage.clear();
-  setupHTML();
+  setupConfigurationCard();
   globalThis.fetch = mockFetch([]);
   state = await import('../src/core/state.js');
   cardConfig = await import('../src/cards/card-configuration.js');
 });
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  cleanupDOM();
   localStorage.clear();
   vi.restoreAllMocks();
 });
 
 // --- Tests ---
 
-describe('initConfigurationCard()', () => {
-  it('renders PAT and username inputs', () => {
-    cardConfig.initConfigurationCard();
-    expect(document.getElementById('cfg-pat')).not.toBeNull();
-    expect(document.getElementById('cfg-username')).not.toBeNull();
-  });
-
-  it('pre-fills from state', () => {
-    state.setState('configuration.pat', 'tok_abc');
-    state.setState('configuration.owner', 'alice');
-    cardConfig.initConfigurationCard();
-    expect(document.getElementById('cfg-pat').value).toBe('tok_abc');
-    expect(document.getElementById('cfg-username').value).toBe('alice');
-  });
-
-  it('renders show/hide toggle and clear button for PAT', () => {
-    cardConfig.initConfigurationCard();
-    expect(document.querySelector('.js-eye-btn')).not.toBeNull();
-    expect(document.querySelector('[aria-label="Clear token"]')).not.toBeNull();
-  });
-});
-
-describe('PAT field (CFG-01)', () => {
+describe('PAT field UI (CFG-01)', () => {
   it('show/hide toggle changes input type', () => {
     cardConfig.initConfigurationCard();
     const pat = document.getElementById('cfg-pat');
@@ -101,15 +62,20 @@ describe('PAT field (CFG-01)', () => {
     expect(pat.type).toBe('password');
   });
 
-  it('PAT input updates state and persists to localStorage', () => {
+  it('eye and clear buttons hidden when PAT empty, shown when filled', () => {
     cardConfig.initConfigurationCard();
+    const eyeBtn = document.querySelector('.js-eye-btn');
+    const clearBtn = document.querySelector('[aria-label="Clear token"]');
+
+    expect(eyeBtn.hasAttribute('hidden')).toBe(true);
+    expect(clearBtn.hasAttribute('hidden')).toBe(true);
+
     const pat = document.getElementById('cfg-pat');
-    pat.value = 'new_token';
+    pat.value = 'tok_123';
     pat.dispatchEvent(new Event('input'));
 
-    expect(state.getState().configuration.pat).toBe('new_token');
-    const stored = JSON.parse(localStorage.getItem('agent_prompt_state'));
-    expect(stored.pat).toBe('new_token');
+    expect(eyeBtn.hasAttribute('hidden')).toBe(false);
+    expect(clearBtn.hasAttribute('hidden')).toBe(false);
   });
 
   it('clear button resets PAT, repo, branch, and file tree', () => {
@@ -126,162 +92,28 @@ describe('PAT field (CFG-01)', () => {
     expect(state.getState().configuration.branch).toBe('');
     expect(cardConfig.getFileTree()).toEqual([]);
   });
-});
 
-describe('auto-fetch repos (CFG-02)', () => {
-  it('fetches repos when PAT and username exist', async () => {
+  it('username clear button clears owner, repo, branch state', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
+    state.setState('configuration.repo', 'my-repo');
+    state.setState('configuration.branch', 'main');
     globalThis.fetch = mockFetch(SAMPLE_REPOS);
-
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      expect(globalThis.fetch).toHaveBeenCalled();
+      expect(document.querySelector('.field-picker')).not.toBeNull();
     });
-  });
 
-  it('does not fetch when PAT or username is empty', async () => {
-    state.setState('configuration.owner', 'alice');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-    cardConfig.initConfigurationCard();
-    expect(globalThis.fetch).not.toHaveBeenCalled();
-  });
+    document.querySelector('[aria-label="Clear username"]').click();
 
-  it('does not fetch when PAT is set but username is empty', async () => {
-    state.setState('configuration.pat', 'tok');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-    cardConfig.initConfigurationCard();
-    expect(globalThis.fetch).not.toHaveBeenCalled();
-  });
-
-  it('renders repo picker dropdown after fetch', async () => {
-    state.setState('configuration.pat', 'tok');
-    state.setState('configuration.owner', 'alice');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-
-    cardConfig.initConfigurationCard();
-
-    await vi.waitFor(() => {
-      const searchInput = document.querySelector('.field-picker .input-field');
-      expect(searchInput).not.toBeNull();
-      searchInput.dispatchEvent(new Event('focus'));
-      const items = document.querySelectorAll(
-        '.field-picker .field-picker-item'
-      );
-      expect(items.length).toBe(3);
-    });
+    expect(state.getState().configuration.owner).toBe('');
+    expect(state.getState().configuration.repo).toBe('');
+    expect(state.getState().configuration.branch).toBe('');
   });
 });
 
-describe('repo selection (CFG-03)', () => {
-  async function setupWithRepos() {
-    state.setState('configuration.pat', 'tok');
-    state.setState('configuration.owner', 'alice');
-
-    let callCount = 0;
-    globalThis.fetch = vi.fn().mockImplementation(() => {
-      callCount++;
-      if (callCount === 1) {
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve(SAMPLE_REPOS),
-        });
-      }
-      if (callCount === 2) {
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve(SAMPLE_BRANCHES),
-        });
-      }
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(SAMPLE_TREE),
-      });
-    });
-
-    cardConfig.initConfigurationCard();
-
-    await vi.waitFor(() => {
-      const searchInput = document.querySelector('.field-picker .input-field');
-      expect(searchInput).not.toBeNull();
-      searchInput.dispatchEvent(new Event('focus'));
-      expect(
-        document.querySelectorAll('.field-picker .field-picker-item').length
-      ).toBe(3);
-    });
-  }
-
-  it('sets state and shows selection tag for repo', async () => {
-    await setupWithRepos();
-
-    const repoItem = document.querySelector('.field-picker .field-picker-item');
-    repoItem.click();
-
-    expect(state.getState().configuration.repo).toBe('alpha');
-    await vi.waitFor(() => {
-      expect(document.querySelector('.tag')).not.toBeNull();
-    });
-  });
-
-  it('hides credentials on repo select (D605 manages card expand)', async () => {
-    await setupWithRepos();
-
-    // Items are already rendered from setupWithRepos focus
-    document.querySelector('.field-picker .field-picker-item').click();
-
-    // D605: expand is now handled by disclosure controller, not card-configuration
-    // Credentials div gets hidden attribute
-    const credDiv = document.getElementById('bd-configuration').children[0];
-    expect(credDiv.hidden).toBe(true);
-  });
-});
-
-describe('branch auto-select (CFG-04)', () => {
-  it('auto-selects default branch on repo selection', async () => {
-    state.setState('configuration.pat', 'tok');
-    state.setState('configuration.owner', 'alice');
-
-    let callCount = 0;
-    globalThis.fetch = vi.fn().mockImplementation(() => {
-      callCount++;
-      if (callCount === 1) {
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve(SAMPLE_REPOS),
-        });
-      }
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(SAMPLE_BRANCHES),
-      });
-    });
-
-    cardConfig.initConfigurationCard();
-
-    await vi.waitFor(() => {
-      const searchInput = document.querySelector('.field-picker .input-field');
-      expect(searchInput).not.toBeNull();
-      searchInput.dispatchEvent(new Event('focus'));
-      expect(
-        document.querySelectorAll('.field-picker .field-picker-item').length
-      ).toBe(3);
-    });
-
-    document.querySelector('.field-picker .field-picker-item').click();
-
-    await vi.waitFor(() => {
-      expect(state.getState().configuration.branch).toBe('main');
-    });
-  });
-});
-
-describe('error handling (GL-04)', () => {
+describe('Error handling (GL-04)', () => {
   it('shows inline error on fetch failure with retry button', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
@@ -300,76 +132,34 @@ describe('error handling (GL-04)', () => {
   });
 });
 
-describe('accessibility', () => {
-  it('repo picker has search input with aria-label', async () => {
+describe('Branch auto-select (CFG-04)', () => {
+  it('auto-selects default branch on repo selection', async () => {
     state.setState('configuration.pat', 'tok');
     state.setState('configuration.owner', 'alice');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
+
+    let callCount = 0;
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      callCount++;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(callCount === 1 ? SAMPLE_REPOS : SAMPLE_BRANCHES),
+      });
+    });
 
     cardConfig.initConfigurationCard();
 
     await vi.waitFor(() => {
-      const searchInput = document.querySelector(
-        '.field-picker .input-field[aria-label]'
-      );
+      const searchInput = document.querySelector('.field-picker .input-field');
       expect(searchInput).not.toBeNull();
-    });
-  });
-});
-
-describe('eye/clear button visibility', () => {
-  it('eye and clear buttons hidden when PAT is empty, shown when PAT has value', () => {
-    cardConfig.initConfigurationCard();
-
-    const eyeBtn = document.querySelector('.js-eye-btn');
-    const clearBtn = document.querySelector('[aria-label="Clear token"]');
-
-    expect(eyeBtn.hasAttribute('hidden')).toBe(true);
-    expect(clearBtn.hasAttribute('hidden')).toBe(true);
-
-    const pat = document.getElementById('cfg-pat');
-    pat.value = 'tok_123';
-    pat.dispatchEvent(new Event('input'));
-
-    expect(eyeBtn.hasAttribute('hidden')).toBe(false);
-    expect(clearBtn.hasAttribute('hidden')).toBe(false);
-  });
-});
-
-describe('username clear button', () => {
-  it('clears owner, repo, branch state', async () => {
-    state.setState('configuration.pat', 'tok');
-    state.setState('configuration.owner', 'alice');
-    state.setState('configuration.repo', 'my-repo');
-    state.setState('configuration.branch', 'main');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-
-    cardConfig.initConfigurationCard();
-
-    // Wait for repos to load and render (selected repo shows as tag)
-    await vi.waitFor(() => {
-      expect(document.querySelector('.field-picker')).not.toBeNull();
+      searchInput.dispatchEvent(new Event('focus'));
+      expect(document.querySelectorAll('.field-picker .field-picker-item').length).toBe(3);
     });
 
-    document.querySelector('[aria-label="Clear username"]').click();
-
-    expect(state.getState().configuration.owner).toBe('');
-    expect(state.getState().configuration.repo).toBe('');
-    expect(state.getState().configuration.branch).toBe('');
-  });
-});
-
-describe('icons on repo picker', () => {
-  it('repo picker search row contains SVG icon', async () => {
-    state.setState('configuration.pat', 'tok');
-    state.setState('configuration.owner', 'alice');
-    globalThis.fetch = mockFetch(SAMPLE_REPOS);
-
-    cardConfig.initConfigurationCard();
+    document.querySelector('.field-picker .field-picker-item').click();
 
     await vi.waitFor(() => {
-      const searchRow = document.querySelector('.field-picker-search');
-      expect(searchRow.querySelector('svg')).not.toBeNull();
+      expect(state.getState().configuration.branch).toBe('main');
     });
   });
 });

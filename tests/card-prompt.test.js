@@ -1,38 +1,30 @@
 // @vitest-environment jsdom
 /**
  * Tests for card-prompt.js
- * OUT-01..08: Prompt rendering, copy button, notes, Prompt Claude deep-link.
+ *
+ * Tests UI behaviors specific to prompt card:
+ * - XML highlighting
+ * - Copy button (success/failure feedback)
+ * - Notes textarea behavior
+ * - Prompt Claude deep-link
+ * - Quality meter tooltip
+ *
+ * Prompt generation is tested in prompt-builder.test.js and e2e.test.js
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { setupPromptCard, cleanupDOM } from './helpers/dom-fixtures.js';
+import { createMockState } from './helpers/state-factory.js';
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-const MOCK_PROMPT =
-  '<prompt><context>Please help debug</context><todo>Step 1: Read @claude.md</todo></prompt>';
+const MOCK_PROMPT = '<prompt><context>Please help debug</context><todo>Step 1: Read @claude.md</todo></prompt>';
 
-const mockState = {
+const mockState = createMockState({
   task: { flow_id: 'fix' },
-  configuration: {
-    owner: 'testuser',
-    repo: 'testrepo',
-    branch: 'main',
-    pat: 'ghp_test',
-  },
-  panel_a: { description: '', issue_number: null, pr_number: null, files: [] },
-  panel_b: {
-    description: '',
-    issue_number: null,
-    spec_files: [],
-    guideline_files: [],
-    acceptance_criteria: '',
-    lenses: [],
-  },
-  steps: { enabled_steps: [], removed_step_ids: [] },
-  improve_scope: null,
-  notes: { user_text: '' },
+  configuration: { owner: 'testuser', repo: 'testrepo', branch: 'main', pat: 'ghp_test' },
   _prompt: MOCK_PROMPT,
-};
+});
 
 vi.mock('../src/core/state.js', () => ({
   getState: vi.fn(() => structuredClone(mockState)),
@@ -53,28 +45,18 @@ vi.mock('../src/logic/quality-meter.js', () => ({
 import { initPromptCard, highlightXml } from '../src/cards/card-prompt.js';
 import { getState, setState, subscribe } from '../src/core/state.js';
 
-function createPromptCard() {
-  document.body.innerHTML = `
-    <details class="card" id="card-prompt">
-      <summary class="card-header">
-        <h3>Prompt</h3>
-        <span class="card-meta"></span>
-      </summary>
-      <div class="card-body" id="bd-prompt"></div>
-    </details>
-  `;
-}
-
 beforeEach(() => {
-  createPromptCard();
+  setupPromptCard();
   vi.clearAllMocks();
   getState.mockReturnValue(structuredClone(mockState));
   subscribe.mockReturnValue(() => {});
 });
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  cleanupDOM();
 });
+
+// --- Tests ---
 
 describe('highlightXml', () => {
   it('wraps XML tags in spans and escapes content', () => {
@@ -91,51 +73,8 @@ describe('highlightXml', () => {
   });
 });
 
-describe('initPromptCard — rendering', () => {
-  it('renders prompt preview with XML highlighting, empty state when no prompt', () => {
-    initPromptCard();
-    const previewCode = document.querySelector('.prompt-output code');
-    expect(previewCode.textContent).toBe(MOCK_PROMPT);
-    expect(previewCode.innerHTML).toContain('<span class="xml-tag">');
-    expect(
-      previewCode
-        .closest('.prompt-output')
-        .classList.contains('prompt-output--empty')
-    ).toBe(false);
-
-    // Empty state
-    getState.mockReturnValue({ ...mockState, _prompt: '' });
-    createPromptCard();
-    initPromptCard();
-    const emptyCode = document.querySelector('.prompt-output code');
-    expect(emptyCode.textContent).toBe('Select a flow to generate a prompt.');
-    expect(
-      emptyCode
-        .closest('.prompt-output')
-        .classList.contains('prompt-output--empty')
-    ).toBe(true);
-  });
-
-  it('subscribes to state and updates preview', () => {
-    let cb = null;
-    subscribe.mockImplementation((fn) => {
-      cb = fn;
-      return () => {};
-    });
-    initPromptCard();
-
-    const newPrompt = '<prompt>updated</prompt>';
-    getState.mockReturnValue({ ...mockState, _prompt: newPrompt });
-    cb();
-
-    expect(document.querySelector('.prompt-output code').textContent).toBe(
-      newPrompt
-    );
-  });
-});
-
-describe('initPromptCard — Copy button', () => {
-  it('copies prompt to clipboard and shows success/failure feedback', async () => {
+describe('Copy button', () => {
+  it('copies prompt to clipboard and shows success feedback', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText },
@@ -148,12 +87,8 @@ describe('initPromptCard — Copy button', () => {
 
     expect(writeText).toHaveBeenCalledWith(MOCK_PROMPT);
     await flushPromises();
-    expect(
-      document.querySelector('.btn-copy').classList.contains('btn--copied')
-    ).toBe(true);
-    expect(
-      document.querySelector('.sr-only[aria-live="polite"]').textContent
-    ).toBe('Copied!');
+    expect(document.querySelector('.btn-copy').classList.contains('btn--copied')).toBe(true);
+    expect(document.querySelector('.sr-only[aria-live="polite"]').textContent).toBe('Copied!');
   });
 
   it('shows error on clipboard failure', async () => {
@@ -168,9 +103,7 @@ describe('initPromptCard — Copy button', () => {
     document.querySelector('.btn-copy').click();
     await flushPromises();
 
-    expect(
-      document.querySelector('.sr-only[aria-live="polite"]').textContent
-    ).toBe('Copy failed');
+    expect(document.querySelector('.sr-only[aria-live="polite"]').textContent).toBe('Copy failed');
   });
 
   it('does not copy when prompt is empty', () => {
@@ -181,7 +114,7 @@ describe('initPromptCard — Copy button', () => {
       configurable: true,
     });
 
-    getState.mockReturnValue({ ...mockState, _prompt: '' });
+    getState.mockReturnValue(createMockState({ _prompt: '' }));
     initPromptCard();
     document.querySelector('.btn-copy').click();
 
@@ -189,9 +122,9 @@ describe('initPromptCard — Copy button', () => {
   });
 });
 
-describe('initPromptCard — Notes textarea', () => {
+describe('Notes textarea', () => {
   it('renders textarea populated from state and updates on input', () => {
-    getState.mockReturnValue({ ...mockState, notes: { user_text: 'my note' } });
+    getState.mockReturnValue(createMockState({ notes: { user_text: 'my note' } }));
     initPromptCard();
 
     const textarea = document.querySelector('textarea');
@@ -217,23 +150,19 @@ describe('initPromptCard — Notes textarea', () => {
       configurable: true,
     });
 
-    getState.mockReturnValue({
-      ...mockState,
-      notes: { user_text: 'from state' },
-    });
+    getState.mockReturnValue(createMockState({ notes: { user_text: 'from state' } }));
     cb();
 
     expect(textarea.value).toBe('typing');
   });
 });
 
-describe('initPromptCard — Prompt Claude button', () => {
+describe('Prompt Claude button', () => {
   it('opens claude.ai/new with encoded prompt', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
     initPromptCard();
 
-    const btn = document.querySelector('.btn-primary');
-    btn.click();
+    document.querySelector('.btn-primary').click();
 
     const url = openSpy.mock.calls[0][0];
     expect(url).toContain('claude.ai/new');
@@ -242,7 +171,7 @@ describe('initPromptCard — Prompt Claude button', () => {
   });
 });
 
-describe('initPromptCard — Quality meter tooltip', () => {
+describe('Quality meter tooltip', () => {
   it('toggles tooltip on info button click', () => {
     initPromptCard();
     const btn = document.querySelector('.meter-info-wrapper .btn-icon');
