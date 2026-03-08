@@ -144,11 +144,11 @@ Add inline metadata to `<summary>` elements showing key state when card is colla
 
 ---
 
-## Phase D3: Flow Selector Visual Upgrade
+## Phase D3: Flow/Task Selector Visual Upgrade
 
 ### Goal
 
-Upgrade flow selector buttons to a tab-card look and feel. Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling.
+Upgrade flow/task selector buttons to a tab-card look and feel with Segmented controls (tasks) and panels/cards (content). Use CSS `:checked` on hidden radios for selection state, avoiding JS class toggling.
 
 ### Key Changes
 
