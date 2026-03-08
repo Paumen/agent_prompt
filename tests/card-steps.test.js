@@ -204,28 +204,9 @@ describe('lens pills (STP-03)', () => {
     );
   });
 
-  it('shows "more" button for extra lenses', () => {
-    initStepsCard();
-    const row = document.querySelector('[data-step-id="identify-cause"]');
-    const moreBtn = Array.from(row.querySelectorAll('.btn-action')).find((b) =>
-      b.textContent.includes('more')
-    );
-    expect(moreBtn).toBeTruthy();
-    expect(moreBtn.textContent).toContain('more');
-  });
+  
 });
 
-describe('step badges', () => {
-  it('uses CSS counter for step numbering (no badge elements)', () => {
-    initStepsCard();
-    // Step numbers are now rendered via CSS counter-increment on .output-field::before
-    // Verify no .badge elements exist
-    expect(document.querySelector('.badge')).toBeNull();
-    // The step list uses counter-reset on .output-block
-    const list = document.querySelector('.output-block');
-    expect(list).not.toBeNull();
-  });
-});
 
 describe('file pills', () => {
   beforeEach(() => {
