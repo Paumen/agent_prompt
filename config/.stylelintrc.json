@@ -115,7 +115,7 @@
     ],
 
     "selector-attribute-name-disallowed-list": [
-      ["/^((?!data-state|aria-hidden|aria-open|open|closed|popover).)*$/"],
+      ["/^((?!data-state|data-card-state|aria-hidden|aria-open|open|closed|popover|hidden).)*$/"],
       {
         "message": "Attribute selector \"%s\" is disallowed unless it is data-state, aria-hidden, or popover."
       }
