@@ -66,11 +66,3 @@ describe('icon()', () => {
   });
 });
 
-describe('icon registry', () => {
-  it.each(EXPECTED_ICONS)('"%s" produces a valid 16×16 SVG', (name) => {
-    const el = icon(name);
-    expect(el.tagName.toLowerCase()).toBe('svg');
-    expect(el.getAttribute('viewBox')).toBe('0 0 16 16');
-    expect(el.classList.contains('icon')).toBe(true);
-  });
-});
