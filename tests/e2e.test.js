@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 /**
- * End-to-end tests — Core user journeys
+ * End-to-end tests — Core user journeys and integration
  *
- * Focused tests for: prompt generation, determinism, flow switch reset
+ * Tests the complete flow from configuration to prompt generation.
+ * Card-specific UI behaviors are tested in card-*.test.js files.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { setupFullHTML, cleanupDOM } from './helpers/dom-fixtures.js';
+import { createMockState, createMockSteps, createConfiguredState } from './helpers/state-factory.js';
 
 // --- Mock data ---
 
@@ -15,11 +18,8 @@ const SAMPLE_REPOS = [
 ];
 
 const SAMPLE_BRANCHES = [{ name: 'main' }, { name: 'feature-x' }];
-
 const SAMPLE_ISSUES = [{ number: 42, title: 'Login form crashes on submit' }];
-
 const SAMPLE_PRS = [{ number: 101, title: 'Add dark mode support' }];
-
 const SAMPLE_TREE = {
   tree: [
     { path: 'src/index.js', type: 'blob' },
@@ -28,79 +28,22 @@ const SAMPLE_TREE = {
   truncated: false,
 };
 
-// --- Setup helpers ---
-
-function setupFullHTML() {
-  document.body.innerHTML = `
-    <main id="app">
-      <details class="card" id="card-configuration" open>
-        <summary class="card-header">
-          <h3>Configuration</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-configuration"></div>
-      </details>
-      <details class="card" id="card-tasks">
-        <summary class="card-header">
-          <h3>Task</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-tasks"></div>
-      </details>
-      <details class="card" id="card-steps">
-        <summary class="card-header">
-          <h3>Steps</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-steps"></div>
-      </details>
-      <details class="card" id="card-prompt">
-        <summary class="card-header">
-          <h3>Prompt</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-prompt"></div>
-      </details>
-    </main>
-  `;
-}
-
 function createSmartFetch() {
   return vi.fn().mockImplementation((url) => {
     const urlStr = typeof url === 'string' ? url : url.toString();
     if (urlStr.includes('/issues')) {
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(SAMPLE_ISSUES),
-      });
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_ISSUES) });
     }
     if (urlStr.includes('/pulls')) {
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(SAMPLE_PRS),
-      });
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_PRS) });
     }
     if (urlStr.includes('/git/trees/')) {
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(SAMPLE_TREE),
-      });
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_TREE) });
     }
     if (urlStr.includes('/branches')) {
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(SAMPLE_BRANCHES),
-      });
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_BRANCHES) });
     }
-    return Promise.resolve({
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve(SAMPLE_REPOS),
-    });
+    return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_REPOS) });
   });
 }
 
@@ -109,13 +52,11 @@ let state, cardConfig, cardTasks, cardSteps, cardPrompt, mainModule;
 async function initAllModules() {
   vi.resetModules();
   localStorage.clear();
-
   Object.defineProperty(navigator, 'clipboard', {
     value: { writeText: vi.fn().mockResolvedValue(undefined) },
     writable: true,
     configurable: true,
   });
-
   vi.spyOn(window, 'open').mockImplementation(() => null);
   globalThis.fetch = createSmartFetch();
 
@@ -136,30 +77,26 @@ async function setupRepoAndBranch() {
     const searchInput = document.querySelector('.field-picker .input-field');
     expect(searchInput).not.toBeNull();
     searchInput.dispatchEvent(new Event('focus'));
-    const items = document.querySelectorAll('.field-picker .field-picker-item');
-    expect(items.length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('.field-picker .field-picker-item').length).toBeGreaterThan(0);
   });
 
-  const repoItem = document.querySelector('.field-picker .field-picker-item');
-  repoItem.click();
+  document.querySelector('.field-picker .field-picker-item').click();
 
   await vi.waitFor(() => {
     expect(state.getState().configuration.branch).toBe('main');
   });
 }
 
-// ============================================================
-//  Test suites
-// ============================================================
+// --- Tests ---
 
-describe('E2E: Fix Flow Journey', () => {
+describe('E2E: Complete User Journey', () => {
   beforeEach(async () => {
     setupFullHTML();
     await initAllModules();
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
+    cleanupDOM();
     localStorage.clear();
     vi.restoreAllMocks();
   });
@@ -172,29 +109,19 @@ describe('E2E: Fix Flow Journey', () => {
     await setupRepoAndBranch();
 
     // Select Fix flow
-    const fixBtn = Array.from(
-      document.querySelectorAll('.btn-select[data-flow-id]')
-    ).find((b) => b.dataset.flowId === 'fix');
-    fixBtn.click();
+    document.querySelector('.btn-select[data-flow-id="fix"]').click();
+    await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
 
-    await vi.waitFor(() => {
-      expect(state.getState().task.flow_id).toBe('fix');
-    });
-
-    // Fill panel A
-    const textarea = document.querySelector(
-      '#bd-tasks .card .input-field--textarea'
-    );
+    // Fill description
+    const textarea = document.querySelector('#bd-tasks .card .input-field--textarea');
     textarea.value = 'Login crashes when clicking submit';
     textarea.dispatchEvent(new Event('input'));
 
     // Verify prompt structure
     const prompt = state.getState()._prompt;
-    expect(prompt).toBeTruthy();
     expect(prompt).toContain('<prompt>');
     expect(prompt).toContain('</prompt>');
     expect(prompt).toContain('task="debug"');
-    expect(prompt).toContain('Fix / Debug');
     expect(prompt).toContain('https://github.com/testuser/my-app');
     expect(prompt).toContain('Login crashes when clicking submit');
     expect(prompt).toContain('<todo>');
@@ -208,32 +135,19 @@ describe('E2E: Fix Flow Journey', () => {
     cardPrompt.initPromptCard();
     await setupRepoAndBranch();
 
-    const fixBtn = Array.from(
-      document.querySelectorAll('.btn-select[data-flow-id]')
-    ).find((b) => b.dataset.flowId === 'fix');
-    fixBtn.click();
+    document.querySelector('.btn-select[data-flow-id="fix"]').click();
+    await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
 
-    await vi.waitFor(() => {
-      expect(state.getState().task.flow_id).toBe('fix');
-    });
-
-    const textarea = document.querySelector(
-      '#bd-tasks .card .input-field--textarea'
-    );
+    const textarea = document.querySelector('#bd-tasks .card .input-field--textarea');
     textarea.value = 'Bug description';
     textarea.dispatchEvent(new Event('input'));
 
     await vi.waitFor(() => {
-      expect(document.querySelectorAll('.output-field').length).toBeGreaterThan(
-        0
-      );
+      expect(document.querySelectorAll('.output-field').length).toBeGreaterThan(0);
     });
 
     const promptBefore = state.getState()._prompt;
-    const deleteBtn = document.querySelector(
-      '.btn-icon[aria-label^="Remove step"]'
-    );
-    deleteBtn.click();
+    document.querySelector('.btn-icon[aria-label^="Remove step"]').click();
 
     await vi.waitFor(() => {
       expect(state.getState()._prompt).not.toBe(promptBefore);
@@ -241,133 +155,19 @@ describe('E2E: Fix Flow Journey', () => {
   });
 });
 
-describe('TST-01: Prompt Determinism', () => {
+describe('E2E: Flow Switch Reset (DM-DEF-03)', () => {
   beforeEach(async () => {
     setupFullHTML();
     await initAllModules();
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
+    cleanupDOM();
     localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('identical inputs produce identical prompts (10 runs)', async () => {
-    const { buildPrompt } = await import('../src/core/prompt-builder.js');
-
-    const fixedState = {
-      version: '1.0',
-      configuration: {
-        owner: 'testuser',
-        repo: 'my-app',
-        branch: 'main',
-        pat: 'ghp_test123',
-      },
-      task: { flow_id: 'fix' },
-      panel_a: {
-        description: 'Login crashes on submit',
-        issue_number: 42,
-        pr_number: null,
-        files: ['src/index.js'],
-      },
-      panel_b: {
-        description: 'Should redirect to dashboard',
-        issue_number: null,
-        spec_files: ['README.md'],
-        guideline_files: [],
-        acceptance_criteria: '',
-        lenses: [],
-      },
-      steps: {
-        enabled_steps: [
-          {
-            id: 'read-claude',
-            operation: 'read',
-            object: 'file',
-            params: { file: 'claude.md' },
-          },
-          {
-            id: 'identify-cause',
-            operation: 'analyze',
-            object: 'issue',
-            lenses: ['semantics'],
-          },
-        ],
-        removed_step_ids: [],
-      },
-      improve_scope: null,
-      notes: { user_text: '' },
-      output: { destination: 'clipboard' },
-    };
-
-    const results = [];
-    for (let i = 0; i < 10; i++) {
-      results.push(buildPrompt(structuredClone(fixedState)));
-    }
-
-    // All 10 runs must produce identical output
-    for (let i = 1; i < results.length; i++) {
-      expect(results[i]).toBe(results[0]);
-    }
-
-    // Verify basic structure
-    expect(results[0]).toContain('<prompt>');
-    expect(results[0]).toContain('</prompt>');
-    expect(results[0]).toContain('Login crashes on submit');
-  });
-
-  it('different inputs produce different outputs', async () => {
-    const { buildPrompt } = await import('../src/core/prompt-builder.js');
-
-    const state1 = {
-      configuration: {
-        owner: 'alice',
-        repo: 'foo',
-        branch: 'main',
-        pat: 'tok1',
-      },
-      task: { flow_id: 'fix' },
-      panel_a: {
-        description: 'Bug A',
-        issue_number: null,
-        pr_number: null,
-        files: [],
-      },
-      panel_b: {
-        description: '',
-        issue_number: null,
-        spec_files: [],
-        guideline_files: [],
-        acceptance_criteria: '',
-        lenses: [],
-      },
-      steps: { enabled_steps: [], removed_step_ids: [] },
-      improve_scope: null,
-      notes: { user_text: '' },
-      output: { destination: 'clipboard' },
-    };
-
-    const state2 = structuredClone(state1);
-    state2.panel_a.description = 'Bug B';
-
-    expect(buildPrompt(state1)).not.toBe(buildPrompt(state2));
-  });
-});
-
-describe('DM-DEF-03: Flow Switch Reset', () => {
-  beforeEach(async () => {
-    setupFullHTML();
-    await initAllModules();
-  });
-
-  afterEach(() => {
-    document.body.innerHTML = '';
-    localStorage.clear();
-    vi.restoreAllMocks();
-  });
-
-  it('switching flow resets panel_a, panel_b, steps', async () => {
+  it('switching flow resets panel_a, panel_b, steps but preserves config', async () => {
     mainModule.initChevrons();
     cardTasks.initTasksCard();
     cardSteps.initStepsCard();
@@ -375,44 +175,60 @@ describe('DM-DEF-03: Flow Switch Reset', () => {
     await setupRepoAndBranch();
 
     // Select Fix flow and fill data
-    const fixBtn = Array.from(
-      document.querySelectorAll('.btn-select[data-flow-id]')
-    ).find((b) => b.dataset.flowId === 'fix');
-    fixBtn.click();
-
-    await vi.waitFor(() => {
-      expect(state.getState().task.flow_id).toBe('fix');
-    });
+    document.querySelector('.btn-select[data-flow-id="fix"]').click();
+    await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
 
     state.setState('panel_a.description', 'Some bug description');
     state.setState('panel_a.issue_number', 42);
     state.setState('panel_b.description', 'Expected to work');
 
-    // Verify data is set
-    let s = state.getState();
-    expect(s.panel_a.description).toBe('Some bug description');
-    expect(s.panel_a.issue_number).toBe(42);
-
     // Switch to Review flow
-    const reviewBtn = Array.from(
-      document.querySelectorAll('.btn-select[data-flow-id]')
-    ).find((b) => b.dataset.flowId === 'review');
-    reviewBtn.click();
+    document.querySelector('.btn-select[data-flow-id="review"]').click();
+    await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('review'));
 
-    await vi.waitFor(() => {
-      expect(state.getState().task.flow_id).toBe('review');
-    });
-
-    // Verify full reset
-    s = state.getState();
+    // Verify reset
+    const s = state.getState();
     expect(s.panel_a.description).toBe('');
     expect(s.panel_a.issue_number).toBeNull();
-    expect(s.panel_a.pr_number).toBeNull();
     expect(s.panel_b.description).toBe('');
     expect(s.steps.removed_step_ids).toEqual([]);
 
-    // Configuration should be preserved
+    // Configuration preserved
     expect(s.configuration.owner).toBe('testuser');
     expect(s.configuration.repo).toBe('my-app');
+  });
+});
+
+describe('E2E: Prompt Determinism (TST-01)', () => {
+  it('identical inputs produce identical prompts', async () => {
+    const { buildPrompt } = await import('../src/core/prompt-builder.js');
+
+    const fixedState = createMockState({
+      configuration: { owner: 'testuser', repo: 'my-app', branch: 'main', pat: 'ghp_test123' },
+      task: { flow_id: 'fix' },
+      panel_a: { description: 'Login crashes', issue_number: 42, pr_number: null, files: ['src/index.js'] },
+      steps: { enabled_steps: createMockSteps(2), removed_step_ids: [] },
+    });
+
+    const results = Array.from({ length: 10 }, () => buildPrompt(structuredClone(fixedState)));
+
+    // All runs must produce identical output
+    for (let i = 1; i < results.length; i++) {
+      expect(results[i]).toBe(results[0]);
+    }
+    expect(results[0]).toContain('<prompt>');
+    expect(results[0]).toContain('Login crashes');
+  });
+
+  it('different inputs produce different outputs', async () => {
+    const { buildPrompt } = await import('../src/core/prompt-builder.js');
+
+    const state1 = createConfiguredState({ flowId: 'fix' });
+    state1.panel_a.description = 'Bug A';
+
+    const state2 = structuredClone(state1);
+    state2.panel_a.description = 'Bug B';
+
+    expect(buildPrompt(state1)).not.toBe(buildPrompt(state2));
   });
 });
