@@ -116,10 +116,10 @@
     ],
     
       
-     "selector-attribute-name-disallowed-list": [
-       "?!data-state|aria-hidden|popover"
-     ],
-      
+   "selector-attribute-name-disallowed-list": [
+      ["/^((?!data-state|aria-hidden|popover).)*$/"],
+      {
+        "message": "Attribute selector is disallowed unless it is data-state, aria-hidden, or popover."
   
     "selector-disallowed-list": [
       "/\\[id[~|^$*]?=/",
