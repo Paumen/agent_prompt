@@ -244,11 +244,12 @@ describe('nested card panel layout', () => {
   });
 });
 
-describe('required group validation (SCT-05)', () => {
-  it('shows required group dot indicator', () => {
+describe('required group validation (D401/D402)', () => {
+  it('sets required attribute on group text inputs when group is unsatisfied', () => {
     initTasksCard();
     document.querySelector('.btn-select[data-flow-id]').click();
-    expect(document.querySelector('.required-group-dot')).not.toBeNull();
+    const textarea = document.querySelector('textarea[required]');
+    expect(textarea).not.toBeNull();
   });
 });
 

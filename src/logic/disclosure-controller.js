@@ -385,6 +385,9 @@ function applyCardStates() {
   );
   ensureGuardHint('bd-prompt', promptState, 'Review Steps to continue');
 
+  // D403: Highlight first empty required field globally
+  updateNextToFill();
+
   prevStates = { ...newStates, _hadFlow: !!flowId };
 }
 
@@ -458,6 +461,31 @@ function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState, stepsState) {
       tgtEl.open
     ) {
       tgtEl.open = false;
+    }
+  }
+}
+
+// --- D403: Next-to-fill highlighting ---
+
+/**
+ * Set `data-next-to-fill` on the .input row containing the first
+ * empty required field (native inputs or invalid pickers).
+ */
+function updateNextToFill() {
+  const prev = document.querySelector('[data-next-to-fill]');
+  if (prev) delete prev.dataset.nextToFill;
+
+  const rows = document.querySelectorAll('.input');
+  for (const row of rows) {
+    const emptyRequired = row.querySelector('.input-field:required:invalid');
+    if (emptyRequired) {
+      row.dataset.nextToFill = '';
+      return;
+    }
+    const invalidPicker = row.querySelector('[data-state="invalid"]');
+    if (invalidPicker) {
+      row.dataset.nextToFill = '';
+      return;
     }
   }
 }
