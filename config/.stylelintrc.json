@@ -67,9 +67,9 @@
     "declaration-property-value-allowed-list": [
       {
         "color-scheme": ["/./"],
-        "padding": ["0", "0 auto", "/var\\(--/"],
-        "margin": ["/var\\(--/", "auto", "0 auto", "0"],
-        "inset": ["/var\\(--/", "0", "/\\d+%/"],
+        "padding": ["/var\\(--/", "auto", "0 auto", "0"],
+        "margin":  ["/var\\(--/", "auto", "0 auto", "0"],
+        "inset":   ["/var\\(--/", "0", "/\\d+%/"],
         "/color/": ["/light-dark/", "transparent", "currentColor","inherit",  "/var\\(--/" ]
       },
       {
