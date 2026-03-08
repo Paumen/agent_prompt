@@ -152,12 +152,12 @@ Replace JS-driven `renderError()` and `updateRequiredGroupIndicators()` with CSS
 
 ### Key Changes
 
-- [ ] D401 – `:user-valid`/`:user-invalid` on native `<input>`/`<textarea>` with `required` attribute
-- [ ] D402 – For `.field-picker` (non-native element): use `data-valid`/`data-invalid` attributes set by JS, styled with `[data-valid]`/`[data-invalid]` selectors. No Web Components in Stage D
-- [ ] D403 – JS layer sets `data-next-to-fill` on the first empty required field for CSS highlighting (single mechanism — replaces both the prior `:placeholder-shown` and `data-next-to-fill` approaches)
-- [ ] D404 – `color-mix()` for focus glow effects
-- [ ] D405 – Remove `.required-group-dot` system
-- [ ] D406 – `field-sizing: content` on text inputs for auto-sizing
+- [x] D401 – `:user-valid`/`:user-invalid` on native `<input>`/`<textarea>` with `required` attribute
+- [x] D402 – For `.field-picker` (non-native element): use `data-state="invalid"` attribute set by JS, styled with `:has()` selectors. No Web Components in Stage D
+- [x] D403 – JS layer sets `data-next-to-fill` on the first empty required field for CSS highlighting (single mechanism — replaces both the prior `:placeholder-shown` and `data-next-to-fill` approaches)
+- [x] D404 – `color-mix()` for focus glow effects
+- [x] D405 – Remove `.required-group-dot` system
+- [x] D406 – `field-sizing: content` on text inputs for auto-sizing
 
 ---
 
@@ -253,9 +253,9 @@ When hard prerequisites are missing (e.g., no repo selected), prevent card from 
 
 ### Key Changes
 
-- [ ] D701 – `[data-card-state="locked"]` styling: card cannot be opened (JS prevents `<details>` from toggling open). Body content hidden
-- [ ] D702 – `anchor-name` / CSS anchor positioning for guard tooltips on `<summary>` of `locked` cards
-- [ ] D703 – On `locked` card `<summary>` click: prevent open, show tooltip with prerequisite message. Subtle `prefers-reduced-motion`-respecting highlight pulse:
+- [x] D701 – `[data-card-state="locked"]` styling: card cannot be opened (JS prevents `<details>` from toggling open). Body content hidden
+- [x] D702 – `anchor-name` / CSS anchor positioning for guard tooltips on `<summary>` of `locked` cards
+- [x] D703 – On `locked` card `<summary>` click: prevent open, show tooltip with prerequisite message. Subtle `prefers-reduced-motion`-respecting highlight pulse:
 
 ```css
 @keyframes highlight-pulse {
@@ -278,5 +278,5 @@ When hard prerequisites are missing (e.g., no repo selected), prevent card from 
 }
 ```
 
-- [ ] D704 – Guard conditions managed by the disclosure controller (D605), not by scattered CSS `:has()` selectors — keeps dependency logic in one place
-- [ ] D705 – `[data-card-state="skippable"]` cards allow open but show a subtle banner/hint inside the card body indicating upstream is incomplete (e.g., "Complete Task card for best results")
+- [x] D704 – Guard conditions managed by the disclosure controller (D605), not by scattered CSS `:has()` selectors — keeps dependency logic in one place
+- [x] D705 – `[data-card-state="skippable"]` cards allow open but show a subtle banner/hint inside the card body indicating upstream is incomplete (e.g., "Complete Task card for best results")

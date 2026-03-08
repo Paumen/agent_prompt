@@ -377,6 +377,17 @@ function applyCardStates() {
     }
   }
 
+  // D705: Guard hints for skippable cards
+  ensureGuardHint(
+    'bd-steps',
+    stepsState,
+    'Complete Task details for full step generation'
+  );
+  ensureGuardHint('bd-prompt', promptState, 'Review Steps to continue');
+
+  // D403: Highlight first empty required field globally
+  updateNextToFill();
+
   prevStates = { ...newStates, _hadFlow: !!flowId };
 }
 
@@ -454,12 +465,118 @@ function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState, stepsState) {
   }
 }
 
+// --- D403: Next-to-fill highlighting ---
+
+/**
+ * Set `data-next-to-fill` on the .input row containing the first
+ * empty required field (native inputs or invalid pickers).
+ */
+function updateNextToFill() {
+  const prev = document.querySelector('[data-next-to-fill]');
+  if (prev) delete prev.dataset.nextToFill;
+
+  const rows = document.querySelectorAll('.input');
+  for (const row of rows) {
+    const emptyRequired = row.querySelector('.input-field:required:invalid');
+    if (emptyRequired) {
+      row.dataset.nextToFill = '';
+      return;
+    }
+    const invalidPicker = row.querySelector('[data-state="invalid"]');
+    if (invalidPicker) {
+      row.dataset.nextToFill = '';
+      return;
+    }
+  }
+}
+
+// --- Guard hint (D705) ---
+
+function ensureGuardHint(bodyId, cardState, message) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+
+  let hint = body.querySelector('.guard-hint');
+  if (cardState === 'skippable') {
+    if (!hint) {
+      hint = document.createElement('p');
+      hint.className = 'guard-hint';
+      hint.textContent = message;
+      body.prepend(hint);
+    }
+  }
+}
+
+// --- Guard tooltip (D702, D703) ---
+
+let guardTooltip = null;
+let guardTooltipTimer = null;
+
+function createGuardTooltip() {
+  const el = document.createElement('div');
+  el.className = 'guard-tooltip';
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
+  document.body.appendChild(el);
+  return el;
+}
+
+const CARD_KEY_MAP = {
+  'card-tasks': 'tasks',
+  'card-steps': 'steps',
+  'card-prompt': 'prompt',
+};
+
+function getGuardMessage(cardId) {
+  const state = getState();
+  switch (cardId) {
+    case 'card-tasks': {
+      const { pat, owner, repo } = state.configuration;
+      const missing = [];
+      if (!pat) missing.push('PAT');
+      if (!owner) missing.push('owner');
+      if (!repo) missing.push('repo');
+      return `Set ${missing.join(', ')} in Configuration`;
+    }
+    case 'card-steps':
+    case 'card-prompt':
+      return 'Select a flow in Task';
+    default:
+      return 'Complete previous steps first';
+  }
+}
+
+function showGuardTooltip(cardId) {
+  if (!guardTooltip) guardTooltip = createGuardTooltip();
+
+  // Remove previous anchor class
+  for (const key of Object.values(CARD_KEY_MAP)) {
+    guardTooltip.classList.remove(`guard-tooltip--${key}`);
+  }
+
+  guardTooltip.textContent = getGuardMessage(cardId);
+  guardTooltip.classList.add(`guard-tooltip--${CARD_KEY_MAP[cardId]}`);
+  guardTooltip.classList.add('guard-tooltip--visible');
+
+  clearTimeout(guardTooltipTimer);
+  guardTooltipTimer = setTimeout(hideGuardTooltip, 3000);
+
+  document.addEventListener('pointerdown', hideGuardTooltip, { once: true });
+}
+
+function hideGuardTooltip() {
+  if (!guardTooltip) return;
+  guardTooltip.classList.remove('guard-tooltip--visible');
+  clearTimeout(guardTooltipTimer);
+}
+
 // --- Locked card prevention ---
 
 function onCardToggle(e) {
   const details = e.currentTarget;
   if (details.dataset.cardState === 'locked' && details.open) {
     details.open = false;
+    showGuardTooltip(details.id);
   }
 }
 

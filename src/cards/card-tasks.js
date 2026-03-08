@@ -36,6 +36,9 @@ let elBody = null;
 let elPanelArea = null;
 let currentFlowId = null;
 
+// D401/D402: Field element references for validation management
+const fieldElements = new Map(); // statePath → { el, type, fieldDef }
+
 // Lens picker sync
 let elLensPillGroup = null;
 let lastLensStatePath = null;
@@ -122,6 +125,7 @@ function onFlowSelect(flowId, flowDef) {
 
 function renderDualPanels(flowId, flowDef) {
   elPanelArea.innerHTML = '';
+  fieldElements.clear();
   elScopeSelector = null;
   elLensPillGroup = null;
   lastLensStatePath = null;
@@ -171,8 +175,8 @@ function renderDualPanels(flowId, flowDef) {
     updateScopeSelector();
   }
 
-  // Required group indicators
-  updateRequiredGroupIndicators();
+  // D401/D402: Initial validation state
+  updateFieldValidation();
 }
 
 function renderPanelHeader(genericLabel, flowSubtitle) {
@@ -206,19 +210,6 @@ function renderPanelFields(panelEl, fieldsMap, panelKey) {
     // Label
     const labelText = fieldDef.label || fieldNameToLabel(fieldName);
     const label = createLabel(labelText, { required: !!fieldDef.required });
-
-    // Required group indicator (SCT-05)
-    if (fieldDef.required_group) {
-      const indicator = document.createElement('span');
-      indicator.className = 'required-group-dot';
-      indicator.setAttribute(
-        'data-group',
-        `${panelKey}.${fieldDef.required_group}`
-      );
-      indicator.setAttribute('aria-hidden', 'true');
-      indicator.title = 'At least one field in this group is required';
-      label.appendChild(indicator);
-    }
 
     fieldRow.appendChild(label);
 
@@ -276,9 +267,17 @@ function renderTextField(container, fieldDef, statePath, currentValue) {
     rows: 3,
     onInput: (e) => {
       setState(statePath, e.target.value);
-      updateRequiredGroupIndicators();
+      updateFieldValidation();
     },
   });
+
+  // D401: Add required for native validation
+  if (fieldDef.required || fieldDef.required_group) {
+    textarea.required = true;
+  }
+
+  // D401/D402: Store reference for group validation management
+  fieldElements.set(statePath, { el: textarea, type: 'text', fieldDef });
 
   container.appendChild(textarea);
 }
@@ -295,6 +294,15 @@ function renderPickerField(container, fieldDef, statePath, kind, currentValue) {
   }
 
   container.appendChild(pickerWrapper);
+
+  // D402: Store reference for group validation
+  if (fieldDef.required_group) {
+    fieldElements.set(statePath, {
+      el: pickerWrapper,
+      type: 'picker',
+      fieldDef,
+    });
+  }
 }
 
 function renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind) {
@@ -351,7 +359,7 @@ function renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind) {
         kind,
         item.label
       );
-      updateRequiredGroupIndicators();
+      updateFieldValidation();
     },
   });
 
@@ -373,7 +381,7 @@ function renderPickerSelection(
     iconName,
     onRemove: () => {
       setState(statePath, null);
-      updateRequiredGroupIndicators();
+      updateFieldValidation();
       const fieldDef = { placeholder: '' };
       renderPickerDropdown(pickerWrapper, fieldDef, statePath, kind);
     },
@@ -397,13 +405,21 @@ function renderFilePicker(
     placeholder: fieldDef.placeholder || 'Search files…',
     onChange: (selectedPaths) => {
       setState(statePath, selectedPaths);
-      updateRequiredGroupIndicators();
+      updateFieldValidation();
       // Show/hide scope selector if improve flow + panel_a.files
       if (currentFlowId === 'improve' && statePath === 'panel_a.files') {
         updateScopeSelector();
       }
     },
   });
+
+  // D402: Store reference for group validation
+  if (fieldDef.required_group) {
+    const pickerEl = container.querySelector('.field-picker');
+    if (pickerEl) {
+      fieldElements.set(statePath, { el: pickerEl, type: 'picker', fieldDef });
+    }
+  }
 }
 
 function renderLensPicker(container, statePath, currentLenses) {
@@ -500,53 +516,51 @@ function updateScopeSelector() {
   elScopeSelector.hidden = fileCount < 2;
 }
 
-// --- Required group validation (SCT-05) ---
+// --- D401/D402: Field validation management ---
 
-function updateRequiredGroupIndicators() {
+/**
+ * Toggle `required` on text inputs and `data-state` on pickers
+ * based on required_group satisfaction.
+ *
+ * When a group is satisfied (at least one member has a value),
+ * `required` is removed from text inputs so :invalid no longer matches.
+ * When unsatisfied, `required` is added and pickers get data-state="invalid".
+ */
+function updateFieldValidation() {
   if (!elPanelArea) return;
 
   const state = getState();
-  const flowDef = getFlowById(currentFlowId);
-  if (!flowDef) return;
 
-  // Collect unique group keys from dots
-  const dots = elPanelArea.querySelectorAll('.required-group-dot');
-  const processed = new Set();
+  // Group fields by required_group
+  const groups = new Map();
+  for (const [statePath, entry] of fieldElements) {
+    if (!entry.fieldDef.required_group) continue;
+    const panelKey = statePath.split('.')[0];
+    const groupKey = `${panelKey}.${entry.fieldDef.required_group}`;
+    if (!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey).push({ statePath, entry });
+  }
 
-  for (const dot of dots) {
-    const groupKey = dot.dataset.group; // e.g., "panel_a.a_required"
-    if (processed.has(groupKey)) {
-      // Already computed — just apply the cached result
-      dot.style.opacity = dot._satisfied ? '0.2' : '1';
-      continue;
-    }
-
-    const panelKey = groupKey.split('.')[0];
-    const groupName = groupKey.split('.').slice(1).join('.');
-
-    const panelDef = panelKey === 'panel_a' ? flowDef.panel_a : flowDef.panel_b;
-    if (!panelDef?.fields) continue;
-
-    const groupFields = Object.entries(panelDef.fields)
-      .filter(([, fDef]) => fDef.required_group === groupName)
-      .map(([fName]) => fName);
-
-    const isSatisfied = groupFields.some((fName) => {
-      const val = getValueByPath(state, `${panelKey}.${fName}`);
+  // Evaluate each group
+  for (const [, members] of groups) {
+    const isSatisfied = members.some(({ statePath }) => {
+      const val = getValueByPath(state, statePath);
       if (val === null || val === undefined) return false;
       if (Array.isArray(val)) return val.length > 0;
       return String(val).trim().length > 0;
     });
 
-    processed.add(groupKey);
-
-    // Update all dots for this group
-    const allGroupDots = elPanelArea.querySelectorAll(
-      `.required-group-dot[data-group="${groupKey}"]`
-    );
-    allGroupDots.forEach((d) => {
-      d.style.opacity = isSatisfied ? '0.2' : '1';
-    });
+    for (const { entry } of members) {
+      if (entry.type === 'text') {
+        entry.el.required = !isSatisfied;
+      } else if (entry.type === 'picker') {
+        if (isSatisfied) {
+          delete entry.el.dataset.state;
+        } else {
+          entry.el.dataset.state = 'invalid';
+        }
+      }
+    }
   }
 }
 

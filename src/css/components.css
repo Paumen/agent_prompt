@@ -203,9 +203,11 @@ label {
 .input-field:not(:where(.field-picker-search .input-field)):focus-visible {
   outline: 2px solid var(--accent-a);
   outline-offset: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-a) 20%, transparent);
 }
 
 .input-field--textarea {
+  field-sizing: content;
   min-height: 40px;
   resize: vertical;
 }
@@ -250,6 +252,7 @@ label {
 .field-picker-search:focus-within {
   background: var(--bg-inset);
   border-color: var(--accent-hover);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-a) 20%, transparent);
 }
 
 .field-picker-dropdown {
@@ -401,19 +404,48 @@ label {
   color: var(--accent-a);
 }
 
+/* D703: Guard tooltip visual */
+
+.guard-tooltip {
+  padding: var(--sp-4);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid var(--text-tertiary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* D705: Guard hint */
+
+.guard-hint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
 /* Required indicator color in labels */
 label > [aria-hidden] {
   color: var(--accent-caution-dark);
 }
 
-/* Required group dot indicator */
-.required-group-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  vertical-align: middle;
-  cursor: help;
-  background: var(--accent-caution-dark);
-  border-radius: var(--radius-pill);
-  transition: opacity 0.3s ease;
+/* D401: Valid input feedback after user interaction */
+
+:where(.input-field:required):user-valid {
+  border-color: var(--accent-a);
+}
+
+/* D401/D402: Invalid feedback when user skips to next card */
+
+:where(.card:has(~ .card[open]) .input-field:required):invalid {
+  border-color: var(--accent-caution);
+}
+
+:where(.card:has(~ .card[open]) [data-state='invalid']) .field-picker-search {
+  border-color: var(--accent-caution);
+}
+
+/* D403: Next-to-fill highlight */
+
+:where([data-next-to-fill]) :is(.input-field, .field-picker-search) {
+  border-color: var(--accent-a);
 }
