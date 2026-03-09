@@ -362,13 +362,8 @@ function applyMainCardState(cardId, cardState) {
     el.open = true;
   }
 
-  // Collapse on transition to locked
-  if (cardState === 'locked') {
-    el.open = false;
-  }
-
-  // Collapse on transition to complete (only config card reaches this state)
-  if (cardState === 'complete') {
+  // Collapse on transition to locked or complete
+  if (cardState === 'locked' || cardState === 'complete') {
     el.open = false;
   }
 }
