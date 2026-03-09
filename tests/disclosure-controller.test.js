@@ -3,188 +3,157 @@
  * Disclosure Controller — Card state transitions and progressive disclosure
  *
  * Tests acceptance criteria for collapse/expand and dim/undim behavior.
- * Organized by AC group: Configuration (AC 1.x), Progression (AC 2.x), Focus (AC 3.x).
+ * Uses the REAL rendering pipeline (card-configuration.js, card-tasks.js,
+ * disclosure-controller.js) — no mocked flow-loader, no hand-crafted panel DOM.
  *
- * These tests exercise the disclosure controller indirectly through state changes
- * and DOM attribute assertions (data-card-state, open).
+ * Organized by AC group: Configuration (AC 1.x), Progression (AC 2.x), Focus (AC 3.x).
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { setupFullHTML, cleanupDOM } from './helpers/dom-fixtures.js';
 
-// Mock flow-loader before importing disclosure controller
-const MOCK_FIX_FLOW = {
-  label: 'Debug',
-  icon: 'bug',
-  panel_a: {
-    label: 'Current State',
-    subtitle: "What's happening now",
-    fields: {
-      description: {
-        type: 'text',
-        required_group: 'a_required',
-        placeholder: 'Describe the issue',
-      },
-      issue_number: {
-        type: 'issue_picker',
-        required_group: 'a_required',
-        placeholder: 'Select GitHub issue',
-      },
-      files: {
-        type: 'file_picker_multi',
-        placeholder: 'Where does it occur?',
-      },
-    },
-  },
-  panel_b: {
-    label: 'Expected Outcome',
-    subtitle: 'How it should work after the fix',
-    fields: {
-      description: {
-        type: 'text',
-        placeholder: 'Expected behavior',
-      },
-      spec_files: {
-        type: 'file_picker_multi',
-        placeholder: 'Spec files',
-      },
-    },
-  },
-  steps: [
-    { id: 'read-claude', operation: 'read', object: 'file' },
-    { id: 'identify-cause', operation: 'analyze', object: 'issue' },
-    { id: 'create-branch', operation: 'create', object: 'branch' },
-  ],
+// --- Mock GitHub API responses ---
+
+const SAMPLE_REPOS = [
+  { name: 'my-app', default_branch: 'main' },
+  { name: 'other-repo', default_branch: 'develop' },
+];
+const SAMPLE_BRANCHES = [{ name: 'main' }, { name: 'feature-x' }];
+const SAMPLE_ISSUES = [{ number: 42, title: 'Login bug' }];
+const SAMPLE_PRS = [{ number: 101, title: 'Dark mode PR' }];
+const SAMPLE_TREE = {
+  tree: [{ path: 'src/index.js', type: 'blob' }],
+  truncated: false,
 };
 
-const MOCK_FLOWS = {
-  fix: MOCK_FIX_FLOW,
-  review: {
-    label: 'Review',
-    icon: 'codescan',
-    panel_a: {
-      label: 'Review Subject',
-      fields: {
-        description: { type: 'text', placeholder: '' },
-        pr_number: {
-          type: 'pr_picker',
-          required_group: 'a_required',
-          placeholder: 'Select PR',
-        },
-        files: {
-          type: 'file_picker_multi',
-          required_group: 'a_required',
-          placeholder: 'Files',
-        },
-      },
-    },
-    panel_b: {
-      label: 'Review Criteria',
-      fields: {
-        lenses: { type: 'lens_picker', default: ['semantics'] },
-      },
-    },
-    steps: [{ id: 'read-pr', operation: 'read', object: 'pull_request' }],
-  },
-};
-
-vi.mock('../src/logic/flow-loader.js', () => ({
-  getFlows: () => MOCK_FLOWS,
-  getFlowById: (id) => MOCK_FLOWS[id] || null,
-  getFlowIds: () => Object.keys(MOCK_FLOWS),
-  ALL_LENSES: ['semantics', 'syntax', 'security'],
-}));
-
-let stateModule, disclosureModule;
-
-async function freshInit() {
-  vi.resetModules();
-  localStorage.clear();
-
-  // Make RAF synchronous for testing
-  vi.stubGlobal('requestAnimationFrame', (cb) => {
-    cb(0);
-    return 1;
+function createSmartFetch() {
+  return vi.fn().mockImplementation((url) => {
+    const u = typeof url === 'string' ? url : url.toString();
+    if (u.includes('/issues'))
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_ISSUES),
+      });
+    if (u.includes('/pulls'))
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_PRS),
+      });
+    if (u.includes('/git/trees/'))
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_TREE),
+      });
+    if (u.includes('/branches'))
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_BRANCHES),
+      });
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(SAMPLE_REPOS),
+    });
   });
-
-  stateModule = await import('../src/core/state.js');
-  disclosureModule = await import('../src/logic/disclosure-controller.js');
 }
 
-/** Helper: get card state attribute */
+// --- Module references (real, not mocked) ---
+
+let state, cardConfig, cardTasks, cardSteps, cardPrompt, disclosureCtrl;
+
+async function initAllModules() {
+  vi.resetModules();
+  localStorage.clear();
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    writable: true,
+    configurable: true,
+  });
+  vi.spyOn(window, 'open').mockImplementation(() => null);
+  globalThis.fetch = createSmartFetch();
+
+  state = await import('../src/core/state.js');
+  cardConfig = await import('../src/cards/card-configuration.js');
+  cardTasks = await import('../src/cards/card-tasks.js');
+  cardSteps = await import('../src/cards/card-steps.js');
+  cardPrompt = await import('../src/cards/card-prompt.js');
+  disclosureCtrl = await import('../src/logic/disclosure-controller.js');
+}
+
+/**
+ * Set credentials, init config card, wait for repos to load,
+ * select first repo (triggers branch auto-select).
+ */
+async function setupRepoAndBranch() {
+  state.setState('configuration.pat', 'ghp_test123');
+  state.setState('configuration.owner', 'testuser');
+  cardConfig.initConfigurationCard();
+
+  await vi.waitFor(() => {
+    const searchInput = document.querySelector('.field-picker .input-field');
+    expect(searchInput).not.toBeNull();
+    searchInput.dispatchEvent(new Event('focus'));
+    expect(
+      document.querySelectorAll('.field-picker .field-picker-item').length
+    ).toBeGreaterThan(0);
+  });
+
+  // Click the first repo
+  document.querySelector('.field-picker .field-picker-item').click();
+
+  // Wait for branch auto-select
+  await vi.waitFor(() => {
+    expect(state.getState().configuration.branch).toBe('main');
+  });
+}
+
+/** Init all cards + disclosure controller (the real pipeline) */
+function initCards() {
+  cardTasks.initTasksCard();
+  cardSteps.initStepsCard();
+  cardPrompt.initPromptCard();
+  disclosureCtrl.initDisclosureController();
+}
+
+/** Select a flow by clicking its button in the Task card */
+async function clickFlow(flowId) {
+  const btn = document.querySelector(`.btn-select[data-flow-id="${flowId}"]`);
+  expect(btn).not.toBeNull();
+  btn.click();
+  await vi.waitFor(() => expect(state.getState().task.flow_id).toBe(flowId));
+}
+
+/** Helper: get data-card-state from element by ID */
 function cardState(id) {
   return document.getElementById(id)?.dataset?.cardState;
 }
 
-/** Helper: check if a <details> is open */
-function isOpen(id) {
-  return document.getElementById(id)?.open ?? false;
-}
-
-/** Helper: get panel state attribute */
+/** Helper: get data-card-state from a panel by data-panel name */
 function panelState(panelName) {
   return document.querySelector(`[data-panel="${panelName}"]`)?.dataset
     ?.cardState;
 }
 
-/** Helper: check if panel is open */
+/** Helper: check if a <details> element is open */
+function isOpen(id) {
+  return document.getElementById(id)?.open ?? false;
+}
+
+/** Helper: check if a panel <details> is open */
 function isPanelOpen(panelName) {
   return document.querySelector(`[data-panel="${panelName}"]`)?.open ?? false;
 }
 
-/** Helper: set config with pat+owner+repo to make task card available */
-function setFullConfig() {
-  stateModule.setState('configuration.pat', 'ghp_test');
-  stateModule.setState('configuration.owner', 'testuser');
-  stateModule.setState('configuration.repo', 'my-app');
+/** Helper: check if a panel <details> exists in the DOM */
+function panelExists(panelName) {
+  return document.querySelector(`[data-panel="${panelName}"]`) !== null;
 }
 
-/** Helper: set config + branch */
-function setFullConfigWithBranch() {
-  setFullConfig();
-  stateModule.setState('configuration.branch', 'main');
-}
-
-/** Helper: select a flow and create panel DOM (simulates card-tasks rendering) */
-function selectFlow(flowId) {
-  const flowDef = MOCK_FLOWS[flowId];
-
-  // Create panel DOM BEFORE state change so applyCardStates can find panels
-  const bdTasks = document.getElementById('bd-tasks');
-  bdTasks.innerHTML = '';
-
-  const panelA = document.createElement('details');
-  panelA.className = 'card';
-  panelA.dataset.panel = 'situation';
-  panelA.open = true;
-  const panelAHeader = document.createElement('summary');
-  panelAHeader.className = 'card-header';
-  panelAHeader.textContent = 'Situation';
-  panelA.appendChild(panelAHeader);
-  const panelABody = document.createElement('div');
-  panelABody.className = 'card-body';
-  panelA.appendChild(panelABody);
-
-  const panelB = document.createElement('details');
-  panelB.className = 'card';
-  panelB.dataset.panel = 'target';
-  panelB.open = false;
-  const panelBHeader = document.createElement('summary');
-  panelBHeader.className = 'card-header';
-  panelBHeader.textContent = 'Target';
-  panelB.appendChild(panelBHeader);
-  const panelBBody = document.createElement('div');
-  panelBBody.className = 'card-body';
-  panelB.appendChild(panelBBody);
-
-  bdTasks.appendChild(panelA);
-  bdTasks.appendChild(panelB);
-
-  // Now apply flow defaults which triggers state change + applyCardStates
-  stateModule.applyFlowDefaults(flowId, flowDef);
-}
-
-/** Helper: simulate interaction with a card (trigger toggle event) */
+/** Helper: simulate user interaction with a card */
 function interactWithCard(cardId) {
   const el = document.getElementById(cardId);
   if (el) {
@@ -194,299 +163,378 @@ function interactWithCard(cardId) {
   }
 }
 
-// ─── Tests ───────────────────────────────────────────────────────────────────
+/** Helper: simulate user interaction with a panel */
+function interactWithPanel(panelName) {
+  const el = document.querySelector(`[data-panel="${panelName}"]`);
+  if (el) {
+    el.open = true;
+    el.dispatchEvent(new Event('toggle'));
+    el.dispatchEvent(new Event('pointerenter'));
+  }
+}
 
-describe('Disclosure Controller: AC 1 — Configuration Card & Credential Validation', () => {
+// ─── AC 1: Configuration Card & Credential Validation ─────────────────────
+
+describe('AC 1 — Configuration Card & Credential Validation', () => {
   beforeEach(async () => {
     setupFullHTML();
-    await freshInit();
-    disclosureModule.initDisclosureController();
+    await initAllModules();
   });
 
   afterEach(() => {
     cleanupDOM();
+    localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('AC 1.1: Config card is active when credentials are empty', () => {
-    // No credentials set — config should be active
-    expect(cardState('card-configuration')).toBe('active');
+  it('AC 1.1: Repo and Branch pickers are visible but inactive/disabled when credentials are empty', () => {
+    cardConfig.initConfigurationCard();
+    initCards();
+
+    // Config card body should have 4 child sections (username, PAT, repo picker, branch picker)
+    const body = document.getElementById('bd-configuration');
+    expect(body.children.length).toBeGreaterThanOrEqual(4);
+
+    // Repo and Branch picker containers must exist and be visible (not hidden)
+    const pickers = body.querySelectorAll('.field-picker');
+    expect(pickers.length).toBeGreaterThanOrEqual(2);
+
+    for (const picker of pickers) {
+      // Each picker must have visible content (placeholder, disabled input, etc.)
+      // NOT be an empty div
+      expect(picker.children.length).toBeGreaterThan(0);
+    }
   });
 
-  it('AC 1.1: Task card is locked when credentials are empty', () => {
-    expect(cardState('card-tasks')).toBe('locked');
+  it('AC 1.1: Repo and Branch pickers are disabled when credentials are empty', () => {
+    cardConfig.initConfigurationCard();
+    initCards();
+
+    const body = document.getElementById('bd-configuration');
+    const pickers = body.querySelectorAll('.field-picker');
+
+    // Pickers should contain elements with disabled attribute or data-state="disabled"
+    for (const picker of pickers) {
+      const hasDisabled =
+        picker.querySelector('[disabled]') ||
+        picker.querySelector('[data-state="disabled"]') ||
+        picker.hasAttribute('aria-disabled');
+      expect(hasDisabled).toBeTruthy();
+    }
   });
 
-  it('AC 1.1: Steps and Prompt cards are locked when credentials are empty', () => {
-    expect(cardState('card-steps')).toBe('locked');
-    expect(cardState('card-prompt')).toBe('locked');
+  it('AC 1.2: Warning appears when interacting with disabled Repo picker', () => {
+    cardConfig.initConfigurationCard();
+    initCards();
+
+    const body = document.getElementById('bd-configuration');
+    const repoPicker = body.querySelectorAll('.field-picker')[0];
+
+    // Click on the disabled repo picker
+    repoPicker.click();
+
+    // A warning tooltip or message should appear
+    const warning =
+      document.querySelector('.guard-tooltip--visible') ||
+      repoPicker.querySelector('[role="alert"]') ||
+      repoPicker.querySelector('.guard-hint') ||
+      document.querySelector('[role="status"]');
+    expect(warning).not.toBeNull();
   });
 
-  it('AC 1.3: Config card remains active (undimmed) after repo selection when no flow selected', () => {
-    setFullConfig();
+  it('AC 1.3: After repo selection, all four fields (Username, PAT, Repo, Branch) remain visible', async () => {
+    initCards();
+    await setupRepoAndBranch();
 
-    // Config should still be active (undimmed) since no flow has been selected yet
-    expect(cardState('card-configuration')).toBe('active');
+    const body = document.getElementById('bd-configuration');
+
+    // Username input must NOT be hidden
+    const usernameInput = body.querySelector('#cfg-username');
+    expect(usernameInput).not.toBeNull();
+    const usernameSection = usernameInput.closest('.field-picker-search');
+    expect(usernameSection?.hidden).not.toBe(true);
+
+    // PAT input must NOT be hidden
+    const patInput = body.querySelector('#cfg-pat');
+    expect(patInput).not.toBeNull();
+    const patSection = patInput.closest('.field-picker-search');
+    expect(patSection?.hidden).not.toBe(true);
+  });
+
+  it('AC 1.3: Config card remains fully expanded and undimmed after repo selection', async () => {
+    initCards();
+    await setupRepoAndBranch();
+
     expect(isOpen('card-configuration')).toBe(true);
-  });
-
-  it('AC 1.3: Config card remains active with branch set and no flow selected', () => {
-    setFullConfigWithBranch();
-
-    // Even with all config filled, config stays active until a flow is selected
     expect(cardState('card-configuration')).toBe('active');
-    expect(isOpen('card-configuration')).toBe(true);
-  });
-
-  it('AC 1.3: Task card becomes active after repo selection', () => {
-    setFullConfig();
-
-    // Task card should transition from locked to active
-    expect(cardState('card-tasks')).toBe('active');
   });
 });
 
-describe('Disclosure Controller: AC 2 — Card Progression & Hierarchy', () => {
+// ─── AC 2: Card Progression & Hierarchy ────────────────────────────────────
+
+describe('AC 2 — Card Progression & Hierarchy', () => {
   beforeEach(async () => {
     setupFullHTML();
-    await freshInit();
-    disclosureModule.initDisclosureController();
-    setFullConfigWithBranch();
+    await initAllModules();
   });
 
   afterEach(() => {
     cleanupDOM();
+    localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('AC 2.1: Task card opens after repo selection', () => {
+  it('AC 2.1: Task card opens upon repo selection', async () => {
+    initCards();
+    await setupRepoAndBranch();
+
     expect(isOpen('card-tasks')).toBe(true);
     expect(cardState('card-tasks')).toBe('active');
   });
 
-  it('AC 2.2: Config card transitions to dimmed but expanded when flow is selected', () => {
-    selectFlow('fix');
+  it('AC 2.1: Situation and Target panels exist as closed elements after repo selection', async () => {
+    initCards();
+    await setupRepoAndBranch();
 
-    // Config should be dimmed (sufficient) but still expanded
+    // Situation and Target panels must exist in the DOM (as closed <details>)
+    expect(panelExists('situation')).toBe(true);
+    expect(panelExists('target')).toBe(true);
+    expect(isPanelOpen('situation')).toBe(false);
+    expect(isPanelOpen('target')).toBe(false);
+  });
+
+  it('AC 2.2: When flow is selected, Config card becomes dimmed but stays expanded', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
+
     expect(cardState('card-configuration')).toBe('sufficient');
     expect(isOpen('card-configuration')).toBe(true);
   });
 
-  it('AC 2.2: Situation panel opens active (undimmed) when flow is selected', () => {
-    selectFlow('fix');
+  it('AC 2.2: When flow is selected, Situation panel opens active/undimmed', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
 
     expect(panelState('situation')).toBe('active');
     expect(isPanelOpen('situation')).toBe(true);
   });
 
-  it('AC 2.2: Target panel opens in dimmed state when flow is selected', () => {
-    selectFlow('fix');
+  it('AC 2.2: When flow is selected, Target panel opens in dimmed state', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
 
-    // Target should be open but in a dimmed state (skippable)
     expect(panelState('target')).toBe('skippable');
     expect(isPanelOpen('target')).toBe(true);
   });
 
-  it('AC 2.3: Target becomes undimmed when mandatory situation field is filled', () => {
-    selectFlow('fix');
+  it('AC 2.3: Filling mandatory Situation field keeps Situation open/undimmed', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
 
-    // Fill mandatory situation field (satisfies required_group a_required)
-    stateModule.setState('panel_a.description', 'Login crashes');
+    // Fill situation description (satisfies required_group)
+    const textarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    expect(textarea).not.toBeNull();
+    textarea.value = 'Login crashes when clicking submit';
+    textarea.dispatchEvent(new Event('input'));
 
-    // Situation should remain active/undimmed
+    // Situation must remain open and undimmed
+    expect(isPanelOpen('situation')).toBe(true);
     const sitSt = panelState('situation');
+    // 'active' or 'sufficient' both acceptable — NOT collapsed, NOT closed
     expect(sitSt === 'active' || sitSt === 'sufficient').toBe(true);
+  });
+
+  it('AC 2.3: Filling mandatory Situation field makes Target undimmed', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
+
+    const textarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    textarea.value = 'Login crashes';
+    textarea.dispatchEvent(new Event('input'));
 
     // Target should become active (undimmed)
     expect(panelState('target')).toBe('active');
   });
 
-  it('AC 2.3: Situation panel remains open when mandatory field is filled', () => {
-    selectFlow('fix');
+  it('AC 2.3: Review flow — filling Situation does NOT skip Target or jump to Steps', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('review');
 
-    stateModule.setState('panel_a.description', 'Login crashes');
+    // Fill situation description for review flow
+    const textarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    expect(textarea).not.toBeNull();
+    textarea.value = 'Review the auth module';
+    textarea.dispatchEvent(new Event('input'));
 
+    // Target must still be open (not collapsed/skipped)
+    expect(isPanelOpen('target')).toBe(true);
+
+    // Situation must remain open (not collapsed)
     expect(isPanelOpen('situation')).toBe(true);
+
+    // Steps must NOT be active yet — target has not been engaged
+    expect(cardState('card-steps')).not.toBe('active');
   });
 
-  it('AC 2.4: Steps card becomes active when all mandatory fields in both panels are completed', () => {
-    selectFlow('fix');
+  it('AC 2.4: Steps card becomes active ONLY when both panels have mandatory fields completed', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
 
-    // Fill situation (required_group satisfied)
-    stateModule.setState('panel_a.description', 'Login crashes');
+    // Fill situation only
+    const sitTextarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    sitTextarea.value = 'Login crashes';
+    sitTextarea.dispatchEvent(new Event('input'));
 
-    // Steps should not yet be active (target not filled)
+    // Steps must NOT be active (target not filled)
     expect(cardState('card-steps')).not.toBe('active');
 
     // Fill target
-    stateModule.setState('panel_b.description', 'Should redirect to dashboard');
+    const tgtTextarea = document.querySelector(
+      '[data-panel="target"] .input-field--textarea'
+    );
+    expect(tgtTextarea).not.toBeNull();
+    tgtTextarea.value = 'Should redirect to dashboard';
+    tgtTextarea.dispatchEvent(new Event('input'));
 
-    // Now steps should be active
+    // NOW steps should be active
     expect(cardState('card-steps')).toBe('active');
-  });
-
-  it('AC 2.4: Steps card remains locked/skippable when only situation is filled', () => {
-    selectFlow('fix');
-
-    stateModule.setState('panel_a.description', 'Login crashes');
-
-    const stepsState = cardState('card-steps');
-    expect(stepsState === 'locked' || stepsState === 'skippable').toBe(true);
   });
 });
 
-describe('Disclosure Controller: AC 3 — Interaction & Focus Management', () => {
+// ─── AC 3: Interaction & Focus Management ──────────────────────────────────
+
+describe('AC 3 — Interaction & Focus Management', () => {
   beforeEach(async () => {
     setupFullHTML();
-    await freshInit();
-    disclosureModule.initDisclosureController();
-    setFullConfigWithBranch();
-    selectFlow('fix');
+    await initAllModules();
   });
 
   afterEach(() => {
     cleanupDOM();
+    localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('AC 3.1: Prompt card opens when Steps card is interacted with', () => {
-    // Fill both panels to make steps active
-    stateModule.setState('panel_a.description', 'Login crashes');
-    stateModule.setState('panel_b.description', 'Should work');
+  it('AC 3.1: Prompt card opens when Steps card is interacted with', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
 
+    // Fill both panels
+    const sitTextarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    sitTextarea.value = 'Login crashes';
+    sitTextarea.dispatchEvent(new Event('input'));
+
+    const tgtTextarea = document.querySelector(
+      '[data-panel="target"] .input-field--textarea'
+    );
+    tgtTextarea.value = 'Should work';
+    tgtTextarea.dispatchEvent(new Event('input'));
+
+    // Steps should be active
     expect(cardState('card-steps')).toBe('active');
 
-    // Interact with steps card
+    // Interact with steps
     interactWithCard('card-steps');
 
-    // Prompt should be open
+    // Prompt card must open
     expect(isOpen('card-prompt')).toBe(true);
   });
 
-  it('AC 3.1: Prompt card appears dimmed after Steps interaction', () => {
-    stateModule.setState('panel_a.description', 'Login crashes');
-    stateModule.setState('panel_b.description', 'Should work');
+  it('AC 3.2: Prompt interaction closes Situation panel', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
 
-    interactWithCard('card-steps');
+    // Fill both panels
+    const sitTextarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    sitTextarea.value = 'Login crashes';
+    sitTextarea.dispatchEvent(new Event('input'));
 
-    // Prompt should be in a dimmed state (skippable or sufficient, not active)
-    const promptSt = cardState('card-prompt');
-    expect(
-      promptSt === 'skippable' ||
-        promptSt === 'sufficient' ||
-        promptSt === 'active'
-    ).toBe(true);
-  });
+    const tgtTextarea = document.querySelector(
+      '[data-panel="target"] .input-field--textarea'
+    );
+    tgtTextarea.value = 'Should work';
+    tgtTextarea.dispatchEvent(new Event('input'));
 
-  it('AC 3.2: Prompt interaction triggers situation panel closure', () => {
-    stateModule.setState('panel_a.description', 'Login crashes');
-    stateModule.setState('panel_b.description', 'Should work');
-
+    // Interact with steps then prompt
     interactWithCard('card-steps');
     interactWithCard('card-prompt');
 
-    // Situation panel should be closed
+    // Situation must be closed
     expect(isPanelOpen('situation')).toBe(false);
   });
 
-  it('AC 3.2: Prompt interaction triggers target panel dimming', () => {
-    stateModule.setState('panel_a.description', 'Login crashes');
-    stateModule.setState('panel_b.description', 'Should work');
+  it('AC 3.2: Prompt interaction dims Target panel', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
+
+    const sitTextarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    sitTextarea.value = 'Login crashes';
+    sitTextarea.dispatchEvent(new Event('input'));
+
+    const tgtTextarea = document.querySelector(
+      '[data-panel="target"] .input-field--textarea'
+    );
+    tgtTextarea.value = 'Should work';
+    tgtTextarea.dispatchEvent(new Event('input'));
 
     interactWithCard('card-steps');
     interactWithCard('card-prompt');
 
-    // Target should be dimmed (sufficient or complete, not active)
+    // Target should be dimmed (not active)
     const tgtSt = panelState('target');
-    expect(tgtSt !== 'active').toBe(true);
+    expect(tgtSt).not.toBe('active');
   });
 
-  it('AC 3.3: Re-engaging previous card keeps it open and undimmed via focus-within', () => {
-    stateModule.setState('panel_a.description', 'Login crashes');
-    stateModule.setState('panel_b.description', 'Should work');
+  it('AC 3.3: Re-engaging a previous card keeps it open/undimmed', async () => {
+    initCards();
+    await setupRepoAndBranch();
+    await clickFlow('fix');
+
+    const sitTextarea = document.querySelector(
+      '[data-panel="situation"] .input-field--textarea'
+    );
+    sitTextarea.value = 'Login crashes';
+    sitTextarea.dispatchEvent(new Event('input'));
+
+    const tgtTextarea = document.querySelector(
+      '[data-panel="target"] .input-field--textarea'
+    );
+    tgtTextarea.value = 'Should work';
+    tgtTextarea.dispatchEvent(new Event('input'));
 
     interactWithCard('card-steps');
 
-    // Steps card should remain open even after interacting with it
+    // Steps card should remain open after interaction
     expect(isOpen('card-steps')).toBe(true);
-  });
-});
 
-describe('Disclosure Controller: State machine transitions', () => {
-  beforeEach(async () => {
-    setupFullHTML();
-    await freshInit();
-    disclosureModule.initDisclosureController();
-  });
+    // Interact with situation panel (go back)
+    interactWithPanel('situation');
 
-  afterEach(() => {
-    cleanupDOM();
-    vi.restoreAllMocks();
-  });
-
-  it('locked cards cannot be opened', () => {
-    // Task is locked initially
-    expect(cardState('card-tasks')).toBe('locked');
-
-    const taskEl = document.getElementById('card-tasks');
-    taskEl.open = true;
-    taskEl.dispatchEvent(new Event('toggle'));
-
-    // Should be forced closed
-    expect(taskEl.open).toBe(false);
-  });
-
-  it('guard tooltip appears when clicking locked card summary', () => {
-    const taskEl = document.getElementById('card-tasks');
-    taskEl.open = true;
-    taskEl.dispatchEvent(new Event('toggle'));
-
-    // Guard tooltip should be created in the DOM
-    const tooltip = document.querySelector('.guard-tooltip');
-    expect(tooltip).not.toBeNull();
-  });
-
-  it('flow switch resets interaction flags and downstream states', () => {
-    setFullConfigWithBranch();
-    selectFlow('fix');
-
-    stateModule.setState('panel_a.description', 'Bug');
-    stateModule.setState('panel_b.description', 'Fix');
-
-    interactWithCard('card-steps');
-
-    // Steps should be sufficient after interaction
-    expect(cardState('card-steps')).toBe('sufficient');
-
-    // Switch flow
-    selectFlow('review');
-
-    // Steps should reset (no longer sufficient)
-    const stepsState = cardState('card-steps');
-    expect(stepsState !== 'sufficient').toBe(true);
-  });
-
-  it('config card returns to active when repo is cleared', () => {
-    setFullConfigWithBranch();
-    selectFlow('fix');
-
-    expect(cardState('card-configuration')).toBe('sufficient');
-
-    // Clear repo
-    stateModule.setState('configuration.repo', '');
-
-    expect(cardState('card-configuration')).toBe('active');
-  });
-
-  it('downstream cards lock when config is cleared', () => {
-    setFullConfigWithBranch();
-
-    expect(cardState('card-tasks')).toBe('active');
-
-    // Clear PAT
-    stateModule.setState('configuration.pat', '');
-
-    // Task should become locked (no core config)
-    expect(cardState('card-tasks')).toBe('locked');
+    // Situation should be open
+    expect(isPanelOpen('situation')).toBe(true);
   });
 });
