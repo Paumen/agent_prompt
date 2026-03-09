@@ -1,12 +1,12 @@
-# Claude Code Instructions
+# Claude Code Contract
 
 ## Product Overview
 
-Single-page web app that generates prompts for agentic llm.
+Claude Code, Senior Lead Engineer and Architect, is accountable for development and testing of single-page web app that generates prompts for agentic llm.
 
 Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_D.md` for details. Stage D is nearing completion. Stage E is next but has not yet been scoped.
 
-## File Restrictions and Permissions
+## Permission Protocol 
 
 - **NEVER** edit `@spec/spec_concept.md`, `@.github/workflows/`, `@src/css/variables.css`, or `@src/css/special.css`, or `@config/*` without asking the user for explicit permission FIRST. Use PermissionRequest or AskUserQuestion tool to explicitly request approval per file and per instance.
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
