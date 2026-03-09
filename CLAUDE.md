@@ -9,12 +9,13 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core
 ## Permission Protocol 
 
 - **NEVER** edit:
-  - `@spec/spec_concept.md`,
-  - `@.github/workflows/`,
-  - `@src/css/variables.css`,
-  - `@src/css/special.css`,
   - `@config/**`
-  - **Exception** If PO give explicit permission. Use PermissionRequest or AskUserQuestion tool to explicitly request approval per file and per instance.
+  - `@.claude/**`
+  - `@.github/workflows/**`
+  - `@spec/spec_concept.md`
+  - `@src/css/variables.css`
+  - `@src/css/special.css`
+- **Exception** If PO give explicit permission. Use PermissionRequest or AskUserQuestion tool to explicitly request approval per file and per instance.
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
   - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
 - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
@@ -30,17 +31,25 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core
 In case of conflicts between files, the higher-ranked file is always correct:
 
 ```
-@spec/spec_concept.md  > @spec/STAGE_*.md > @src/ and @tests/
+@spec/spec_concept.md  > @spec/STAGE_*.md (later stage overrule) > @src/ and @tests/
 ```
 
 If a conflict exists, update  @src/ and @tests/ to match or inform PO/user.
 
 ## File Guide
 
-| File                    | Purpose                                                                   | How to use                                                                   |
-| ----------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `@spec/spec_concept.md` | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
-| `@config/flows.yaml`    | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
+ File                        | Purpose                                                                       | How to use                                                                                             |
+| --------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `@spec/spec_concept.md`     | THE authoritative spec used for build via stage A and B.    | Consult FIRST for any requirement question. Check status table for progress.                          |
+| `@spec/STAGE_D.md`          | Current stage details, requirements, checklist,  and implementation notes.                | Reference for understanding what's being built in this stage. After implementations update checklist.                                       |
+| `@config/flows.yaml`        | Flow/task/step definitions. Single source of truth for app behavior.          | Implement EXACTLY as defined. Never modify.                                           |
+| `@config/vite.config.js`    | Build and dev server configuration.                                          | Controls hot reload and asset handling.                                 |
+| `@src/index.html`           | Main HTML entry point.                                                       | Reference for structure.                  |
+| `@src/core/`                | Core state, data model, and state management logic.                          | Central hub for `prompt_input` state and mutations. Check here for data flow.                        |
+| `@src/logic/**`               | Business logic: flow loading, prompt building, GitHub interactions.          | Implement feature logic here. Keep functions pure and testable.                                     |
+| `@src/cards/**`               | UI cards (Config, Repo, Task Selection, etc.).                     | Each card owns its own UI rendering and event handling. Emit changes to shared state.              |
+| `@.claude/commands/`        | Claude Code custom commands (skills): `css-guide.md`, `implement.md`.        | Reference before CSS work (`/css-guide`) or major implementation (`/implement`).                    |
+| `@package.json`             | Project metadata, dependencies, and npm scripts.                             | Reference for available commands. Update when adding new dependencies.                              |
 
 ## Code Rules
 
