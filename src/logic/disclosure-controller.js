@@ -27,7 +27,6 @@ const CARD_IDS = [
 // --- Interaction tracking flags ---
 
 let stepsInteracted = false;
-let promptInteracted = false;
 let targetInteracted = false;
 
 // --- Previous states (for transition detection) ---
@@ -71,21 +70,6 @@ function panelHasAnyValue(state, panelKey, panelDef) {
     if (typeof val === 'number') return true;
   }
   return false;
-}
-
-/**
- * Check if ALL fields in a panel have values.
- */
-function panelAllFilled(state, panelKey, panelDef) {
-  if (!panelDef?.fields) return true;
-
-  for (const [fName] of Object.entries(panelDef.fields)) {
-    const val = getValueByPath(state, `${panelKey}.${fName}`);
-    if (val === null || val === undefined) return false;
-    if (Array.isArray(val) && val.length === 0) return false;
-    if (typeof val === 'string' && val.trim().length === 0) return false;
-  }
-  return true;
 }
 
 /**
@@ -157,7 +141,7 @@ function isTargetSufficient(state, flowId, flowDef) {
 // --- Card state evaluators ---
 
 function evaluateConfigState(state) {
-  const { pat, owner, repo } = state.configuration;
+  const { pat, owner, repo, branch } = state.configuration;
   const hasCoreConfig = !!(pat && owner && repo);
 
   if (!hasCoreConfig) return 'active';
@@ -165,6 +149,9 @@ function evaluateConfigState(state) {
   // AC 1.3: Config stays active (undimmed) until a flow is selected
   const flowId = state.task?.flow_id;
   if (!flowId) return 'active';
+
+  // Config complete when username + repo + branch + flow all set
+  if (branch) return 'complete';
 
   // AC 2.2: Config transitions to dimmed (sufficient) once flow is selected
   return 'sufficient';
@@ -189,10 +176,6 @@ function evaluateTaskState(state) {
 
   if (!sitOk || !tgtOk) return 'active';
 
-  const allFilledA = panelAllFilled(state, 'panel_a', flowDef.panel_a);
-  const allFilledB = panelAllFilled(state, 'panel_b', flowDef.panel_b);
-
-  if (allFilledA && allFilledB) return 'complete';
   return 'sufficient';
 }
 
@@ -202,7 +185,7 @@ function evaluateTaskState(state) {
  * Situation panel:
  * - locked: visible but collapsed when task card has no flow
  * - active: expand when flow is selected
- * - sufficient/complete: per flow rules
+ * - sufficient: per flow rules
  */
 function evaluateSituationState(state, flowId, flowDef) {
   if (!flowId || !flowDef) return 'locked';
@@ -210,8 +193,6 @@ function evaluateSituationState(state, flowId, flowDef) {
   const sitOk = isSituationSufficient(state, flowId, flowDef);
   if (!sitOk) return 'active';
 
-  const allFilled = panelAllFilled(state, 'panel_a', flowDef.panel_a);
-  if (allFilled) return 'complete';
   return 'sufficient';
 }
 
@@ -222,7 +203,7 @@ function evaluateSituationState(state, flowId, flowDef) {
  * - active (improve): immediately on flow select
  * - skippable (other flows): expands dimmed when situation has data
  * - active: when situation sufficient, OR user interacts with target
- * - sufficient/complete: per flow rules
+ * - sufficient: per flow rules
  */
 function evaluateTargetState(state, flowId, flowDef, sitState) {
   if (!flowId || !flowDef) return 'locked';
@@ -231,18 +212,16 @@ function evaluateTargetState(state, flowId, flowDef, sitState) {
   if (flowId === 'improve') {
     const tgtOk = isTargetSufficient(state, flowId, flowDef);
     if (!tgtOk) return 'active';
-    const allFilled = panelAllFilled(state, 'panel_b', flowDef.panel_b);
-    return allFilled ? 'complete' : 'sufficient';
+    return 'sufficient';
   }
 
   // Other flows: depends on situation state
-  const sitSufficient = sitState === 'sufficient' || sitState === 'complete';
+  const sitSufficient = sitState === 'sufficient';
 
   if (sitSufficient || targetInteracted) {
     const tgtOk = isTargetSufficient(state, flowId, flowDef);
     if (!tgtOk) return 'active';
-    const allFilled = panelAllFilled(state, 'panel_b', flowDef.panel_b);
-    return allFilled ? 'complete' : 'sufficient';
+    return 'sufficient';
   }
 
   // Situation has some data but not sufficient: target opens but dimmed
@@ -263,8 +242,8 @@ function evaluateStepsState(state, sitState, tgtState) {
   const flowId = state.task?.flow_id;
   if (!flowId) return 'locked';
 
-  const sitOk = sitState === 'sufficient' || sitState === 'complete';
-  const tgtOk = tgtState === 'sufficient' || tgtState === 'complete';
+  const sitOk = sitState === 'sufficient';
+  const tgtOk = tgtState === 'sufficient';
 
   if (!sitOk && !tgtOk) return 'skippable';
 
@@ -290,8 +269,8 @@ function evaluatePromptState(state, sitState, tgtState) {
   const flowId = state.task?.flow_id;
   if (!flowId) return 'locked';
 
-  const sitOk = sitState === 'sufficient' || sitState === 'complete';
-  const tgtOk = tgtState === 'sufficient' || tgtState === 'complete';
+  const sitOk = sitState === 'sufficient';
+  const tgtOk = tgtState === 'sufficient';
 
   if (!sitOk || !tgtOk) return 'skippable';
 
@@ -300,8 +279,6 @@ function evaluatePromptState(state, sitState, tgtState) {
   const prompt = state._prompt || '';
   if (!prompt) return 'active';
 
-  const hasNotes = !!state.notes?.user_text?.trim();
-  if (hasNotes) return 'complete';
   return 'sufficient';
 }
 
@@ -334,38 +311,6 @@ function applyCardStates() {
   applyMainCardState('card-tasks', taskState);
   applyMainCardState('card-steps', stepsState);
   applyMainCardState('card-prompt', promptState);
-
-  // AC 2.2: Config stays expanded when flow is selected (dimmed but not collapsed)
-  // No auto-collapse on flow selection
-
-  // Steps: expand when at least one panel becomes sufficient
-  const stepsEl = document.getElementById('card-steps');
-  if (stepsEl) {
-    const prevStepsState = prevStates['card-steps'];
-    const sitOk = sitState === 'sufficient' || sitState === 'complete';
-    const tgtOk = tgtState === 'sufficient' || tgtState === 'complete';
-    if (
-      (sitOk || tgtOk) &&
-      (prevStepsState === 'locked' || prevStepsState === 'skippable')
-    ) {
-      stepsEl.open = true;
-    }
-  }
-
-  // Prompt: expand when both panels sufficient
-  const promptEl = document.getElementById('card-prompt');
-  if (promptEl) {
-    const prevPromptState = prevStates['card-prompt'];
-    const sitOk = sitState === 'sufficient' || sitState === 'complete';
-    const tgtOk = tgtState === 'sufficient' || tgtState === 'complete';
-    if (
-      sitOk &&
-      tgtOk &&
-      (prevPromptState === 'locked' || prevPromptState === 'skippable')
-    ) {
-      promptEl.open = true;
-    }
-  }
 
   // Apply panel states
   const sitEl = document.querySelector('[data-panel="situation"]');
@@ -412,16 +357,18 @@ function applyMainCardState(cardId, cardState) {
 
   el.dataset.cardState = cardState;
 
-  // Auto-expand on transition to active from locked/skippable
-  if (
-    cardState === 'active' &&
-    (prev === 'locked' || prev === 'skippable' || !prev)
-  ) {
+  // Expand when transitioning from locked to any other state
+  if (prev === 'locked' && cardState !== 'locked') {
     el.open = true;
   }
 
-  // Close on transition to locked
+  // Collapse on transition to locked
   if (cardState === 'locked') {
+    el.open = false;
+  }
+
+  // Collapse on transition to complete (only config card reaches this state)
+  if (cardState === 'complete') {
     el.open = false;
   }
 }
@@ -438,41 +385,21 @@ function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState) {
   const prevSit = prevStates['panel-situation'];
   const prevTgt = prevStates['panel-target'];
 
-  // Situation panel
+  // Situation panel: collapse when locked, expand when leaving locked
   if (sitEl) {
     if (sitState === 'locked') {
       sitEl.open = false;
-    } else if (sitState === 'active' && prevSit !== 'active') {
+    } else if (prevSit === 'locked') {
       sitEl.open = true;
-    }
-    // AC 3.2: Collapse situation when user interacts with prompt card
-    // (situation auto-collapse on steps activation removed per AC 2.3)
-    if (
-      promptInteracted &&
-      (sitState === 'sufficient' || sitState === 'complete') &&
-      sitEl.open
-    ) {
-      sitEl.open = false;
     }
   }
 
-  // Target panel
+  // Target panel: collapse when locked, expand when leaving locked
   if (tgtEl) {
     if (tgtState === 'locked') {
       tgtEl.open = false;
-    } else if (tgtState === 'active' && prevTgt !== 'active') {
+    } else if (prevTgt === 'locked') {
       tgtEl.open = true;
-    } else if (tgtState === 'skippable' && (prevTgt === 'locked' || !prevTgt)) {
-      // AC 2.2: Target opens in dimmed state when flow is selected
-      tgtEl.open = true;
-    }
-    // AC 3.2: Collapse/dim target when user has interacted with prompt card
-    if (
-      promptInteracted &&
-      (tgtState === 'sufficient' || tgtState === 'complete') &&
-      tgtEl.open
-    ) {
-      tgtEl.open = false;
     }
   }
 }
@@ -600,12 +527,6 @@ function onStepsInteraction() {
   applyCardStates();
 }
 
-function onPromptInteraction() {
-  if (promptInteracted) return;
-  promptInteracted = true;
-  applyCardStates();
-}
-
 function onTargetInteraction() {
   if (targetInteracted) return;
   targetInteracted = true;
@@ -618,16 +539,6 @@ function trackStepsInteraction(stepsCard) {
     if (stepsCard.open) onStepsInteraction();
   });
   stepsCard.addEventListener('pointerenter', onStepsInteraction, {
-    once: true,
-  });
-}
-
-function trackPromptInteraction(promptCard) {
-  if (!promptCard) return;
-  promptCard.addEventListener('toggle', () => {
-    if (promptCard.open) onPromptInteraction();
-  });
-  promptCard.addEventListener('pointerenter', onPromptInteraction, {
     once: true,
   });
 }
@@ -664,10 +575,8 @@ function setupTargetTracking() {
  */
 export function initDisclosureController() {
   const stepsCard = document.getElementById('card-steps');
-  const promptCard = document.getElementById('card-prompt');
 
   trackStepsInteraction(stepsCard);
-  trackPromptInteraction(promptCard);
   setupTargetTracking();
 
   // Prevent locked cards from opening
@@ -691,7 +600,6 @@ export function initDisclosureController() {
     if (flowId !== lastFlowId) {
       lastFlowId = flowId;
       stepsInteracted = false;
-      promptInteracted = false;
       targetInteracted = false;
     }
   });
