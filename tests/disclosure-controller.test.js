@@ -68,6 +68,13 @@ let state, cardConfig, cardTasks, cardSteps, cardPrompt, disclosureCtrl;
 async function initAllModules() {
   vi.resetModules();
   localStorage.clear();
+
+  // Stub RAF to fire as microtask — ensures applyCardStates() runs after
+  // synchronous code (e.g. renderDualPanels) but before the next await.
+  vi.stubGlobal('requestAnimationFrame', (cb) => {
+    queueMicrotask(cb);
+    return 1;
+  });
   Object.defineProperty(navigator, 'clipboard', {
     value: { writeText: vi.fn().mockResolvedValue(undefined) },
     writable: true,
@@ -161,6 +168,12 @@ function interactWithCard(cardId) {
     el.dispatchEvent(new Event('toggle'));
     el.dispatchEvent(new Event('pointerenter'));
   }
+}
+
+/** Helper: flush microtasks so RAF-stubbed applyCardStates fires */
+async function flushStates() {
+  await Promise.resolve();
+  await Promise.resolve();
 }
 
 /** Helper: simulate user interaction with a panel */
@@ -342,6 +355,7 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     expect(textarea).not.toBeNull();
     textarea.value = 'Login crashes when clicking submit';
     textarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     // Situation must remain open and undimmed
     expect(isPanelOpen('situation')).toBe(true);
@@ -360,6 +374,7 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     );
     textarea.value = 'Login crashes';
     textarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     // Target should become active (undimmed)
     expect(panelState('target')).toBe('active');
@@ -377,6 +392,7 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     expect(textarea).not.toBeNull();
     textarea.value = 'Review the auth module';
     textarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     // Target must still be open (not collapsed/skipped)
     expect(isPanelOpen('target')).toBe(true);
@@ -399,6 +415,7 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     );
     sitTextarea.value = 'Login crashes';
     sitTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     // Steps must NOT be active (target not filled)
     expect(cardState('card-steps')).not.toBe('active');
@@ -410,6 +427,7 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     expect(tgtTextarea).not.toBeNull();
     tgtTextarea.value = 'Should redirect to dashboard';
     tgtTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     // NOW steps should be active
     expect(cardState('card-steps')).toBe('active');
@@ -441,12 +459,14 @@ describe('AC 3 — Interaction & Focus Management', () => {
     );
     sitTextarea.value = 'Login crashes';
     sitTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     const tgtTextarea = document.querySelector(
       '[data-panel="target"] .input-field--textarea'
     );
     tgtTextarea.value = 'Should work';
     tgtTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     // Steps should be active
     expect(cardState('card-steps')).toBe('active');
@@ -469,12 +489,14 @@ describe('AC 3 — Interaction & Focus Management', () => {
     );
     sitTextarea.value = 'Login crashes';
     sitTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     const tgtTextarea = document.querySelector(
       '[data-panel="target"] .input-field--textarea'
     );
     tgtTextarea.value = 'Should work';
     tgtTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     // Interact with steps then prompt
     interactWithCard('card-steps');
@@ -494,12 +516,14 @@ describe('AC 3 — Interaction & Focus Management', () => {
     );
     sitTextarea.value = 'Login crashes';
     sitTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     const tgtTextarea = document.querySelector(
       '[data-panel="target"] .input-field--textarea'
     );
     tgtTextarea.value = 'Should work';
     tgtTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     interactWithCard('card-steps');
     interactWithCard('card-prompt');
@@ -519,12 +543,14 @@ describe('AC 3 — Interaction & Focus Management', () => {
     );
     sitTextarea.value = 'Login crashes';
     sitTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     const tgtTextarea = document.querySelector(
       '[data-panel="target"] .input-field--textarea'
     );
     tgtTextarea.value = 'Should work';
     tgtTextarea.dispatchEvent(new Event('input'));
+    await flushStates();
 
     interactWithCard('card-steps');
 

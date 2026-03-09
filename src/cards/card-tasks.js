@@ -82,6 +82,41 @@ function renderPanelArea() {
   elPanelArea = document.createElement('div');
   elPanelArea.className = 'card-body';
   elBody.appendChild(elPanelArea);
+
+  // AC 2.1: Create placeholder panels (closed, locked) before flow selection.
+  // Replaced with flow-specific panels when a flow is selected.
+  renderPlaceholderPanels();
+}
+
+function renderPlaceholderPanels() {
+  const sitPanel = document.createElement('details');
+  sitPanel.className = 'card';
+  sitPanel.dataset.panel = 'situation';
+  sitPanel.dataset.cardState = 'locked';
+  sitPanel.open = false;
+
+  const sitHeader = document.createElement('summary');
+  sitHeader.className = 'card-header';
+  const sitTitle = document.createElement('span');
+  sitTitle.textContent = 'Situation';
+  sitHeader.appendChild(sitTitle);
+  sitPanel.appendChild(sitHeader);
+
+  const tgtPanel = document.createElement('details');
+  tgtPanel.className = 'card';
+  tgtPanel.dataset.panel = 'target';
+  tgtPanel.dataset.cardState = 'locked';
+  tgtPanel.open = false;
+
+  const tgtHeader = document.createElement('summary');
+  tgtHeader.className = 'card-header';
+  const tgtTitle = document.createElement('span');
+  tgtTitle.textContent = 'Target';
+  tgtHeader.appendChild(tgtTitle);
+  tgtPanel.appendChild(tgtHeader);
+
+  elPanelArea.appendChild(sitPanel);
+  elPanelArea.appendChild(tgtPanel);
 }
 
 // --- Flow selection handler ---

@@ -142,16 +142,43 @@ function renderShell(container) {
   // --- Repo (bottom-left) ---
   elRepoSection = document.createElement('div');
   elRepoSection.className = 'field-picker';
+  renderDisabledPlaceholder(elRepoSection, 'Select repository…');
 
   // --- Branch (bottom-right) ---
   elBranchSection = document.createElement('div');
   elBranchSection.className = 'field-picker';
+  renderDisabledPlaceholder(elBranchSection, 'Select branch…');
 
   // Order: username (top-left), PAT (top-right), repo (bottom-left), branch (bottom-right)
   container.appendChild(elUserSection);
   container.appendChild(elPatSection);
   container.appendChild(elRepoSection);
   container.appendChild(elBranchSection);
+}
+
+// --- AC 1.1: Disabled placeholder for pickers when credentials are missing ---
+
+function renderDisabledPlaceholder(container, placeholderText) {
+  const input = document.createElement('input');
+  input.className = 'input-field';
+  input.placeholder = placeholderText;
+  input.disabled = true;
+  input.setAttribute('aria-disabled', 'true');
+  container.appendChild(input);
+
+  // AC 1.2: Show warning on click when disabled
+  container.addEventListener('click', () => {
+    if (!input.disabled) return;
+    let alert = container.querySelector('[role="alert"]');
+    if (!alert) {
+      alert = document.createElement('span');
+      alert.setAttribute('role', 'alert');
+      alert.className = 'guard-hint';
+      alert.textContent = 'Enter username and PAT first';
+      container.appendChild(alert);
+      setTimeout(() => alert.remove(), 3000);
+    }
+  });
 }
 
 // --- Event handlers ---
@@ -322,7 +349,7 @@ function onRepoSelect(repo, allRepos) {
   renderBranchSection([]);
   updateConfigCardMeta();
 
-  if (elPatSection) elPatSection.hidden = elUserSection.hidden = true;
+  // AC 1.3: All four fields remain visible after repo selection
 
   // D605: Disclosure controller manages task card expand
 

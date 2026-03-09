@@ -135,7 +135,14 @@ function isTargetSufficient(state, flowId, flowDef) {
     case 'fix':
       return panelHasAnyValue(state, 'panel_b', flowDef.panel_b);
     case 'review':
-      return true;
+      // AC 2.3: Review target requires user interaction or non-default data.
+      // Default lenses are auto-populated, so check for spec_files or guideline_files
+      // which are user-provided, or explicit target interaction.
+      return (
+        targetInteracted ||
+        fieldHasValue(state, 'panel_b.spec_files') ||
+        fieldHasValue(state, 'panel_b.guideline_files')
+      );
     case 'implement': {
       const hasRequired = fieldHasValue(state, 'panel_b.description');
       return hasRequired || panelHasAnyValue(state, 'panel_b', flowDef.panel_b);
@@ -368,7 +375,7 @@ function applyCardStates() {
   applyPanelState(tgtEl, 'panel-target', tgtState);
 
   // Panel open/close transitions
-  applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState, stepsState);
+  applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState);
 
   // D502: Focus transition — move focus to the newly active card's summary
   for (const cardId of CARD_IDS) {
@@ -427,10 +434,9 @@ function applyPanelState(el, stateKey, cardState) {
   }
 }
 
-function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState, stepsState) {
+function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState) {
   const prevSit = prevStates['panel-situation'];
   const prevTgt = prevStates['panel-target'];
-  const prevSteps = prevStates['card-steps'];
 
   // Situation panel
   if (sitEl) {
@@ -439,16 +445,8 @@ function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState, stepsState) {
     } else if (sitState === 'active' && prevSit !== 'active') {
       sitEl.open = true;
     }
-    // Collapse situation when steps card becomes active
-    if (
-      stepsState === 'active' &&
-      prevSteps !== 'active' &&
-      prevSteps &&
-      (sitState === 'sufficient' || sitState === 'complete')
-    ) {
-      sitEl.open = false;
-    }
     // AC 3.2: Collapse situation when user interacts with prompt card
+    // (situation auto-collapse on steps activation removed per AC 2.3)
     if (
       promptInteracted &&
       (sitState === 'sufficient' || sitState === 'complete') &&
@@ -464,7 +462,7 @@ function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState, stepsState) {
       tgtEl.open = false;
     } else if (tgtState === 'active' && prevTgt !== 'active') {
       tgtEl.open = true;
-    } else if (tgtState === 'skippable' && prevTgt === 'locked') {
+    } else if (tgtState === 'skippable' && (prevTgt === 'locked' || !prevTgt)) {
       // AC 2.2: Target opens in dimmed state when flow is selected
       tgtEl.open = true;
     }
