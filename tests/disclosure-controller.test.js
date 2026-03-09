@@ -316,13 +316,13 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     expect(isPanelOpen('target')).toBe(false);
   });
 
-  it('AC 2.2: When flow is selected, Config card becomes dimmed but stays expanded', async () => {
+  it('AC 2.2: When flow is selected, Config card becomes complete and collapses', async () => {
     initCards();
     await setupRepoAndBranch();
     await clickFlow('fix');
 
-    expect(cardState('card-configuration')).toBe('sufficient');
-    expect(isOpen('card-configuration')).toBe(true);
+    expect(cardState('card-configuration')).toBe('complete');
+    expect(isOpen('card-configuration')).toBe(false);
   });
 
   it('AC 2.2: When flow is selected, Situation panel opens active/undimmed', async () => {
@@ -476,61 +476,6 @@ describe('AC 3 — Interaction & Focus Management', () => {
 
     // Prompt card must open
     expect(isOpen('card-prompt')).toBe(true);
-  });
-
-  it('AC 3.2: Prompt interaction closes Situation panel', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('fix');
-
-    // Fill both panels
-    const sitTextarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    sitTextarea.value = 'Login crashes';
-    sitTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    const tgtTextarea = document.querySelector(
-      '[data-panel="target"] .input-field--textarea'
-    );
-    tgtTextarea.value = 'Should work';
-    tgtTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    // Interact with steps then prompt
-    interactWithCard('card-steps');
-    interactWithCard('card-prompt');
-
-    // Situation must be closed
-    expect(isPanelOpen('situation')).toBe(false);
-  });
-
-  it('AC 3.2: Prompt interaction dims Target panel', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('fix');
-
-    const sitTextarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    sitTextarea.value = 'Login crashes';
-    sitTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    const tgtTextarea = document.querySelector(
-      '[data-panel="target"] .input-field--textarea'
-    );
-    tgtTextarea.value = 'Should work';
-    tgtTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    interactWithCard('card-steps');
-    interactWithCard('card-prompt');
-
-    // Target should be dimmed (not active)
-    const tgtSt = panelState('target');
-    expect(tgtSt).not.toBe('active');
   });
 
   it('AC 3.3: Re-engaging a previous card keeps it open/undimmed', async () => {

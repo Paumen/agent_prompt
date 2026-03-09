@@ -190,7 +190,7 @@ body {
   place-items: center;
   font-size: var(--text);
   font-weight: 700;
-  padding: var(--sp-4)
+  padding: var(--sp-4);
 }
 
 :where(details[open]) .icon--chevron {
