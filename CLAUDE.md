@@ -8,7 +8,13 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core
 
 ## Permission Protocol 
 
-- **NEVER** edit `@spec/spec_concept.md`, `@.github/workflows/`, `@src/css/variables.css`, or `@src/css/special.css`, or `@config/*` without asking the user for explicit permission FIRST. Use PermissionRequest or AskUserQuestion tool to explicitly request approval per file and per instance.
+- **NEVER** edit:
+  - `@spec/spec_concept.md`,
+  - `@.github/workflows/`,
+  - `@src/css/variables.css`,
+  - `@src/css/special.css`,
+  - `@config/**`
+  - **Exception** If PO give explicit permission. Use PermissionRequest or AskUserQuestion tool to explicitly request approval per file and per instance.
   - **NEVER** assume permission given for one change implies permission for similar change. Ask for each change separately.
   - **NEVER** assume permission given for changing one file implies permission for similar files or files related to the change. Ask for each change separately.
 - **Exception**: Prettier formatting changes applied via `npm run format` are permitted without asking.
