@@ -301,8 +301,9 @@ label {
   display: inline-flex;
   gap: var(--sp-2);
   place-items: center;
-  max-width: 200px;
-  padding: var(--sp-4);
+  min-width: 80px; 
+  max-width: 160px;
+  padding: var(--sp-2);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   background: var(--bg-inset-darker);
