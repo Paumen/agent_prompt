@@ -313,10 +313,9 @@ summary.card-header::-webkit-details-marker {
 
 .input-field {
   width: 100%;
-  min-height: 32px;
   padding: var(--sp-4);
   font-family: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--text);
   color: var(--text-primary);
   background: var(--bg-raised);
   border: 1px solid var(--text-tertiary);
