@@ -6,7 +6,7 @@ Claude Code, Senior Lead Engineer and Architect, is accountable for development 
 
 Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_D.md` for details. Stage D is nearing completion. Stage E is next but has not yet been scoped.
 
-## Permission Protocol 
+## Permission Protocol
 
 - **NEVER** edit:
   - `@config/**`
@@ -25,7 +25,6 @@ Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core
 - Existing classes must be reused as much as possible
 - New classes must be generic/reusable (eg .btn-select instead of .btn-task-selection) and requires user explicit APPROVAL.
 
-
 ## Authority Hierarchy
 
 In case of conflicts between files, the higher-ranked file is always correct:
@@ -34,22 +33,22 @@ In case of conflicts between files, the higher-ranked file is always correct:
 @spec/spec_concept.md  > @spec/STAGE_*.md (later stage overrule) > @src/ and @tests/
 ```
 
-If a conflict exists, update  @src/ and @tests/ to match or inform PO/user.
+If a conflict exists, update @src/ and @tests/ to match or inform PO/user.
 
 ## File Guide
 
- File                        | Purpose                                                                       | How to use                                                                                             |
-| --------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `@spec/spec_concept.md`     | THE authoritative spec used for build via stage A and B.    | Consult FIRST for any requirement question. Check status table for progress.                          |
-| `@spec/STAGE_D.md`          | Current stage details, requirements, checklist,  and implementation notes.                | Reference for understanding what's being built in this stage. After implementations update checklist.                                       |
-| `@config/flows.yaml`        | Flow/task/step definitions. Single source of truth for app behavior.          | Implement EXACTLY as defined. Never modify.                                           |
-| `@config/vite.config.js`    | Build and dev server configuration.                                          | Controls hot reload and asset handling.                                 |
-| `@src/index.html`           | Main HTML entry point.                                                       | Reference for structure.                  |
-| `@src/core/`                | Core state, data model, and state management logic.                          | Central hub for `prompt_input` state and mutations. Check here for data flow.                        |
-| `@src/logic/**`               | Business logic: flow loading, prompt building, GitHub interactions.          | Implement feature logic here. Keep functions pure and testable.                                     |
-| `@src/cards/**`               | UI cards (Config, Repo, Task Selection, etc.).                     | Each card owns its own UI rendering and event handling. Emit changes to shared state.              |
-| `@.claude/commands/`        | Claude Code custom commands (skills): `css-guide.md`, `implement.md`.        | Reference before CSS work (`/css-guide`) or major implementation (`/implement`).                    |
-| `@package.json`             | Project metadata, dependencies, and npm scripts.                             | Reference for available commands. Update when adding new dependencies.                              |
+| File                     | Purpose                                                                   | How to use                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `@spec/spec_concept.md`  | THE authoritative spec used for build via stage A and B.                  | Consult FIRST for any requirement question. Check status table for progress.                          |
+| `@spec/STAGE_D.md`       | Current stage details, requirements, checklist, and implementation notes. | Reference for understanding what's being built in this stage. After implementations update checklist. |
+| `@config/flows.yaml`     | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined. Never modify.                                                           |
+| `@config/vite.config.js` | Build and dev server configuration.                                       | Controls hot reload and asset handling.                                                               |
+| `@src/index.html`        | Main HTML entry point.                                                    | Reference for structure.                                                                              |
+| `@src/core/`             | Core state, data model, and state management logic.                       | Central hub for `prompt_input` state and mutations. Check here for data flow.                         |
+| `@src/logic/**`          | Business logic: flow loading, prompt building, GitHub interactions.       | Implement feature logic here. Keep functions pure and testable.                                       |
+| `@src/cards/**`          | UI cards (Config, Repo, Task Selection, etc.).                            | Each card owns its own UI rendering and event handling. Emit changes to shared state.                 |
+| `@.claude/commands/`     | Claude Code custom commands (skills): `css-guide.md`, `implement.md`.     | Reference before CSS work (`/css-guide`) or major implementation (`/implement`).                      |
+| `@package.json`          | Project metadata, dependencies, and npm scripts.                          | Reference for available commands. Update when adding new dependencies.                                |
 
 ## Code Rules
 
@@ -92,9 +91,9 @@ npm run build         # Production build (outputs to dist/)
 - When starting a new task or session, ask about context and intent first rather than assuming. Confirm understanding before writing code.
 
 ## Context Efficiency
+
 - **NEVER** re-read files already in context window, treat this as a hard rule.
 - Default to `Edit` over `Write` unless creating new files or rewriting >50% of lines.
 - If you already know you will edit a file, only `Read` the file immediately before editing it — don't pre-read.
 - Batch related questions into a single Explore query where possible.
 - If a task requires changes across many unrelated files (e.g. CSS + JS + tests + config), suggest the user split it into separate sessions grouped by concern.
- 
