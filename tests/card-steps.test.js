@@ -34,9 +34,20 @@ vi.mock('../src/core/state.js', () => ({
 vi.mock('../src/logic/flow-loader.js', () => ({
   getFlowById: vi.fn(() => null),
   ALL_LENSES: [
-    'semantics', 'syntax', 'security', 'performance', 'structure', 'dependencies',
-    'duplications', 'redundancies', 'error_handling', 'naming_conventions',
-    'test_coverage', 'type_safety', 'documentation_completeness', 'accessibility',
+    'semantics',
+    'syntax',
+    'security',
+    'performance',
+    'structure',
+    'dependencies',
+    'duplications',
+    'redundancies',
+    'error_handling',
+    'naming_conventions',
+    'test_coverage',
+    'type_safety',
+    'documentation_completeness',
+    'accessibility',
   ],
 }));
 
@@ -82,11 +93,15 @@ describe('Step rendering (STP-01)', () => {
   });
 
   it('shows empty state when no steps', () => {
-    getState.mockReturnValue(createMockState({
-      steps: { enabled_steps: [], removed_step_ids: [] },
-    }));
+    getState.mockReturnValue(
+      createMockState({
+        steps: { enabled_steps: [], removed_step_ids: [] },
+      })
+    );
     initStepsCard();
-    expect(document.getElementById('bd-steps').textContent).toContain('Select a flow');
+    expect(document.getElementById('bd-steps').textContent).toContain(
+      'Select a flow'
+    );
   });
 });
 
@@ -98,44 +113,55 @@ describe('Lens pills (STP-03)', () => {
 
     expect(pills.length).toBeGreaterThan(0);
 
-    const semanticsPill = Array.from(pills).find((p) => p.textContent === 'semantics');
+    const semanticsPill = Array.from(pills).find(
+      (p) => p.textContent === 'semantics'
+    );
     expect(semanticsPill.getAttribute('aria-checked')).toBe('true');
     expect(semanticsPill.classList.contains('btn-pill--on')).toBe(true);
 
-    const securityPill = Array.from(pills).find((p) => p.textContent === 'security');
+    const securityPill = Array.from(pills).find(
+      (p) => p.textContent === 'security'
+    );
     expect(securityPill.getAttribute('aria-checked')).toBe('false');
   });
 
   it('calls setState when lens pill is clicked', () => {
     initStepsCard();
     document.querySelector('[data-step-id="identify-cause"] .btn-pill').click();
-    expect(setState).toHaveBeenCalledWith('steps.enabled_steps', expect.any(Array));
+    expect(setState).toHaveBeenCalledWith(
+      'steps.enabled_steps',
+      expect.any(Array)
+    );
   });
 });
 
 describe('File pills', () => {
   beforeEach(() => {
-    getState.mockReturnValue(createMockState({
-      panel_a: { files: ['src/app.js', 'src/utils.js'] },
-      steps: {
-        enabled_steps: [
-          {
-            id: 'read-files',
-            operation: 'read',
-            object: 'files',
-            source: 'panel_a.files',
-            params: { files: ['src/app.js', 'src/utils.js'] },
-          },
-        ],
-        removed_step_ids: [],
-      },
-    }));
+    getState.mockReturnValue(
+      createMockState({
+        panel_a: { files: ['src/app.js', 'src/utils.js'] },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'read-files',
+              operation: 'read',
+              object: 'files',
+              source: 'panel_a.files',
+              params: { files: ['src/app.js', 'src/utils.js'] },
+            },
+          ],
+          removed_step_ids: [],
+        },
+      })
+    );
   });
 
   it('renders file tags with remove buttons', () => {
     initStepsCard();
     expect(document.querySelectorAll('.tag').length).toBe(2);
-    expect(document.querySelectorAll('.tag .btn-icon[aria-label^="Remove"]').length).toBe(2);
+    expect(
+      document.querySelectorAll('.tag .btn-icon[aria-label^="Remove"]').length
+    ).toBe(2);
   });
 
   it('clicking remove calls setState', () => {
@@ -148,13 +174,19 @@ describe('File pills', () => {
 describe('Optional text inputs', () => {
   it('renders text inputs for steps with branch_name or pr_name', () => {
     initStepsCard();
-    expect(document.querySelector('[data-step-id="create-branch"] input.input-field')).toBeTruthy();
-    expect(document.querySelector('[data-step-id="commit-pr"] input.input-field')).toBeTruthy();
+    expect(
+      document.querySelector('[data-step-id="create-branch"] input.input-field')
+    ).toBeTruthy();
+    expect(
+      document.querySelector('[data-step-id="commit-pr"] input.input-field')
+    ).toBeTruthy();
   });
 
   it('calls setState on input change', () => {
     initStepsCard();
-    const input = document.querySelector('[data-step-id="create-branch"] input.input-field');
+    const input = document.querySelector(
+      '[data-step-id="create-branch"] input.input-field'
+    );
     input.value = 'fix/bug-123';
     input.dispatchEvent(new Event('input'));
     expect(setState).toHaveBeenCalled();
@@ -163,20 +195,22 @@ describe('Optional text inputs', () => {
 
 describe('Output mode buttons', () => {
   beforeEach(() => {
-    getState.mockReturnValue(createMockState({
-      task: { flow_id: 'review' },
-      steps: {
-        enabled_steps: [
-          {
-            id: 'feedback',
-            operation: 'create',
-            object: 'review_feedback',
-            output: ['here', 'pr_comment', 'pr_inline_comments'],
-          },
-        ],
-        removed_step_ids: [],
-      },
-    }));
+    getState.mockReturnValue(
+      createMockState({
+        task: { flow_id: 'review' },
+        steps: {
+          enabled_steps: [
+            {
+              id: 'feedback',
+              operation: 'create',
+              object: 'review_feedback',
+              output: ['here', 'pr_comment', 'pr_inline_comments'],
+            },
+          ],
+          removed_step_ids: [],
+        },
+      })
+    );
   });
 
   it('renders output buttons with correct roles', () => {

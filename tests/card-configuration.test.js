@@ -17,7 +17,9 @@ import { setupConfigurationCard, cleanupDOM } from './helpers/dom-fixtures.js';
 // --- Mock helpers ---
 
 const mockFetch = (response, ok = true, status = 200) =>
-  vi.fn().mockResolvedValue({ ok, status, json: () => Promise.resolve(response) });
+  vi
+    .fn()
+    .mockResolvedValue({ ok, status, json: () => Promise.resolve(response) });
 
 const SAMPLE_REPOS = [
   { name: 'alpha', default_branch: 'main' },
@@ -143,7 +145,8 @@ describe('Branch auto-select (CFG-04)', () => {
       return Promise.resolve({
         ok: true,
         status: 200,
-        json: () => Promise.resolve(callCount === 1 ? SAMPLE_REPOS : SAMPLE_BRANCHES),
+        json: () =>
+          Promise.resolve(callCount === 1 ? SAMPLE_REPOS : SAMPLE_BRANCHES),
       });
     });
 
@@ -153,7 +156,9 @@ describe('Branch auto-select (CFG-04)', () => {
       const searchInput = document.querySelector('.field-picker .input-field');
       expect(searchInput).not.toBeNull();
       searchInput.dispatchEvent(new Event('focus'));
-      expect(document.querySelectorAll('.field-picker .field-picker-item').length).toBe(3);
+      expect(
+        document.querySelectorAll('.field-picker .field-picker-item').length
+      ).toBe(3);
     });
 
     document.querySelector('.field-picker .field-picker-item').click();
