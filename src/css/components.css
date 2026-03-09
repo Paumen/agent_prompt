@@ -190,7 +190,7 @@ label {
    ============================================================ */
 
 .input-field::placeholder {
-  font-size: var(--text-sm);
+  font-size: var(--text);
   color: var(--text-tertiary);
 }
 
@@ -221,6 +221,7 @@ label {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
+  font-size: var(--text);
 }
 
 /* Search row: acts as the visible input field (icons appear inside) */
@@ -274,9 +275,8 @@ label {
 .field-picker-item {
   display: flex;
   place-items: center;
-  min-height: 32px;
   padding: var(--sp-4);
-  font-size: var(--text-sm);
+  font-size: var(--text);
   cursor: pointer;
 }
 
@@ -286,7 +286,7 @@ label {
 
 .field-picker-empty {
   padding: var(--sp-4);
-  font-size: var(--text-sm);
+  font-size: var(--text);
   color: var(--text-secondary);
   text-align: center;
 }
