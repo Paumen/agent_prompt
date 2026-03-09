@@ -42,7 +42,7 @@ If a conflict exists, update  @src/ and @tests/ to match or inform PO/user.
 | `@spec/spec_concept.md` | THE authoritative spec. Has an Implementation Status table at the bottom. | Consult FIRST for any requirement question. Check status table for progress. |
 | `@config/flows.yaml`    | Flow/task/step definitions. Single source of truth for app behavior.      | Implement EXACTLY as defined here. Never modify without asking.              |
 
-## Code Conventions
+## Code Rules
 
 - **Simplicity first**: Before implementing complex logic, evaluate if there is a simpler alternative that achieves the same result. If the spec seems over-engineered for the use case, flag it and suggest a simpler approach before proceeding. Prefer the simplest solution that fully satisfies the requirement.
 - **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `@.claude/commands/css-guide.md`.
@@ -52,7 +52,7 @@ If a conflict exists, update  @src/ and @tests/ to match or inform PO/user.
 - One feature per file where practical.
 - All asset references in HTML must use relative paths (starting with `./`), not absolute paths starting with `/`. Vite's `base` config handles path rewriting during build.
 
-## Testing
+## Testing Runbook
 
 - Run auto-fixes: stylelint, eslint, and/or prettier.
 - Run linters and fix issues that cannot be auto-fixed.
