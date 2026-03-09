@@ -8,7 +8,11 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { setupFullHTML, cleanupDOM } from './helpers/dom-fixtures.js';
-import { createMockState, createMockSteps, createConfiguredState } from './helpers/state-factory.js';
+import {
+  createMockState,
+  createMockSteps,
+  createConfiguredState,
+} from './helpers/state-factory.js';
 
 // --- Mock data ---
 
@@ -32,18 +36,38 @@ function createSmartFetch() {
   return vi.fn().mockImplementation((url) => {
     const urlStr = typeof url === 'string' ? url : url.toString();
     if (urlStr.includes('/issues')) {
-      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_ISSUES) });
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_ISSUES),
+      });
     }
     if (urlStr.includes('/pulls')) {
-      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_PRS) });
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_PRS),
+      });
     }
     if (urlStr.includes('/git/trees/')) {
-      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_TREE) });
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_TREE),
+      });
     }
     if (urlStr.includes('/branches')) {
-      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_BRANCHES) });
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(SAMPLE_BRANCHES),
+      });
     }
-    return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(SAMPLE_REPOS) });
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(SAMPLE_REPOS),
+    });
   });
 }
 
@@ -77,7 +101,9 @@ async function setupRepoAndBranch() {
     const searchInput = document.querySelector('.field-picker .input-field');
     expect(searchInput).not.toBeNull();
     searchInput.dispatchEvent(new Event('focus'));
-    expect(document.querySelectorAll('.field-picker .field-picker-item').length).toBeGreaterThan(0);
+    expect(
+      document.querySelectorAll('.field-picker .field-picker-item').length
+    ).toBeGreaterThan(0);
   });
 
   document.querySelector('.field-picker .field-picker-item').click();
@@ -113,7 +139,9 @@ describe('E2E: Complete User Journey', () => {
     await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
 
     // Fill description
-    const textarea = document.querySelector('#bd-tasks .card .input-field--textarea');
+    const textarea = document.querySelector(
+      '#bd-tasks .card .input-field--textarea'
+    );
     textarea.value = 'Login crashes when clicking submit';
     textarea.dispatchEvent(new Event('input'));
 
@@ -138,12 +166,16 @@ describe('E2E: Complete User Journey', () => {
     document.querySelector('.btn-select[data-flow-id="fix"]').click();
     await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
 
-    const textarea = document.querySelector('#bd-tasks .card .input-field--textarea');
+    const textarea = document.querySelector(
+      '#bd-tasks .card .input-field--textarea'
+    );
     textarea.value = 'Bug description';
     textarea.dispatchEvent(new Event('input'));
 
     await vi.waitFor(() => {
-      expect(document.querySelectorAll('.output-field').length).toBeGreaterThan(0);
+      expect(document.querySelectorAll('.output-field').length).toBeGreaterThan(
+        0
+      );
     });
 
     const promptBefore = state.getState()._prompt;
@@ -184,7 +216,9 @@ describe('E2E: Flow Switch Reset (DM-DEF-03)', () => {
 
     // Switch to Review flow
     document.querySelector('.btn-select[data-flow-id="review"]').click();
-    await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('review'));
+    await vi.waitFor(() =>
+      expect(state.getState().task.flow_id).toBe('review')
+    );
 
     // Verify reset
     const s = state.getState();
@@ -204,13 +238,25 @@ describe('E2E: Prompt Determinism (TST-01)', () => {
     const { buildPrompt } = await import('../src/core/prompt-builder.js');
 
     const fixedState = createMockState({
-      configuration: { owner: 'testuser', repo: 'my-app', branch: 'main', pat: 'ghp_test123' },
+      configuration: {
+        owner: 'testuser',
+        repo: 'my-app',
+        branch: 'main',
+        pat: 'ghp_test123',
+      },
       task: { flow_id: 'fix' },
-      panel_a: { description: 'Login crashes', issue_number: 42, pr_number: null, files: ['src/index.js'] },
+      panel_a: {
+        description: 'Login crashes',
+        issue_number: 42,
+        pr_number: null,
+        files: ['src/index.js'],
+      },
       steps: { enabled_steps: createMockSteps(2), removed_step_ids: [] },
     });
 
-    const results = Array.from({ length: 10 }, () => buildPrompt(structuredClone(fixedState)));
+    const results = Array.from({ length: 10 }, () =>
+      buildPrompt(structuredClone(fixedState))
+    );
 
     // All runs must produce identical output
     for (let i = 1; i < results.length; i++) {

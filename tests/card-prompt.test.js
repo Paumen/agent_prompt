@@ -18,11 +18,17 @@ import { createMockState } from './helpers/state-factory.js';
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-const MOCK_PROMPT = '<prompt><context>Please help debug</context><todo>Step 1: Read @claude.md</todo></prompt>';
+const MOCK_PROMPT =
+  '<prompt><context>Please help debug</context><todo>Step 1: Read @claude.md</todo></prompt>';
 
 const mockState = createMockState({
   task: { flow_id: 'fix' },
-  configuration: { owner: 'testuser', repo: 'testrepo', branch: 'main', pat: 'ghp_test' },
+  configuration: {
+    owner: 'testuser',
+    repo: 'testrepo',
+    branch: 'main',
+    pat: 'ghp_test',
+  },
   _prompt: MOCK_PROMPT,
 });
 
@@ -87,8 +93,12 @@ describe('Copy button', () => {
 
     expect(writeText).toHaveBeenCalledWith(MOCK_PROMPT);
     await flushPromises();
-    expect(document.querySelector('.btn-copy').classList.contains('btn--copied')).toBe(true);
-    expect(document.querySelector('.sr-only[aria-live="polite"]').textContent).toBe('Copied!');
+    expect(
+      document.querySelector('.btn-copy').classList.contains('btn--copied')
+    ).toBe(true);
+    expect(
+      document.querySelector('.sr-only[aria-live="polite"]').textContent
+    ).toBe('Copied!');
   });
 
   it('shows error on clipboard failure', async () => {
@@ -103,7 +113,9 @@ describe('Copy button', () => {
     document.querySelector('.btn-copy').click();
     await flushPromises();
 
-    expect(document.querySelector('.sr-only[aria-live="polite"]').textContent).toBe('Copy failed');
+    expect(
+      document.querySelector('.sr-only[aria-live="polite"]').textContent
+    ).toBe('Copy failed');
   });
 
   it('does not copy when prompt is empty', () => {
@@ -124,7 +136,9 @@ describe('Copy button', () => {
 
 describe('Notes textarea', () => {
   it('renders textarea populated from state and updates on input', () => {
-    getState.mockReturnValue(createMockState({ notes: { user_text: 'my note' } }));
+    getState.mockReturnValue(
+      createMockState({ notes: { user_text: 'my note' } })
+    );
     initPromptCard();
 
     const textarea = document.querySelector('textarea');
@@ -150,7 +164,9 @@ describe('Notes textarea', () => {
       configurable: true,
     });
 
-    getState.mockReturnValue(createMockState({ notes: { user_text: 'from state' } }));
+    getState.mockReturnValue(
+      createMockState({ notes: { user_text: 'from state' } })
+    );
     cb();
 
     expect(textarea.value).toBe('typing');
