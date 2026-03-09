@@ -229,7 +229,7 @@ label {
   display: flex;
   gap: var(--sp-2);
   place-items: center;
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   background: var(--bg-raised);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
@@ -274,8 +274,8 @@ label {
 .field-picker-item {
   display: flex;
   place-items: center;
-  min-height: 24px;
-  padding: var(--sp-2);
+  min-height: 32px;
+  padding: var(--sp-4);
   font-size: var(--text-sm);
   cursor: pointer;
 }
@@ -285,7 +285,7 @@ label {
 }
 
 .field-picker-empty {
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   font-size: var(--text-sm);
   color: var(--text-secondary);
   text-align: center;
@@ -300,7 +300,7 @@ label {
   gap: var(--sp-2);
   place-items: center;
   max-width: 200px;
-  padding: var(--sp-2);
+  padding: var(--sp-4);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   background: var(--bg-inset-darker);
