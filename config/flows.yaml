@@ -270,8 +270,6 @@ flows:
       label: 'Desired Outcome'
       subtitle: 'What the improved version should look like'
       fields:
-        lenses:
-          <<: *lens_picker_default_empty
         description:
           <<: *text_field
           placeholder: 'Describe the desired improvements, goals, or constraints...'
@@ -294,6 +292,7 @@ flows:
       - id: read-files
         <<: *read_a_files_base
       - id: read-issue-current
+        <<: *issue_picker
         <<: *read_issue_base
         source: panel_a.issue_number
       - id: read-issue-desired
