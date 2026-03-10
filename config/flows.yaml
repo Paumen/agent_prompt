@@ -119,12 +119,8 @@ flows:
         description:
           <<: *text_field_required_group
           placeholder: 'Describe the issue: error messages, unexpected behavior, what goes wrong...'
-        issue_number:
-          <<: [*issue_picker, *required_group_a]
-          placeholder: 'Select GitHub issue'
-        files:
-          <<: *file_picker
-          placeholder: 'Where does it occur?'
+        
+        
     panel_b:
       label: 'Expected Outcome'
       subtitle: 'How it should work after the fix'
