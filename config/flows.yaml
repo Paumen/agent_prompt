@@ -179,9 +179,6 @@ flows:
       label: 'Review Criteria'
       subtitle: 'Standards and criteria for the review'
       fields:
-        lenses:
-          <<: *lens_picker
-          default: [semantics, structure]
         spec_files:
           <<: *file_picker
           placeholder: 'specs to meet'
