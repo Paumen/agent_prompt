@@ -12,8 +12,12 @@ import { getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { generateSteps, reconcileSteps } from '../logic/step-generator.js';
 import { setInteracting } from '../common/components.js';
 import { fileIconName } from '../common/icons.js';
+import { createFilePicker } from '../common/file-tree.js';
+import { getFileTree } from './card-configuration.js';
+import { getCachedIssues, getCachedPRs } from './card-tasks.js';
 import {
   createButton,
+  createPicker,
   createTag,
   createInputField,
   createMoreLess,
@@ -152,20 +156,23 @@ function renderStepRow(step, index) {
 
   // --- Sub-items (auto-placed to col 2/-1 via CSS nth-child rule) ---
 
-  // Source pill (PR/Issue reference)
-  if (
-    (step.object === 'pull_request' || step.object === 'issue') &&
-    step.source
-  ) {
-    const iconName =
-      step.object === 'pull_request' ? 'git-pull-request' : 'issue-opened';
-    const prefix = step.object === 'pull_request' ? 'PR' : 'Issue';
-    const pill = renderSourcePill(step.source, iconName, prefix);
-    if (pill) li.appendChild(pill);
+  // PR picker for PR-sourced steps
+  if (step.source?.endsWith('.pr_number')) {
+    renderStepPRPicker(li, step, index);
   }
 
-  // File pills
-  if (step.params?.files?.length > 0) {
+  // File picker for file-sourced steps
+  if (step.source?.endsWith('.files') && step.params) {
+    renderStepFilePicker(li, step, index);
+  }
+
+  // Issue picker for issue-sourced steps
+  if (step.source?.endsWith('.issue_number')) {
+    renderStepIssuePicker(li, step, index);
+  }
+
+  // File pills — legacy display for steps without a dedicated file picker
+  if (!step.source?.endsWith('.files') && step.params?.files?.length > 0) {
     li.appendChild(renderFilePills(step));
   }
 
@@ -187,18 +194,6 @@ function renderStepRow(step, index) {
   return li;
 }
 
-function renderSourcePill(source, iconName, labelPrefix) {
-  const state = getState();
-  const [panel, field] = source.split('.');
-  const value = state[panel]?.[field];
-  if (!value) return null;
-
-  return createTag({
-    label: `${labelPrefix} #${value}`,
-    iconName,
-  });
-}
-
 function renderFilePills(step) {
   const container = document.createElement('div');
   container.className = 'cloud';
@@ -215,6 +210,65 @@ function renderFilePills(step) {
   }
 
   return container;
+}
+
+function renderStepFilePicker(li, step, index) {
+  createFilePicker(li, {
+    files: getFileTree(),
+    selected: step.params.files || [],
+    placeholder: 'Search files…',
+    onChange: (selectedPaths) => onUpdateStepFiles(index, selectedPaths),
+  });
+}
+
+function renderStepPRPicker(li, step, index) {
+  const prs = getCachedPRs();
+  const pickerItems = prs.map(({ number, title }) => ({
+    value: number,
+    label: `#${number} — ${title}`,
+  }));
+
+  const selected =
+    step.params?.pr_number !== null && step.params?.pr_number !== undefined
+      ? [step.params.pr_number]
+      : [];
+
+  const picker = createPicker({
+    items: pickerItems,
+    selected,
+    placeholder: 'Search pull requests…',
+    searchIconName: 'git-pull-request',
+    multiSelect: true,
+    onSelect: (item) => onUpdateStepPR(index, item.value),
+    onRemove: () => onUpdateStepPR(index, null),
+  });
+
+  li.appendChild(picker);
+}
+
+function renderStepIssuePicker(li, step, index) {
+  const issues = getCachedIssues();
+  const pickerItems = issues.map(({ number, title }) => ({
+    value: number,
+    label: `#${number} — ${title}`,
+  }));
+
+  const picker = createPicker({
+    items: pickerItems,
+    selected: step.params?.issues || [],
+    placeholder: 'Search issues…',
+    searchIconName: 'issue-opened',
+    multiSelect: true,
+    onSelect: (item) =>
+      onUpdateStepIssues(index, [...(step.params?.issues || []), item.value]),
+    onRemove: (value) =>
+      onUpdateStepIssues(
+        index,
+        (step.params?.issues || []).filter((v) => v !== value)
+      ),
+  });
+
+  li.appendChild(picker);
 }
 
 function renderOptionalTextRow(step, index) {
@@ -335,6 +389,39 @@ function onRemoveFileFromStep(step, filePath) {
   const newFiles = currentFiles.filter((f) => f !== filePath);
 
   setState(source, newFiles);
+}
+
+function onUpdateStepFiles(stepIndex, files) {
+  const state = getState();
+  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+  if (stepIndex < 0 || stepIndex >= steps.length) return;
+  steps[stepIndex] = {
+    ...steps[stepIndex],
+    params: { ...(steps[stepIndex].params || {}), files },
+  };
+  setState('steps.enabled_steps', steps);
+}
+
+function onUpdateStepPR(stepIndex, prNumber) {
+  const state = getState();
+  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+  if (stepIndex < 0 || stepIndex >= steps.length) return;
+  steps[stepIndex] = {
+    ...steps[stepIndex],
+    params: { ...(steps[stepIndex].params || {}), pr_number: prNumber },
+  };
+  setState('steps.enabled_steps', steps);
+}
+
+function onUpdateStepIssues(stepIndex, issues) {
+  const state = getState();
+  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+  if (stepIndex < 0 || stepIndex >= steps.length) return;
+  steps[stepIndex] = {
+    ...steps[stepIndex],
+    params: { ...(steps[stepIndex].params || {}), issues },
+  };
+  setState('steps.enabled_steps', steps);
 }
 
 function onToggleLens(stepIndex, lens) {

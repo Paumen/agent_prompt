@@ -30,13 +30,26 @@ export function isSourceFilled(source, panelA, panelB) {
 }
 
 /**
+ * Source types that have a dedicated in-step picker.
+ * These steps always appear regardless of panel state so the user
+ * can make their selection directly in the step row.
+ */
+const PICKER_SOURCE_SUFFIXES = ['.files', '.issue_number', '.pr_number'];
+
+function hasStepPicker(source) {
+  return PICKER_SOURCE_SUFFIXES.some((s) => source?.endsWith(s));
+}
+
+/**
  * Generate steps from flow definition based on current panel state.
  * Conditional steps (with `source` field) are only included when
- * the referenced panel field is filled (STP-02).
+ * the referenced panel field is filled (STP-02), UNLESS the step has
+ * a dedicated in-step picker — those always appear so the user can
+ * select directly in the step row without touching the task card.
  *
- * For file-sourced steps (object === 'files' with an array source),
- * params.files is populated from the panel data so individual files can be
- * rendered as removable pills in the UI.
+ * For file-sourced steps, params.files is populated from panel data.
+ * For issue-sourced steps, params.issues is populated from panel data.
+ * For PR-sourced steps, params.pr_number is populated from panel data.
  *
  * @returns {Array<Object>} An array of step objects.
  */
@@ -46,8 +59,14 @@ export function generateSteps(flowDef, panelA, panelB) {
   const steps = [];
 
   for (const stepDef of flowDef.steps) {
-    // Conditional step: skip if source field is not filled
-    if (stepDef.source && !isSourceFilled(stepDef.source, panelA, panelB)) {
+    // Conditional step: skip if source field is not filled.
+    // Exception: steps with a dedicated picker always appear so the user
+    // can select directly in the step row.
+    if (
+      stepDef.source &&
+      !hasStepPicker(stepDef.source) &&
+      !isSourceFilled(stepDef.source, panelA, panelB)
+    ) {
       continue;
     }
 
@@ -67,19 +86,58 @@ export function generateSteps(flowDef, panelA, panelB) {
     if (stepDef.pr_name !== undefined) step.pr_name = stepDef.pr_name;
     if (stepDef.file_name !== undefined) step.file_name = stepDef.file_name;
 
-    // For steps that read files from a panel array source, populate params.files
-    // so the UI can render individual removable file pills.
-    if (
-      stepDef.source &&
-      stepDef.object === 'files' &&
-      stepDef.operation === 'read'
-    ) {
+    // For file-sourced steps, initialize params.files from panel data.
+    // - source ending in '.files' → per-step file picker; always init to [] or panel selection
+    // - object === 'files' && operation === 'read' → spec/guideline files (read-specs etc.)
+    const isFilesSource = stepDef.source?.endsWith('.files');
+    const isReadFilesOp =
+      stepDef.object === 'files' && stepDef.operation === 'read';
+    if (isFilesSource || isReadFilesOp) {
       const [panel, field] = stepDef.source.split('.');
       const data = panel === 'panel_a' ? panelA : panelB;
       const files = data?.[field];
-      if (Array.isArray(files) && files.length > 0) {
-        step.params = { ...(step.params || {}), files: [...files] };
+      step.params = {
+        ...(step.params || {}),
+        // For '.files' source steps: always init (empty or filled) so picker can render.
+        // For read-files op (spec/guideline): only set when files available (legacy behavior).
+        files: isFilesSource
+          ? Array.isArray(files)
+            ? [...files]
+            : []
+          : Array.isArray(files) && files.length > 0
+            ? [...files]
+            : undefined,
+      };
+      // Remove undefined params.files to keep object clean
+      if (step.params.files === undefined) {
+        delete step.params.files;
       }
+    }
+
+    // For issue-sourced steps, initialize params.issues from panel data.
+    if (stepDef.source?.endsWith('.issue_number')) {
+      const [panel, field] = stepDef.source.split('.');
+      const data = panel === 'panel_a' ? panelA : panelB;
+      const issueNumber = data?.[field];
+      step.params = {
+        ...(step.params || {}),
+        issues:
+          issueNumber !== null && issueNumber !== undefined
+            ? [issueNumber]
+            : [],
+      };
+    }
+
+    // For PR-sourced steps, initialize params.pr_number from panel data.
+    if (stepDef.source?.endsWith('.pr_number')) {
+      const [panel, field] = stepDef.source.split('.');
+      const data = panel === 'panel_a' ? panelA : panelB;
+      const prNumber = data?.[field];
+      step.params = {
+        ...(step.params || {}),
+        pr_number:
+          prNumber !== null && prNumber !== undefined ? prNumber : null,
+      };
     }
 
     steps.push(step);
@@ -112,12 +170,33 @@ export function reconcileSteps(generated, currentSteps, removedIds) {
           outputsSelected = [existing.output_selected];
         }
 
-        // Preserve user modifications (lens toggling, name_provided, outputs_selected)
+        // Preserve user modifications (lens toggling, name_provided, outputs_selected,
+        // and per-step file/issue/PR selections)
+        const hasPerStepParams =
+          existing.params?.files !== undefined ||
+          existing.params?.issues !== undefined ||
+          existing.params?.pr_number !== undefined;
+        const preservedParams = hasPerStepParams
+          ? {
+              ...(step.params || {}),
+              ...(existing.params?.files !== undefined && {
+                files: existing.params.files,
+              }),
+              ...(existing.params?.issues !== undefined && {
+                issues: existing.params.issues,
+              }),
+              ...(existing.params?.pr_number !== undefined && {
+                pr_number: existing.params.pr_number,
+              }),
+            }
+          : step.params;
+
         return {
           ...step,
           lenses: existing.lenses ?? step.lenses,
           name_provided: existing.name_provided,
           outputs_selected: outputsSelected,
+          ...(preservedParams !== undefined && { params: preservedParams }),
         };
       }
       return step;

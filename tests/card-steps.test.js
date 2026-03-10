@@ -167,7 +167,13 @@ describe('File pills', () => {
   it('clicking remove calls setState', () => {
     initStepsCard();
     document.querySelector('.tag .btn-icon[aria-label^="Remove"]').click();
-    expect(setState).toHaveBeenCalledWith('panel_a.files', ['src/utils.js']);
+    // File removal now updates the step's own params.files (per-step ownership)
+    expect(setState).toHaveBeenCalledWith(
+      'steps.enabled_steps',
+      expect.arrayContaining([
+        expect.objectContaining({ params: { files: ['src/utils.js'] } }),
+      ])
+    );
   });
 });
 
