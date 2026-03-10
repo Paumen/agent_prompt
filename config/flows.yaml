@@ -197,7 +197,6 @@ flows:
         description:
           <<: *text_field
           placeholder: 'Background, constraints, or existing context...'
-      
     panel_b:
       label: 'Requirements'
       subtitle: 'What to build and completion criteria'
