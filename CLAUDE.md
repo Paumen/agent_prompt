@@ -56,7 +56,6 @@ If a conflict exists, update @src/ and @tests/ to match or inform PO/user.
 - **CSS work**: Before editing any `.css` file or fixing CSS errors, invoke `/css-guide`. The skill contains all CSS conventions, prohibited patterns, and reference files. See `@.claude/commands/css-guide.md`.
 - Minimize class names — reuse elements, prefer semantic HTML selectors. Ask before creating new classes or components.
 - Vanilla JavaScript with ES modules.
-- No unnecessary abstractions — keep code direct and readable.
 - One feature per file where practical.
 - All asset references in HTML must use relative paths (starting with `./`), not absolute paths starting with `/`. Vite's `base` config handles path rewriting during build.
 
