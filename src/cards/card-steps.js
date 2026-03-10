@@ -81,13 +81,6 @@ function getOptionalTextPlaceholder(step) {
   return null;
 }
 
-function getOptionalTextLabel(step) {
-  if (step.branch_name !== undefined) return 'Branch:';
-  if (step.pr_name !== undefined) return 'PR title:';
-  if (step.file_name !== undefined) return 'File name:';
-  return null;
-}
-
 function hasOptionalText(step) {
   return (
     step.branch_name !== undefined ||
@@ -225,34 +218,16 @@ function renderFilePills(step) {
 }
 
 function renderOptionalTextRow(step, index) {
-  const row = document.createElement('div');
-  row.className = 'input';
-
-  const lbl = document.createElement('label');
-  lbl.textContent = getOptionalTextLabel(step);
-  row.appendChild(lbl);
-
-  const input = createInputField({
+  return createInputField({
     placeholder: getOptionalTextPlaceholder(step),
     value: step.name_provided || '',
     onInput: (e) => onOptionalTextChange(index, e.target.value),
   });
-  row.appendChild(input);
-
-  return row;
 }
 
 function renderOutputIcons(step, index) {
-  const container = document.createElement('div');
-  container.className = 'input';
-
-  const lbl = document.createElement('label');
-  lbl.textContent = 'Deliver via:';
-  container.appendChild(lbl);
-
   const cloud = document.createElement('div');
   cloud.className = 'cloud';
-  container.appendChild(cloud);
 
   const selected =
     step.outputs_selected ||
@@ -271,7 +246,7 @@ function renderOutputIcons(step, index) {
     cloud.appendChild(btn);
   }
 
-  return container;
+  return cloud;
 }
 
 function renderStepLenses(step, stepIndex) {
