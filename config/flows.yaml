@@ -135,9 +135,6 @@ flows:
         spec_files:
           <<: *file_picker
           placeholder: 'WHAT to build — requirements, user stories, design docs'
-        guideline_files:
-          <<: *file_picker
-          placeholder: 'HOW to build — Style guides or coding standards'
     steps:
       - *read_claude
       - id: read-location
@@ -146,7 +143,6 @@ flows:
         <<: *read_issue_base
         source: panel_a.issue_number
       - *read_specs
-      - *read_guidelines
       - id: identify-cause
         operation: analyze
         object: issue
@@ -182,13 +178,9 @@ flows:
         spec_files:
           <<: *file_picker
           placeholder: 'specs to meet'
-        guideline_files:
-          <<: *file_picker
-          placeholder: 'Standards to check'
     steps:
       - *read_claude
       - *read_specs
-      - *read_guidelines
       - id: review-pr
         operation: analyze
         object: pull_request
