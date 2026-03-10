@@ -147,7 +147,6 @@ flows:
       - id: implement-fix
         operation: edit
         object: files
-        lenses: [] # user-adjustable via lens picker
       - *run_tests
       - *commit_pr
 
@@ -161,12 +160,6 @@ flows:
         description:
           <<: *text_field
           placeholder: 'Background, specific questions, or areas of concern...'
-        pr_number:
-          <<: [*pr_picker, *required_group_a]
-          placeholder: 'Select a pull request'
-        files:
-          <<: [*file_picker, *required_group_a]
-          placeholder: 'Files to review'
     panel_b:
       label: 'Review Criteria'
       subtitle: 'Standards and criteria for the review'
@@ -204,9 +197,7 @@ flows:
         description:
           <<: *text_field
           placeholder: 'Background, constraints, or existing context...'
-        files:
-          <<: *file_picker
-          placeholder: 'Existing files to build upon'
+      
     panel_b:
       label: 'Requirements'
       subtitle: 'What to build and completion criteria'
@@ -247,13 +238,7 @@ flows:
       fields:
         description:
           <<: *text_field_required_group
-          placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...'
-        issue_number:
-          <<: [*issue_picker, *required_group_a]
-          placeholder: 'Select a related GitHub issue'
-        files:
-          <<: *file_picker
-          placeholder: 'Files to improve'
+          placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...
     panel_b:
       label: 'Desired Outcome'
       subtitle: 'What the improved version should look like'
@@ -261,9 +246,6 @@ flows:
         description:
           <<: *text_field
           placeholder: 'Describe the desired improvements, goals, or constraints...'
-        issue_number:
-          <<: *issue_picker
-          placeholder: 'Issue describing the desired state'
         guideline_files:
           <<: *file_picker
           label: 'Reference files'
@@ -283,9 +265,6 @@ flows:
         <<: *issue_picker
         <<: *read_issue_base
         source: panel_a.issue_number
-      - id: read-issue-desired
-        <<: *read_issue_base
-        source: panel_b.issue_number
       - *read_guidelines
       - *create_branch
       - id: apply-improvements
