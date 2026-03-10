@@ -210,7 +210,7 @@ label {
 
 .input-field--textarea {
   field-sizing: content;
-  min-height: 40px;
+  min-height: 32px;
   resize: vertical;
 }
 
