@@ -770,6 +770,11 @@ export function getCachedIssues() {
   return cachedIssues || [];
 }
 
+/** @returns {Array} cached PRs list (empty if not yet loaded) */
+export function getCachedPRs() {
+  return cachedPRs || [];
+}
+
 export function initTasksCard() {
   elBody = document.getElementById('bd-tasks');
   if (!elBody) return;

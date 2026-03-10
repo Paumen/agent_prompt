@@ -156,15 +156,17 @@ describe('generateSteps', () => {
     expect(generateSteps({}, EMPTY_PANEL_A, EMPTY_PANEL_B)).toEqual([]);
   });
 
-  it('includes non-conditional steps, excludes conditional steps with empty sources', () => {
+  it('includes non-conditional steps; picker steps always included; others excluded when empty', () => {
     const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
     const ids = steps.map((s) => s.id);
 
     expect(ids).toContain('read-claude');
     expect(ids).toContain('identify-cause');
     expect(ids).toContain('create-branch');
-    expect(ids).not.toContain('read-location');
-    expect(ids).not.toContain('read-issue');
+    // Steps with dedicated pickers always appear regardless of panel state
+    expect(ids).toContain('read-location'); // .files source — has file picker
+    expect(ids).toContain('read-issue'); // .issue_number source — has issue picker
+    // Steps without pickers (e.g. spec_files source) still require panel input
     expect(ids).not.toContain('read-specs');
   });
 
@@ -225,10 +227,14 @@ describe('generateSteps', () => {
     ).toBeUndefined();
   });
 
-  it('handles review flow PR conditional steps', () => {
+  it('handles review flow PR steps — always included, seeded from panel', () => {
+    // PR steps have a dedicated picker so they always appear
     const empty = generateSteps(REVIEW_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
-    expect(empty.map((s) => s.id)).not.toContain('review-pr');
+    const emptyIds = empty.map((s) => s.id);
+    expect(emptyIds).toContain('review-pr');
+    expect(empty.find((s) => s.id === 'review-pr').params.pr_number).toBeNull();
 
+    // When panel has a PR, params.pr_number is seeded from it
     const filled = generateSteps(
       REVIEW_FLOW,
       { ...EMPTY_PANEL_A, pr_number: 5 },
@@ -237,6 +243,7 @@ describe('generateSteps', () => {
     const ids = filled.map((s) => s.id);
     expect(ids).toContain('review-pr');
     expect(ids).toContain('provide-feedback');
+    expect(filled.find((s) => s.id === 'review-pr').params.pr_number).toBe(5);
     expect(filled.find((s) => s.id === 'provide-feedback').output).toEqual([
       'here',
       'pr_comment',
