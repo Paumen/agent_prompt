@@ -237,7 +237,7 @@ flows:
       fields:
         description:
           <<: *text_field_required_group
-          placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...
+          placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...'
     panel_b:
       label: 'Desired Outcome'
       subtitle: 'What the improved version should look like'
