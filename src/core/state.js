@@ -30,6 +30,15 @@ const DEFAULT_STATE = {
     lenses: [],
   },
   steps: {
+    /**
+     * Array of step objects. Each step may include:
+     * - id, operation, object (required)
+     * - lenses?: string[] — user-toggled lenses
+     * - name_provided?: string — user-entered optional text
+     * - outputs_selected?: string[] — user-selected output modes
+     * - params.files?: string[] — per-step user-selected file paths
+     * - params.issues?: number[] — per-step user-selected issue numbers
+     */
     enabled_steps: [],
     removed_step_ids: [],
   },

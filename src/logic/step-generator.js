@@ -67,19 +67,43 @@ export function generateSteps(flowDef, panelA, panelB) {
     if (stepDef.pr_name !== undefined) step.pr_name = stepDef.pr_name;
     if (stepDef.file_name !== undefined) step.file_name = stepDef.file_name;
 
-    // For steps that read files from a panel array source, populate params.files
-    // so the UI can render individual removable file pills.
-    if (
-      stepDef.source &&
-      stepDef.object === 'files' &&
-      stepDef.operation === 'read'
-    ) {
+    // For file-sourced steps, initialize params.files from panel data.
+    // - source ending in '.files' → per-step file picker; always init to [] or panel selection
+    // - object === 'files' && operation === 'read' → spec/guideline files (read-specs etc.)
+    const isFilesSource = stepDef.source?.endsWith('.files');
+    const isReadFilesOp =
+      stepDef.object === 'files' && stepDef.operation === 'read';
+    if (isFilesSource || isReadFilesOp) {
       const [panel, field] = stepDef.source.split('.');
       const data = panel === 'panel_a' ? panelA : panelB;
       const files = data?.[field];
-      if (Array.isArray(files) && files.length > 0) {
-        step.params = { ...(step.params || {}), files: [...files] };
+      step.params = {
+        ...(step.params || {}),
+        // For '.files' source steps: always init (empty or filled) so picker can render.
+        // For read-files op (spec/guideline): only set when files available (legacy behavior).
+        files: isFilesSource
+          ? Array.isArray(files)
+            ? [...files]
+            : []
+          : Array.isArray(files) && files.length > 0
+            ? [...files]
+            : undefined,
+      };
+      // Remove undefined params.files to keep object clean
+      if (step.params.files === undefined) {
+        delete step.params.files;
       }
+    }
+
+    // For issue-sourced steps, initialize params.issues from panel data.
+    if (stepDef.source?.endsWith('.issue_number')) {
+      const [panel, field] = stepDef.source.split('.');
+      const data = panel === 'panel_a' ? panelA : panelB;
+      const issueNumber = data?.[field];
+      step.params = {
+        ...(step.params || {}),
+        issues: issueNumber !== null && issueNumber !== undefined ? [issueNumber] : [],
+      };
     }
 
     steps.push(step);
@@ -112,12 +136,28 @@ export function reconcileSteps(generated, currentSteps, removedIds) {
           outputsSelected = [existing.output_selected];
         }
 
-        // Preserve user modifications (lens toggling, name_provided, outputs_selected)
+        // Preserve user modifications (lens toggling, name_provided, outputs_selected,
+        // and per-step file/issue selections)
+        const preservedParams =
+          existing.params?.files !== undefined ||
+          existing.params?.issues !== undefined
+            ? {
+                ...(step.params || {}),
+                ...(existing.params?.files !== undefined && {
+                  files: existing.params.files,
+                }),
+                ...(existing.params?.issues !== undefined && {
+                  issues: existing.params.issues,
+                }),
+              }
+            : step.params;
+
         return {
           ...step,
           lenses: existing.lenses ?? step.lenses,
           name_provided: existing.name_provided,
           outputs_selected: outputsSelected,
+          ...(preservedParams !== undefined && { params: preservedParams }),
         };
       }
       return step;

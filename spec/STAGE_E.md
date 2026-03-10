@@ -7,9 +7,9 @@ Isolate pure CSS and minor DOM attribute changes. This prevents logic regression
 Phase 2: Architectural Data Model Shift (High Risk / Unconventional)
 You must update the state.steps.enabled_steps schema to support storing nested user-selected files and issues directly on the step objects, and update reconcileSteps in src/logic/step-generator.js to preserve these local step states across flow regenerations.
 
-- Step 2.1: Update src/core/state.js DEFAULT_STATE.steps.enabled_steps schema to support nested arrays for step-specific files and issues.
-- Step 2.2: Rewrite reconcileSteps in src/logic/step-generator.js to map and persist user-selected files, lenses, and issues on a per-step basis across regenerations.
-- Step 2.3: Inject the createFilePicker and createPicker (for issues) directly into the renderStepRow function in src/cards/card-steps.js, conditionally showing them based on the step's id (e.g., validate-tests, analyze-files).
+- [x] Step 2.1: Update src/core/state.js DEFAULT_STATE.steps.enabled_steps schema to support nested arrays for step-specific files and issues.
+- [x] Step 2.2: Rewrite reconcileSteps in src/logic/step-generator.js to map and persist user-selected files, lenses, and issues on a per-step basis across regenerations.
+- [x] Step 2.3: Inject the createFilePicker and createPicker (for issues) directly into the renderStepRow function in src/cards/card-steps.js, conditionally showing them based on the step's id (e.g., validate-tests, analyze-files).
 
 Phase 3: Local Storage & Config State (Low Risk / Foundation)
 Execute state persistence and simple boolean flags first to establish the data foundation without impacting complex DOM logic.

@@ -765,6 +765,11 @@ function fieldNameToLabel(fieldName) {
 
 // --- Initialization ---
 
+/** @returns {Array} cached issues list (empty if not yet loaded) */
+export function getCachedIssues() {
+  return cachedIssues || [];
+}
+
 export function initTasksCard() {
   elBody = document.getElementById('bd-tasks');
   if (!elBody) return;
