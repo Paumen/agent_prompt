@@ -172,9 +172,10 @@ flows:
       - id: analyze
         operation: analyze
         object: requirements
+      - *step_plan
       - id: edit
         operation: create
-        object: implementation
+        object: code 
         file_name: optional_text
       - *step_test
       - *step_commit
