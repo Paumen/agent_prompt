@@ -220,23 +220,34 @@ function renderStepRow(step, index) {
 
   // --- Sub-items (auto-placed to col 2/-1 via CSS nth-child rule) ---
 
+  // Collect all sources (single or merged)
+  const sources = step.sources || (step.source ? [step.source] : []);
+
   // PR picker for PR-sourced steps
-  if (step.source?.endsWith('.pr_number')) {
+  if (sources.some((s) => s.endsWith('.pr_number'))) {
     renderStepPRPicker(li, step, index);
   }
 
   // File picker for file-sourced steps or merged read step
-  if ((step.source?.endsWith('.files') && step.params) || step.has_file_picker) {
+  if (
+    (sources.some((s) => s.endsWith('.files')) && step.params) ||
+    step.has_file_picker
+  ) {
     renderStepFilePicker(li, step, index);
   }
 
   // Issue picker for issue-sourced steps or merged read step
-  if (step.source?.endsWith('.issue_number') || step.has_issue_picker) {
+  if (
+    sources.some((s) => s.endsWith('.issue_number')) ||
+    step.has_issue_picker
+  ) {
     renderStepIssuePicker(li, step, index);
   }
 
   // File pills — legacy display for steps without a dedicated file picker
-  if (!step.source?.endsWith('.files') && !step.has_file_picker && step.params?.files?.length > 0) {
+  const hasFilePicker =
+    sources.some((s) => s.endsWith('.files')) || step.has_file_picker;
+  if (!hasFilePicker && step.params?.files?.length > 0) {
     li.appendChild(renderFilePills(step));
   }
 
