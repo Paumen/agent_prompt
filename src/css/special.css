@@ -42,8 +42,8 @@
 .quality-meter > :first-child {
   display: flex;
   gap: var(--sp-2);
-  place-items: center;
   place-content: flex-end; /* Right-align label and info button (D204) */
+  place-items: center;
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-tertiary);

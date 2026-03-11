@@ -90,6 +90,12 @@ body {
   opacity: 0.3;
 }
 
+/* D703: Highlight pulse on locked summary click */
+
+:where([data-card-state='locked']) > summary {
+  outline: 2px solid transparent;
+}
+
 /* D602: summary always clickable for expand/collapse (except locked prevents open in JS) */
 
 [data-card-state] > summary {
@@ -142,12 +148,6 @@ body {
   position-area: block-end center;
 }
 
-/* D703: Highlight pulse on locked summary click */
-
-:where([data-card-state='locked']) > summary {
-  outline: 2px solid transparent;
-}
-
 @keyframes highlight-pulse {
   0%,
   100% {
@@ -166,13 +166,13 @@ display:none;
 
 
 
-.card-header > :first-child {
+.card-header > h3 {
   display: inline-flex;
   gap: var(--sp-2);
   place-items: center;
+  padding: var(--sp-4);
   font-size: var(--text);
   font-weight: 700;
-  padding: var(--sp-4);
 }
 
 :where(details[open]) .icon--chevron {
