@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildPrompt } from '../src/core/prompt-builder.js';
-import { createMockState, createMockSteps } from './helpers/state-factory.js';
+import { createMockState } from './helpers/state-factory.js';
 
 // Helper: create a state with valid owner/repo for prompt generation
 function baseState(overrides = {}) {
