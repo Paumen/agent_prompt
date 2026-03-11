@@ -324,22 +324,6 @@ label {
    STEP COUNTER (CSS counter replaces .badge spans)
    ============================================================ */
 
-.output-field::before {
-  display: grid;
-  flex-shrink: 0;
-  place-content: center;
-  width: 16px;
-  height: 16px;
-  font-size: var(--text);
-  font-weight: 800;
-  content: counter(steps);
-  background: var(--bg);
-  border-radius: var(--radius-pill);
-}
-
-.output-field > :nth-child(n + 3) {
-  grid-column: 2 / -1;
-}
 
 /* ============================================================
    UTILITY
