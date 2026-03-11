@@ -123,12 +123,12 @@
       }
     ],
     "selector-disallowed-list": [
-      "/\\[id[~|^$*]?=/",
-      "/:.*child/",
+      ["/\\[id[~|^$*]?=/", "/:.*child/"],
       {
         "message": "Selector pattern disallowed. Use classes or see @.claude/commands/css-guide.md"
       }
     ],
+
 
     "selector-max-specificity": [
       "0,2,0",
