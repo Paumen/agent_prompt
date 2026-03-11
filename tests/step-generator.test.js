@@ -95,6 +95,46 @@ const REVIEW_FLOW = {
   ],
 };
 
+const REVIEW_FLOW_MULTI = {
+  label: 'Review',
+  steps: [
+    {
+      id: 'read-claude',
+      operation: 'read',
+      object: 'file',
+      params: { file: 'claude.md' },
+    },
+    {
+      id: 'review-pr',
+      operation: 'analyze',
+      object: 'pull_request',
+      source: 'panel_a.pr_number',
+      lenses: ['semantics', 'structure'],
+    },
+    {
+      id: 'review-files',
+      operation: 'analyze',
+      object: 'files',
+      source: 'panel_a.files',
+      lenses: [],
+    },
+    {
+      id: 'provide-feedback-pr',
+      operation: 'create',
+      object: 'review_feedback',
+      source: 'panel_a.pr_number',
+      output: ['here', 'pr_comment'],
+    },
+    {
+      id: 'provide-feedback-files',
+      operation: 'create',
+      object: 'review_feedback',
+      source: 'panel_a.files',
+      output: ['here', 'pr_comment'],
+    },
+  ],
+};
+
 describe('isSourceFilled', () => {
   it('returns true for null/undefined source, false for empty fields, true for filled fields', () => {
     expect(isSourceFilled(null, EMPTY_PANEL_A, EMPTY_PANEL_B)).toBe(true);
@@ -225,6 +265,46 @@ describe('generateSteps', () => {
     expect(
       steps.find((s) => s.id === 'read-issue')?.params?.files
     ).toBeUndefined();
+  });
+
+  it('merges consecutive analyze steps into one with sources array and unioned lenses', () => {
+    const steps = generateSteps(REVIEW_FLOW_MULTI, EMPTY_PANEL_A, EMPTY_PANEL_B);
+    const ids = steps.map((s) => s.id);
+
+    // Merged into one step using first step's id
+    expect(ids).toContain('review-pr');
+    expect(ids).not.toContain('review-files');
+
+    const merged = steps.find((s) => s.id === 'review-pr');
+    expect(merged.sources).toEqual(['panel_a.pr_number', 'panel_a.files']);
+    expect(merged._mergedIds).toEqual(['review-pr', 'review-files']);
+    // Union of lenses: semantics + structure from first, [] from second
+    expect(merged.lenses).toEqual(['semantics', 'structure']);
+    // params from both: pr_number (null) and files ([])
+    expect(merged.params).toMatchObject({ pr_number: null, files: [] });
+  });
+
+  it('merges consecutive review_feedback steps into one with sources array', () => {
+    const steps = generateSteps(REVIEW_FLOW_MULTI, EMPTY_PANEL_A, EMPTY_PANEL_B);
+    const ids = steps.map((s) => s.id);
+
+    expect(ids).toContain('provide-feedback-pr');
+    expect(ids).not.toContain('provide-feedback-files');
+
+    const merged = steps.find((s) => s.id === 'provide-feedback-pr');
+    expect(merged.sources).toEqual(['panel_a.pr_number', 'panel_a.files']);
+    expect(merged._mergedIds).toEqual(['provide-feedback-pr', 'provide-feedback-files']);
+    // Union of output (same in both, so deduped)
+    expect(merged.output).toEqual(['here', 'pr_comment']);
+  });
+
+  it('does not merge a single analyze step', () => {
+    const steps = generateSteps(REVIEW_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
+    const analyzedStep = steps.find((s) => s.id === 'review-pr');
+
+    expect(analyzedStep.sources).toBeUndefined();
+    expect(analyzedStep._mergedIds).toBeUndefined();
+    expect(analyzedStep.source).toBe('panel_a.pr_number');
   });
 
   it('handles review flow PR steps — always included, seeded from panel', () => {

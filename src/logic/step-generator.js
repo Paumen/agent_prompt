@@ -41,6 +41,89 @@ function hasStepPicker(source) {
 }
 
 /**
+ * Get the merge key for a step, or null if the step is not mergeable.
+ * Consecutive steps sharing the same non-null key are merged into one.
+ */
+function getMergeKey(step) {
+  if (step.operation === 'analyze') return 'analyze';
+  if (step.operation === 'create' && step.object === 'review_feedback')
+    return 'create:review_feedback';
+  return null;
+}
+
+/**
+ * Merge consecutive steps that share the same merge key into a single step.
+ * The merged step uses the first step's id/operation/object, combines sources
+ * into a `sources` array, merges params, unions lenses, and tracks the
+ * original step IDs in `_mergedIds`.
+ */
+function mergeStepGroups(steps) {
+  const result = [];
+  let i = 0;
+
+  while (i < steps.length) {
+    const step = steps[i];
+    const key = getMergeKey(step);
+
+    if (key === null) {
+      result.push(step);
+      i++;
+      continue;
+    }
+
+    // Gather consecutive steps with the same merge key
+    const group = [step];
+    while (
+      i + group.length < steps.length &&
+      getMergeKey(steps[i + group.length]) === key
+    ) {
+      group.push(steps[i + group.length]);
+    }
+
+    if (group.length === 1) {
+      result.push(step);
+      i++;
+      continue;
+    }
+
+    // Build merged step from group
+    const first = group[0];
+    const sources = group.filter((s) => s.source).map((s) => s.source);
+    const params = group.reduce(
+      (acc, s) => ({ ...acc, ...(s.params || {}) }),
+      {}
+    );
+
+    // Union lenses across all steps that define them
+    const hasLenses = group.some((s) => s.lenses !== undefined);
+    const lenses = hasLenses
+      ? [...new Set(group.flatMap((s) => s.lenses || []))]
+      : undefined;
+
+    // Union output arrays
+    const allOutputs = group.flatMap((s) => s.output || []);
+    const output =
+      allOutputs.length > 0 ? [...new Set(allOutputs)] : undefined;
+
+    const merged = {
+      id: first.id,
+      operation: first.operation,
+      object: first.object,
+      _mergedIds: group.map((s) => s.id),
+    };
+    if (sources.length > 0) merged.sources = sources;
+    if (lenses !== undefined) merged.lenses = lenses;
+    if (output) merged.output = output;
+    if (Object.keys(params).length > 0) merged.params = params;
+
+    result.push(merged);
+    i += group.length;
+  }
+
+  return result;
+}
+
+/**
  * Generate steps from flow definition based on current panel state.
  * Conditional steps (with `source` field) are only included when
  * the referenced panel field is filled (STP-02), UNLESS the step has
@@ -50,6 +133,9 @@ function hasStepPicker(source) {
  * For file-sourced steps, params.files is populated from panel data.
  * For issue-sourced steps, params.issues is populated from panel data.
  * For PR-sourced steps, params.pr_number is populated from panel data.
+ *
+ * Consecutive steps of the same mergeable kind (analyze, review_feedback)
+ * are merged into a single step with a `sources` array (STP-03).
  *
  * @returns {Array<Object>} An array of step objects.
  */
@@ -143,7 +229,7 @@ export function generateSteps(flowDef, panelA, panelB) {
     steps.push(step);
   }
 
-  return steps;
+  return mergeStepGroups(steps);
 }
 
 /**
