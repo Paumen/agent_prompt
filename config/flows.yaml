@@ -110,7 +110,7 @@ flows:
         object: issue
         lenses: []
       - *step_plan
-      - id: implement
+      - id: edit
         operation: edit
         object: files
       - *step_test
@@ -172,7 +172,7 @@ flows:
       - id: analyze
         operation: analyze
         object: requirements
-      - id: implement
+      - id: edit
         operation: create
         object: implementation
         file_name: optional_text
@@ -213,7 +213,7 @@ flows:
         object: improvements
         lenses: []
       - *step_plan
-      - id: implement
+      - id: edit
         operation: edit
         object: files
       - *step_test
