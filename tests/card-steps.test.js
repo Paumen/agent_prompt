@@ -77,9 +77,11 @@ describe('Step rendering (STP-01)', () => {
   it('renders step list from state with correct labels', () => {
     initStepsCard();
     const rows = document.querySelectorAll('.output-field');
-    expect(rows.length).toBe(4);
-    expect(rows[0].children[0].textContent).toContain('Read: @claude.md');
-    expect(rows[1].children[0].textContent).toContain('Analyze: issue');
+    // Step 0 (context row) + 4 enabled steps
+    expect(rows.length).toBe(5);
+    expect(rows[0].children[0].textContent).toContain('Context');
+    expect(rows[1].children[0].textContent).toContain('Read: @claude.md');
+    expect(rows[2].children[0].textContent).toContain('Analyze: issue');
   });
 
   it('uses ordered list for step numbering', () => {
@@ -222,7 +224,8 @@ describe('Output mode buttons', () => {
   it('renders output buttons with correct roles', () => {
     initStepsCard();
     const btns = document.querySelectorAll('.btn-pill[role="checkbox"]');
-    expect(btns.length).toBe(3);
+    // 2 step-0 context pills (Repo + PAT) + 3 output mode buttons
+    expect(btns.length).toBe(5);
     expect(btns[0].getAttribute('role')).toBe('checkbox');
     expect(btns[0].getAttribute('aria-checked')).toBe('true');
   });

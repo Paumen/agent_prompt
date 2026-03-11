@@ -119,8 +119,7 @@ flows:
         description:
           <<: *text_field_required_group
           placeholder: 'Describe the issue: error messages, unexpected behavior, what goes wrong...'
-        
-        
+
     panel_b:
       label: 'Expected Outcome'
       subtitle: 'How it should work after the fix'

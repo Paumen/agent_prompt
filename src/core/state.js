@@ -11,6 +11,8 @@ const DEFAULT_STATE = {
     repo: '',
     branch: '',
     pat: '',
+    include_repo: true,
+    include_pat: true,
   },
   task: {
     flow_id: '',
@@ -52,7 +54,11 @@ const DEFAULT_STATE = {
 };
 
 // Keys persisted to localStorage (APP-04)
-const PERSISTENT_KEYS = ['configuration.pat', 'configuration.owner'];
+const PERSISTENT_KEYS = [
+  'configuration.pat',
+  'configuration.owner',
+  'configuration.repo',
+];
 const STORAGE_KEY = 'agent_prompt_state';
 
 // --- Internal state ---
@@ -112,6 +118,7 @@ function loadPersistent() {
       if (typeof saved.pat === 'string') state.configuration.pat = saved.pat;
       if (typeof saved.owner === 'string')
         state.configuration.owner = saved.owner;
+      if (typeof saved.repo === 'string') state.configuration.repo = saved.repo;
     }
   } catch {
     // Corrupted localStorage — ignore and use defaults
@@ -126,6 +133,7 @@ function savePersistent() {
       JSON.stringify({
         pat: state.configuration.pat,
         owner: state.configuration.owner,
+        repo: state.configuration.repo,
       })
     );
   } catch {

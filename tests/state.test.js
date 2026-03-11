@@ -36,6 +36,8 @@ describe('state.js', () => {
         repo: '',
         branch: '',
         pat: '',
+        include_repo: true,
+        include_pat: true,
       });
       expect(s.task).toEqual({ flow_id: '' });
       expect(s.panel_a).toEqual({
@@ -399,8 +401,11 @@ describe('state.js', () => {
       stateModule.setState('configuration.owner', 'myuser');
       stateModule.setState('configuration.repo', 'my-repo');
       const stored = JSON.parse(localStorage.getItem(stateModule.STORAGE_KEY));
-      expect(stored).not.toHaveProperty('repo');
+      // repo is now a persistent key (E3 Step 3.1)
+      expect(stored.repo).toBe('my-repo');
       expect(stored.owner).toBe('myuser');
+      // Non-persistent keys like branch are not stored
+      expect(stored).not.toHaveProperty('branch');
     });
   });
 
