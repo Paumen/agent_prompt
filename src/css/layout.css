@@ -357,6 +357,9 @@ summary.card-header::-webkit-details-marker {
   border-radius: var(--radius-pill);
 }
 
+.output-field > :nth-child(n + 3) {
+  grid-column: 3 / -1;
+}
 
 .output-field > .btn-icon {
   grid-column: -2 / -1;
