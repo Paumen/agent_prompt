@@ -18,4 +18,4 @@ Execute state persistence and simple boolean flags first to establish the data f
 - Step 3.2: Modify initConfigurationCard in src/cards/card-configuration.js to auto-fetch branches and trigger step generation if a cached repo exists alongside the PAT and owner.
 - Step 3.3: Add include_repo and include_pat (default true) to the DEFAULT_STATE.configuration object.
 - Step 3.4: Update buildPrompt in src/core/prompt-builder.js to wrap the <repository> and <PAT> string pushes in conditionals checking those new flags.
-- Step 3.5: Prepend a hardcoded "Step 0" rendering function in src/cards/card-steps.js that acts as a UI toggle for the include_repo and include_pat state flags created in Phase 1.
+- Step 3.5: Prepend a hardcoded "Step 0" rendering function in src/cards/card-steps.js that acts as a UI toggle for the include_repo and include_pat state flags created.
