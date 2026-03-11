@@ -357,8 +357,10 @@ function applyMainCardState(cardId, cardState) {
 
   el.dataset.cardState = cardState;
 
-  // Expand when transitioning from locked to any other state
-  if (prev === 'locked' && cardState !== 'locked') {
+  // Expand when transitioning from locked to any other state.
+  // Treat undefined (initial load) as 'locked' so restored config auto-expands cards.
+  const effectivePrev = prev ?? 'locked';
+  if (effectivePrev === 'locked' && cardState !== 'locked') {
     el.open = true;
   }
 
