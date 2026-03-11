@@ -339,7 +339,7 @@ summary.card-header::-webkit-details-marker {
 
 .output-field {
   display: grid;
-  grid-template-columns: auto max-content 1fr auto;
+  grid-template-columns: auto max-content 1fr 1fr auto;
   gap: var(--sp-4);
   place-items: center start;
   counter-increment: steps;
