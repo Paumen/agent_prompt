@@ -48,6 +48,10 @@ function getMergeKey(step) {
   if (step.operation === 'analyze') return 'analyze';
   if (step.operation === 'create' && step.object === 'review_feedback')
     return 'create:review_feedback';
+  // Read steps with dedicated pickers (always shown) can be merged.
+  // Conditional read steps (spec_files, guideline_files — no picker) return null
+  // and break the group, so they remain as separate steps.
+  if (step.operation === 'read' && hasStepPicker(step.source)) return 'read';
   return null;
 }
 

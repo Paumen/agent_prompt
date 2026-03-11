@@ -203,9 +203,9 @@ describe('generateSteps', () => {
     expect(ids).toContain('read-claude');
     expect(ids).toContain('identify-cause');
     expect(ids).toContain('create-branch');
-    // Steps with dedicated pickers always appear regardless of panel state
-    expect(ids).toContain('read-location'); // .files source — has file picker
-    expect(ids).toContain('read-issue'); // .issue_number source — has issue picker
+    // read-location (file picker) and read-issue (issue picker) are merged
+    expect(ids).toContain('read-location');
+    expect(ids).not.toContain('read-issue'); // merged into read-location
     // Steps without pickers (e.g. spec_files source) still require panel input
     expect(ids).not.toContain('read-specs');
   });
@@ -216,8 +216,9 @@ describe('generateSteps', () => {
     const steps = generateSteps(FIX_FLOW, panelA, panelB);
     const ids = steps.map((s) => s.id);
 
-    expect(ids).toContain('read-issue');
-    expect(ids).toContain('read-location');
+    // read-location and read-issue merged; read-specs separate (no picker)
+    expect(ids).toContain('read-location'); // merged step
+    expect(ids).not.toContain('read-issue'); // merged into read-location
     expect(ids).toContain('read-specs');
 
     // Verify order preserved
@@ -225,7 +226,7 @@ describe('generateSteps', () => {
       ids.indexOf('read-location')
     );
     expect(ids.indexOf('read-location')).toBeLessThan(
-      ids.indexOf('read-issue')
+      ids.indexOf('read-specs')
     );
   });
 
@@ -262,9 +263,30 @@ describe('generateSteps', () => {
     expect(steps.find((s) => s.id === 'read-specs').params.files).toEqual([
       'spec.md',
     ]);
-    expect(
-      steps.find((s) => s.id === 'read-issue')?.params?.files
-    ).toBeUndefined();
+    // read-issue is merged into read-location; merged step has issues, not files
+    const mergedRead = steps.find((s) => s.id === 'read-location');
+    expect(mergedRead.params.issues).toBeDefined();
+    expect(mergedRead.params.files).toEqual(['a.js', 'b.js']);
+  });
+
+  it('merges consecutive picker-based read steps into one (file + issue pickers)', () => {
+    const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
+    const ids = steps.map((s) => s.id);
+
+    // read-location (panel_a.files) and read-issue (panel_a.issue_number) merge
+    expect(ids).toContain('read-location');
+    expect(ids).not.toContain('read-issue');
+
+    const merged = steps.find((s) => s.id === 'read-location');
+    expect(merged.sources).toEqual(['panel_a.files', 'panel_a.issue_number']);
+    expect(merged._mergedIds).toEqual(['read-location', 'read-issue']);
+    expect(merged.params).toMatchObject({ files: [], issues: [] });
+
+    // read-claude has no source so is NOT merged
+    expect(ids).toContain('read-claude');
+    const claude = steps.find((s) => s.id === 'read-claude');
+    expect(claude.sources).toBeUndefined();
+    expect(claude._mergedIds).toBeUndefined();
   });
 
   it('merges consecutive analyze steps into one with sources array and unioned lenses', () => {
