@@ -41,12 +41,6 @@
   vertical-align: middle;
 }
 
-/* Small helper/subtitle text */
-small,
-label {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
 
 /* ====================================================
    BUTTONS — 5 types
@@ -150,7 +144,6 @@ label {
   border: none;
 }
 
-/* btn-icon with label */
 .btn-icon--labeled {
   display: inline-flex;
   gap: var(--sp-2);
@@ -226,7 +219,6 @@ label {
   font-size: var(--text);
 }
 
-/* Search row: acts as the visible input field (icons appear inside) */
 .field-picker-search {
   position: relative;
   display: flex;
@@ -239,7 +231,6 @@ label {
   box-shadow: var(--shadow-inset-sm);
 }
 
-/* Input inside search row: transparent (container provides the visual) */
 .field-picker-search .input-field {
   flex: 1;
   min-width: 0;
@@ -251,7 +242,6 @@ label {
   box-shadow: none;
 }
 
-/* Focus on any child highlights the container */
 .field-picker-search:focus-within {
   background: var(--bg-inset);
   border-color: var(--accent-hover);
@@ -321,10 +311,6 @@ label {
 }
 
 /* ============================================================
-   STEP COUNTER (CSS counter replaces .badge spans)
-   ============================================================ */
-
-/* ============================================================
    UTILITY
    ============================================================ */
 
@@ -360,7 +346,6 @@ label {
    SPECIAL PATTERNS (icon swap, XML highlight)
    ============================================= */
 
-/* Copy button: clipboard → check icon swap */
 .btn-copy .icon-check {
   display: none;
 }
@@ -382,13 +367,10 @@ label {
   display: block;
 }
 
-/* XML syntax highlighting in prompt preview */
 .xml-tag {
-  font-weight: 800;
+  font-weight: 900;
   color: var(--accent-a);
 }
-
-/* D703: Guard tooltip visual */
 
 .guard-tooltip {
   padding: var(--sp-4);
@@ -400,36 +382,11 @@ label {
   box-shadow: var(--shadow);
 }
 
-/* D705: Guard hint */
-
 .guard-hint {
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
-/* Required indicator color in labels */
-label > [aria-hidden] {
-  color: var(--accent-caution-dark);
-}
-
-/* D401: Valid input feedback after user interaction */
-
 :where(.input-field:required):user-valid {
-  border-color: var(--accent-a);
-}
-
-/* D401/D402: Invalid feedback when user skips to next card */
-
-:where(.card:has(~ .card[open]) .input-field:required):invalid {
-  border-color: var(--accent-caution);
-}
-
-:where(.card:has(~ .card[open]) [data-state='invalid']) .field-picker-search {
-  border-color: var(--accent-caution);
-}
-
-/* D403: Next-to-fill highlight */
-
-:where([data-next-to-fill]) :is(.input-field, .field-picker-search) {
   border-color: var(--accent-a);
 }
