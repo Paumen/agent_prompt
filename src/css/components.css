@@ -372,16 +372,6 @@
   color: var(--accent-a);
 }
 
-.guard-tooltip {
-  padding: var(--sp-4);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  background: var(--bg-raised);
-  border: 1px solid var(--text-tertiary);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
 .guard-hint {
   font-size: var(--text-sm);
   color: var(--text-secondary);
