@@ -181,7 +181,7 @@ flows:
       - *step_commit
 
   improve:
-    label: 'Improve'
+    label: 'refactor'
     icon: 'compose'
     panel_a:
       label: 'Current State'
