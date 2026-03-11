@@ -39,16 +39,12 @@
 # ==================================================
 _x_anchors:
   # ---------- Generic step anchors ----------
-  step_context: &step_context
-    id: context
-    operation: read
-    object: file
-    params: { file: 'claude.md' }
 
   step_plan: &step_plan
     id: plan
     operation: create
     object: plan
+    branch_name: optional_text
 
   step_test: &step_test
     id: test
@@ -60,18 +56,12 @@ _x_anchors:
     operation: commit
     object: changes
     params: { open_draft_pr: true }
-    branch_name: optional_text
     pr_name: optional_text
 
   # ---------- Common field properties ----------
-  required_group_a: &required_group_a
-    required_group: a_required
 
   text_field: &text_field
     type: text
-
-  text_field_required_group: &text_field_required_group
-    <<: [*text_field, *required_group_a]
 
   file_picker: &file_picker
     type: file_picker_multi
@@ -175,7 +165,6 @@ flows:
           <<: *text_field
           placeholder: 'Describe what to build: functionality, behavior, constraints, requirements/spec id...'
     steps:
-      - *step_context
       - id: read
         operation: read
         object: files
