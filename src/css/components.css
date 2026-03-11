@@ -112,7 +112,7 @@ label {
 /* --- 3. btn-action: one-shot stateless action --- */
 
 .btn-action {
-  min-height: 32px;
+  min-height: 24px;
   max-height: 56px;
   padding: var(--sp-4);
   font-size: var(--text);
