@@ -11,10 +11,15 @@ export function buildPrompt(state) {
 
   const { configuration, task, panel_a, panel_b, steps, notes, improve_scope } =
     state;
-  const { owner, repo, branch, pat } = configuration || {};
+  const { owner, repo, branch, pat, include_repo, include_pat } =
+    configuration || {};
 
-  // Need at minimum a repo to generate a useful prompt
-  if (!owner || !repo) return '';
+  const includeRepo = include_repo !== false;
+  const includePat = include_pat !== false;
+
+  // Need at minimum an owner; also require repo when include_repo is on
+  if (!owner) return '';
+  if (includeRepo && !repo) return '';
 
   const flowId = task?.flow_id || '';
   const lines = [];
@@ -26,14 +31,22 @@ export function buildPrompt(state) {
   const flowLabel = FLOW_LABELS[flowId] || flowId || 'task';
   // Spec uses task="debug" for fix flow, other flows match their flow ID
   const taskId = TASK_IDS[flowId] || flowId || 'task';
-  lines.push(
-    `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`
-  );
-  lines.push(
-    `    for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository>`
-  );
-  lines.push(`    on <branch> ${escapeXml(branch || 'main')} </branch>.`);
-  if (pat) {
+
+  if (includeRepo) {
+    lines.push(
+      `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`
+    );
+    lines.push(
+      `    for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository>`
+    );
+    lines.push(`    on <branch> ${escapeXml(branch || 'main')} </branch>.`);
+  } else {
+    lines.push(
+      `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps.`
+    );
+  }
+
+  if (pat && includePat) {
     lines.push(`    Authenticate using PAT: <PAT> ${escapeXml(pat)} </PAT>.`);
   }
   lines.push(

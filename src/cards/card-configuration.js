@@ -592,6 +592,15 @@ export function initConfigurationCard() {
 
   // Auto-fetch repos on page load if credentials exist (CFG-02)
   if (state.configuration.pat && state.configuration.owner) {
-    loadRepos(state.configuration.owner, state.configuration.pat, false);
+    const savedRepo = state.configuration.repo;
+    const { owner, pat } = state.configuration;
+    // E3: Also auto-restore branches when a cached repo is present
+    loadRepos(owner, pat, false).then(() => {
+      if (savedRepo) {
+        const cachedRepos = cacheGet(`repos_${owner}`);
+        const repoData = cachedRepos?.find((r) => r.name === savedRepo);
+        loadBranches(owner, savedRepo, pat, repoData?.default_branch);
+      }
+    });
   }
 }

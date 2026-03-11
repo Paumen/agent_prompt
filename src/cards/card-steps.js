@@ -95,13 +95,72 @@ function hasOptionalText(step) {
 
 // --- Rendering ---
 
+function renderStep0(state) {
+  const { include_repo, include_pat } = state.configuration || {};
+  const repoOn = include_repo !== false;
+  const patOn = include_pat !== false;
+
+  const li = document.createElement('li');
+  li.className = 'output output-field';
+  li.dataset.stepId = 'step-0';
+
+  const label = document.createElement('span');
+  label.textContent = 'Context';
+  li.appendChild(label);
+
+  const deleteBtn = createButton('icon', {
+    iconName: 'trash',
+    iconClass: 'icon-remove',
+    title: 'Remove context step',
+    ariaLabel: 'Remove context step',
+    onClick: () => onRemoveStep0(),
+  });
+  li.appendChild(deleteBtn);
+
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud';
+
+  const repoBtn = createButton('pill', {
+    label: 'Repository',
+    selected: repoOn,
+    ariaLabel: repoOn
+      ? 'Repository included in prompt'
+      : 'Repository excluded from prompt',
+    onClick: () => onToggleIncludeRepo(),
+  });
+  repoBtn.setAttribute('role', 'checkbox');
+  repoBtn.setAttribute('aria-checked', String(repoOn));
+  cloud.appendChild(repoBtn);
+
+  const patBtn = createButton('pill', {
+    label: 'PAT token',
+    selected: patOn,
+    ariaLabel: patOn ? 'PAT included in prompt' : 'PAT excluded from prompt',
+    onClick: () => onToggleIncludePat(),
+  });
+  patBtn.setAttribute('role', 'checkbox');
+  patBtn.setAttribute('aria-checked', String(patOn));
+  cloud.appendChild(patBtn);
+
+  li.appendChild(cloud);
+
+  return li;
+}
+
 function renderStepList() {
   if (!elBody) return;
 
   const state = getState();
-  const steps = state.steps?.enabled_steps || [];
+  const { enabled_steps: steps = [], removed_step_ids: removedIds = [] } =
+    state.steps || {};
+  const { include_repo, include_pat } = state.configuration || {};
 
-  const stepSnapshot = JSON.stringify(steps);
+  const stepSnapshot = JSON.stringify({
+    steps,
+    removedIds,
+    include_repo,
+    include_pat,
+  });
   if (stepSnapshot === previousStepSnapshot) return;
   previousStepSnapshot = stepSnapshot;
 
@@ -126,6 +185,11 @@ function renderStepList() {
   const list = document.createElement('ol');
   list.className = 'output-block';
   list.setAttribute('role', 'list');
+
+  // Prepend Step 0 (context toggles) unless user removed it
+  if (!removedIds.includes('step-0')) {
+    list.appendChild(renderStep0(state));
+  }
 
   steps.forEach((step, index) => {
     list.appendChild(renderStepRow(step, index));
@@ -362,6 +426,35 @@ function createLensPill(lens, activeLenses, stepIndex) {
 }
 
 // --- Event handlers ---
+
+function onRemoveStep0() {
+  const state = getState();
+  const removedIds = [...(state.steps.removed_step_ids || []), 'step-0'];
+  setState((current) => ({
+    steps: { ...current.steps, removed_step_ids: removedIds },
+    configuration: {
+      ...current.configuration,
+      include_repo: false,
+      include_pat: false,
+    },
+  }));
+}
+
+function onToggleIncludeRepo() {
+  const state = getState();
+  setState(
+    'configuration.include_repo',
+    state.configuration.include_repo === false ? true : false
+  );
+}
+
+function onToggleIncludePat() {
+  const state = getState();
+  setState(
+    'configuration.include_pat',
+    state.configuration.include_pat === false ? true : false
+  );
+}
 
 function onDeleteStep(stepId) {
   const state = getState();

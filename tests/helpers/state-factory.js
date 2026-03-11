@@ -19,6 +19,8 @@ export function createMockState(overrides = {}) {
       repo: '',
       branch: '',
       pat: '',
+      include_repo: true,
+      include_pat: true,
     },
     task: {
       flow_id: '',
