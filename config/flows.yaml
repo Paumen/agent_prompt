@@ -7,8 +7,7 @@
 # Objects: repository, branch, file, folder, file tree, pull request, issue,
 #   commit, PR comments, review comments, labels, diff hunks, CI status.
 #
-# Operations: read, create, edit, delete, rename, move, merge, split, search,
-#   scan, compare, analyze, validate, commit, open (PR/issue).
+# Operations: read, edit, analyze, validate/test, commit.
 #
 # Focus Lenses: semantics, syntax, security, performance, structure,
 #   dependencies, duplications, redundancies, error handling, naming conventions,
@@ -102,9 +101,8 @@ flows:
       subtitle: "What's happening now"
       fields:
         description:
-          <<: *text_field_required_group
+          <<: *text_field
           placeholder: 'Describe the issue: error messages, unexpected behavior, what goes wrong...'
-
     panel_b:
       label: 'Expected Outcome'
       subtitle: 'How it should work after the fix'
@@ -112,11 +110,7 @@ flows:
         description:
           <<: *text_field
           placeholder: 'Describe the expected behavior after the fix is applied...'
-        spec_files:
-          <<: *file_picker
-          placeholder: 'WHAT to build — requirements, user stories, design docs'
     steps:
-      - *step_context
       - id: read
         operation: read
         object: files
@@ -145,12 +139,7 @@ flows:
     panel_b:
       label: 'Review Criteria'
       subtitle: 'Standards and criteria for the review'
-      fields:
-        spec_files:
-          <<: *file_picker
-          placeholder: 'specs to meet'
     steps:
-      - *step_context
       - id: read
         operation: read
         object: files
@@ -181,14 +170,7 @@ flows:
       fields:
         description:
           <<: *text_field
-          required: true
           placeholder: 'Describe what to build: functionality, behavior, constraints, requirements/spec id...'
-        spec_files:
-          <<: *file_picker
-          placeholder: 'Requirement docs, user stories, technical specs'
-        acceptance_criteria:
-          <<: *text_field
-          placeholder: "How to know it's done: test cases, edge cases, quality standards..."
     steps:
       - *step_context
       - id: read
@@ -198,7 +180,6 @@ flows:
       - id: analyze
         operation: analyze
         object: requirements
-      - *step_plan
       - id: implement
         operation: create
         object: implementation
@@ -223,10 +204,6 @@ flows:
         description:
           <<: *text_field
           placeholder: 'Describe the desired improvements, goals, or constraints...'
-        guideline_files:
-          <<: *file_picker
-          label: 'Reference files'
-          placeholder: 'Style guides, examples of desired output, or specs'
     multi_file:
       scope_selector:
         label: 'How should files be improved?'
@@ -235,7 +212,6 @@ flows:
           across_files: 'Across files together'
         show_when: 'panel_a.files.length >= 2'
     steps:
-      - *step_context
       - id: read
         operation: read
         object: files
