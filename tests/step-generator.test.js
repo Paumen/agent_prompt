@@ -156,37 +156,50 @@ describe('generateSteps', () => {
     expect(generateSteps({}, EMPTY_PANEL_A, EMPTY_PANEL_B)).toEqual([]);
   });
 
-  it('includes non-conditional steps; picker steps always included; others excluded when empty', () => {
+  it('merges all read steps into a single "read" step with file and issue pickers', () => {
     const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
     const ids = steps.map((s) => s.id);
 
-    expect(ids).toContain('read-claude');
+    // All read steps are merged into one
+    expect(ids).toContain('read');
+    expect(ids).not.toContain('read-claude');
+    expect(ids).not.toContain('read-location');
+    expect(ids).not.toContain('read-issue');
+    expect(ids).not.toContain('read-specs');
+
+    // Non-read steps still present
     expect(ids).toContain('identify-cause');
     expect(ids).toContain('create-branch');
-    // Steps with dedicated pickers always appear regardless of panel state
-    expect(ids).toContain('read-location'); // .files source — has file picker
-    expect(ids).toContain('read-issue'); // .issue_number source — has issue picker
-    // Steps without pickers (e.g. spec_files source) still require panel input
-    expect(ids).not.toContain('read-specs');
+
+    // Merged step has both pickers
+    const merged = steps.find((s) => s.id === 'read');
+    expect(merged.has_file_picker).toBe(true);
+    expect(merged.has_issue_picker).toBe(true);
+
+    // claude.md pre-populated (from read-claude); panel files empty so no others
+    expect(merged.params.files).toEqual(['claude.md']);
+    expect(merged.params.issues).toEqual([]);
   });
 
-  it('includes conditional steps when their source fields are filled', () => {
-    const panelA = { ...EMPTY_PANEL_A, issue_number: 42, files: ['app.js'] };
+  it('merged read step appears before non-read steps', () => {
+    const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
+    const ids = steps.map((s) => s.id);
+    expect(ids.indexOf('read')).toBeLessThan(ids.indexOf('identify-cause'));
+  });
+
+  it('aggregates files from all read sources into merged step', () => {
+    const panelA = { ...EMPTY_PANEL_A, issue_number: 42, files: ['a.js', 'b.js'] };
     const panelB = { ...EMPTY_PANEL_B, spec_files: ['spec.md'] };
     const steps = generateSteps(FIX_FLOW, panelA, panelB);
-    const ids = steps.map((s) => s.id);
 
-    expect(ids).toContain('read-issue');
-    expect(ids).toContain('read-location');
-    expect(ids).toContain('read-specs');
-
-    // Verify order preserved
-    expect(ids.indexOf('read-claude')).toBeLessThan(
-      ids.indexOf('read-location')
-    );
-    expect(ids.indexOf('read-location')).toBeLessThan(
-      ids.indexOf('read-issue')
-    );
+    const merged = steps.find((s) => s.id === 'read');
+    // claude.md + panel_a.files + panel_b.spec_files all combined
+    expect(merged.params.files).toContain('claude.md');
+    expect(merged.params.files).toContain('a.js');
+    expect(merged.params.files).toContain('b.js');
+    expect(merged.params.files).toContain('spec.md');
+    // Issue from panel_a.issue_number
+    expect(merged.params.issues).toEqual([42]);
   });
 
   it('copies step properties (lenses, params, branch_name, pr_name, output)', () => {
@@ -199,9 +212,6 @@ describe('generateSteps', () => {
       FIX_FLOW.steps.find((s) => s.id === 'identify-cause').lenses
     ).toEqual([]);
 
-    expect(steps.find((s) => s.id === 'read-claude').params).toEqual({
-      file: 'claude.md',
-    });
     expect(steps.find((s) => s.id === 'create-branch').branch_name).toBe(
       'optional_text'
     );
@@ -210,27 +220,14 @@ describe('generateSteps', () => {
     );
   });
 
-  it('populates params.files from panel file arrays', () => {
-    const panelA = { ...EMPTY_PANEL_A, files: ['a.js', 'b.js'] };
-    const panelB = { ...EMPTY_PANEL_B, spec_files: ['spec.md'] };
-    const steps = generateSteps(FIX_FLOW, panelA, panelB);
-
-    expect(steps.find((s) => s.id === 'read-location').params.files).toEqual([
-      'a.js',
-      'b.js',
-    ]);
-    expect(steps.find((s) => s.id === 'read-specs').params.files).toEqual([
-      'spec.md',
-    ]);
-    expect(
-      steps.find((s) => s.id === 'read-issue')?.params?.files
-    ).toBeUndefined();
-  });
-
   it('handles review flow PR steps — always included, seeded from panel', () => {
     // PR steps have a dedicated picker so they always appear
     const empty = generateSteps(REVIEW_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
     const emptyIds = empty.map((s) => s.id);
+    // read-claude merges into single 'read' step; no issue picker for review flow
+    expect(emptyIds).toContain('read');
+    expect(empty.find((s) => s.id === 'read').has_file_picker).toBe(true);
+    expect(empty.find((s) => s.id === 'read').has_issue_picker).toBeUndefined();
     expect(emptyIds).toContain('review-pr');
     expect(empty.find((s) => s.id === 'review-pr').params.pr_number).toBeNull();
 
