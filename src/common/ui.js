@@ -175,6 +175,11 @@ export function createInputField(options = {}) {
  * @param {Function} [options.iconFn] - (item) => iconName for custom icons per item
  * @param {string} [options.searchIconName] - icon for the search input
  * @param {boolean} [options.multiSelect=false] - allow multiple selections
+ * @param {string} [options.helperText] - optional helper text shown above picker
+ * @param {object} [options.emptyMessages] - custom empty state messages
+ * @param {string} [options.emptyMessages.noItems] - message when no items available
+ * @param {string} [options.emptyMessages.noMatches] - message when search has no matches
+ * @param {HTMLElement} [options.container] - optional container to render into
  * @returns {HTMLElement} - the picker container element
  */
 export function createPicker(options = {}) {
@@ -187,10 +192,20 @@ export function createPicker(options = {}) {
     iconFn,
     searchIconName,
     multiSelect = false,
+    helperText = '',
+    emptyMessages = {},
+    container: renderContainer,
   } = options;
 
   const container = document.createElement('div');
   container.className = 'field-picker';
+
+  // Helper text (shown above the picker)
+  if (helperText) {
+    const helper = document.createElement('small');
+    helper.textContent = helperText;
+    container.appendChild(helper);
+  }
 
   // Search input
   const searchRow = document.createElement('div');
@@ -242,7 +257,9 @@ export function createPicker(options = {}) {
     if (filtered.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'field-picker-empty';
-      empty.textContent = filter ? 'No matches' : 'No items available';
+      const noItemsMsg = emptyMessages.noItems || 'No items available';
+      const noMatchesMsg = emptyMessages.noMatches || 'No matches';
+      empty.textContent = filter ? noMatchesMsg : noItemsMsg;
       dropdown.appendChild(empty);
       return;
     }
@@ -302,6 +319,11 @@ export function createPicker(options = {}) {
 
   // Initial render
   if (multiSelect) renderTags();
+
+  // Auto-render into container if provided
+  if (renderContainer) {
+    renderContainer.appendChild(container);
+  }
 
   return container;
 }
@@ -431,4 +453,77 @@ export function createLabel(text, options = {}) {
   }
 
   return label;
+}
+
+// ============================================================
+// SINGLE-SELECT PICKER WITH TAG DISPLAY
+// ============================================================
+
+/**
+ * Create a single-select picker that shows a tag when selected,
+ * or a dropdown picker when no selection.
+ *
+ * This consolidates the common pattern used by repo/branch pickers
+ * in card-configuration.js and PR/issue pickers in card-tasks.js.
+ *
+ * @param {object} options
+ * @param {HTMLElement} options.container - element to render into
+ * @param {{ value: *, label: string }[]} options.items - available items
+ * @param {*} [options.selected] - currently selected value
+ * @param {string} [options.placeholder] - search placeholder
+ * @param {string} [options.searchIconName] - icon for search input
+ * @param {string} [options.tagIconName] - icon for selection tag
+ * @param {Function} options.onSelect - called when item is selected
+ * @param {Function} [options.onRemove] - called when selection is cleared
+ * @returns {{ render: Function }} - object with render method for re-rendering
+ */
+export function createSingleSelectPicker(options) {
+  const {
+    container,
+    items = [],
+    selected,
+    placeholder = 'Search\u2026',
+    searchIconName,
+    tagIconName,
+    onSelect,
+    onRemove,
+  } = options;
+
+  function render(currentSelection) {
+    container.innerHTML = '';
+
+    if (currentSelection) {
+      // Show selection tag
+      const item = items.find((i) => i.value === currentSelection);
+      const tagLabel = item ? item.label : String(currentSelection);
+
+      const tag = createTag({
+        label: tagLabel,
+        iconName: tagIconName,
+        onRemove: () => {
+          if (onRemove) onRemove();
+        },
+      });
+
+      container.appendChild(tag);
+    } else {
+      // Show dropdown picker
+      const picker = createPicker({
+        items,
+        placeholder,
+        searchIconName,
+        onSelect: (item) => {
+          if (onSelect) onSelect(item);
+        },
+      });
+
+      container.appendChild(picker);
+    }
+  }
+
+  // Initial render
+  render(selected);
+
+  // Return render function for external updates
+  return { render };
 }
