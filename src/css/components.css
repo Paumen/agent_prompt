@@ -205,7 +205,7 @@ label {
 .input-field:not(:where(.field-picker-search .input-field)):focus-visible {
   outline: 2px solid var(--accent-a);
   outline-offset: 0;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-a) 20%, transparent);
+  box-shadow: 0 0 0 var(--sp-2) color-mix(in srgb, var(--accent-a) 20%, transparent);
 }
 
 .input-field--textarea {
@@ -255,7 +255,7 @@ label {
 .field-picker-search:focus-within {
   background: var(--bg-inset);
   border-color: var(--accent-hover);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-a) 20%, transparent);
+  box-shadow: 0 0 0 var(--sp-2) color-mix(in srgb, var(--accent-a) 20%, transparent);
 }
 
 .field-picker-dropdown {
