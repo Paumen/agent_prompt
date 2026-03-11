@@ -139,6 +139,9 @@ flows:
     panel_b:
       label: 'Review Criteria'
       subtitle: 'Standards and criteria for the review'
+      fields:
+        description:
+          <<: *text_field
     steps:
       - id: read
         operation: read
