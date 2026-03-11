@@ -344,6 +344,7 @@ summary.card-header::-webkit-details-marker {
   place-items: center start;
   counter-increment: steps;
 }
+
 .output-field::before {
   display: grid;
   flex-shrink: 0;
@@ -359,6 +360,13 @@ summary.card-header::-webkit-details-marker {
 
 .output-field > .btn-icon {
   grid-column: -2 / -1;
+}
+
+/* Single-content items span both content columns */
+
+.output-field > .cloud,
+.output-field > .input-field {
+  grid-column: 3 / -2;
 }
 
 .output-block {

@@ -232,20 +232,17 @@ function renderStepRow(step, index) {
   li.className = 'output output-field';
   li.dataset.stepId = step.id;
 
-  // Col 1 (col 0 is the CSS counter ::before): Label
+  // Col 2 (col 1 is the CSS counter ::before): Label
   const label = document.createElement('span');
   label.textContent = formatStepLabel(step);
   li.appendChild(label);
 
-  // Col 2: Content wrapper — all sub-items in a single flex row
-  const content = document.createElement('div');
-  content.className = 'cloud';
-
+  // Cols 3–4: Sub-items placed directly in the grid
   const sources = step.sources || (step.source ? [step.source] : []);
 
   // PR picker
   if (sources.some((s) => s.endsWith('.pr_number'))) {
-    renderStepPRPicker(content, step, index);
+    renderStepPRPicker(li, step, index);
   }
 
   // File picker
@@ -253,7 +250,7 @@ function renderStepRow(step, index) {
     (sources.some((s) => s.endsWith('.files')) && step.params) ||
     step.has_file_picker
   ) {
-    renderStepFilePicker(content, step, index);
+    renderStepFilePicker(li, step, index);
   }
 
   // Issue picker
@@ -261,7 +258,7 @@ function renderStepRow(step, index) {
     sources.some((s) => s.endsWith('.issue_number')) ||
     step.has_issue_picker
   ) {
-    renderStepIssuePicker(content, step, index);
+    renderStepIssuePicker(li, step, index);
   }
 
   // File pills — legacy display for steps without a dedicated file picker
@@ -273,22 +270,20 @@ function renderStepRow(step, index) {
 
   // Optional text input
   if (hasOptionalText(step)) {
-    content.appendChild(renderOptionalTextRow(step, index));
+    li.appendChild(renderOptionalTextRow(step, index));
   }
 
   // Output mode buttons
   if (Array.isArray(step.output) && step.output.length > 0) {
-    content.appendChild(renderOutputIcons(step, index));
+    li.appendChild(renderOutputIcons(step, index));
   }
 
   // Lens pills
   if (step.lenses !== undefined) {
-    content.appendChild(renderStepLenses(step, index));
+    li.appendChild(renderStepLenses(step, index));
   }
 
-  li.appendChild(content);
-
-  // Col 3: Delete button
+  // Col 5: Delete button
   const deleteBtn = createButton('icon', {
     iconName: 'trash',
     iconClass: 'icon-remove',
