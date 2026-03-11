@@ -160,29 +160,12 @@ body {
   }
 }
 
-:where([data-card-state='locked']) > summary:active {
-  animation: highlight-pulse 0.6s ease;
-}
-
-/* D705: Guard hint visibility */
 
 .guard-hint {
-  display: none;
+display:none;
 }
 
-:where([data-card-state='skippable']) .guard-hint {
-  display: block;
-}
 
-/* D504: Stagger downstream cards: tasks→steps→prompt (50ms apart) */
-
-.card:nth-child(3) {
-  transition-delay: 50ms;
-}
-
-.card:nth-child(4) {
-  transition-delay: 100ms;
-}
 
 .card-header > :first-child {
   display: inline-flex;
@@ -197,13 +180,12 @@ body {
   transform: rotate(180deg);
 }
 
-/* Card header metadata (D201, D202) */
 .card-meta {
   display: inline-flex;
   gap: var(--sp-4);
   place-items: center;
   min-width: 0;
-  overflow: visible; /* Allow tooltip to escape (D204) */
+  overflow: visible; 
   font-size: var(--text-sm);
   font-weight: 400;
   color: var(--text-secondary);
@@ -265,9 +247,6 @@ body {
   font-size: var(--text);
 }
 
-/* D105: Native <details> controls visibility — no .card--open needed */
-
-/* D114: ::details-content open/close animation */
 
 details {
   interpolate-size: allow-keywords;
@@ -294,8 +273,6 @@ details[open]::details-content {
     content-visibility: hidden;
   }
 }
-
-/* Suppress native <summary> disclosure marker */
 
 summary.card-header {
   list-style: none;
@@ -362,7 +339,6 @@ summary.card-header::-webkit-details-marker {
   grid-column: -2 / -1;
 }
 
-
 .cloud {
   display: flex;
   flex-wrap: wrap;
@@ -372,8 +348,7 @@ summary.card-header::-webkit-details-marker {
 
 /* Single-content items span both content columns */
 
-.output-field > .cloud,
-.output-field > .input-field {
+.output-field > .cloud {
   grid-column: 3 / -2;
 }
 
