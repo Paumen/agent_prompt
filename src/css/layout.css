@@ -90,6 +90,12 @@ body {
   opacity: 0.3;
 }
 
+/* D703: Highlight pulse on locked summary click */
+
+:where([data-card-state='locked']) > summary {
+  outline: 2px solid transparent;
+}
+
 /* D602: summary always clickable for expand/collapse (except locked prevents open in JS) */
 
 [data-card-state] > summary {
@@ -103,76 +109,19 @@ body {
   opacity: 1;
 }
 
-/* D702: Anchor positioning for guard tooltips */
-
-:where(.card:nth-child(2)) > summary {
-  anchor-name: --summary-tasks;
-}
-
-:where(.card:nth-child(3)) > summary {
-  anchor-name: --summary-steps;
-}
-
-:where(.card:nth-child(4)) > summary {
-  anchor-name: --summary-prompt;
-}
-
-.guard-tooltip {
-  position: fixed;
-  z-index: var(--z-dropdown);
-  display: none;
-  width: max-content;
-  max-width: 17.5rem;
-}
-
-.guard-tooltip--tasks {
-  position-anchor: --summary-tasks;
-}
-
-.guard-tooltip--steps {
-  position-anchor: --summary-steps;
-}
-
-.guard-tooltip--prompt {
-  position-anchor: --summary-prompt;
-}
-
-.guard-tooltip--visible {
-  display: block;
-  position-area: block-end center;
-}
-
-/* D703: Highlight pulse on locked summary click */
-
-:where([data-card-state='locked']) > summary {
-  outline: 2px solid transparent;
-}
-
-@keyframes highlight-pulse {
-  0%,
-  100% {
-    outline-color: transparent;
-  }
-
-  50% {
-    outline-color: var(--accent-a);
-  }
-}
-
-
 .guard-hint {
 display:none;
 }
 
 
 
-.card-header > :first-child {
+.card-header > h3 {
   display: inline-flex;
   gap: var(--sp-2);
   place-items: center;
+  padding: var(--sp-4);
   font-size: var(--text);
   font-weight: 700;
-  padding: var(--sp-4);
 }
 
 :where(details[open]) .icon--chevron {

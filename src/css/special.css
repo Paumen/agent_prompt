@@ -38,17 +38,6 @@
     background-color 0.25s ease;
 }
 
-/* Meter label (text + info button) - right-aligned above bar */
-.quality-meter > :first-child {
-  display: flex;
-  gap: var(--sp-2);
-  place-items: center;
-  place-content: flex-end; /* Right-align label and info button (D204) */
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--text-tertiary);
-}
-
 /* Info button (reuses btn-icon pattern) */
 .meter-info-wrapper {
   position: relative;

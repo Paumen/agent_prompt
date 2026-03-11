@@ -157,6 +157,7 @@ export function renderQualityMeter(container) {
   bar.className = 'quality-meter-bar';
 
   const label = document.createElement('div');
+  label.className = 'card-meta';
 
   // Use a child span for the text so external elements (e.g., tooltip button)
   // can be appended to `label` without being wiped by update()
