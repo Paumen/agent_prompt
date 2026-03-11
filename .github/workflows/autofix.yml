@@ -8,8 +8,7 @@ jobs:
   auto-fix:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      workflows: write 
+      contents: write # Only need content access now
 
     steps:
       - name: Checkout Repository
