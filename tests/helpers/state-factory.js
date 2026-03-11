@@ -91,28 +91,28 @@ export function createConfiguredState(options = {}) {
 export function createMockSteps(count = 2) {
   const steps = [
     {
-      id: 'read-claude',
+      id: 'context',
       operation: 'read',
       object: 'file',
       params: { file: 'claude.md' },
     },
     {
-      id: 'identify-cause',
+      id: 'analyze',
       operation: 'analyze',
       object: 'issue',
       lenses: ['semantics'],
     },
     {
-      id: 'create-branch',
-      operation: 'create',
-      object: 'branch',
-      branch_name: 'optional_text',
+      id: 'implement',
+      operation: 'edit',
+      object: 'files',
     },
     {
-      id: 'commit-pr',
+      id: 'commit',
       operation: 'commit',
       object: 'changes',
       params: { open_draft_pr: true },
+      branch_name: 'optional_text',
       pr_name: 'optional_text',
     },
   ];

@@ -192,21 +192,22 @@ describe('prompt-builder.js', () => {
           steps: {
             enabled_steps: [
               {
-                id: 'read-claude',
+                id: 'context',
                 operation: 'read',
                 object: 'file',
                 params: { file: 'claude.md' },
               },
               {
-                id: 'review',
+                id: 'analyze',
                 operation: 'analyze',
                 object: 'code',
                 lenses: ['security', 'performance'],
               },
               {
-                id: 'create-branch',
-                operation: 'create',
-                object: 'branch',
+                id: 'commit',
+                operation: 'commit',
+                object: 'changes',
+                branch_name: 'optional_text',
                 name_provided: 'feat/x',
               },
             ],
@@ -218,10 +219,10 @@ describe('prompt-builder.js', () => {
       expect(result).toContain(
         'Analyze code — focus on [security, performance]'
       );
-      expect(result).toContain('Create branch — name it feat/x');
+      expect(result).toContain('Create branch');
     });
 
-    it('expands params.files into individual Read lines', () => {
+    it('consolidates read step into single line with all sources', () => {
       const result = buildPrompt(
         baseState({
           steps: {
@@ -236,8 +237,25 @@ describe('prompt-builder.js', () => {
           },
         })
       );
-      expect(result).toContain('Read @a.js');
-      expect(result).toContain('Read @b.js');
+      expect(result).toContain('Read @a.js, @b.js');
+    });
+
+    it('includes issues and PR in single read line', () => {
+      const result = buildPrompt(
+        baseState({
+          steps: {
+            enabled_steps: [
+              {
+                id: 'read',
+                operation: 'read',
+                object: 'files',
+                params: { files: ['a.js'], issues: [42], pr_number: 5 },
+              },
+            ],
+          },
+        })
+      );
+      expect(result).toContain('Read @a.js, issue #42, PR #5');
     });
   });
 
@@ -343,7 +361,7 @@ describe('prompt-builder.js', () => {
             steps: {
               enabled_steps: [
                 {
-                  id: 'feedback',
+                  id: 'report',
                   operation: 'create',
                   object: 'review_feedback',
                   output: ['here', 'pr_comment'],
@@ -364,7 +382,7 @@ describe('prompt-builder.js', () => {
           steps: {
             enabled_steps: [
               {
-                id: 'feedback',
+                id: 'report',
                 operation: 'create',
                 object: 'review_feedback',
                 output: ['here', 'pr_comment'],
@@ -378,14 +396,14 @@ describe('prompt-builder.js', () => {
     });
   });
 
-  describe('read-claude step', () => {
-    it('renders read-claude from enabled_steps, omits when removed', () => {
-      const withClaude = buildPrompt(
+  describe('context step', () => {
+    it('renders context step as Read @claude.md, omits when removed', () => {
+      const withContext = buildPrompt(
         baseState({
           steps: {
             enabled_steps: [
               {
-                id: 'read-claude',
+                id: 'context',
                 operation: 'read',
                 object: 'file',
                 params: { file: 'claude.md' },
@@ -394,9 +412,9 @@ describe('prompt-builder.js', () => {
           },
         })
       );
-      expect(withClaude).toContain('Step 1: Read @claude.md');
+      expect(withContext).toContain('Step 1: Read @claude.md');
 
-      const withoutClaude = buildPrompt(
+      const withoutContext = buildPrompt(
         baseState({
           task: { flow_id: 'fix' },
           panel_a: {
@@ -407,12 +425,37 @@ describe('prompt-builder.js', () => {
           },
           steps: {
             enabled_steps: [
-              { id: 'create-branch', operation: 'create', object: 'branch' },
+              { id: 'analyze', operation: 'analyze', object: 'issue' },
             ],
           },
         })
       );
-      expect(withoutClaude).not.toContain('claude.md');
+      expect(withoutContext).not.toContain('claude.md');
+    });
+  });
+
+  describe('commit step', () => {
+    it('generates commit step with branch and PR instructions', () => {
+      const result = buildPrompt(
+        baseState({
+          task: { flow_id: 'fix' },
+          steps: {
+            enabled_steps: [
+              {
+                id: 'commit',
+                operation: 'commit',
+                object: 'changes',
+                params: { open_draft_pr: true },
+                branch_name: 'optional_text',
+                pr_name: 'optional_text',
+              },
+            ],
+          },
+        })
+      );
+      expect(result).toContain('Create branch');
+      expect(result).toContain('commit changes');
+      expect(result).toContain('draft PR');
     });
   });
 });

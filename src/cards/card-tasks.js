@@ -602,13 +602,23 @@ function updateFieldValidation() {
 // --- GitHub data fetching ---
 
 function requiresPRs(flowDef) {
-  return hasFieldOfType(flowDef, 'pr_picker');
+  if (hasFieldOfType(flowDef, 'pr_picker')) return true;
+  return hasStepSource(flowDef, '.pr_number');
 }
 
 function requiresIssues(flowDef) {
   if (hasFieldOfType(flowDef, 'issue_picker')) return true;
+  return hasStepSource(flowDef, '.issue_number');
+}
+
+function hasStepSource(flowDef, suffix) {
   return (
-    flowDef.steps?.some((s) => s.source?.endsWith('.issue_number')) ?? false
+    flowDef.steps?.some((s) => {
+      if (s.source?.endsWith(suffix)) return true;
+      if (Array.isArray(s.sources))
+        return s.sources.some((src) => src.endsWith(suffix));
+      return false;
+    }) ?? false
   );
 }
 

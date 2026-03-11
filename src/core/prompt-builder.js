@@ -62,11 +62,11 @@ export function buildPrompt(state) {
   const enabledSteps = steps?.enabled_steps || [];
 
   for (const step of enabledSteps) {
-    // STP-04: read-claude is a regular removable step, rendered as "Read @claude.md"
-    if (step.id === 'read-claude') {
+    // Context step (read claude.md) — rendered as "Read @claude.md"
+    if (step.id === 'context') {
       lines.push(`    Step ${stepNum}: Read @claude.md`);
       stepNum++;
-      // Insert flow-specific understanding step right after read-claude
+      // Insert flow-specific understanding step right after context
       const taskStep = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
       if (taskStep) {
         lines.push(`    Step ${stepNum}: ${taskStep}`);
@@ -76,7 +76,7 @@ export function buildPrompt(state) {
       continue;
     }
 
-    // If read-claude was removed by user, insert understanding step before first regular step
+    // If context was removed by user, insert understanding step before first regular step
     if (!taskStepInserted) {
       const taskStep = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
       if (taskStep) {
@@ -86,9 +86,55 @@ export function buildPrompt(state) {
       taskStepInserted = true;
     }
 
-    if (step.params?.files?.length > 0 && step.operation === 'read') {
-      for (const filePath of step.params.files) {
-        lines.push(`    Step ${stepNum}: Read @${escapeXml(filePath)}`);
+    // Read step — single line listing all sources
+    if (step.id === 'read') {
+      const parts = [];
+      if (step.params?.files?.length > 0) {
+        parts.push(step.params.files.map((f) => `@${escapeXml(f)}`).join(', '));
+      }
+      if (step.params?.issues?.length > 0) {
+        parts.push(
+          step.params.issues
+            .map((i) => `issue #${escapeXml(String(i))}`)
+            .join(', ')
+        );
+      }
+      if (step.params?.pr_number) {
+        parts.push(`PR #${escapeXml(String(step.params.pr_number))}`);
+      }
+      if (parts.length > 0) {
+        lines.push(`    Step ${stepNum}: Read ${parts.join(', ')}`);
+        stepNum++;
+      }
+      continue;
+    }
+
+    // Commit step — includes branch creation, commit, and PR opening
+    if (step.id === 'commit') {
+      const desc = formatCommitStep(step);
+      lines.push(`    Step ${stepNum}: ${desc}`);
+      stepNum++;
+      // Append flow-specific feedback instruction
+      const feedback = buildFeedbackStep(flowId, enabledSteps);
+      if (feedback) {
+        lines.push(`    Step ${stepNum}: ${feedback}`);
+        stepNum++;
+      }
+      continue;
+    }
+
+    // Report step (review flow) — feedback with output modes
+    if (step.id === 'report') {
+      const feedback = buildReviewFeedback(
+        step.outputs_selected ||
+          (step.output_selected
+            ? [step.output_selected]
+            : step.output?.[0]
+              ? [step.output[0]]
+              : null)
+      );
+      if (feedback) {
+        lines.push(`    Step ${stepNum}: ${feedback}`);
         stepNum++;
       }
       continue;
@@ -108,12 +154,6 @@ export function buildPrompt(state) {
       lines.push(`    Step ${stepNum}: ${taskStep}`);
       stepNum++;
     }
-  }
-
-  // Final feedback step — uses output mode from the last feedback-type step
-  const feedbackStep = buildFeedbackStep(flowId, enabledSteps);
-  if (feedbackStep) {
-    lines.push(`    Step ${stepNum}: ${feedbackStep}`);
   }
 
   lines.push('  </todo>');
@@ -401,21 +441,17 @@ function buildGenericTaskStep(panelA, panelB) {
 // --- Feedback step builders ---
 
 /**
- * Build the final feedback step. For review flow, checks output modes
- * from enabled_steps feedback steps (outputs_selected array).
- * When multiple modes are selected, the prompt combines all into one instruction.
+ * Build the feedback step for non-review flows.
+ * Checks output modes from feedback-type steps (outputs_selected array).
  */
 function buildFeedbackStep(flowId, enabledSteps) {
-  // Find output modes from feedback-type steps
-  const feedbackSteps = (enabledSteps || []).filter(
-    (s) =>
-      s.id === 'provide-feedback-pr' ||
-      s.id === 'provide-feedback-files' ||
-      s.object === 'review_feedback'
+  // Find output modes from report-type steps (if any)
+  const reportSteps = (enabledSteps || []).filter(
+    (s) => s.id === 'report' || s.object === 'review_feedback'
   );
   let outputMode = null;
-  if (feedbackSteps.length > 0) {
-    const fs = feedbackSteps[0];
+  if (reportSteps.length > 0) {
+    const fs = reportSteps[0];
     if (fs.outputs_selected?.length > 0) {
       outputMode = fs.outputs_selected;
     } else if (fs.output_selected) {
@@ -516,6 +552,21 @@ function buildReviewFeedback(outputModes) {
 }
 
 // --- Step formatting ---
+
+/**
+ * Format a commit step into a readable string.
+ */
+function formatCommitStep(step) {
+  const parts = ['Create branch'];
+  if (step.name_provided && step.branch_name !== undefined) {
+    parts[0] = `Create branch "${escapeXml(step.name_provided)}"`;
+  }
+  parts.push('commit changes, and open draft PR');
+  if (step.name_provided && step.pr_name !== undefined) {
+    parts.push(`titled "${escapeXml(step.name_provided)}"`);
+  }
+  return parts.join(', ');
+}
 
 /**
  * Format a single step object into a readable string.

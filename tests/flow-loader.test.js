@@ -49,12 +49,12 @@ describe('flow-loader.js', () => {
   });
 
   it('flow-specific fields exist', () => {
-    expect(getFlowById('fix').panel_a.fields).toHaveProperty('issue_number');
-    expect(getFlowById('review').panel_a.fields).toHaveProperty('pr_number');
     expect(getFlowById('implement').panel_b.fields).toHaveProperty(
       'acceptance_criteria'
     );
-    expect(getFlowById('improve').panel_b.fields).toHaveProperty('lenses');
+    expect(getFlowById('improve').panel_b.fields).toHaveProperty(
+      'guideline_files'
+    );
     expect(getFlowById('improve').multi_file.scope_selector).toBeDefined();
   });
 });
