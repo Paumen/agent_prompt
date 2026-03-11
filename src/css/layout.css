@@ -66,15 +66,15 @@ body {
 
 /* D601: Card state opacity */
 
-[data-card-state] {
+.card[data-card-state] {
   transition: opacity 300ms ease;
 }
 
-[data-card-state='locked'] {
+.card[data-card-state='locked'] {
   opacity: 0.3;
 }
 
-[data-card-state='skippable'] {
+.card[data-card-state='skippable'] {
   opacity: 1;
 }
 
@@ -362,6 +362,14 @@ summary.card-header::-webkit-details-marker {
   grid-column: -2 / -1;
 }
 
+
+.cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  width: 100%;
+} 
+
 /* Single-content items span both content columns */
 
 .output-field > .cloud,
@@ -391,9 +399,3 @@ summary.card-header::-webkit-details-marker {
   }
 }
 
-.cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  width: 100%;
-}
