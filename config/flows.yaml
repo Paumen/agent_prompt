@@ -50,6 +50,7 @@ _x_anchors:
     id: test
     operation: validate
     object: tests
+    sources: [panel_a.files]
 
   step_commit: &step_commit
     id: commit

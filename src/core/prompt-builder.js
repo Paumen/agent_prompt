@@ -86,45 +86,24 @@ export function buildPrompt(state) {
       taskStepInserted = true;
     }
 
-    // Read step with files — expand each file as a separate instruction
-    if (step.id === 'read' && step.params?.files?.length > 0) {
-      for (const filePath of step.params.files) {
-        lines.push(`    Step ${stepNum}: Read @${escapeXml(filePath)}`);
-        stepNum++;
-      }
-      // Also read issues if present
-      if (step.params?.issues?.length > 0) {
-        for (const issue of step.params.issues) {
-          lines.push(
-            `    Step ${stepNum}: Read issue #${escapeXml(String(issue))}`
-          );
-          stepNum++;
-        }
-      }
-      // Also read PR if present
-      if (step.params?.pr_number) {
-        lines.push(
-          `    Step ${stepNum}: Read PR #${escapeXml(String(step.params.pr_number))} — fetch and examine the diff`
-        );
-        stepNum++;
-      }
-      continue;
-    }
-
-    // Read step without files but with issues/PR
+    // Read step — single line listing all sources
     if (step.id === 'read') {
+      const parts = [];
+      if (step.params?.files?.length > 0) {
+        parts.push(step.params.files.map((f) => `@${escapeXml(f)}`).join(', '));
+      }
       if (step.params?.issues?.length > 0) {
-        for (const issue of step.params.issues) {
-          lines.push(
-            `    Step ${stepNum}: Read issue #${escapeXml(String(issue))}`
-          );
-          stepNum++;
-        }
+        parts.push(
+          step.params.issues
+            .map((i) => `issue #${escapeXml(String(i))}`)
+            .join(', ')
+        );
       }
       if (step.params?.pr_number) {
-        lines.push(
-          `    Step ${stepNum}: Read PR #${escapeXml(String(step.params.pr_number))} — fetch and examine the diff`
-        );
+        parts.push(`PR #${escapeXml(String(step.params.pr_number))}`);
+      }
+      if (parts.length > 0) {
+        lines.push(`    Step ${stepNum}: Read ${parts.join(', ')}`);
         stepNum++;
       }
       continue;

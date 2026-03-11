@@ -222,7 +222,7 @@ describe('prompt-builder.js', () => {
       expect(result).toContain('Create branch');
     });
 
-    it('expands read step params.files into individual Read lines', () => {
+    it('consolidates read step into single line with all sources', () => {
       const result = buildPrompt(
         baseState({
           steps: {
@@ -237,11 +237,10 @@ describe('prompt-builder.js', () => {
           },
         })
       );
-      expect(result).toContain('Read @a.js');
-      expect(result).toContain('Read @b.js');
+      expect(result).toContain('Read @a.js, @b.js');
     });
 
-    it('expands read step issues into individual Read issue lines', () => {
+    it('includes issues and PR in single read line', () => {
       const result = buildPrompt(
         baseState({
           steps: {
@@ -256,9 +255,7 @@ describe('prompt-builder.js', () => {
           },
         })
       );
-      expect(result).toContain('Read @a.js');
-      expect(result).toContain('Read issue #42');
-      expect(result).toContain('Read PR #5');
+      expect(result).toContain('Read @a.js, issue #42, PR #5');
     });
   });
 
