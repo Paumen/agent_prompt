@@ -339,7 +339,7 @@ summary.card-header::-webkit-details-marker {
 
 .output-field {
   display: grid;
-  grid-template-columns: auto max-content 1fr 1fr auto;
+  grid-template-columns: auto max-content 1fr auto;
   gap: var(--sp-4);
   place-items: start;
   counter-increment: steps;
@@ -357,8 +357,8 @@ summary.card-header::-webkit-details-marker {
   border-radius: var(--radius-pill);
 }
 
-.output-field > :nth-child(n + 3) {
-  grid-column: 3 / -1;
+.output-field > :nth-child(n + 4) {
+  grid-column: 2 / -1;
 }
 
 .output-field > .btn-icon {
