@@ -64,10 +64,9 @@ body {
   border-left: 3px solid var(--accent-a);
 }
 
-/* D601: Card state opacity */
 
 .card[data-card-state] {
-  transition: opacity 300ms ease;
+  transition: opacity 200ms ease;
 }
 
 .card[data-card-state='locked'] {
