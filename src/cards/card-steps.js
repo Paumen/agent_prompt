@@ -137,15 +137,6 @@ function renderStep0(state) {
   label.textContent = 'Context';
   li.appendChild(label);
 
-  const deleteBtn = createButton('icon', {
-    iconName: 'trash',
-    iconClass: 'icon-remove',
-    title: 'Remove context step',
-    ariaLabel: 'Remove context step',
-    onClick: () => onRemoveStep0(),
-  });
-  li.appendChild(deleteBtn);
-
   const cloud = document.createElement('div');
   cloud.className = 'cloud';
 
@@ -172,6 +163,15 @@ function renderStep0(state) {
   cloud.appendChild(patBtn);
 
   li.appendChild(cloud);
+
+  const deleteBtn = createButton('icon', {
+    iconName: 'trash',
+    iconClass: 'icon-remove',
+    title: 'Remove context step',
+    ariaLabel: 'Remove context step',
+    onClick: () => onRemoveStep0(),
+  });
+  li.appendChild(deleteBtn);
 
   return li;
 }
@@ -232,32 +232,20 @@ function renderStepRow(step, index) {
   li.className = 'output output-field';
   li.dataset.stepId = step.id;
 
-  // Label (col 1 — col 0 is the CSS counter ::before)
+  // Col 2 (col 1 is the CSS counter ::before): Label
   const label = document.createElement('span');
   label.textContent = formatStepLabel(step);
   li.appendChild(label);
 
-  // Delete button (col 3)
-  const deleteBtn = createButton('icon', {
-    iconName: 'trash',
-    iconClass: 'icon-remove',
-    title: 'Remove step',
-    ariaLabel: `Remove step: ${formatStepLabel(step)}`,
-    onClick: () => onDeleteStep(step.id),
-  });
-  li.appendChild(deleteBtn);
-
-  // --- Sub-items (auto-placed to col 2/-1 via CSS nth-child rule) ---
-
-  // Collect all sources (single or merged)
+  // Cols 3–4: Sub-items placed directly in the grid
   const sources = step.sources || (step.source ? [step.source] : []);
 
-  // PR picker for PR-sourced steps
+  // PR picker
   if (sources.some((s) => s.endsWith('.pr_number'))) {
     renderStepPRPicker(li, step, index);
   }
 
-  // File picker for file-sourced steps or merged read step
+  // File picker
   if (
     (sources.some((s) => s.endsWith('.files')) && step.params) ||
     step.has_file_picker
@@ -265,7 +253,7 @@ function renderStepRow(step, index) {
     renderStepFilePicker(li, step, index);
   }
 
-  // Issue picker for issue-sourced steps or merged read step
+  // Issue picker
   if (
     sources.some((s) => s.endsWith('.issue_number')) ||
     step.has_issue_picker
@@ -294,6 +282,16 @@ function renderStepRow(step, index) {
   if (step.lenses !== undefined) {
     li.appendChild(renderStepLenses(step, index));
   }
+
+  // Col 5: Delete button
+  const deleteBtn = createButton('icon', {
+    iconName: 'trash',
+    iconClass: 'icon-remove',
+    title: 'Remove step',
+    ariaLabel: `Remove step: ${formatStepLabel(step)}`,
+    onClick: () => onDeleteStep(step.id),
+  });
+  li.appendChild(deleteBtn);
 
   return li;
 }

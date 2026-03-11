@@ -339,11 +339,12 @@ summary.card-header::-webkit-details-marker {
 
 .output-field {
   display: grid;
-  grid-template-columns: auto max-content 1fr auto;
+  grid-template-columns: auto max-content 1fr 1fr auto;
   gap: var(--sp-4);
-  place-items: start;
+  place-items: center start;
   counter-increment: steps;
 }
+
 .output-field::before {
   display: grid;
   flex-shrink: 0;
@@ -357,12 +358,15 @@ summary.card-header::-webkit-details-marker {
   border-radius: var(--radius-pill);
 }
 
-.output-field > :nth-child(n + 4) {
-  grid-column: 2 / -1;
-}
-
 .output-field > .btn-icon {
   grid-column: -2 / -1;
+}
+
+/* Single-content items span both content columns */
+
+.output-field > .cloud,
+.output-field > .input-field {
+  grid-column: 3 / -2;
 }
 
 .output-block {
@@ -390,7 +394,6 @@ summary.card-header::-webkit-details-marker {
 .cloud {
   display: flex;
   flex-wrap: wrap;
-  grid-column: 2;
   gap: var(--sp-2);
   width: 100%;
 }
