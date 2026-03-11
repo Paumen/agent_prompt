@@ -341,7 +341,7 @@ summary.card-header::-webkit-details-marker {
   display: grid;
   grid-template-columns: auto max-content 1fr auto;
   gap: var(--sp-4);
-  place-items: start;
+  place-items: center start;
   counter-increment: steps;
 }
 .output-field::before {
@@ -355,10 +355,6 @@ summary.card-header::-webkit-details-marker {
   content: counter(steps);
   background: var(--bg);
   border-radius: var(--radius-pill);
-}
-
-.output-field > :nth-child(n + 4) {
-  grid-column: 2 / -1;
 }
 
 .output-field > .btn-icon {
@@ -390,7 +386,6 @@ summary.card-header::-webkit-details-marker {
 .cloud {
   display: flex;
   flex-wrap: wrap;
-  grid-column: 2;
   gap: var(--sp-2);
   width: 100%;
 }
