@@ -187,7 +187,7 @@ flows:
       subtitle: 'What exists and what needs improvement'
       fields:
         description:
-          <<: *text_field_required_group
+          <<: *text_field
           placeholder: 'What to enhance: pain points, inefficiencies, areas to improve...'
     panel_b:
       label: 'Desired Outcome'
