@@ -606,7 +606,8 @@ function requiresPRs(flowDef) {
 }
 
 function requiresIssues(flowDef) {
-  return hasFieldOfType(flowDef, 'issue_picker');
+  if (hasFieldOfType(flowDef, 'issue_picker')) return true;
+  return flowDef.steps?.some((s) => s.source?.endsWith('.issue_number')) ?? false;
 }
 
 function hasFieldOfType(flowDef, type) {

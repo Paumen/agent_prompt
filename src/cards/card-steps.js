@@ -225,18 +225,18 @@ function renderStepRow(step, index) {
     renderStepPRPicker(li, step, index);
   }
 
-  // File picker for file-sourced steps
-  if (step.source?.endsWith('.files') && step.params) {
+  // File picker for file-sourced steps or merged read step
+  if ((step.source?.endsWith('.files') && step.params) || step.has_file_picker) {
     renderStepFilePicker(li, step, index);
   }
 
-  // Issue picker for issue-sourced steps
-  if (step.source?.endsWith('.issue_number')) {
+  // Issue picker for issue-sourced steps or merged read step
+  if (step.source?.endsWith('.issue_number') || step.has_issue_picker) {
     renderStepIssuePicker(li, step, index);
   }
 
   // File pills — legacy display for steps without a dedicated file picker
-  if (!step.source?.endsWith('.files') && step.params?.files?.length > 0) {
+  if (!step.source?.endsWith('.files') && !step.has_file_picker && step.params?.files?.length > 0) {
     li.appendChild(renderFilePills(step));
   }
 

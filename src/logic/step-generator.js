@@ -36,6 +36,55 @@ export function isSourceFilled(source, panelA, panelB) {
  */
 const PICKER_SOURCE_SUFFIXES = ['.files', '.issue_number', '.pr_number'];
 
+/**
+ * Merge all read steps into a single combined read step.
+ * The merged step always has a file picker. It gains an issue picker
+ * only if the flow contained an issue-sourced read step.
+ */
+function mergeReadSteps(steps) {
+  if (!steps.some((s) => s.operation === 'read')) return steps;
+
+  const allFiles = [];
+  const allIssues = [];
+  let hasIssuePicker = false;
+
+  for (const step of steps) {
+    if (step.operation !== 'read') continue;
+    if (step.params?.file) allFiles.push(step.params.file);
+    if (Array.isArray(step.params?.files)) allFiles.push(...step.params.files);
+    if (step.source?.endsWith('.issue_number')) {
+      hasIssuePicker = true;
+      if (Array.isArray(step.params?.issues)) allIssues.push(...step.params.issues);
+    }
+  }
+
+  const mergedStep = {
+    id: 'read',
+    operation: 'read',
+    object: 'files',
+    has_file_picker: true,
+    ...(hasIssuePicker && { has_issue_picker: true }),
+    params: {
+      files: [...new Set(allFiles)],
+      ...(hasIssuePicker && { issues: [...new Set(allIssues)] }),
+    },
+  };
+
+  const result = [];
+  let merged = false;
+  for (const step of steps) {
+    if (step.operation === 'read') {
+      if (!merged) {
+        result.push(mergedStep);
+        merged = true;
+      }
+    } else {
+      result.push(step);
+    }
+  }
+  return result;
+}
+
 function hasStepPicker(source) {
   return PICKER_SOURCE_SUFFIXES.some((s) => source?.endsWith(s));
 }
@@ -143,7 +192,7 @@ export function generateSteps(flowDef, panelA, panelB) {
     steps.push(step);
   }
 
-  return steps;
+  return mergeReadSteps(steps);
 }
 
 /**
