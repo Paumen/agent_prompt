@@ -60,9 +60,38 @@ let elStepsMeta = null;
 // Lens expanded state — persists across re-renders; resets on flow switch
 const expandedSteps = new Map();
 
+// --- Generic step labels ---
+
+const STEP_LABELS = {
+  context: 'Context',
+  read: 'Read',
+  analyze: 'Analyze',
+  plan: 'Plan',
+  implement: 'Implement',
+  test: 'Test',
+  commit: 'Commit',
+  report: 'Report',
+};
+
 // --- Step label formatting ---
 
 function formatStepLabel(step) {
+  // Use generic label if available, fall back to operation:object
+  const label = STEP_LABELS[step.id];
+  if (label) {
+    if (step.id === 'context' && step.params?.file) {
+      return `${label}: @${step.params.file}`;
+    }
+    if (step.id === 'read') {
+      const count =
+        (step.params?.files?.length || 0) +
+        (step.params?.issues?.length || 0) +
+        (step.params?.pr_number ? 1 : 0);
+      if (count > 0) return `${label}: ${count} source${count > 1 ? 's' : ''}`;
+    }
+    return label;
+  }
+
   const op = step.operation.charAt(0).toUpperCase() + step.operation.slice(1);
   const obj = step.object.replace(/_/g, ' ');
 
@@ -484,15 +513,21 @@ function onDeleteStep(stepId) {
 }
 
 function onRemoveFileFromStep(step, filePath) {
-  const source = step.source;
-  if (!source) return;
-
+  // For steps with sources array, update the step's own params.files
   const state = getState();
-  const [panel, field] = source.split('.');
-  const currentFiles = state[panel]?.[field] || [];
-  const newFiles = currentFiles.filter((f) => f !== filePath);
+  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+  const idx = steps.findIndex((s) => s.id === step.id);
+  if (idx === -1) return;
 
-  setState(source, newFiles);
+  const currentFiles = steps[idx].params?.files || [];
+  steps[idx] = {
+    ...steps[idx],
+    params: {
+      ...(steps[idx].params || {}),
+      files: currentFiles.filter((f) => f !== filePath),
+    },
+  };
+  setState('steps.enabled_steps', steps);
 }
 
 function onUpdateStepFiles(stepIndex, files) {

@@ -31,164 +31,78 @@ export function isSourceFilled(source, panelA, panelB) {
 
 /**
  * Source types that have a dedicated in-step picker.
- * These steps always appear regardless of panel state so the user
- * can make their selection directly in the step row.
+ * These sources always cause a step to appear regardless of panel state
+ * so the user can make their selection directly in the step row.
  */
 const PICKER_SOURCE_SUFFIXES = ['.files', '.issue_number', '.pr_number'];
-
-/**
- * Merge all read steps into a single combined read step.
- * The merged step always has a file picker. It gains an issue picker
- * only if the flow contained an issue-sourced read step.
- */
-function mergeReadSteps(steps) {
-  if (!steps.some((s) => s.operation === 'read')) return steps;
-
-  const allFiles = [];
-  const allIssues = [];
-  let hasIssuePicker = false;
-
-  for (const step of steps) {
-    if (step.operation !== 'read') continue;
-    if (step.params?.file) allFiles.push(step.params.file);
-    if (Array.isArray(step.params?.files)) allFiles.push(...step.params.files);
-    if (step.source?.endsWith('.issue_number')) {
-      hasIssuePicker = true;
-      if (Array.isArray(step.params?.issues))
-        allIssues.push(...step.params.issues);
-    }
-  }
-
-  const mergedStep = {
-    id: 'read',
-    operation: 'read',
-    object: 'files',
-    has_file_picker: true,
-    ...(hasIssuePicker && { has_issue_picker: true }),
-    params: {
-      files: [...new Set(allFiles)],
-      ...(hasIssuePicker && { issues: [...new Set(allIssues)] }),
-    },
-  };
-
-  const result = [];
-  let merged = false;
-  for (const step of steps) {
-    if (step.operation === 'read') {
-      if (!merged) {
-        result.push(mergedStep);
-        merged = true;
-      }
-    } else {
-      result.push(step);
-    }
-  }
-  return result;
-}
 
 function hasStepPicker(source) {
   return PICKER_SOURCE_SUFFIXES.some((s) => source?.endsWith(s));
 }
 
 /**
- * Get the merge key for a step, or null if the step is not mergeable.
- * Consecutive steps sharing the same non-null key are merged into one.
+ * Resolve a source reference to its panel data value.
  */
-function getMergeKey(step) {
-  if (step.operation === 'analyze') return 'analyze';
-  if (step.operation === 'create' && step.object === 'review_feedback')
-    return 'create:review_feedback';
-  // Read steps with dedicated pickers (always shown) can be merged.
-  // Conditional read steps (spec_files, guideline_files — no picker) return null
-  // and break the group, so they remain as separate steps.
-  if (step.operation === 'read' && hasStepPicker(step.source)) return 'read';
-  return null;
+function resolveSource(source, panelA, panelB) {
+  const [panel, field] = source.split('.');
+  const data = panel === 'panel_a' ? panelA : panelB;
+  return data?.[field];
 }
 
 /**
- * Merge consecutive steps that share the same merge key into a single step.
- * The merged step uses the first step's id/operation/object, combines sources
- * into a `sources` array, merges params, unions lenses, and tracks the
- * original step IDs in `_mergedIds`.
+ * Process a sources array to populate params and set picker flags on a step.
+ * Handles file, issue, and PR sources, plus non-picker sources like spec_files.
  */
-function mergeStepGroups(steps) {
-  const result = [];
-  let i = 0;
+function processSources(step, sources, panelA, panelB) {
+  const allFiles = step.params?.file ? [step.params.file] : [];
+  const allIssues = [];
+  let hasFilePicker = false;
+  let hasIssuePicker = false;
+  let prNumber = null;
+  let hasPrSource = false;
 
-  while (i < steps.length) {
-    const step = steps[i];
-    const key = getMergeKey(step);
+  for (const src of sources) {
+    const value = resolveSource(src, panelA, panelB);
 
-    if (key === null) {
-      result.push(step);
-      i++;
-      continue;
+    if (src.endsWith('.files')) {
+      hasFilePicker = true;
+      if (Array.isArray(value)) allFiles.push(...value);
+    } else if (src.endsWith('.issue_number')) {
+      hasIssuePicker = true;
+      if (value !== null && value !== undefined) allIssues.push(value);
+    } else if (src.endsWith('.pr_number')) {
+      hasPrSource = true;
+      prNumber = value ?? null;
+    } else {
+      // Non-picker source (spec_files, guideline_files) — add files if present
+      if (Array.isArray(value) && value.length > 0) allFiles.push(...value);
     }
-
-    // Gather consecutive steps with the same merge key
-    const group = [step];
-    while (
-      i + group.length < steps.length &&
-      getMergeKey(steps[i + group.length]) === key
-    ) {
-      group.push(steps[i + group.length]);
-    }
-
-    if (group.length === 1) {
-      result.push(step);
-      i++;
-      continue;
-    }
-
-    // Build merged step from group
-    const first = group[0];
-    const sources = group.filter((s) => s.source).map((s) => s.source);
-    const params = group.reduce(
-      (acc, s) => ({ ...acc, ...(s.params || {}) }),
-      {}
-    );
-
-    // Union lenses across all steps that define them
-    const hasLenses = group.some((s) => s.lenses !== undefined);
-    const lenses = hasLenses
-      ? [...new Set(group.flatMap((s) => s.lenses || []))]
-      : undefined;
-
-    // Union output arrays
-    const allOutputs = group.flatMap((s) => s.output || []);
-    const output = allOutputs.length > 0 ? [...new Set(allOutputs)] : undefined;
-
-    const merged = {
-      id: first.id,
-      operation: first.operation,
-      object: first.object,
-      _mergedIds: group.map((s) => s.id),
-    };
-    if (sources.length > 0) merged.sources = sources;
-    if (lenses !== undefined) merged.lenses = lenses;
-    if (output) merged.output = output;
-    if (Object.keys(params).length > 0) merged.params = params;
-
-    result.push(merged);
-    i += group.length;
   }
 
-  return result;
+  step.sources = sources;
+  step.params = {
+    ...(step.params || {}),
+    ...(hasFilePicker || allFiles.length > 0
+      ? { files: [...new Set(allFiles)] }
+      : {}),
+    ...(hasIssuePicker ? { issues: allIssues } : {}),
+    ...(hasPrSource ? { pr_number: prNumber } : {}),
+  };
+
+  if (hasFilePicker) step.has_file_picker = true;
+  if (hasIssuePicker) step.has_issue_picker = true;
 }
 
 /**
  * Generate steps from flow definition based on current panel state.
- * Conditional steps (with `source` field) are only included when
- * the referenced panel field is filled (STP-02), UNLESS the step has
- * a dedicated in-step picker — those always appear so the user can
- * select directly in the step row without touching the task card.
  *
- * For file-sourced steps, params.files is populated from panel data.
- * For issue-sourced steps, params.issues is populated from panel data.
- * For PR-sourced steps, params.pr_number is populated from panel data.
+ * Steps with `sources` (plural) array are processed to populate params
+ * and picker flags from all referenced panel fields.
  *
- * Consecutive steps of the same mergeable kind (analyze, review_feedback)
- * are merged into a single step with a `sources` array (STP-03).
+ * Steps with a single `source` are handled as a one-element sources array.
+ *
+ * Steps without sources always appear.
+ * Steps with sources appear if any source has a picker suffix or is filled.
  *
  * @returns {Array<Object>} An array of step objects.
  */
@@ -198,15 +112,14 @@ export function generateSteps(flowDef, panelA, panelB) {
   const steps = [];
 
   for (const stepDef of flowDef.steps) {
-    // Conditional step: skip if source field is not filled.
-    // Exception: steps with a dedicated picker always appear so the user
-    // can select directly in the step row.
-    if (
-      stepDef.source &&
-      !hasStepPicker(stepDef.source) &&
-      !isSourceFilled(stepDef.source, panelA, panelB)
-    ) {
-      continue;
+    // Resolve sources: prefer plural, fall back to singular, default to empty
+    const sources = stepDef.sources || (stepDef.source ? [stepDef.source] : []);
+
+    // Conditional: skip if no sources filled and no picker sources
+    if (sources.length > 0) {
+      const hasPickerSource = sources.some((s) => hasStepPicker(s));
+      const anyFilled = sources.some((s) => isSourceFilled(s, panelA, panelB));
+      if (!hasPickerSource && !anyFilled) continue;
     }
 
     const step = {
@@ -218,71 +131,21 @@ export function generateSteps(flowDef, panelA, panelB) {
     // Copy optional fields
     if (stepDef.lenses) step.lenses = [...stepDef.lenses];
     if (stepDef.params) step.params = { ...stepDef.params };
-    if (stepDef.source) step.source = stepDef.source;
     if (stepDef.output) step.output = [...stepDef.output];
     if (stepDef.branch_name !== undefined)
       step.branch_name = stepDef.branch_name;
     if (stepDef.pr_name !== undefined) step.pr_name = stepDef.pr_name;
     if (stepDef.file_name !== undefined) step.file_name = stepDef.file_name;
 
-    // For file-sourced steps, initialize params.files from panel data.
-    // - source ending in '.files' → per-step file picker; always init to [] or panel selection
-    // - object === 'files' && operation === 'read' → spec/guideline files (read-specs etc.)
-    const isFilesSource = stepDef.source?.endsWith('.files');
-    const isReadFilesOp =
-      stepDef.object === 'files' && stepDef.operation === 'read';
-    if (isFilesSource || isReadFilesOp) {
-      const [panel, field] = stepDef.source.split('.');
-      const data = panel === 'panel_a' ? panelA : panelB;
-      const files = data?.[field];
-      step.params = {
-        ...(step.params || {}),
-        // For '.files' source steps: always init (empty or filled) so picker can render.
-        // For read-files op (spec/guideline): only set when files available (legacy behavior).
-        files: isFilesSource
-          ? Array.isArray(files)
-            ? [...files]
-            : []
-          : Array.isArray(files) && files.length > 0
-            ? [...files]
-            : undefined,
-      };
-      // Remove undefined params.files to keep object clean
-      if (step.params.files === undefined) {
-        delete step.params.files;
-      }
-    }
-
-    // For issue-sourced steps, initialize params.issues from panel data.
-    if (stepDef.source?.endsWith('.issue_number')) {
-      const [panel, field] = stepDef.source.split('.');
-      const data = panel === 'panel_a' ? panelA : panelB;
-      const issueNumber = data?.[field];
-      step.params = {
-        ...(step.params || {}),
-        issues:
-          issueNumber !== null && issueNumber !== undefined
-            ? [issueNumber]
-            : [],
-      };
-    }
-
-    // For PR-sourced steps, initialize params.pr_number from panel data.
-    if (stepDef.source?.endsWith('.pr_number')) {
-      const [panel, field] = stepDef.source.split('.');
-      const data = panel === 'panel_a' ? panelA : panelB;
-      const prNumber = data?.[field];
-      step.params = {
-        ...(step.params || {}),
-        pr_number:
-          prNumber !== null && prNumber !== undefined ? prNumber : null,
-      };
+    // Process sources for data binding and picker flags
+    if (sources.length > 0) {
+      processSources(step, sources, panelA, panelB);
     }
 
     steps.push(step);
   }
 
-  return mergeStepGroups(mergeReadSteps(steps));
+  return steps;
 }
 
 /**

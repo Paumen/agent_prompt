@@ -80,8 +80,8 @@ describe('Step rendering (STP-01)', () => {
     // Step 0 (context row) + 4 enabled steps
     expect(rows.length).toBe(5);
     expect(rows[0].children[0].textContent).toContain('Context');
-    expect(rows[1].children[0].textContent).toContain('Read: @claude.md');
-    expect(rows[2].children[0].textContent).toContain('Analyze: issue');
+    expect(rows[1].children[0].textContent).toContain('Context: @claude.md');
+    expect(rows[2].children[0].textContent).toContain('Analyze');
   });
 
   it('uses ordered list for step numbering', () => {
@@ -91,7 +91,7 @@ describe('Step rendering (STP-01)', () => {
 
   it('adds data-step-id attribute', () => {
     initStepsCard();
-    expect(document.querySelector('[data-step-id="read-claude"]')).toBeTruthy();
+    expect(document.querySelector('[data-step-id="context"]')).toBeTruthy();
   });
 
   it('shows empty state when no steps', () => {
@@ -110,7 +110,7 @@ describe('Step rendering (STP-01)', () => {
 describe('Lens pills (STP-03)', () => {
   it('renders lens pills on steps with lenses, marks active correctly', () => {
     initStepsCard();
-    const row = document.querySelector('[data-step-id="identify-cause"]');
+    const row = document.querySelector('[data-step-id="analyze"]');
     const pills = row.querySelectorAll('.btn-pill');
 
     expect(pills.length).toBeGreaterThan(0);
@@ -129,7 +129,7 @@ describe('Lens pills (STP-03)', () => {
 
   it('calls setState when lens pill is clicked', () => {
     initStepsCard();
-    document.querySelector('[data-step-id="identify-cause"] .btn-pill').click();
+    document.querySelector('[data-step-id="analyze"] .btn-pill').click();
     expect(setState).toHaveBeenCalledWith(
       'steps.enabled_steps',
       expect.any(Array)
@@ -145,7 +145,7 @@ describe('File pills', () => {
         steps: {
           enabled_steps: [
             {
-              id: 'read-files',
+              id: 'read',
               operation: 'read',
               object: 'files',
               source: 'panel_a.files',
@@ -183,17 +183,14 @@ describe('Optional text inputs', () => {
   it('renders text inputs for steps with branch_name or pr_name', () => {
     initStepsCard();
     expect(
-      document.querySelector('[data-step-id="create-branch"] input.input-field')
-    ).toBeTruthy();
-    expect(
-      document.querySelector('[data-step-id="commit-pr"] input.input-field')
+      document.querySelector('[data-step-id="commit"] input.input-field')
     ).toBeTruthy();
   });
 
   it('calls setState on input change', () => {
     initStepsCard();
     const input = document.querySelector(
-      '[data-step-id="create-branch"] input.input-field'
+      '[data-step-id="commit"] input.input-field'
     );
     input.value = 'fix/bug-123';
     input.dispatchEvent(new Event('input'));
@@ -209,7 +206,7 @@ describe('Output mode buttons', () => {
         steps: {
           enabled_steps: [
             {
-              id: 'feedback',
+              id: 'report',
               operation: 'create',
               object: 'review_feedback',
               output: ['here', 'pr_comment', 'pr_inline_comments'],

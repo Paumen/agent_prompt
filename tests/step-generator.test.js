@@ -29,41 +29,27 @@ const FIX_FLOW = {
   label: 'Fix / Debug',
   steps: [
     {
-      id: 'read-claude',
+      id: 'context',
       operation: 'read',
       object: 'file',
       params: { file: 'claude.md' },
     },
     {
-      id: 'read-location',
+      id: 'read',
       operation: 'read',
       object: 'files',
-      source: 'panel_a.files',
+      sources: ['panel_a.files', 'panel_a.issue_number', 'panel_b.spec_files'],
     },
+    { id: 'analyze', operation: 'analyze', object: 'issue', lenses: [] },
+    { id: 'plan', operation: 'create', object: 'plan' },
+    { id: 'implement', operation: 'edit', object: 'files' },
+    { id: 'test', operation: 'validate', object: 'tests' },
     {
-      id: 'read-issue',
-      operation: 'read',
-      object: 'issue',
-      source: 'panel_a.issue_number',
-    },
-    {
-      id: 'read-specs',
-      operation: 'read',
-      object: 'files',
-      source: 'panel_b.spec_files',
-    },
-    { id: 'identify-cause', operation: 'analyze', object: 'issue', lenses: [] },
-    {
-      id: 'create-branch',
-      operation: 'create',
-      object: 'branch',
-      branch_name: 'optional_text',
-    },
-    {
-      id: 'commit-pr',
+      id: 'commit',
       operation: 'commit',
       object: 'changes',
       params: { open_draft_pr: true },
+      branch_name: 'optional_text',
       pr_name: 'optional_text',
     },
   ],
@@ -73,64 +59,34 @@ const REVIEW_FLOW = {
   label: 'Review',
   steps: [
     {
-      id: 'read-claude',
+      id: 'context',
       operation: 'read',
       object: 'file',
       params: { file: 'claude.md' },
     },
     {
-      id: 'review-pr',
-      operation: 'analyze',
-      object: 'pull_request',
-      source: 'panel_a.pr_number',
-      lenses: ['semantics'],
-    },
-    {
-      id: 'provide-feedback',
-      operation: 'create',
-      object: 'review_feedback',
-      source: 'panel_a.pr_number',
-      output: ['here', 'pr_comment'],
-    },
-  ],
-};
-
-const REVIEW_FLOW_MULTI = {
-  label: 'Review',
-  steps: [
-    {
-      id: 'read-claude',
+      id: 'read',
       operation: 'read',
-      object: 'file',
-      params: { file: 'claude.md' },
+      object: 'files',
+      sources: ['panel_a.pr_number', 'panel_a.files', 'panel_b.spec_files'],
     },
     {
-      id: 'review-pr',
+      id: 'analyze',
       operation: 'analyze',
-      object: 'pull_request',
-      source: 'panel_a.pr_number',
+      object: 'code',
       lenses: ['semantics', 'structure'],
     },
     {
-      id: 'review-files',
-      operation: 'analyze',
-      object: 'files',
-      source: 'panel_a.files',
-      lenses: [],
-    },
-    {
-      id: 'provide-feedback-pr',
+      id: 'report',
       operation: 'create',
       object: 'review_feedback',
-      source: 'panel_a.pr_number',
-      output: ['here', 'pr_comment'],
-    },
-    {
-      id: 'provide-feedback-files',
-      operation: 'create',
-      object: 'review_feedback',
-      source: 'panel_a.files',
-      output: ['here', 'pr_comment'],
+      output: [
+        'here',
+        'pr_comment',
+        'pr_inline_comments',
+        'issue_comment',
+        'report_file',
+      ],
     },
   ],
 };
@@ -196,38 +152,44 @@ describe('generateSteps', () => {
     expect(generateSteps({}, EMPTY_PANEL_A, EMPTY_PANEL_B)).toEqual([]);
   });
 
-  it('merges all read steps into a single "read" step with file and issue pickers', () => {
+  it('generates all generic steps for fix flow', () => {
     const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
     const ids = steps.map((s) => s.id);
 
-    // All read steps are merged into one
-    expect(ids).toContain('read');
-    expect(ids).not.toContain('read-claude');
-    expect(ids).not.toContain('read-location');
-    expect(ids).not.toContain('read-issue');
-    expect(ids).not.toContain('read-specs');
-
-    // Non-read steps still present
-    expect(ids).toContain('identify-cause');
-    expect(ids).toContain('create-branch');
-
-    // Merged step has both pickers
-    const merged = steps.find((s) => s.id === 'read');
-    expect(merged.has_file_picker).toBe(true);
-    expect(merged.has_issue_picker).toBe(true);
-
-    // claude.md pre-populated (from read-claude); panel files empty so no others
-    expect(merged.params.files).toEqual(['claude.md']);
-    expect(merged.params.issues).toEqual([]);
+    expect(ids).toEqual([
+      'context',
+      'read',
+      'analyze',
+      'plan',
+      'implement',
+      'test',
+      'commit',
+    ]);
   });
 
-  it('merged read step appears before non-read steps', () => {
-    const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
+  it('generates subset of steps for review flow', () => {
+    const steps = generateSteps(REVIEW_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
     const ids = steps.map((s) => s.id);
-    expect(ids.indexOf('read')).toBeLessThan(ids.indexOf('identify-cause'));
+
+    expect(ids).toEqual(['context', 'read', 'analyze', 'report']);
   });
 
-  it('aggregates files from all read sources into merged step', () => {
+  it('populates read step with sources, file picker, and issue picker', () => {
+    const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
+    const readStep = steps.find((s) => s.id === 'read');
+
+    expect(readStep.sources).toEqual([
+      'panel_a.files',
+      'panel_a.issue_number',
+      'panel_b.spec_files',
+    ]);
+    expect(readStep.has_file_picker).toBe(true);
+    expect(readStep.has_issue_picker).toBe(true);
+    expect(readStep.params.files).toEqual([]);
+    expect(readStep.params.issues).toEqual([]);
+  });
+
+  it('aggregates files and issues from panel data into read step', () => {
     const panelA = {
       ...EMPTY_PANEL_A,
       issue_number: 42,
@@ -235,132 +197,95 @@ describe('generateSteps', () => {
     };
     const panelB = { ...EMPTY_PANEL_B, spec_files: ['spec.md'] };
     const steps = generateSteps(FIX_FLOW, panelA, panelB);
+    const readStep = steps.find((s) => s.id === 'read');
 
-    const merged = steps.find((s) => s.id === 'read');
-    // claude.md + panel_a.files + panel_b.spec_files all combined
-    expect(merged.params.files).toContain('claude.md');
-    expect(merged.params.files).toContain('a.js');
-    expect(merged.params.files).toContain('b.js');
-    expect(merged.params.files).toContain('spec.md');
-    // Issue from panel_a.issue_number
-    expect(merged.params.issues).toEqual([42]);
+    expect(readStep.params.files).toContain('a.js');
+    expect(readStep.params.files).toContain('b.js');
+    expect(readStep.params.files).toContain('spec.md');
+    expect(readStep.params.issues).toEqual([42]);
+  });
+
+  it('populates PR number in review flow read step', () => {
+    const panelA = { ...EMPTY_PANEL_A, pr_number: 5 };
+    const steps = generateSteps(REVIEW_FLOW, panelA, EMPTY_PANEL_B);
+    const readStep = steps.find((s) => s.id === 'read');
+
+    expect(readStep.params.pr_number).toBe(5);
+    expect(readStep.has_file_picker).toBe(true);
   });
 
   it('copies step properties (lenses, params, branch_name, pr_name, output)', () => {
     const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
 
-    const identifyCause = steps.find((s) => s.id === 'identify-cause');
-    expect(identifyCause.lenses).toEqual([]);
-    identifyCause.lenses.push('security');
-    expect(
-      FIX_FLOW.steps.find((s) => s.id === 'identify-cause').lenses
-    ).toEqual([]);
+    const analyze = steps.find((s) => s.id === 'analyze');
+    expect(analyze.lenses).toEqual([]);
+    // Verify immutability — mutating result doesn't affect source
+    analyze.lenses.push('security');
+    expect(FIX_FLOW.steps.find((s) => s.id === 'analyze').lenses).toEqual([]);
 
-    expect(steps.find((s) => s.id === 'create-branch').branch_name).toBe(
-      'optional_text'
-    );
-    expect(steps.find((s) => s.id === 'commit-pr').pr_name).toBe(
-      'optional_text'
-    );
+    const commit = steps.find((s) => s.id === 'commit');
+    expect(commit.branch_name).toBe('optional_text');
+    expect(commit.pr_name).toBe('optional_text');
   });
 
-  it('merges consecutive analyze steps into one with sources array and unioned lenses', () => {
-    const steps = generateSteps(
-      REVIEW_FLOW_MULTI,
-      EMPTY_PANEL_A,
-      EMPTY_PANEL_B
-    );
-    const ids = steps.map((s) => s.id);
-
-    // Merged into one step using first step's id
-    expect(ids).toContain('review-pr');
-    expect(ids).not.toContain('review-files');
-
-    const merged = steps.find((s) => s.id === 'review-pr');
-    expect(merged.sources).toEqual(['panel_a.pr_number', 'panel_a.files']);
-    expect(merged._mergedIds).toEqual(['review-pr', 'review-files']);
-    // Union of lenses: semantics + structure from first, [] from second
-    expect(merged.lenses).toEqual(['semantics', 'structure']);
-    // params from both: pr_number (null) and files ([])
-    expect(merged.params).toMatchObject({ pr_number: null, files: [] });
-  });
-
-  it('merges consecutive review_feedback steps into one with sources array', () => {
-    const steps = generateSteps(
-      REVIEW_FLOW_MULTI,
-      EMPTY_PANEL_A,
-      EMPTY_PANEL_B
-    );
-    const ids = steps.map((s) => s.id);
-
-    expect(ids).toContain('provide-feedback-pr');
-    expect(ids).not.toContain('provide-feedback-files');
-
-    const merged = steps.find((s) => s.id === 'provide-feedback-pr');
-    expect(merged.sources).toEqual(['panel_a.pr_number', 'panel_a.files']);
-    expect(merged._mergedIds).toEqual([
-      'provide-feedback-pr',
-      'provide-feedback-files',
-    ]);
-    // Union of output (same in both, so deduped)
-    expect(merged.output).toEqual(['here', 'pr_comment']);
-  });
-
-  it('does not merge a single analyze step', () => {
+  it('preserves output modes on report step', () => {
     const steps = generateSteps(REVIEW_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
-    const analyzedStep = steps.find((s) => s.id === 'review-pr');
-
-    expect(analyzedStep.sources).toBeUndefined();
-    expect(analyzedStep._mergedIds).toBeUndefined();
-    expect(analyzedStep.source).toBe('panel_a.pr_number');
-  });
-
-  it('handles review flow PR steps — always included, seeded from panel', () => {
-    // PR steps have a dedicated picker so they always appear
-    const empty = generateSteps(REVIEW_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
-    const emptyIds = empty.map((s) => s.id);
-    // read-claude merges into single 'read' step; no issue picker for review flow
-    expect(emptyIds).toContain('read');
-    expect(empty.find((s) => s.id === 'read').has_file_picker).toBe(true);
-    expect(empty.find((s) => s.id === 'read').has_issue_picker).toBeUndefined();
-    expect(emptyIds).toContain('review-pr');
-    expect(empty.find((s) => s.id === 'review-pr').params.pr_number).toBeNull();
-
-    // When panel has a PR, params.pr_number is seeded from it
-    const filled = generateSteps(
-      REVIEW_FLOW,
-      { ...EMPTY_PANEL_A, pr_number: 5 },
-      EMPTY_PANEL_B
-    );
-    const ids = filled.map((s) => s.id);
-    expect(ids).toContain('review-pr');
-    expect(ids).toContain('provide-feedback');
-    expect(filled.find((s) => s.id === 'review-pr').params.pr_number).toBe(5);
-    expect(filled.find((s) => s.id === 'provide-feedback').output).toEqual([
+    const report = steps.find((s) => s.id === 'report');
+    expect(report.output).toEqual([
       'here',
       'pr_comment',
+      'pr_inline_comments',
+      'issue_comment',
+      'report_file',
     ]);
+  });
+
+  it('handles conditional non-picker sources (spec_files only appear when filled)', () => {
+    // A flow with only a non-picker source should not appear when empty
+    const conditionalFlow = {
+      label: 'Test',
+      steps: [
+        {
+          id: 'read',
+          operation: 'read',
+          object: 'files',
+          sources: ['panel_b.spec_files'],
+        },
+      ],
+    };
+
+    // Empty spec_files → step still skipped (no picker source)
+    const empty = generateSteps(conditionalFlow, EMPTY_PANEL_A, EMPTY_PANEL_B);
+    expect(empty).toEqual([]);
+
+    // Filled spec_files → step appears
+    const filled = generateSteps(conditionalFlow, EMPTY_PANEL_A, {
+      ...EMPTY_PANEL_B,
+      spec_files: ['spec.md'],
+    });
+    expect(filled.length).toBe(1);
+    expect(filled[0].params.files).toContain('spec.md');
   });
 });
 
 describe('reconcileSteps', () => {
   it('filters removedIds, preserves user modifications, adds new steps', () => {
     const generated = [
-      { id: 'read-claude', operation: 'read', object: 'file' },
+      { id: 'context', operation: 'read', object: 'file' },
       {
-        id: 'create-branch',
-        operation: 'create',
-        object: 'branch',
+        id: 'commit',
+        operation: 'commit',
+        object: 'changes',
         branch_name: 'optional_text',
       },
       { id: 'analyze', operation: 'analyze', object: 'issue', lenses: [] },
     ];
     const current = [
-      { id: 'read-claude', operation: 'read', object: 'file' },
+      { id: 'context', operation: 'read', object: 'file' },
       {
-        id: 'create-branch',
-        operation: 'create',
-        object: 'branch',
+        id: 'commit',
+        operation: 'commit',
+        object: 'changes',
         branch_name: 'optional_text',
         name_provided: 'feat/x',
       },
@@ -375,16 +300,14 @@ describe('reconcileSteps', () => {
     const result = reconcileSteps(generated, current, ['analyze']);
 
     expect(result.length).toBe(2);
-    expect(result.map((s) => s.id)).toEqual(['read-claude', 'create-branch']);
-    expect(result.find((s) => s.id === 'create-branch').name_provided).toBe(
-      'feat/x'
-    );
+    expect(result.map((s) => s.id)).toEqual(['context', 'commit']);
+    expect(result.find((s) => s.id === 'commit').name_provided).toBe('feat/x');
   });
 
   it('preserves outputs_selected and migrates legacy output_selected', () => {
     const generated = [
       {
-        id: 'feedback',
+        id: 'report',
         operation: 'create',
         object: 'review_feedback',
         output: ['here', 'pr_comment'],

@@ -22,62 +22,47 @@
 #   branch naming is left to the LLM's judgment if not specified by the user.
 # - Step granularity should be moderate — assume LLM competence.
 #   Don't micro-instruct what it already knows how to do.
+#
+# --- Generic steps ---
+#
+# All flows use a subset of these 7 generic steps:
+#   context  — Read claude.md / project config
+#   read     — Read relevant files, issues, PRs, specs
+#   analyze  — Analyze the problem / code / requirements
+#   plan     — Plan the approach
+#   implement — Make changes (create branch, edit/create files)
+#   test     — Run tests / validate
+#   commit   — Commit, open draft PR, provide feedback
+#   report   — Provide review feedback (review flow only)
 
 # ==================================================
 # Anchors for reusable blocks
 # ==================================================
 _x_anchors:
-  # ---------- Steps ----------
-  read_claude: &read_claude
-    id: read-claude
+  # ---------- Generic step anchors ----------
+  step_context: &step_context
+    id: context
     operation: read
     object: file
     params: { file: 'claude.md' }
 
-  read_files_base: &read_files_base
-    operation: read
-    object: files
-
-  read_specs: &read_specs
-    <<: *read_files_base
-    id: read-specs
-    source: panel_b.spec_files
-
-  read_guidelines: &read_guidelines
-    <<: *read_files_base
-    id: read-guidelines
-    source: panel_b.guideline_files
-
-  read_a_files_base: &read_a_files_base
-    <<: *read_files_base
-    source: panel_a.files
-
-  read_issue_base: &read_issue_base
-    operation: read
-    object: issue
-
-  create_branch: &create_branch
-    id: create-branch
+  step_plan: &step_plan
+    id: plan
     operation: create
-    object: branch
-    branch_name: optional_text # null = LLM decides; user can type a name
+    object: plan
 
-  commit_pr: &commit_pr
-    id: commit-pr
-    operation: commit
-    object: changes
-    params: { open_draft_pr: true }
-    pr_name: optional_text # null = LLM decides; user can type a name
-
-  run_tests: &run_tests
-    id: run-tests
+  step_test: &step_test
+    id: test
     operation: validate
     object: tests
 
-  provide_feedback_base: &provide_feedback_base
-    operation: create
-    object: review_feedback
-    output: [here, pr_comment, pr_inline_comments, issue_comment, report_file]
+  step_commit: &step_commit
+    id: commit
+    operation: commit
+    object: changes
+    params: { open_draft_pr: true }
+    branch_name: optional_text
+    pr_name: optional_text
 
   # ---------- Common field properties ----------
   required_group_a: &required_group_a
@@ -131,23 +116,21 @@ flows:
           <<: *file_picker
           placeholder: 'WHAT to build — requirements, user stories, design docs'
     steps:
-      - *read_claude
-      - id: read-location
-        <<: *read_a_files_base
-      - id: read-issue
-        <<: *read_issue_base
-        source: panel_a.issue_number
-      - *read_specs
-      - id: identify-cause
+      - *step_context
+      - id: read
+        operation: read
+        object: files
+        sources: [panel_a.files, panel_a.issue_number, panel_b.spec_files]
+      - id: analyze
         operation: analyze
         object: issue
-        lenses: [] # user-adjustable via lens picker
-      - *create_branch
-      - id: implement-fix
+        lenses: []
+      - *step_plan
+      - id: implement
         operation: edit
         object: files
-      - *run_tests
-      - *commit_pr
+      - *step_test
+      - *step_commit
 
   review:
     label: 'Review'
@@ -167,24 +150,20 @@ flows:
           <<: *file_picker
           placeholder: 'specs to meet'
     steps:
-      - *read_claude
-      - *read_specs
-      - id: review-pr
-        operation: analyze
-        object: pull_request
-        source: panel_a.pr_number
-        lenses: [semantics, structure] # defaults from panel_b.lenses
-      - id: review-files
-        operation: analyze
+      - *step_context
+      - id: read
+        operation: read
         object: files
-        source: panel_a.files
-        lenses: [] # populated from panel_b.lenses
-      - id: provide-feedback-pr
-        <<: *provide_feedback_base
-        source: panel_a.pr_number
-      - id: provide-feedback-files
-        <<: *provide_feedback_base
-        source: panel_a.files
+        sources: [panel_a.pr_number, panel_a.files, panel_b.spec_files]
+      - id: analyze
+        operation: analyze
+        object: code
+        lenses: [semantics, structure]
+      - id: report
+        operation: create
+        object: review_feedback
+        output:
+          [here, pr_comment, pr_inline_comments, issue_comment, report_file]
 
   implement:
     label: 'Implement'
@@ -211,21 +190,21 @@ flows:
           <<: *text_field
           placeholder: "How to know it's done: test cases, edge cases, quality standards..."
     steps:
-      - *read_claude
-      - id: read-starting
-        <<: *read_a_files_base
-      - *read_specs
-      - *create_branch
+      - *step_context
+      - id: read
+        operation: read
+        object: files
+        sources: [panel_a.files, panel_b.spec_files]
+      - id: analyze
+        operation: analyze
+        object: requirements
+      - *step_plan
       - id: implement
         operation: create
         object: implementation
-        file_name: optional_text # null = LLM decides; user can type a name
-      - id: verify-criteria
-        operation: validate
-        object: acceptance_criteria
-        source: panel_b.acceptance_criteria
-      - *run_tests
-      - *commit_pr
+        file_name: optional_text
+      - *step_test
+      - *step_commit
 
   improve:
     label: 'Improve'
@@ -256,21 +235,18 @@ flows:
           across_files: 'Across files together'
         show_when: 'panel_a.files.length >= 2'
     steps:
-      - *read_claude
-      - id: read-files
-        <<: *read_a_files_base
-      - id: read-issue-current
-        <<: *issue_picker
-        <<: *read_issue_base
-        source: panel_a.issue_number
-      - *read_guidelines
-      - *create_branch
-      - id: apply-improvements
+      - *step_context
+      - id: read
+        operation: read
+        object: files
+        sources: [panel_a.files, panel_a.issue_number, panel_b.guideline_files]
+      - id: analyze
+        operation: analyze
+        object: improvements
+        lenses: []
+      - *step_plan
+      - id: implement
         operation: edit
         object: files
-        lenses: [] # populated from panel_b.lenses
-      - *run_tests
-      - id: verify
-        operation: validate
-        object: improvements
-      - *commit_pr
+      - *step_test
+      - *step_commit
