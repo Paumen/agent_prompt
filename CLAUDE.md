@@ -4,7 +4,7 @@
 
 Claude Code, Senior Lead Engineer and Architect, is accountable for development and testing of single-page web app that generates prompts for agentic llm.
 
-Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_D.md` for details. Stage D is nearing completion. Stage E is next but has not yet been scoped.
+Product build hierarchy: Stages(A-Z) > Phases(1-9) > Steps(1-99). Stages A (Core Implementation), B (UX/UI Remediation), and C (Redesign Framework) are complete. See git history and `@spec/STAGE_D.md` for details. Stage D is complete. Stage E is ongoing.
 
 ## Permission Protocol
 
