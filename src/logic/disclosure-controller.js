@@ -46,7 +46,6 @@ function computeCardStates() {
 
     'card-prompt': (() => {
       if (!flowSelected) return 'locked';
-      if (!stepsInteracted) return 'locked';
       return promptHasValue ? 'complete' : 'active';
     })(),
   };
@@ -89,11 +88,6 @@ function applyStates(newStates) {
     'bd-steps',
     newStates['card-steps'],
     'Select a flow to enable steps'
-  );
-  ensureGuardHint(
-    'bd-prompt',
-    newStates['card-prompt'],
-    'Complete steps to continue'
   );
 
   updateNextToFill();
