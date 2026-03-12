@@ -92,7 +92,7 @@ npm run build         # Production build (outputs to dist/)
 ## Context Efficiency
 
 - **NEVER** re-read files already in context window, treat this as a hard rule.
-- Default to `Edit` over `Write` unless creating new files or rewriting >50% of lines.
-- If you already know you will edit a file, only `Read` the file immediately before editing it — don't pre-read.
+- Default to `Edit` over `Write` unless creating new files or rewriting >40% of lines.
+- If you are asked to read or edit specific files, read them yourself and fon't ask subagent to read full content if not necessary for the request towards the subagent (eg finding imports). 
 - Batch related questions into a single Explore query where possible.
 - If a task requires changes across many unrelated files (e.g. CSS + JS + tests + config), suggest the user split it into separate sessions grouped by concern.
