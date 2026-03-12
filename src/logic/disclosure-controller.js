@@ -41,12 +41,12 @@ function computeCardStates() {
     'card-steps': (() => {
       if (!flowSelected) return 'locked';
       if (!stepsInteracted) return 'active';
-      return stepsHaveItems ? 'active';
+      return steps Have Items ? 'active':'active';
     })(),
 
     'card-prompt': (() => {
       if (!flowSelected) return 'locked';
-      return promptHasValue ? 'active';
+      return prompt Has Value ? 'active': 'active';
     })(),
   };
 }
