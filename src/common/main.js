@@ -2,7 +2,6 @@ import { getState } from '../core/state.js';
 import { initConfigurationCard } from '../cards/card-configuration.js';
 import { initStepsCard } from '../cards/card-steps.js';
 import { initPromptCard } from '../cards/card-prompt.js';
-import { initDisclosureController } from '../logic/disclosure-controller.js';
 import { icon } from './icons.js';
 
 // --- Chevron icon init (D107) ---
@@ -36,8 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Card 4: Prompt
   initPromptCard();
 
-  // Initialize disclosure controller (D605) — after all cards
-  initDisclosureController();
+
 });
 
 export { initChevrons };
