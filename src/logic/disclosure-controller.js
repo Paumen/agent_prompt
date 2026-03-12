@@ -28,24 +28,25 @@ function computeCardStates() {
   const { pat, owner, repo, branch } = state.configuration;
   const coreReady = !!(pat && owner && repo);
   const flowSelected = !!state.task?.flow_id;
-  const stepsHaveItems = (state.steps?.enabled_steps || []).length > 0;
-  const promptHasValue = !!state._prompt;
 
   return {
+    // Configuration card: active until branch is set, then complete
     'card-configuration': (() => {
       if (!coreReady) return 'active';
       if (!flowSelected) return 'active';
       return branch ? 'complete' : 'active';
     })(),
 
+    // Steps card: locked until a flow is selected, then always active
     'card-steps': (() => {
       if (!flowSelected) return 'locked';
-      return stepsHaveItems ? 'complete' : 'active';
+      return 'active';
     })(),
 
+    // Prompt card: locked until a flow is selected, then always active
     'card-prompt': (() => {
       if (!flowSelected) return 'locked';
-      return promptHasValue ? 'complete' : 'active';
+      return 'active';
     })(),
   };
 }
