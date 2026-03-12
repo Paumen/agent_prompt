@@ -163,18 +163,17 @@ export function initDisclosureController() {
 
   applyStates(computeCardStates());
 
-  // Reset interaction flag and prevStates when flow changes — must run before applyStates
-  // so the locked→active transition fires correctly on every flow selection.
+  // Reset interaction flag and prevStates when flow changes, then apply new states.
   let lastFlowId = getState().task?.flow_id || '';
   subscribe((snapshot) => {
     const newFlow = snapshot.task?.flow_id || '';
     if (newFlow !== lastFlowId) {
       lastFlowId = newFlow;
       stepsInteracted = false;
+      // Force locked->active transition on flow change to ensure cards expand.
       prevStates['card-steps'] = 'locked';
       prevStates['card-prompt'] = 'locked';
     }
+    applyStates(computeCardStates());
   });
-
-  subscribe(() => applyStates(computeCardStates()));
 }
