@@ -43,31 +43,6 @@
   color: var(--text-tertiary);
 }
 
-/* ============================================================
-   NOTIFICATIONS
-   ============================================================ */
-
-.notification {
-  padding: var(--sp-4);
-  margin: var(--sp-4) 0 0;
-  font-size: var(--text-sm);
-  border-radius: var(--radius);
-}
-
-.notification--success {
-  color: var(--accent-a);
-  background: var(--accent-b);
-}
-
-.notification--error {
-  color: var(--accent-caution);
-  background: light-dark(#fff0f0, #2d0000);
-}
-
-.notification--info {
-  color: var(--text-secondary);
-  background: var(--bg-inset);
-}
 
 /* ============================================================
    OUTPUT FLOAT ANIMATION (step output mode feedback)
