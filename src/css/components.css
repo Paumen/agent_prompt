@@ -3,7 +3,6 @@
 /**
  * DOM level L5, L6, L7
  * Button taxonomy (5 types), input fields, field-picker, tags, icons.
- *
  * Import order: variables.css → layout.css → components.css → Specials.css 
  */
 
@@ -317,18 +316,6 @@
    UTILITY
    ============================================================ */
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  border: 0;
-  clip-path: inset(50%);
-}
-
 .truncate-start {
   display: block;
   min-width: 0;
@@ -379,6 +366,3 @@
   color: var(--accent-a);
 }
 
-:where(.input-field:required):user-valid {
-  border-color: var(--accent-a);
-}
