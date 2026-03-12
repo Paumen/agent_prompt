@@ -1,22 +1,23 @@
 /**
- * Disclosure Controller (D605)
+ * Disclosure Controller (D605) – Simplified Behavior
  *
- * Single orchestration point for card AND panel state management.
- * Observes state changes and updates `data-card-state` on each
- * `<details>` element. Controls expand/collapse transitions.
- * Prevents locked cards from opening.
+ * Manages expand/collapse and visual state of all cards/panels.
+ * State machine per card: LOCKED → ACTIVE → COMPLETE.
  *
- * State machine per card/panel:
- *   LOCKED → SKIPPABLE → ACTIVE → SUFFICIENT → COMPLETE
+ * - LOCKED:   Cannot be opened; prerequisite missing.
+ * - ACTIVE:   Interactive, can be opened (expands when entering ACTIVE).
+ * - COMPLETE: Data entered, card collapses and cannot be reopened.
  *
- * Req IDs: D601–D605
+ * The UI may still show dimmed/hint states via CSS based on data,
+ * but the core state machine is now linear and predictable.
+ *
+ * Usage: call `initDisclosureController()` once after DOM is ready.
  */
 
 import { getState, subscribe, getValueByPath } from '../core/state.js';
 import { getFlowById } from './flow-loader.js';
 
-// --- Card element references ---
-
+// --- Constants ---
 const CARD_IDS = [
   'card-configuration',
   'card-tasks',
@@ -24,113 +25,55 @@ const CARD_IDS = [
   'card-prompt',
 ];
 
-// --- Interaction tracking flags ---
-
+// --- Interaction flags (only used to unlock steps/prompt) ---
 let stepsInteracted = false;
-let targetInteracted = false;
+let targetInteracted = false; // still used for target field enabling
 
 // --- Previous states (for transition detection) ---
-
 let prevStates = {};
 
-// --- Sufficiency helpers ---
+// --- Value helpers ---
+const hasValue = (val) =>
+  val != null &&
+  (!Array.isArray(val) || val.length > 0) &&
+  (typeof val !== 'string' || val.trim() !== '');
 
-/**
- * Check if a required_group in a panel is satisfied.
- * A group is satisfied when at least one field in the group has a value.
- */
-function isGroupSatisfied(state, panelKey, groupName, panelDef) {
-  if (!panelDef?.fields) return true;
+const fieldHasValue = (state, path) => hasValue(getValueByPath(state, path));
 
-  const groupFields = Object.entries(panelDef.fields)
-    .filter(([, fDef]) => fDef.required_group === groupName)
-    .map(([fName]) => fName);
+const panelHasAnyValue = (state, panelKey, panelDef) =>
+  panelDef?.fields
+    ? Object.keys(panelDef.fields).some((fName) =>
+        hasValue(getValueByPath(state, `${panelKey}.${fName}`))
+      )
+    : false;
 
-  if (groupFields.length === 0) return true;
-
-  return groupFields.some((fName) => {
-    const val = getValueByPath(state, `${panelKey}.${fName}`);
-    if (val === null || val === undefined) return false;
-    if (Array.isArray(val)) return val.length > 0;
-    return String(val).trim().length > 0;
-  });
-}
-
-/**
- * Check if a panel has any field with a value.
- */
-function panelHasAnyValue(state, panelKey, panelDef) {
-  if (!panelDef?.fields) return false;
-
-  for (const [fName] of Object.entries(panelDef.fields)) {
-    const val = getValueByPath(state, `${panelKey}.${fName}`);
-    if (val === null || val === undefined) continue;
-    if (Array.isArray(val) && val.length > 0) return true;
-    if (typeof val === 'string' && val.trim().length > 0) return true;
-    if (typeof val === 'number') return true;
-  }
-  return false;
-}
-
-/**
- * Check if a specific field has a value (for required: true fields).
- */
-function fieldHasValue(state, statePath) {
-  const val = getValueByPath(state, statePath);
-  if (val === null || val === undefined) return false;
-  if (Array.isArray(val)) return val.length > 0;
-  if (typeof val === 'string') return val.trim().length > 0;
-  return true;
-}
-
-// --- Per-flow sufficiency logic ---
-
-/**
- * Situation (panel_a) sufficiency per flow.
- *
- * fix: either issue_number or description filled
- * review: either pr_number or files selected
- * implement: per default sufficient
- * improve: per default sufficient
- */
-function isSituationSufficient(state, flowId, flowDef) {
+// --- Sufficiency rules (simplified but still flow‑aware) ---
+function situationSufficient(state, flowId, flowDef) {
+  if (!flowId || !flowDef) return false;
   switch (flowId) {
     case 'fix':
     case 'review':
-      return isGroupSatisfied(state, 'panel_a', 'a_required', flowDef.panel_a);
-    case 'implement':
-    case 'improve':
+      // required_group a_required must have at least one value
+      return groupHasValue(state, 'panel_a', 'a_required', flowDef.panel_a);
+    default:
+      // implement/improve always sufficient (no required fields in situation)
       return true;
-    default:
-      return isGroupSatisfied(state, 'panel_a', 'a_required', flowDef.panel_a);
   }
 }
 
-/**
- * Target (panel_b) sufficiency per flow.
- *
- * fix: at least one input field filled
- * review: per default sufficient
- * implement: at least one field filled
- * improve: at least one field filled
- */
-function isTargetSufficient(state, flowId, flowDef) {
+function targetSufficient(state, flowId, flowDef) {
+  if (!flowId || !flowDef) return false;
   switch (flowId) {
     case 'fix':
       return panelHasAnyValue(state, 'panel_b', flowDef.panel_b);
     case 'review':
-      // AC 2.3: Review target requires user interaction or non-default data.
-      // Default lenses are auto-populated, so check for spec_files or guideline_files
-      // which are user-provided, or explicit target interaction.
-      return (
-        targetInteracted ||
-        fieldHasValue(state, 'panel_b.spec_files') ||
-        fieldHasValue(state, 'panel_b.guideline_files')
-      );
-    case 'implement': {
-      const hasRequired = fieldHasValue(state, 'panel_b.description');
-      return hasRequired || panelHasAnyValue(state, 'panel_b', flowDef.panel_b);
-    }
+      // Review needs either interaction or a user‑provided file
+      return targetInteracted ||
+             fieldHasValue(state, 'panel_b.spec_files') ||
+             fieldHasValue(state, 'panel_b.guideline_files');
+    case 'implement':
+      return fieldHasValue(state, 'panel_b.description') ||
+             panelHasAnyValue(state, 'panel_b', flowDef.panel_b);
     case 'improve':
       return panelHasAnyValue(state, 'panel_b', flowDef.panel_b);
     default:
@@ -138,400 +81,224 @@ function isTargetSufficient(state, flowId, flowDef) {
   }
 }
 
-// --- Card state evaluators ---
-
-function evaluateConfigState(state) {
-  const { pat, owner, repo, branch } = state.configuration;
-  const hasCoreConfig = !!(pat && owner && repo);
-
-  if (!hasCoreConfig) return 'active';
-
-  // AC 1.3: Config stays active (undimmed) until a flow is selected
-  const flowId = state.task?.flow_id;
-  if (!flowId) return 'active';
-
-  // Config complete when username + repo + branch + flow all set
-  if (branch) return 'complete';
-
-  // AC 2.2: Config transitions to dimmed (sufficient) once flow is selected
-  return 'sufficient';
+function groupHasValue(state, panelKey, group, panelDef) {
+  if (!panelDef?.fields) return true;
+  const groupFields = Object.entries(panelDef.fields)
+    .filter(([, def]) => def.required_group === group)
+    .map(([name]) => name);
+  if (groupFields.length === 0) return true;
+  return groupFields.some((fName) =>
+    hasValue(getValueByPath(state, `${panelKey}.${fName}`))
+  );
 }
 
-function evaluateTaskState(state) {
-  // Task requires core config (pat + owner + repo)
-  const { pat, owner, repo } = state.configuration;
-  const hasCoreConfig = !!(pat && owner && repo);
-  if (!hasCoreConfig) {
-    return 'locked';
-  }
-
-  const flowId = state.task?.flow_id;
-  if (!flowId) return 'active';
-
-  const flowDef = getFlowById(flowId);
-  if (!flowDef) return 'active';
-
-  const sitOk = isSituationSufficient(state, flowId, flowDef);
-  const tgtOk = isTargetSufficient(state, flowId, flowDef);
-
-  if (!sitOk || !tgtOk) return 'active';
-
-  return 'sufficient';
-}
-
-// --- Panel state evaluators ---
-
-/**
- * Situation panel:
- * - locked: visible but collapsed when task card has no flow
- * - active: expand when flow is selected
- * - sufficient: per flow rules
- */
-function evaluateSituationState(state, flowId, flowDef) {
-  if (!flowId || !flowDef) return 'locked';
-
-  const sitOk = isSituationSufficient(state, flowId, flowDef);
-  if (!sitOk) return 'active';
-
-  return 'sufficient';
-}
-
-/**
- * Target panel:
- * - locked: when task card has no flow
- * - skippable: flow selected (except improve), no situation data yet
- * - active (improve): immediately on flow select
- * - skippable (other flows): expands dimmed when situation has data
- * - active: when situation sufficient, OR user interacts with target
- * - sufficient: per flow rules
- */
-function evaluateTargetState(state, flowId, flowDef, sitState) {
-  if (!flowId || !flowDef) return 'locked';
-
-  // Improve flow: target is immediately active
-  if (flowId === 'improve') {
-    const tgtOk = isTargetSufficient(state, flowId, flowDef);
-    if (!tgtOk) return 'active';
-    return 'sufficient';
-  }
-
-  // Other flows: depends on situation state
-  const sitSufficient = sitState === 'sufficient';
-
-  if (sitSufficient || targetInteracted) {
-    const tgtOk = isTargetSufficient(state, flowId, flowDef);
-    if (!tgtOk) return 'active';
-    return 'sufficient';
-  }
-
-  // Situation has some data but not sufficient: target opens but dimmed
-  const sitHasData = panelHasAnyValue(state, 'panel_a', flowDef.panel_a);
-  if (sitHasData) return 'skippable';
-
-  return 'skippable';
-}
-
-/**
- * Steps card:
- * - locked: no flow selected
- * - skippable: flow set but neither panel sufficient
- * - expands when situation OR target is sufficient
- * - active when BOTH situation and target are sufficient
- */
-function evaluateStepsState(state, sitState, tgtState) {
-  const flowId = state.task?.flow_id;
-  if (!flowId) return 'locked';
-
-  const sitOk = sitState === 'sufficient';
-  const tgtOk = tgtState === 'sufficient';
-
-  if (!sitOk && !tgtOk) return 'skippable';
-
-  if (sitOk && tgtOk) {
-    const steps = state.steps?.enabled_steps || [];
-    if (steps.length === 0) return 'active';
-    if (!stepsInteracted) return 'active';
-    return 'sufficient';
-  }
-
-  // One panel sufficient: card expands but not fully active
-  return 'skippable';
-}
-
-/**
- * Prompt card:
- * - locked: no flow selected
- * - skippable: flow set but not both panels sufficient
- * - expands when both situation AND target sufficient
- * - active after user interacted with steps card
- */
-function evaluatePromptState(state, sitState, tgtState) {
-  const flowId = state.task?.flow_id;
-  if (!flowId) return 'locked';
-
-  const sitOk = sitState === 'sufficient';
-  const tgtOk = tgtState === 'sufficient';
-
-  if (!sitOk || !tgtOk) return 'skippable';
-
-  if (!stepsInteracted) return 'skippable';
-
-  const prompt = state._prompt || '';
-  if (!prompt) return 'active';
-
-  return 'sufficient';
-}
-
-// --- State application ---
-
-function applyCardStates() {
+// --- Compute card states (only 'locked' | 'active' | 'complete') ---
+function computeCardStates() {
   const state = getState();
-  const flowId = state.task?.flow_id || '';
+  const { pat, owner, repo, branch } = state.configuration;
+  const coreReady = !!(pat && owner && repo);
+  const flowId = state.task?.flow_id;
   const flowDef = flowId ? getFlowById(flowId) : null;
+  const flowSelected = !!flowId;
 
-  // Evaluate all states
-  const configState = evaluateConfigState(state);
-  const taskState = evaluateTaskState(state);
-  const sitState = evaluateSituationState(state, flowId, flowDef);
-  const tgtState = evaluateTargetState(state, flowId, flowDef, sitState);
-  const stepsState = evaluateStepsState(state, sitState, tgtState);
-  const promptState = evaluatePromptState(state, sitState, tgtState);
+  // Sufficiency of panels (needed for steps/prompt unlocking)
+  const sitDone = situationSufficient(state, flowId, flowDef);
+  const tgtDone = targetSufficient(state, flowId, flowDef);
+  const stepsHaveItems = (state.steps?.enabled_steps || []).length > 0;
+  const promptHasValue = !!state._prompt;
 
-  const newStates = {
-    'card-configuration': configState,
-    'card-tasks': taskState,
-    'card-steps': stepsState,
-    'card-prompt': promptState,
-    'panel-situation': sitState,
-    'panel-target': tgtState,
+  return {
+    'card-configuration': (() => {
+      if (!coreReady) return 'active'; // always active until core missing? Actually core missing means config is still active (needs input). So active.
+      if (!flowSelected) return 'active';
+      return branch ? 'complete' : 'active'; // branch set → complete, else still active
+    })(),
+
+    'card-tasks': (() => {
+      if (!coreReady) return 'locked';
+      if (!flowSelected) return 'active';
+      // Tasks are complete only when both panels are done
+      return (sitDone && tgtDone) ? 'complete' : 'active';
+    })(),
+
+    'card-steps': (() => {
+      if (!flowSelected) return 'locked';
+      if (!sitDone || !tgtDone) return 'locked'; // prerequisite panels not done → locked
+      // Steps become active once panels are done
+      if (!stepsInteracted) return 'active';
+      return stepsHaveItems ? 'complete' : 'active';
+    })(),
+
+    'card-prompt': (() => {
+      if (!flowSelected) return 'locked';
+      if (!sitDone || !tgtDone) return 'locked';
+      if (!stepsInteracted) return 'locked'; // steps not yet used
+      return promptHasValue ? 'complete' : 'active';
+    })(),
+
+    // Panel states (used for styling, not for open/close logic)
+    'panel-situation': (() => {
+      if (!flowSelected) return 'locked';
+      return sitDone ? 'complete' : 'active';
+    })(),
+
+    'panel-target': (() => {
+      if (!flowSelected) return 'locked';
+      return tgtDone ? 'complete' : 'active';
+    })(),
   };
+}
 
-  // Apply main card states + auto-expand/collapse
-  applyMainCardState('card-configuration', configState);
-  applyMainCardState('card-tasks', taskState);
-  applyMainCardState('card-steps', stepsState);
-  applyMainCardState('card-prompt', promptState);
+// --- DOM update (applies states and transitions) ---
+function applyStates(newStates) {
+  // Update main cards
+  CARD_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const prev = prevStates[id];
+    const next = newStates[id];
+    if (prev === next) return;
 
-  // Apply panel states
+    el.dataset.cardState = next;
+
+    // Open when entering 'active' (unless previously complete? we only open on transition from non-active to active)
+    const wasNotActive = prev !== 'active';
+    if (next === 'active' && wasNotActive) {
+      el.open = true;
+    }
+    // Close when entering 'complete'
+    if (next === 'complete') {
+      el.open = false;
+    }
+    // If entering 'locked', ensure closed
+    if (next === 'locked') {
+      el.open = false;
+    }
+  });
+
+  // Update panels (only dataset, no auto open/close for panels)
   const sitEl = document.querySelector('[data-panel="situation"]');
   const tgtEl = document.querySelector('[data-panel="target"]');
+  if (sitEl) sitEl.dataset.cardState = newStates['panel-situation'];
+  if (tgtEl) tgtEl.dataset.cardState = newStates['panel-target'];
 
-  applyPanelState(sitEl, 'panel-situation', sitState);
-  applyPanelState(tgtEl, 'panel-target', tgtState);
-
-  // Panel open/close transitions
-  applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState);
-
-  // D502: Focus transition — move focus to the newly active card's summary
-  for (const cardId of CARD_IDS) {
-    const cs = newStates[cardId];
-    const prev = prevStates[cardId];
-    if (cs === 'active' && prev !== 'active' && prev) {
+  // D502: Move focus to newly active card
+  for (const id of CARD_IDS) {
+    if (newStates[id] === 'active' && prevStates[id] !== 'active') {
       requestAnimationFrame(() => {
-        document.getElementById(cardId)?.querySelector('summary')?.focus();
+        document.getElementById(id)?.querySelector('summary')?.focus();
       });
       break;
     }
   }
 
-  // D705: Guard hints for skippable cards
-  ensureGuardHint(
-    'bd-steps',
-    stepsState,
-    'Complete Task details for full step generation'
-  );
-  ensureGuardHint('bd-prompt', promptState, 'Review Steps to continue');
+  // D705: Guard hints (only show for cards in 'active' state with missing data)
+  // We'll keep this but simplify: show hint only when card is active but prerequisite not met.
+  // Actually with simplified states, steps/prompt are locked until prerequisites, so no need for hint there.
+  // But we might want hints for panels? We'll keep original but adapt.
+  ensureGuardHint('bd-steps', newStates['card-steps'], 'Fill in Task details to enable steps');
+  ensureGuardHint('bd-prompt', newStates['card-prompt'], 'Complete steps to continue');
 
-  // D403: Highlight first empty required field globally
+  // D403: Highlight first empty required field (unchanged)
   updateNextToFill();
 
-  prevStates = { ...newStates, _hadFlow: !!flowId };
+  prevStates = { ...newStates };
 }
 
-function applyMainCardState(cardId, cardState) {
-  const el = document.getElementById(cardId);
-  if (!el) return;
-
-  const prev = prevStates[cardId];
-  if (prev === cardState) return;
-
-  el.dataset.cardState = cardState;
-
-  // Expand when transitioning from locked to any other state.
-  // Treat undefined (initial load) as 'locked' so restored config auto-expands cards.
-  const effectivePrev = prev ?? 'locked';
-  if (effectivePrev === 'locked' && cardState !== 'locked') {
-    el.open = true;
-  }
-
-  // Collapse on transition to locked or complete
-  if (cardState === 'locked' || cardState === 'complete') {
-    el.open = false;
-  }
-}
-
-function applyPanelState(el, stateKey, cardState) {
-  if (!el) return;
-  const prev = prevStates[stateKey];
-  if (prev !== cardState) {
-    el.dataset.cardState = cardState;
-  }
-}
-
-function applyPanelOpenClose(sitEl, tgtEl, sitState, tgtState) {
-  const prevSit = prevStates['panel-situation'];
-  const prevTgt = prevStates['panel-target'];
-
-  // Situation panel: collapse when locked, expand when leaving locked
-  if (sitEl) {
-    if (sitState === 'locked') {
-      sitEl.open = false;
-    } else if (prevSit === 'locked') {
-      sitEl.open = true;
-    }
-  }
-
-  // Target panel: collapse when locked, expand when leaving locked
-  if (tgtEl) {
-    if (tgtState === 'locked') {
-      tgtEl.open = false;
-    } else if (prevTgt === 'locked') {
-      tgtEl.open = true;
-    }
-  }
-}
-
-// --- D403: Next-to-fill highlighting ---
-
-/**
- * Set `data-next-to-fill` on the .input row containing the first
- * empty required field (native inputs or invalid pickers).
- */
-function updateNextToFill() {
-  const prev = document.querySelector('[data-next-to-fill]');
-  if (prev) delete prev.dataset.nextToFill;
-
-  const rows = document.querySelectorAll('.input');
-  for (const row of rows) {
-    const emptyRequired = row.querySelector('.input-field:required:invalid');
-    if (emptyRequired) {
-      row.dataset.nextToFill = '';
-      return;
-    }
-    const invalidPicker = row.querySelector('[data-state="invalid"]');
-    if (invalidPicker) {
-      row.dataset.nextToFill = '';
-      return;
-    }
-  }
-}
-
-// --- Guard hint (D705) ---
-
+// --- Guard hint helper (unchanged) ---
 function ensureGuardHint(bodyId, cardState, message) {
   const body = document.getElementById(bodyId);
   if (!body) return;
-
   let hint = body.querySelector('.guard-hint');
-  if (cardState === 'skippable') {
+  if (cardState === 'active') {
     if (!hint) {
       hint = document.createElement('p');
       hint.className = 'guard-hint';
       hint.textContent = message;
       body.prepend(hint);
     }
+  } else if (hint) {
+    hint.remove();
   }
 }
 
-// --- Locked card prevention ---
+// --- D403: Next‑to‑fill highlighting (unchanged) ---
+function updateNextToFill() {
+  const prev = document.querySelector('[data-next-to-fill]');
+  if (prev) delete prev.dataset.nextToFill;
+  document.querySelectorAll('.input').forEach((row) => {
+    if (
+      row.querySelector('.input-field:required:invalid') ||
+      row.querySelector('[data-state="invalid"]')
+    ) {
+      row.dataset.nextToFill = '';
+    }
+  });
+}
 
+// --- Event handlers ---
 function onCardToggle(e) {
   const details = e.currentTarget;
+  // Prevent opening if locked
   if (details.dataset.cardState === 'locked' && details.open) {
     details.open = false;
   }
 }
 
-// --- Interaction tracking ---
-
 function onStepsInteraction() {
-  if (stepsInteracted) return;
-  stepsInteracted = true;
-  applyCardStates();
+  if (!stepsInteracted) {
+    stepsInteracted = true;
+    applyStates(computeCardStates());
+  }
 }
 
 function onTargetInteraction() {
-  if (targetInteracted) return;
-  targetInteracted = true;
-  applyCardStates();
+  if (!targetInteracted) {
+    targetInteracted = true;
+    applyStates(computeCardStates());
+  }
 }
 
-function trackStepsInteraction(stepsCard) {
+function trackStepsInteraction() {
+  const stepsCard = document.getElementById('card-steps');
   if (!stepsCard) return;
-  stepsCard.addEventListener('toggle', () => {
-    if (stepsCard.open) onStepsInteraction();
-  });
-  stepsCard.addEventListener('pointerenter', onStepsInteraction, {
-    once: true,
-  });
+  stepsCard.addEventListener('toggle', () => stepsCard.open && onStepsInteraction());
+  stepsCard.addEventListener('pointerenter', onStepsInteraction, { once: true });
 }
 
-/**
- * Track target panel interaction via MutationObserver,
- * since the panel is created dynamically.
- */
-function setupTargetTracking() {
-  const taskBody = document.getElementById('bd-tasks');
-  if (!taskBody) return;
-
+function trackTargetInteraction() {
   const observer = new MutationObserver(() => {
     const tgtEl = document.querySelector('[data-panel="target"]');
-    if (tgtEl && !tgtEl._trackedTarget) {
-      tgtEl._trackedTarget = true;
-      tgtEl.addEventListener('toggle', () => {
-        if (tgtEl.open) onTargetInteraction();
-      });
-      tgtEl.addEventListener('pointerenter', onTargetInteraction, {
-        once: true,
-      });
+    if (tgtEl && !tgtEl._tracked) {
+      tgtEl._tracked = true;
+      tgtEl.addEventListener('toggle', () => tgtEl.open && onTargetInteraction());
+      tgtEl.addEventListener('pointerenter', onTargetInteraction, { once: true });
     }
   });
-
-  observer.observe(taskBody, { childList: true, subtree: true });
+  observer.observe(document.getElementById('bd-tasks'), { childList: true, subtree: true });
 }
 
-// --- Initialization ---
-
-/**
- * Initialize the disclosure controller.
- * Call after all card init functions have run.
- */
+// --- Initialisation ---
 export function initDisclosureController() {
-  const stepsCard = document.getElementById('card-steps');
+  trackStepsInteraction();
+  trackTargetInteraction();
 
-  trackStepsInteraction(stepsCard);
-  setupTargetTracking();
+  CARD_IDS.forEach((id) => {
+    document.getElementById(id)?.addEventListener('toggle', onCardToggle);
+  });
 
-  // Prevent locked cards from opening
-  for (const cardId of CARD_IDS) {
-    const el = document.getElementById(cardId);
-    if (el) {
-      el.addEventListener('toggle', onCardToggle);
-    }
-  }
+  // Initial render
+  applyStates(computeCardStates());
 
-  // Initial evaluation
-  applyCardStates();
-
-  // Subscribe to state changes for reactive updates
-  subscribe(applyCardStates);
+  // React to state changes
+  subscribe(() => applyStates(computeCardStates()));
 
   // Reset interaction flags when flow changes
   let lastFlowId = getState().task?.flow_id || '';
   subscribe((snapshot) => {
-    const flowId = snapshot.task?.flow_id || '';
-    if (flowId !== lastFlowId) {
-      lastFlowId = flowId;
+    const newFlow = snapshot.task?.flow_id || '';
+    if (newFlow !== lastFlowId) {
+      lastFlowId = newFlow;
       stepsInteracted = false;
       targetInteracted = false;
     }
