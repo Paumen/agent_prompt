@@ -97,9 +97,7 @@ vi.mock('../src/common/components.js', () => ({
     if (card) card.open = false;
   }),
 }));
-vi.mock('../src/logic/quality-meter.js', () => ({
-  renderQualityMeter: vi.fn(() => ({ update: vi.fn() })),
-}));
+
 vi.mock('../src/common/file-tree.js', () => ({
   createFilePicker: vi.fn((container) =>
     container.appendChild(document.createElement('div'))
