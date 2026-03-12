@@ -352,17 +352,7 @@
   display: block;
 }
 
-/* Eye toggle: show/hide password */
-.icon-eye-off {
-  display: none;
-}
-
-.icon-eye-on {
-  display: block;
-}
-
 .xml-tag {
   font-weight: 900;
   color: var(--accent-a);
 }
-

@@ -16,7 +16,6 @@ import { createButton, createInputField, createLabel } from '../common/ui.js';
 
 let elBody = null;
 let elPreview = null;
-let elCopyStatus = null;
 let copyBtn = null;
 
 // Description field references
@@ -51,10 +50,8 @@ function renderPromptCard() {
   if (elPreview) {
     if (prompt) {
       elPreview.innerHTML = highlightXml(prompt);
-      elPreview.parentElement.classList.remove('prompt-output--empty');
     } else {
       elPreview.textContent = 'Select a flow to generate a prompt.';
-      elPreview.parentElement.classList.add('prompt-output--empty');
     }
   }
 
@@ -107,22 +104,9 @@ function onCopy() {
         copyBtn.classList.add('btn--copied');
         setTimeout(() => copyBtn?.classList.remove('btn--copied'), 2000);
       }
-      showCopyStatus('Copied!', 'success');
     },
-    () => showCopyStatus('Copy failed', 'error')
+    () => {}
   );
-}
-
-function showCopyStatus(message, type) {
-  if (!elCopyStatus) return;
-  elCopyStatus.textContent = message;
-  elCopyStatus.dataset.type = type;
-  setTimeout(() => {
-    if (elCopyStatus) {
-      elCopyStatus.textContent = '';
-      delete elCopyStatus.dataset.type;
-    }
-  }, 2000);
 }
 
 // OUT-07: deep-link to Claude with prompt pre-filled
@@ -155,11 +139,6 @@ export function initPromptCard() {
   const actionBar = document.createElement('div');
   actionBar.className = 'cloud';
 
-  // Screen reader copy status
-  elCopyStatus = document.createElement('span');
-  elCopyStatus.className = 'sr-only';
-  elCopyStatus.setAttribute('aria-live', 'polite');
-
   // Copy button: dual icons (clipboard → check on copy)
   copyBtn = createButton('action', { onClick: onCopy });
   copyBtn.classList.add('btn-copy');
@@ -181,7 +160,6 @@ export function initPromptCard() {
       'Open Claude in a new tab with this prompt pre-filled in the chat input',
   });
 
-  actionBar.appendChild(elCopyStatus);
   actionBar.appendChild(copyBtn);
   actionBar.appendChild(promptClaudeBtn);
 

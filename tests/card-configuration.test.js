@@ -94,7 +94,7 @@ describe('PAT field UI (CFG-01)', () => {
   it('show/hide toggle changes input type', () => {
     cardConfig.initConfigurationCard();
     const pat = document.getElementById('cfg-pat');
-    const toggle = document.querySelector('.js-eye-btn');
+    const toggle = document.querySelector('[aria-label="Show token"]');
 
     pat.value = 'tok';
     pat.dispatchEvent(new Event('input'));
@@ -108,7 +108,7 @@ describe('PAT field UI (CFG-01)', () => {
 
   it('eye and clear buttons hidden when PAT empty, shown when filled', () => {
     cardConfig.initConfigurationCard();
-    const eyeBtn = document.querySelector('.js-eye-btn');
+    const eyeBtn = document.querySelector('[aria-label="Show token"]');
     const clearBtn = document.querySelector('[aria-label="Clear token"]');
 
     expect(eyeBtn.hasAttribute('hidden')).toBe(true);
