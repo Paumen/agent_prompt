@@ -41,7 +41,6 @@
   vertical-align: middle;
 }
 
-
 /* ====================================================
    BUTTONS — 5 types
    ============================================== */
@@ -198,7 +197,8 @@
 .input-field:not(:where(.field-picker-search .input-field)):focus-visible {
   outline: 2px solid var(--accent-a);
   outline-offset: 0;
-  box-shadow: 0 0 0 var(--sp-2) color-mix(in srgb, var(--accent-a) 20%, transparent);
+  box-shadow: 0 0 0 var(--sp-2)
+    color-mix(in srgb, var(--accent-a) 20%, transparent);
 }
 
 .input-field--textarea {
@@ -245,7 +245,8 @@
 .field-picker-search:focus-within {
   background: var(--bg-inset);
   border-color: var(--accent-hover);
-  box-shadow: 0 0 0 var(--sp-2) color-mix(in srgb, var(--accent-a) 20%, transparent);
+  box-shadow: 0 0 0 var(--sp-2)
+    color-mix(in srgb, var(--accent-a) 20%, transparent);
 }
 
 .field-picker-dropdown {
@@ -291,6 +292,8 @@
   display: inline-flex;
   gap: var(--sp-2);
   place-items: center;
+  min-width: 0;
+  max-width: 100%;
   padding: var(--sp-2);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
@@ -333,6 +336,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   direction: rtl;
+}
+
+.truncate-end {
+  display: block;
 }
 
 .empty-state {

@@ -306,6 +306,7 @@ function renderFilePills(step) {
       label: '@' + segments[segments.length - 1],
       iconName: fileIconName(filePath),
       title: filePath,
+      textClass: 'truncate-start',
       onRemove: () => onRemoveFileFromStep(step, filePath),
     });
     container.appendChild(tag);
@@ -341,6 +342,7 @@ function renderStepPRPicker(li, step, index) {
     placeholder: 'Search pull requests…',
     searchIconName: 'git-pull-request',
     multiSelect: true,
+    tagTextClass: 'truncate-end',
     onSelect: (item) => onUpdateStepPR(index, item.value),
     onRemove: () => onUpdateStepPR(index, null),
   });
@@ -361,6 +363,7 @@ function renderStepIssuePicker(li, step, index) {
     placeholder: 'Search issues…',
     searchIconName: 'issue-opened',
     multiSelect: true,
+    tagTextClass: 'truncate-end',
     onSelect: (item) =>
       onUpdateStepIssues(index, [...(step.params?.issues || []), item.value]),
     onRemove: (value) =>
