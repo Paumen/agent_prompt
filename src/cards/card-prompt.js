@@ -135,10 +135,6 @@ export function initPromptCard() {
   elPreview = document.createElement('code');
   preEl.appendChild(elPreview);
 
-  // Action bar: positioned top-right inside preview via .prompt-output > .cloud
-  const actionBar = document.createElement('div');
-  actionBar.className = 'cloud';
-
   // Copy button: dual icons (clipboard → check on copy)
   copyBtn = createButton('action', { onClick: onCopy });
   copyBtn.classList.add('btn-copy');
@@ -160,10 +156,13 @@ export function initPromptCard() {
       'Open Claude in a new tab with this prompt pre-filled in the chat input',
   });
 
-  actionBar.appendChild(copyBtn);
-  actionBar.appendChild(promptClaudeBtn);
-
-  preEl.appendChild(actionBar);
+  // Add buttons to card-header, before the card-meta span
+  const cardHeader = document.querySelector('#card-prompt .card-header');
+  const cardMeta = cardHeader?.querySelector('.card-meta');
+  if (cardHeader && cardMeta) {
+    cardHeader.insertBefore(copyBtn, cardMeta);
+    cardHeader.insertBefore(promptClaudeBtn, cardMeta);
+  }
 
   // === Description fields (panel_a + panel_b) ===
   const descRowA = document.createElement('div');
