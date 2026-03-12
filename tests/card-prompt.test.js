@@ -38,15 +38,7 @@ vi.mock('../src/core/state.js', () => ({
   subscribe: vi.fn(() => () => {}),
 }));
 
-vi.mock('../src/logic/quality-meter.js', () => ({
-  renderQualityMeter: vi.fn((container) => {
-    container.className = 'quality-meter';
-    const labelEl = document.createElement('div');
-    labelEl.className = 'quality-meter-label';
-    container.appendChild(labelEl);
-    return { update: vi.fn(), unsubscribe: vi.fn(), labelEl };
-  }),
-}));
+
 
 import { initPromptCard, highlightXml } from '../src/cards/card-prompt.js';
 import { getState, setState, subscribe } from '../src/core/state.js';
@@ -187,16 +179,3 @@ describe('Prompt Claude button', () => {
   });
 });
 
-describe('Quality meter tooltip', () => {
-  it('toggles tooltip on info button click', () => {
-    initPromptCard();
-    const btn = document.querySelector('.meter-info-wrapper .btn-icon');
-    const tooltip = document.querySelector('.meter-tooltip');
-
-    expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(false);
-    btn.click();
-    expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(true);
-    btn.click();
-    expect(tooltip.classList.contains('meter-tooltip--visible')).toBe(false);
-  });
-});
