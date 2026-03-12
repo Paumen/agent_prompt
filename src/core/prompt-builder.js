@@ -34,7 +34,7 @@ export function buildPrompt(state) {
 
   if (includeRepo) {
     lines.push(
-      `    Execute <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> on <branch> ${escapeXml(branch || 'main')} </branch>.`)via bekow 'todo' steps`
+      `    Execute <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> on <branch> ${escapeXml(branch || 'main')} </branch> via below 'todo' steps.`
   } else {
     lines.push(
       `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps.`
