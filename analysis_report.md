@@ -2,21 +2,21 @@
 
 | Metric | Count |
 |--------|-------|
-| CSS classes defined | 48 |
+| CSS classes defined | 46 |
 | Classes used (HTML+JS) | 56 |
 | Unused CSS classes | 0 |
-| Undefined classes | 8 |
+| Undefined classes | 10 |
 | Inline style violations | 0 |
 
 ## Elements Without Classes
 
 | Element | Occurrences | Without Class | Violations |
 |---------|-------------|---------------|------------|
-| `<span>` | 17 | 8 | cards/card-configuration.js:67, cards/card-configuration.js:74, cards/card-configuration.js:94, cards/card-steps.js:136, cards/card-steps.js:236, common/ui.js:358, common/ui.js:451, common/ui.js:560 |
+| `<span>` | 16 | 7 | cards/card-configuration.js:67, cards/card-configuration.js:74, cards/card-configuration.js:94, cards/card-steps.js:136, cards/card-steps.js:236, common/ui.js:245, common/ui.js:295 |
 | `<h3>` | 3 | 3 | index.html:16, index.html:27, index.html:38 |
-| `<small>` | 2 | 2 | common/ui.js:206, common/ui.js:652 |
+| `<small>` | 2 | 2 | common/ui.js:133, common/ui.js:386 |
 | `<template>` | 1 | 1 | common/icons.js:103 |
-| `<label>` | 1 | 1 | common/ui.js:445 |
+| `<label>` | 1 | 1 | common/ui.js:290 |
 
 ## Unused CSS Classes
 
@@ -24,14 +24,16 @@ None detected.
 
 ## Undefined Classes (used but not in CSS)
 
-- `.btn-dismiss` — used at common/ui.js:576
-- `.btn-retry` — used at common/ui.js:569
-- `.error-actions` — used at common/ui.js:565
-- `.error-inline` — used at common/ui.js:557
-- `.guard-hint` — used at cards/card-configuration.js:235, logic/disclosure-controller.js:106
+- `.btn-dismiss` — used at common/ui.js:348
+- `.btn-retry` — used at common/ui.js:341
+- `.error-actions` — used at common/ui.js:337
+- `.error-inline` — used at common/ui.js:332
+- `.guard-hint` — used at cards/card-configuration.js:235
 - `.is-shown` — used at cards/card-configuration.js:264, cards/card-configuration.js:274
 - `.js-eye-btn` — used at cards/card-configuration.js:144
-- `.notification` — used at common/ui.js:600
+- `.notification` — used at common/ui.js:363
+- `.prompt-output--empty` — used at cards/card-prompt.js:54, cards/card-prompt.js:57
+- `.sr-only` — used at cards/card-prompt.js:160
 
 ## Inline Style Violations
 
@@ -146,14 +148,12 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 - `.icon` × 1
 - `.icon-remove` × 1
 - `.input` × 1
-- `.btn-pill--on` × 1
 - `.btn-icon--labeled` × 1
 - `.input-field--textarea` × 1
 - `.field-picker-dropdown` × 1
 - `.field-picker-empty` × 1
 - `.field-picker-item` × 1
 - `.tag` × 1
-- `.shimmer-label` × 1
 - `.shimmer` × 1
 - `.shimmer-bar` × 1
 - `.error-inline` × 1
@@ -167,6 +167,7 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 - `.btn-pill` × 1
 - `.btn-icon` × 1
 - `.tag-text` × 1
+- `.shimmer-label` × 1
 
 ### index.html
 
@@ -174,10 +175,6 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 - `.card-header` × 3
 - `.card-meta` × 3
 - `.card-body` × 3
-
-### logic/disclosure-controller.js
-
-- `.guard-hint` × 1
 
 ## Cross-File Class Map
 
@@ -248,12 +245,6 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 - common/ui.js
 - css/components.css
 - css/layout.css
-
-### `.btn-pill--on` (3 files)
-
-- cards/card-steps.js
-- common/ui.js
-- css/components.css
 
 ### `.btn-select` (3 files)
 
