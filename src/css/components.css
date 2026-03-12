@@ -379,11 +379,6 @@
   color: var(--accent-a);
 }
 
-.guard-hint {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
 :where(.input-field:required):user-valid {
   border-color: var(--accent-a);
 }
