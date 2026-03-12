@@ -526,10 +526,16 @@ function onDeleteStep(stepId) {
 
 function onRemoveFileFromStep(step, filePath) {
   const state = getState();
-  const idx = (state.steps.enabled_steps || []).findIndex((s) => s.id === step.id);
+  const idx = (state.steps.enabled_steps || []).findIndex(
+    (s) => s.id === step.id
+  );
   if (idx === -1) return;
   const currentFiles = state.steps.enabled_steps[idx].params?.files || [];
-  updateStepParam(idx, 'files', currentFiles.filter((f) => f !== filePath));
+  updateStepParam(
+    idx,
+    'files',
+    currentFiles.filter((f) => f !== filePath)
+  );
 }
 
 function onUpdateStepFiles(stepIndex, files) {
