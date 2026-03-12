@@ -69,7 +69,7 @@ body {
 }
 
 .card[data-card-state='locked'] {
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .card[data-card-state='skippable'] {
@@ -86,13 +86,7 @@ body {
 }
 
 [data-card-state='complete'] {
-  opacity: 0.5;
-}
-
-/* D703: Highlight pulse on locked summary click */
-
-:where([data-card-state='locked']) > summary {
-  outline: 2px solid transparent;
+  opacity: 0.6;
 }
 
 /* D602: summary always clickable for expand/collapse (except locked prevents open in JS) */
@@ -103,6 +97,8 @@ body {
 
 /* D603: Focus-within undims sufficient/complete cards for re-editing */
 
+[data-card-state='active']:focus-within,
+[data-card-state='skippable']:focus-within,
 [data-card-state='sufficient']:focus-within,
 [data-card-state='complete']:focus-within {
   opacity: 1;
