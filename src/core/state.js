@@ -1,6 +1,20 @@
+/**
+ * Simplified State Management
+ *
+ * A minimal reactive state store with:
+ * - Direct state access via getState()
+ * - Path-based updates via setState('path.to.value', value)
+ * - Updater function support via setState(state => newState)
+ * - Subscriber notifications (batched via RAF for DOM sync)
+ * - localStorage persistence for credentials
+ * - Automatic prompt rebuilding
+ */
+
 import { buildPrompt } from './prompt-builder.js';
 
-// --- Default state shape (DM canonical model) ---
+// ============================================================================
+// DEFAULT STATE
+// ============================================================================
 
 const CURRENT_VERSION = '1.0';
 
@@ -14,9 +28,7 @@ const DEFAULT_STATE = {
     include_repo: true,
     include_pat: true,
   },
-  task: {
-    flow_id: '',
-  },
+  task: { flow_id: '' },
   panel_a: {
     description: '',
     issue_number: null,
@@ -32,142 +44,57 @@ const DEFAULT_STATE = {
     lenses: [],
   },
   steps: {
-    /**
-     * Array of step objects. Each step may include:
-     * - id, operation, object (required)
-     * - lenses?: string[] — user-toggled lenses
-     * - name_provided?: string — user-entered optional text
-     * - outputs_selected?: string[] — user-selected output modes
-     * - params.files?: string[] — per-step user-selected file paths
-     * - params.issues?: number[] — per-step user-selected issue numbers
-     */
     enabled_steps: [],
     removed_step_ids: [],
   },
   improve_scope: null,
-  notes: {
-    user_text: '',
-  },
-  output: {
-    destination: 'clipboard',
-  },
+  notes: { user_text: '' },
+  output: { destination: 'clipboard' },
 };
 
-// Keys persisted to localStorage (APP-04)
-const PERSISTENT_KEYS = [
-  'configuration.pat',
-  'configuration.owner',
-  'configuration.repo',
-];
-const STORAGE_KEY = 'agent_prompt_state';
+// ============================================================================
+// INTERNALS
+// ============================================================================
 
-// --- Internal state ---
-
-let state = structuredClone(DEFAULT_STATE);
+let state = clone(DEFAULT_STATE);
 let prompt = '';
 const subscribers = new Set();
 
-// --- RAF notification batching (D503) ---
+// Notification batching - ensures DOM updates happen before notifications
+let pendingNotify = false;
 
-let notifyScheduled = false;
+// Persistence config
+const STORAGE_KEY = 'agent_prompt_state';
 
-function scheduleNotify() {
-  if (notifyScheduled) return;
-  notifyScheduled = true;
-  requestAnimationFrame(() => {
-    notifyScheduled = false;
-    const snapshot = getState();
-    for (const listener of subscribers) listener(snapshot);
-  });
-}
-
-// --- Reset cascade map (D501) ---
-
+// Downstream reset map - which state sections to reset when upstream data changes
 const DOWNSTREAM_MAP = {
-  pat: {
-    reset: ['task', 'panels', 'steps'],
-    cards: ['card-tasks', 'card-steps', 'card-prompt'],
-  },
-  owner: {
-    reset: ['task', 'panels', 'steps'],
-    cards: ['card-tasks', 'card-steps', 'card-prompt'],
-  },
-  repo: {
-    reset: ['task', 'panels', 'steps'],
-    cards: ['card-tasks', 'card-steps', 'card-prompt'],
-  },
-  branch: {
-    reset: [], // visual collapse only — step/task data is branch-independent
-    cards: ['card-steps', 'card-prompt'],
-  },
-  flow: {
-    reset: [],
-    cards: ['card-steps', 'card-prompt'],
-  },
+  pat: { reset: ['task', 'panels', 'steps'], cards: ['card-tasks', 'card-steps', 'card-prompt'] },
+  owner: { reset: ['task', 'panels', 'steps'], cards: ['card-tasks', 'card-steps', 'card-prompt'] },
+  repo: { reset: ['task', 'panels', 'steps'], cards: ['card-tasks', 'card-steps', 'card-prompt'] },
+  branch: { reset: [], cards: ['card-steps', 'card-prompt'] },
+  flow: { reset: [], cards: ['card-steps', 'card-prompt'] },
 };
 
-// --- localStorage helpers ---
+// ============================================================================
+// UTILITIES
+// ============================================================================
 
-function loadPersistent() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const saved = JSON.parse(raw);
-    // Guard against corruption: only hydrate known persistent fields
-    if (saved && typeof saved === 'object') {
-      if (typeof saved.pat === 'string') state.configuration.pat = saved.pat;
-      if (typeof saved.owner === 'string')
-        state.configuration.owner = saved.owner;
-      if (typeof saved.repo === 'string') state.configuration.repo = saved.repo;
-    }
-  } catch {
-    // Corrupted localStorage — ignore and use defaults
-    localStorage.removeItem(STORAGE_KEY);
-  }
+/** Deep clone using JSON (simple and reliable for serializable data) */
+function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
 }
 
-function savePersistent() {
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        pat: state.configuration.pat,
-        owner: state.configuration.owner,
-        repo: state.configuration.repo,
-      })
-    );
-  } catch {
-    // Storage full or unavailable — silently ignore
-  }
-}
-
-// --- Safety helpers ---
-
+/** Keys that could pollute prototypes - block these in path-based updates */
 const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
+/** Check if a key is safe to use */
 function isSafeKey(key) {
   return !DANGEROUS_KEYS.has(key);
 }
 
-// --- Path-based state access ---
-
-function setByPath(obj, path, value) {
-  const keys = path.split('.');
-  if (!keys.every(isSafeKey)) return;
-  const last = keys.pop();
-  const target = keys.reduce((o, k) => {
-    if (o[k] === null || o[k] === undefined || typeof o[k] !== 'object')
-      o[k] = {};
-    return o[k];
-  }, obj);
-  target[last] = value;
-}
-
 /**
- * Get a value from state by dot-notation path.
- * Shared helper used by card-tasks.js and quality-meter.js.
- *
- * @param {object} obj - state object
+ * Get a value from an object by dot-notation path.
+ * @param {object} obj - source object
  * @param {string} path - dot-notation path (e.g., 'panel_a.description')
  * @returns {*} value at path, or undefined if not found
  */
@@ -175,58 +102,142 @@ export function getValueByPath(obj, path) {
   return path.split('.').reduce((o, key) => o?.[key], obj);
 }
 
-// --- Public API ---
+/**
+ * Set a value in an object by dot-notation path.
+ * Blocks dangerous keys to prevent prototype pollution.
+ * @param {object} obj - target object
+ * @param {string} path - dot-notation path
+ * @param {*} value - value to set
+ */
+function setByPath(obj, path, value) {
+  const keys = path.split('.');
+  if (!keys.every(isSafeKey)) return; // Block dangerous paths
+  
+  const last = keys.pop();
+  const target = keys.reduce((o, k) => {
+    if (o[k] === null || o[k] === undefined || typeof o[k] !== 'object') {
+      o[k] = {};
+    }
+    return o[k];
+  }, obj);
+  target[last] = value;
+}
+
+/** Load persisted credentials from localStorage */
+function loadPersistent() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (saved && typeof saved === 'object') {
+      if (typeof saved.pat === 'string') state.configuration.pat = saved.pat;
+      if (typeof saved.owner === 'string') state.configuration.owner = saved.owner;
+      if (typeof saved.repo === 'string') state.configuration.repo = saved.repo;
+    }
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+/** Save persisted credentials to localStorage */
+function savePersistent() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      pat: state.configuration.pat,
+      owner: state.configuration.owner,
+      repo: state.configuration.repo,
+    }));
+  } catch {
+    // Storage unavailable - ignore silently
+  }
+}
+
+/** Notify all subscribers with current state */
+function notify() {
+  const snapshot = getState();
+  for (const listener of subscribers) {
+    listener(snapshot);
+  }
+}
+
+/** 
+ * Schedule notification - uses RAF to batch updates, falling back to sync in test env.
+ * This ensures DOM rendering completes before subscribers are notified.
+ */
+function scheduleNotify() {
+  if (pendingNotify) return;
+  pendingNotify = true;
+  
+  // Use RAF for batching in browser, but fallback to sync for tests
+  if (typeof requestAnimationFrame === 'function' && typeof window !== 'undefined') {
+    requestAnimationFrame(() => {
+      pendingNotify = false;
+      notify();
+    });
+  } else {
+    // Test environment - use queueMicrotask for async behavior without RAF
+    queueMicrotask(() => {
+      pendingNotify = false;
+      notify();
+    });
+  }
+}
+
+// ============================================================================
+// PUBLIC API
+// ============================================================================
 
 /**
- * Returns a frozen snapshot of current state plus derived _prompt.
- * DM-INV-01: outputs derived only from current prompt_input.
+ * Get current state snapshot with derived _prompt.
+ * Returns a frozen copy to prevent direct mutation.
  */
 export function getState() {
-  const snapshot = structuredClone(state);
+  const snapshot = clone(state);
   snapshot._prompt = prompt;
   return Object.freeze(snapshot);
 }
 
 /**
- * Update state and trigger prompt rebuild + subscriber notification.
- * DM-INV-02: all mutations go through here, auto-triggering rebuild.
+ * Update state and notify subscribers.
  *
- * @param {string|Function} pathOrUpdater - dot-path string or updater fn
+ * @param {string|Function} pathOrUpdater - dot-path string or updater function
  * @param {*} [value] - value to set (when pathOrUpdater is a string)
+ *
+ * Examples:
+ *   setState('panel_a.description', 'Fix the bug')
+ *   setState(state => ({ ...state, improve_scope: 'each_file' }))
  */
 export function setState(pathOrUpdater, value) {
-  if (typeof pathOrUpdater === 'function') {
-    const updates = pathOrUpdater(structuredClone(state));
-    if (updates && typeof updates === 'object') {
-      Object.assign(state, deepMerge(state, updates));
-    }
-  } else if (typeof pathOrUpdater === 'string') {
+  if (typeof pathOrUpdater === 'string') {
     setByPath(state, pathOrUpdater, value);
+    // Persist if changing a persistent field
+    if (['configuration.pat', 'configuration.owner', 'configuration.repo'].includes(pathOrUpdater)) {
+      savePersistent();
+    }
+  } else if (typeof pathOrUpdater === 'function') {
+    const updates = pathOrUpdater(state);
+    if (updates && typeof updates === 'object') {
+      // Filter out dangerous keys from updater result
+      for (const key of Object.keys(updates)) {
+        if (isSafeKey(key)) {
+          state[key] = updates[key];
+        }
+      }
+    }
+    savePersistent(); // Updater might change persistent fields
   } else {
     return;
   }
 
-  // Rebuild prompt (DM-INV-02)
+  // Rebuild prompt and schedule notification
   prompt = buildPrompt(state);
-
-  // Persist PAT/username if changed
-  if (
-    typeof pathOrUpdater === 'string' &&
-    PERSISTENT_KEYS.includes(pathOrUpdater)
-  ) {
-    savePersistent();
-  } else if (typeof pathOrUpdater === 'function') {
-    // Updater might change persistent fields — always save
-    savePersistent();
-  }
-
-  // Notify subscribers (D503: batched via RAF)
   scheduleNotify();
 }
 
 /**
- * Register a listener called after each setState.
- * Returns an unsubscribe function.
+ * Subscribe to state changes.
+ * @param {Function} listener - called with state snapshot on changes
+ * @returns {Function} unsubscribe function
  */
 export function subscribe(listener) {
   subscribers.add(listener);
@@ -234,12 +245,11 @@ export function subscribe(listener) {
 }
 
 /**
- * Clear session-scoped data, keep PAT + username (APP-04).
- * DM-DEF-03: flow switch resets steps fully.
+ * Reset session state, keeping persistent credentials.
  */
 export function resetSession() {
   const { pat, owner } = state.configuration;
-  state = structuredClone(DEFAULT_STATE);
+  state = clone(DEFAULT_STATE);
   state.configuration.pat = pat;
   state.configuration.owner = owner;
   prompt = buildPrompt(state);
@@ -247,28 +257,18 @@ export function resetSession() {
 }
 
 /**
- * Apply flow defaults to panel_a, panel_b, steps, and improve_scope (DM-DEF-03).
- * Called on flow selection — fully resets user overrides.
+ * Apply flow defaults when selecting a new flow.
+ * Resets panels and steps to defaults, then applies flow-specific settings.
  */
 export function applyFlowDefaults(flowId, flowDef) {
   state.task.flow_id = flowId;
-
-  // Reset panels and steps to defaults (DM-DEF-03)
-  state.panel_a = structuredClone(DEFAULT_STATE.panel_a);
-  state.panel_b = structuredClone(DEFAULT_STATE.panel_b);
+  state.panel_a = clone(DEFAULT_STATE.panel_a);
+  state.panel_b = clone(DEFAULT_STATE.panel_b);
   state.improve_scope = null;
-
-  // Populate enabled_steps from flow definition steps
-  if (Array.isArray(flowDef?.steps)) {
-    state.steps.enabled_steps = structuredClone(flowDef.steps);
-  } else {
-    state.steps.enabled_steps = [];
-  }
-
-  // Clear removed step tracking on flow switch
+  state.steps.enabled_steps = Array.isArray(flowDef?.steps) ? clone(flowDef.steps) : [];
   state.steps.removed_step_ids = [];
 
-  // Apply flow-specific default lenses to panel_b if defined
+  // Apply flow-specific default lenses
   if (flowDef?.panel_b?.fields?.lenses?.default) {
     state.panel_b.lenses = [...flowDef.panel_b.fields.lenses.default];
   }
@@ -278,9 +278,8 @@ export function applyFlowDefaults(flowId, flowDef) {
 }
 
 /**
- * Reset downstream state when upstream data changes (D501).
- * Sets data-card-state="locked" on affected cards (D505).
- * Schedules subscriber notification via RAF (D503).
+ * Reset downstream state when upstream data changes.
+ * Marks affected cards as locked.
  *
  * @param {'pat'|'owner'|'repo'|'branch'|'flow'} from - trigger source
  * @returns {string[]} IDs of affected card elements
@@ -289,21 +288,22 @@ export function resetDownstream(from) {
   const target = DOWNSTREAM_MAP[from];
   if (!target) return [];
 
+  // Reset state sections
   if (target.reset.includes('task')) {
-    state.task = structuredClone(DEFAULT_STATE.task);
+    state.task = clone(DEFAULT_STATE.task);
   }
   if (target.reset.includes('panels')) {
-    state.panel_a = structuredClone(DEFAULT_STATE.panel_a);
-    state.panel_b = structuredClone(DEFAULT_STATE.panel_b);
+    state.panel_a = clone(DEFAULT_STATE.panel_a);
+    state.panel_b = clone(DEFAULT_STATE.panel_b);
   }
   if (target.reset.includes('steps')) {
-    state.steps = structuredClone(DEFAULT_STATE.steps);
+    state.steps = clone(DEFAULT_STATE.steps);
     state.improve_scope = null;
   }
 
   prompt = buildPrompt(state);
 
-  // D505: mark affected cards as locked (D6 will add opacity CSS)
+  // Mark affected cards as locked
   for (const cardId of target.cards) {
     const el = document.getElementById(cardId);
     if (el) el.dataset.cardState = 'locked';
@@ -313,29 +313,9 @@ export function resetDownstream(from) {
   return target.cards;
 }
 
-// --- Deep merge utility ---
-
-function deepMerge(target, source) {
-  const result = structuredClone(target);
-  for (const key of Object.keys(source)) {
-    if (!isSafeKey(key)) continue;
-    if (
-      source[key] &&
-      typeof source[key] === 'object' &&
-      !Array.isArray(source[key]) &&
-      target[key] &&
-      typeof target[key] === 'object' &&
-      !Array.isArray(target[key])
-    ) {
-      result[key] = deepMerge(target[key], source[key]);
-    } else {
-      result[key] = structuredClone(source[key]);
-    }
-  }
-  return result;
-}
-
-// --- Initialization ---
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
 
 loadPersistent();
 prompt = buildPrompt(state);
