@@ -56,6 +56,11 @@ vi.mock('../src/logic/step-generator.js', () => ({
   reconcileSteps: vi.fn((generated) => generated),
 }));
 
+vi.mock('../src/cards/card-configuration.js', () => ({
+  getFileTree: vi.fn(() => []),
+  renderFlowSelector: vi.fn(),
+}));
+
 import { initStepsCard } from '../src/cards/card-steps.js';
 import { getState, setState } from '../src/core/state.js';
 

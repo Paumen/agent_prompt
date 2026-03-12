@@ -156,12 +156,19 @@ export function initPromptCard() {
       'Open Claude in a new tab with this prompt pre-filled in the chat input',
   });
 
-  // Add buttons to card-header, before the card-meta span
+  // Add buttons to card-header; hide unused card-meta
   const cardHeader = document.querySelector('#card-prompt .card-header');
   const cardMeta = cardHeader?.querySelector('.card-meta');
-  if (cardHeader && cardMeta) {
-    cardHeader.insertBefore(copyBtn, cardMeta);
-    cardHeader.insertBefore(promptClaudeBtn, cardMeta);
+  if (cardHeader) {
+    if (cardMeta) cardMeta.hidden = true;
+    cardHeader.insertBefore(
+      copyBtn,
+      cardHeader.querySelector('.icon--chevron')
+    );
+    cardHeader.insertBefore(
+      promptClaudeBtn,
+      cardHeader.querySelector('.icon--chevron')
+    );
   }
 
   // === Description fields (panel_a + panel_b) ===

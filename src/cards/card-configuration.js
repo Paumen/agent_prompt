@@ -83,18 +83,6 @@ export function updateConfigCardMeta() {
     branchSpan.title = branch;
     metaEl.appendChild(branchSpan);
   }
-
-  const flowId = state.task?.flow_id;
-  if (flowId) {
-    const flows = getFlows();
-    const flowDef = flows[flowId];
-    if (flowDef) {
-      if (flowDef.icon) metaEl.appendChild(icon(flowDef.icon, 'icon-btn'));
-      const flowSpan = document.createElement('span');
-      flowSpan.textContent = flowDef.label;
-      metaEl.appendChild(flowSpan);
-    }
-  }
 }
 
 // --- DOM references (set during init) ---
@@ -167,14 +155,11 @@ function renderShell(container) {
   container.appendChild(elPatSection);
   container.appendChild(elRepoSection);
   container.appendChild(elBranchSection);
-
-  // --- Flow selector buttons ---
-  renderFlowSelector(container);
 }
 
 // --- Flow selector ---
 
-function renderFlowSelector(container) {
+export function renderFlowSelector(container, beforeEl = null) {
   elFlowButtons = [];
   const flows = getFlows();
   for (const [flowId, flowDef] of Object.entries(flows)) {
@@ -185,7 +170,11 @@ function renderFlowSelector(container) {
       dataset: { flowId },
     });
     elFlowButtons.push(btn);
-    container.appendChild(btn);
+    if (beforeEl) {
+      container.insertBefore(btn, beforeEl);
+    } else {
+      container.appendChild(btn);
+    }
   }
 }
 

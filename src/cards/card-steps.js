@@ -11,7 +11,7 @@ import { getState, setState, subscribe } from '../core/state.js';
 import { getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { generateSteps, reconcileSteps } from '../logic/step-generator.js';
 import { fileIconName } from '../common/icons.js';
-import { getFileTree } from './card-configuration.js';
+import { getFileTree, renderFlowSelector } from './card-configuration.js';
 import { getCachedIssues, getCachedPRs } from './card-tasks.js';
 import {
   createButton,
@@ -680,7 +680,16 @@ export function initStepsCard() {
   elBody = document.getElementById('bd-steps');
   if (!elBody) return;
 
-  elStepsMeta = document.querySelector('#card-steps .card-meta');
+  // Hide card-meta (step count no longer shown in header)
+  const metaEl = document.querySelector('#card-steps .card-meta');
+  if (metaEl) metaEl.hidden = true;
+  elStepsMeta = null;
+
+  // Render flow selector buttons in the card header (before chevron)
+  const header = document.querySelector('#card-steps .card-header');
+  const chevron = header?.querySelector('.icon--chevron');
+  if (header) renderFlowSelector(header, chevron);
+
   previousStepSnapshot = '';
   expandedSteps.clear();
 
