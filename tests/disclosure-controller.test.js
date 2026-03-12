@@ -296,7 +296,7 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     expect(isOpen('card-tasks')).toBe(true);
     expect(cardState('card-tasks')).toBe('active');
   });
-
+});
   
 
   it('AC 2.2: When flow is selected, Config card becomes complete and collapses', async () => {
