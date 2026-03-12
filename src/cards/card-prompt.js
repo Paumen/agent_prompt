@@ -22,13 +22,6 @@ let copyBtn = null;
 
 // --- XML Syntax Highlighting ---
 
-/**
- * Escape HTML special chars and wrap XML tag patterns in highlight spans.
- * Security: all text-node content is fully escaped before innerHTML injection.
- *
- * @param {string} text - raw prompt text
- * @returns {string} HTML string safe for innerHTML
- */
 export function highlightXml(text) {
   const escaped = text
     .replace(/&/g, '&amp;')
@@ -110,43 +103,7 @@ function onNotesChange(value) {
   setState('notes.user_text', value);
 }
 
-// --- Quality Meter Tooltip ---
 
-function initMeterTooltip(labelEl) {
-  const wrapper = document.createElement('span');
-  wrapper.className = 'meter-info-wrapper';
-
-  const infoBtn = createButton('icon', {
-    ariaLabel: 'How is the quality score calculated?',
-    iconName: 'info',
-    iconClass: 'icon-btn',
-  });
-
-  const tooltip = document.createElement('div');
-  tooltip.role = 'tooltip';
-  tooltip.className = 'meter-tooltip';
-  tooltip.setAttribute('aria-hidden', 'true');
-  tooltip.textContent =
-    'Score reflects how many fields you have filled in for the selected flow. ' +
-    'Adding files, a PR or issue, descriptions, lenses, and notes all raise the score.';
-
-  wrapper.appendChild(infoBtn);
-  wrapper.appendChild(tooltip);
-  labelEl.appendChild(wrapper);
-
-  infoBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isVisible = tooltip.classList.toggle('meter-tooltip--visible');
-    tooltip.setAttribute('aria-hidden', String(!isVisible));
-  });
-
-  document.addEventListener('click', () => {
-    if (tooltip.classList.contains('meter-tooltip--visible')) {
-      tooltip.classList.remove('meter-tooltip--visible');
-      tooltip.setAttribute('aria-hidden', 'true');
-    }
-  });
-}
 
 // --- Initialization ---
 
