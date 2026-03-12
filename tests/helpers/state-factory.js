@@ -44,9 +44,6 @@ export function createMockState(overrides = {}) {
       removed_step_ids: [],
     },
     improve_scope: null,
-    notes: {
-      user_text: '',
-    },
     output: {
       destination: 'clipboard',
     },

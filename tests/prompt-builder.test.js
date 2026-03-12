@@ -259,19 +259,6 @@ describe('prompt-builder.js', () => {
     });
   });
 
-  describe('notes section', () => {
-    it('includes notes when user_text is present, omits when empty', () => {
-      const withNotes = buildPrompt(
-        baseState({ notes: { user_text: 'Be careful' } })
-      );
-      expect(withNotes).toContain('<notes>');
-      expect(withNotes).toContain('Be careful');
-
-      const withoutNotes = buildPrompt(baseState());
-      expect(withoutNotes).not.toContain('<notes>');
-    });
-  });
-
   describe('determinism', () => {
     it('produces identical output for identical input', () => {
       const state = baseState({
@@ -299,7 +286,6 @@ describe('prompt-builder.js', () => {
             branch: 'feat>test',
             pat: '',
           },
-          notes: { user_text: 'Check <xss> & more' },
           steps: {
             enabled_steps: [
               {
@@ -315,7 +301,6 @@ describe('prompt-builder.js', () => {
 
       expect(result).toContain('user&lt;script&gt;');
       expect(result).toContain('repo&amp;name');
-      expect(result).toContain('&lt;xss&gt;');
       expect(result).toContain('&lt;evil&gt;');
       expect(result).not.toContain('<script>');
     });

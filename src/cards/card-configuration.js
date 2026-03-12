@@ -7,7 +7,15 @@
  * Req IDs: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, APP-04
  */
 
-import { getState, setState, resetDownstream } from '../core/state.js';
+import {
+  getState,
+  setState,
+  resetDownstream,
+  applyFlowDefaults,
+  subscribe,
+} from '../core/state.js';
+import { getFlows } from '../logic/flow-loader.js';
+import { prefetchForFlow } from './card-tasks.js';
 import { fetchRepos, fetchBranches, fetchTree } from '../common/github-api.js';
 import { cacheGet, cacheSet, cacheClear } from '../common/cache.js';
 import {
@@ -23,6 +31,10 @@ import {
   createPicker,
   createTag,
 } from '../common/ui.js';
+
+// --- Flow selector state ---
+let currentFlowId = null;
+let elFlowButtons = [];
 
 // --- GL-05: Defer re-render until user is not mid-interaction ---
 
@@ -73,6 +85,18 @@ export function updateConfigCardMeta() {
     branchSpan.textContent = branch;
     branchSpan.title = branch;
     metaEl.appendChild(branchSpan);
+  }
+
+  const flowId = state.task?.flow_id;
+  if (flowId) {
+    const flows = getFlows();
+    const flowDef = flows[flowId];
+    if (flowDef) {
+      if (flowDef.icon) metaEl.appendChild(icon(flowDef.icon, 'icon-btn'));
+      const flowSpan = document.createElement('span');
+      flowSpan.textContent = flowDef.label;
+      metaEl.appendChild(flowSpan);
+    }
   }
 }
 
@@ -154,6 +178,43 @@ function renderShell(container) {
   container.appendChild(elPatSection);
   container.appendChild(elRepoSection);
   container.appendChild(elBranchSection);
+
+  // --- Flow selector buttons ---
+  renderFlowSelector(container);
+}
+
+// --- Flow selector ---
+
+function renderFlowSelector(container) {
+  elFlowButtons = [];
+  const flows = getFlows();
+  for (const [flowId, flowDef] of Object.entries(flows)) {
+    const btn = createButton('select', {
+      label: flowDef.label,
+      iconName: flowDef.icon || undefined,
+      onClick: () => onFlowSelect(flowId, flowDef),
+      dataset: { flowId },
+    });
+    elFlowButtons.push(btn);
+    container.appendChild(btn);
+  }
+}
+
+function onFlowSelect(flowId, flowDef) {
+  if (flowId === currentFlowId) return;
+  currentFlowId = flowId;
+
+  resetDownstream('flow');
+  applyFlowDefaults(flowId, flowDef);
+
+  for (const btn of elFlowButtons) {
+    const isSelected = btn.dataset.flowId === flowId;
+    btn.classList.toggle('btn-select--selected', isSelected);
+    btn.setAttribute('aria-selected', String(isSelected));
+  }
+
+  updateConfigCardMeta();
+  prefetchForFlow(flowDef);
 }
 
 // --- AC 1.1: Disabled placeholder for pickers when credentials are missing ---
@@ -589,6 +650,20 @@ export function initConfigurationCard() {
 
   // Update card-meta with restored state (D203)
   updateConfigCardMeta();
+
+  // Sync flow button selection when state changes externally
+  subscribe((newState) => {
+    const flowId = newState.task?.flow_id || null;
+    if (flowId !== currentFlowId) {
+      currentFlowId = flowId;
+      for (const btn of elFlowButtons) {
+        const isSelected = btn.dataset.flowId === flowId;
+        btn.classList.toggle('btn-select--selected', isSelected);
+        btn.setAttribute('aria-selected', String(isSelected));
+      }
+      updateConfigCardMeta();
+    }
+  });
 
   // Auto-fetch repos on page load if credentials exist (CFG-02)
   if (state.configuration.pat && state.configuration.owner) {

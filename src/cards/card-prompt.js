@@ -1,13 +1,14 @@
 /**
- * Card 4: Prompt Output
+ * Card 3: Prompt Output
  *
  * Live prompt preview, copy to clipboard, deep-link to Claude with prompt
- * pre-filled, optional notes textarea.
+ * pre-filled, dual description textareas (panel_a / panel_b).
  *
  * Req IDs: OUT-01..08
  */
 
 import { getState, setState, subscribe } from '../core/state.js';
+import { getFlowById } from '../logic/flow-loader.js';
 import { renderQualityMeter } from '../logic/quality-meter.js';
 import { icon } from '../common/icons.js';
 import { createButton, createInputField, createLabel } from '../common/ui.js';
@@ -17,8 +18,14 @@ import { createButton, createInputField, createLabel } from '../common/ui.js';
 let elBody = null;
 let elPreview = null;
 let elCopyStatus = null;
-let elNotes = null;
 let copyBtn = null;
+
+// Description field references
+let elDescA = null;
+let elDescB = null;
+let elLabelA = null;
+let elLabelB = null;
+let lastFlowId = null;
 
 // --- XML Syntax Highlighting ---
 
@@ -52,9 +59,39 @@ function renderPromptCard() {
     }
   }
 
-  // Notes: update only when not actively editing (OUT-06)
-  if (elNotes && elNotes !== document.activeElement) {
-    elNotes.value = state.notes?.user_text || '';
+  // Update description values only when not actively editing
+  if (elDescA && elDescA !== document.activeElement) {
+    elDescA.value = state.panel_a?.description || '';
+  }
+  if (elDescB && elDescB !== document.activeElement) {
+    elDescB.value = state.panel_b?.description || '';
+  }
+
+  // Update labels/placeholders when flow changes
+  const flowId = state.task?.flow_id || null;
+  if (flowId !== lastFlowId) {
+    lastFlowId = flowId;
+    updateDescriptionLabels(flowId);
+  }
+}
+
+function updateDescriptionLabels(flowId) {
+  const flowDef = flowId ? getFlowById(flowId) : null;
+
+  if (elLabelA) {
+    elLabelA.textContent = flowDef?.panel_a?.label || 'Situation';
+  }
+  if (elDescA) {
+    elDescA.placeholder =
+      flowDef?.panel_a?.fields?.description?.placeholder || '';
+  }
+
+  if (elLabelB) {
+    elLabelB.textContent = flowDef?.panel_b?.label || 'Target';
+  }
+  if (elDescB) {
+    elDescB.placeholder =
+      flowDef?.panel_b?.fields?.description?.placeholder || '';
   }
 }
 
@@ -99,12 +136,6 @@ function onPromptClaude() {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
-function onNotesChange(value) {
-  setState('notes.user_text', value);
-}
-
-
-
 // --- Initialization ---
 
 export function initPromptCard() {
@@ -116,8 +147,7 @@ export function initPromptCard() {
   if (metaEl) {
     const meterContainer = document.createElement('div');
     metaEl.appendChild(meterContainer);
-    const { labelEl } = renderQualityMeter(meterContainer);
-    if (labelEl) initMeterTooltip(labelEl);
+    renderQualityMeter(meterContainer);
   }
 
   // === Prompt preview ===
@@ -166,24 +196,32 @@ export function initPromptCard() {
 
   preEl.appendChild(actionBar);
 
-  // === Notes section (OUT-06) — uses .input grid layout ===
-  const notesRow = document.createElement('div');
-  notesRow.className = 'input';
-
-  const notesLabel = createLabel('Notes', { htmlFor: 'notes-user-text' });
-  notesRow.appendChild(notesLabel);
-
-  elNotes = createInputField({
+  // === Description fields (panel_a + panel_b) ===
+  const descRowA = document.createElement('div');
+  descRowA.className = 'input';
+  elLabelA = createLabel('Situation');
+  descRowA.appendChild(elLabelA);
+  elDescA = createInputField({
     type: 'textarea',
-    id: 'notes-user-text',
-    placeholder: 'Optional notes appended to your prompt\u2026',
     rows: 3,
-    onInput: () => onNotesChange(elNotes.value),
+    onInput: () => setState('panel_a.description', elDescA.value),
   });
-  notesRow.appendChild(elNotes);
+  descRowA.appendChild(elDescA);
+
+  const descRowB = document.createElement('div');
+  descRowB.className = 'input';
+  elLabelB = createLabel('Target');
+  descRowB.appendChild(elLabelB);
+  elDescB = createInputField({
+    type: 'textarea',
+    rows: 3,
+    onInput: () => setState('panel_b.description', elDescB.value),
+  });
+  descRowB.appendChild(elDescB);
 
   elBody.appendChild(preEl);
-  elBody.appendChild(notesRow);
+  elBody.appendChild(descRowA);
+  elBody.appendChild(descRowB);
 
   // Initial render
   renderPromptCard();

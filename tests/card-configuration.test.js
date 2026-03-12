@@ -36,6 +36,48 @@ beforeEach(async () => {
   localStorage.clear();
   setupConfigurationCard();
   globalThis.fetch = mockFetch([]);
+
+  // Mock flow-loader (YAML import not available in vitest)
+  vi.doMock('../src/logic/flow-loader.js', () => ({
+    getFlows: () => ({
+      fix: {
+        label: 'Debug',
+        icon: 'bug',
+        panel_a: {
+          label: 'Current State',
+          fields: { description: { type: 'text' } },
+        },
+        panel_b: {
+          label: 'Expected Outcome',
+          fields: { description: { type: 'text' } },
+        },
+        steps: [],
+      },
+      review: {
+        label: 'Review',
+        icon: 'code-review',
+        panel_a: { label: 'PR Context', fields: {} },
+        panel_b: { label: 'Review Focus', fields: {} },
+        steps: [],
+      },
+      implement: {
+        label: 'Implement',
+        icon: 'plus',
+        panel_a: { label: 'Requirements', fields: {} },
+        panel_b: { label: 'Constraints', fields: {} },
+        steps: [],
+      },
+      improve: {
+        label: 'Refactor',
+        icon: 'sync',
+        panel_a: { label: 'Current Code', fields: {} },
+        panel_b: { label: 'Goal', fields: {} },
+        steps: [],
+      },
+    }),
+    getFlowById: vi.fn(() => null),
+  }));
+
   state = await import('../src/core/state.js');
   cardConfig = await import('../src/cards/card-configuration.js');
 });

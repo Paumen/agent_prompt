@@ -48,7 +48,6 @@ const DEFAULT_STATE = {
     removed_step_ids: [],
   },
   improve_scope: null,
-  notes: { user_text: '' },
   output: { destination: 'clipboard' },
 };
 
@@ -70,15 +69,15 @@ const STORAGE_KEY = 'agent_prompt_state';
 const DOWNSTREAM_MAP = {
   pat: {
     reset: ['task', 'panels', 'steps'],
-    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+    cards: ['card-steps', 'card-prompt'],
   },
   owner: {
     reset: ['task', 'panels', 'steps'],
-    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+    cards: ['card-steps', 'card-prompt'],
   },
   repo: {
     reset: ['task', 'panels', 'steps'],
-    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+    cards: ['card-steps', 'card-prompt'],
   },
   branch: { reset: [], cards: ['card-steps', 'card-prompt'] },
   flow: { reset: [], cards: ['card-steps', 'card-prompt'] },
