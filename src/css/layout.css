@@ -296,6 +296,13 @@ summary.card-header::-webkit-details-marker {
   grid-column: 3 / -2;
 }
 
+/* Pickers placed directly in a step row fill their column track */
+
+.output-field > .field-picker {
+  min-width: 0;
+  width: 100%;
+}
+
 .output-block {
   display: flex;
   flex-direction: column;

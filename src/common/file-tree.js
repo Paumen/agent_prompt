@@ -93,6 +93,7 @@ export function createFilePicker(container, config) {
         label: path,
         iconName: fileIconName(path),
         title: path,
+        textClass: 'truncate-start',
         onRemove: () => {
           selectedPaths = selectedPaths.filter((p) => p !== path);
           renderTags();
