@@ -46,7 +46,6 @@ function computeCardStates() {
 
     'card-prompt': (() => {
       if (!flowSelected) return 'locked';
-      if (!stepsInteracted) return 'locked';
       return promptHasValue ? 'complete' : 'active';
     })(),
   };
@@ -89,11 +88,6 @@ function applyStates(newStates) {
     'bd-steps',
     newStates['card-steps'],
     'Select a flow to enable steps'
-  );
-  ensureGuardHint(
-    'bd-prompt',
-    newStates['card-prompt'],
-    'Complete steps to continue'
   );
 
   updateNextToFill();
@@ -169,15 +163,17 @@ export function initDisclosureController() {
 
   applyStates(computeCardStates());
 
-  subscribe(() => applyStates(computeCardStates()));
-
-  // Reset interaction flag when flow changes
+  // Reset interaction flag and prevStates when flow changes, then apply new states.
   let lastFlowId = getState().task?.flow_id || '';
   subscribe((snapshot) => {
     const newFlow = snapshot.task?.flow_id || '';
     if (newFlow !== lastFlowId) {
       lastFlowId = newFlow;
       stepsInteracted = false;
+      // Force locked->active transition on flow change to ensure cards expand.
+      prevStates['card-steps'] = 'locked';
+      prevStates['card-prompt'] = 'locked';
     }
+    applyStates(computeCardStates());
   });
 }
