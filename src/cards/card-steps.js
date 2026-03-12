@@ -468,6 +468,17 @@ function createLensPill(lens, activeLenses, stepIndex) {
 
 // --- Event handlers ---
 
+function updateStepParam(stepIndex, paramKey, value) {
+  const state = getState();
+  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+  if (stepIndex < 0 || stepIndex >= steps.length) return;
+  steps[stepIndex] = {
+    ...steps[stepIndex],
+    params: { ...(steps[stepIndex].params || {}), [paramKey]: value },
+  };
+  setState('steps.enabled_steps', steps);
+}
+
 function onRemoveStep0() {
   const state = getState();
   const removedIds = [...(state.steps.removed_step_ids || []), 'step-0'];
@@ -514,54 +525,23 @@ function onDeleteStep(stepId) {
 }
 
 function onRemoveFileFromStep(step, filePath) {
-  // For steps with sources array, update the step's own params.files
   const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
-  const idx = steps.findIndex((s) => s.id === step.id);
+  const idx = (state.steps.enabled_steps || []).findIndex((s) => s.id === step.id);
   if (idx === -1) return;
-
-  const currentFiles = steps[idx].params?.files || [];
-  steps[idx] = {
-    ...steps[idx],
-    params: {
-      ...(steps[idx].params || {}),
-      files: currentFiles.filter((f) => f !== filePath),
-    },
-  };
-  setState('steps.enabled_steps', steps);
+  const currentFiles = state.steps.enabled_steps[idx].params?.files || [];
+  updateStepParam(idx, 'files', currentFiles.filter((f) => f !== filePath));
 }
 
 function onUpdateStepFiles(stepIndex, files) {
-  const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
-  if (stepIndex < 0 || stepIndex >= steps.length) return;
-  steps[stepIndex] = {
-    ...steps[stepIndex],
-    params: { ...(steps[stepIndex].params || {}), files },
-  };
-  setState('steps.enabled_steps', steps);
+  updateStepParam(stepIndex, 'files', files);
 }
 
 function onUpdateStepPR(stepIndex, prNumber) {
-  const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
-  if (stepIndex < 0 || stepIndex >= steps.length) return;
-  steps[stepIndex] = {
-    ...steps[stepIndex],
-    params: { ...(steps[stepIndex].params || {}), pr_number: prNumber },
-  };
-  setState('steps.enabled_steps', steps);
+  updateStepParam(stepIndex, 'pr_number', prNumber);
 }
 
 function onUpdateStepIssues(stepIndex, issues) {
-  const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
-  if (stepIndex < 0 || stepIndex >= steps.length) return;
-  steps[stepIndex] = {
-    ...steps[stepIndex],
-    params: { ...(steps[stepIndex].params || {}), issues },
-  };
-  setState('steps.enabled_steps', steps);
+  updateStepParam(stepIndex, 'issues', issues);
 }
 
 function onToggleLens(stepIndex, lens) {
@@ -630,10 +610,8 @@ function onSelectOutput(stepIndex, mode, btn) {
 function onOptionalTextChange(stepIndex, value) {
   const state = getState();
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
-
   if (stepIndex < 0 || stepIndex >= steps.length) return;
-
-  steps[stepIndex].name_provided = value || undefined;
+  steps[stepIndex] = { ...steps[stepIndex], name_provided: value || undefined };
   setState('steps.enabled_steps', steps);
 }
 
