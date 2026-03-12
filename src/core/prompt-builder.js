@@ -34,9 +34,12 @@ export function buildPrompt(state) {
 
   if (includeRepo) {
     lines.push(
-      `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> on <branch> ${escapeXml(branch || 'main')} </branch>. `
+      `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`
     );
-    
+    lines.push(
+      `    for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository>`
+    );
+    lines.push(`    on <branch> ${escapeXml(branch || 'main')} </branch>.`);
   } else {
     lines.push(
       `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps.`
@@ -46,6 +49,9 @@ export function buildPrompt(state) {
   if (pat && includePat) {
     lines.push(`    Authenticate using PAT: <PAT> ${escapeXml(pat)} </PAT>.`);
   }
+  lines.push(
+    '    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.'
+  );
   lines.push('  </context>');
 
   // Todo section — build step list
@@ -67,7 +73,10 @@ export function buildPrompt(state) {
   for (let i = 0; i < enabledSteps.length; i++) {
     const step = enabledSteps[i];
 
-    
+    // Context step (read claude.md) — rendered as "Read @claude.md"
+    if (step.id === 'context') {
+      lines.push(`    Step ${stepNum}: Read @claude.md`);
+      stepNum++;
       // Insert flow-specific understanding step right after context
       if (taskStepString) {
         lines.push(`    Step ${stepNum}: ${taskStepString}`);
