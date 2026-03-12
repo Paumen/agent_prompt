@@ -41,7 +41,10 @@ export function createButton(type, options = {}) {
     btn.classList.add(isSelect ? 'btn-select--selected' : 'btn-pill--on');
     btn.setAttribute(isSelect ? 'aria-selected' : 'aria-checked', 'true');
   } else if (['select', 'pill'].includes(type)) {
-    btn.setAttribute(type === 'select' ? 'aria-selected' : 'aria-checked', 'false');
+    btn.setAttribute(
+      type === 'select' ? 'aria-selected' : 'aria-checked',
+      'false'
+    );
   }
 
   if (iconName) btn.appendChild(icon(iconName, iconClass));
@@ -49,7 +52,8 @@ export function createButton(type, options = {}) {
 
   if (ariaLabel) btn.setAttribute('aria-label', ariaLabel);
   if (title) btn.title = title;
-  if (dataset) Object.entries(dataset).forEach(([k, v]) => btn.dataset[k] = v);
+  if (dataset)
+    Object.entries(dataset).forEach(([k, v]) => (btn.dataset[k] = v));
   if (onClick) btn.addEventListener('click', onClick);
 
   return btn;
@@ -107,7 +111,7 @@ export function createInputField(options = {}) {
 
 /**
  * @param {object} options
- * @param {*[]} [options.selected=[]] 
+ * @param {*[]} [options.selected=[]]
  * @param {Function} options.onSelect - (item) => void
  */
 export function createPicker(options = {}) {
@@ -175,7 +179,9 @@ export function createPicker(options = {}) {
     if (filtered.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'field-picker-empty';
-      empty.textContent = filter ? (emptyMessages.noMatches || 'No matches') : (emptyMessages.noItems || 'No items available');
+      empty.textContent = filter
+        ? emptyMessages.noMatches || 'No matches'
+        : emptyMessages.noItems || 'No items available';
       dropdown.appendChild(empty);
       return;
     }
@@ -201,13 +207,15 @@ export function createPicker(options = {}) {
     for (const val of selected) {
       const item = items.find((i) => i.value === val);
       const tagLabel = item ? item.label : String(val);
-      tagsContainer.appendChild(createTag({
-        label: tagLabel,
-        title: tagLabel,
-        iconName: iconFn ? iconFn(val) : undefined,
-        textClass: tagTextClass,
-        onRemove: onRemove ? () => onRemove(val) : undefined,
-      }));
+      tagsContainer.appendChild(
+        createTag({
+          label: tagLabel,
+          title: tagLabel,
+          iconName: iconFn ? iconFn(val) : undefined,
+          textClass: tagTextClass,
+          onRemove: onRemove ? () => onRemove(val) : undefined,
+        })
+      );
     }
   }
 
@@ -222,7 +230,8 @@ export function createPicker(options = {}) {
   });
 
   document.addEventListener('click', (e) => {
-    if (!searchRow.contains(e.target)) dropdown.classList.remove('field-picker-dropdown--open');
+    if (!searchRow.contains(e.target))
+      dropdown.classList.remove('field-picker-dropdown--open');
   });
 
   if (multiSelect) renderTags();
@@ -248,15 +257,17 @@ export function createTag(options = {}) {
   tag.appendChild(text);
 
   if (onRemove) {
-    tag.appendChild(createButton('icon', {
-      iconName: 'x',
-      iconClass: 'icon-remove',
-      ariaLabel: `Remove ${label}`,
-      onClick: (e) => {
-        e.stopPropagation();
-        onRemove();
-      },
-    }));
+    tag.appendChild(
+      createButton('icon', {
+        iconName: 'x',
+        iconClass: 'icon-remove',
+        ariaLabel: `Remove ${label}`,
+        onClick: (e) => {
+          e.stopPropagation();
+          onRemove();
+        },
+      })
+    );
   }
 
   return tag;
@@ -280,7 +291,8 @@ export function createMoreLess(options = {}) {
   });
 
   btn._updateLabel = (newActive) => {
-    if (!isExpanded) btn.textContent = `+${hiddenCount} more${newActive ? ` (${newActive})` : ''}`;
+    if (!isExpanded)
+      btn.textContent = `+${hiddenCount} more${newActive ? ` (${newActive})` : ''}`;
   };
 
   return btn;
@@ -302,8 +314,14 @@ export function createLabel(text, { required = false, htmlFor } = {}) {
 
 // --- HELPERS ---
 
-export const expandCard = (id) => { const c = document.getElementById(id); if (c) c.open = true; };
-export const collapseCard = (id) => { const c = document.getElementById(id); if (c) c.open = false; };
+export const expandCard = (id) => {
+  const c = document.getElementById(id);
+  if (c) c.open = true;
+};
+export const collapseCard = (id) => {
+  const c = document.getElementById(id);
+  if (c) c.open = false;
+};
 
 let _isInteracting = false;
 let _interactionTimer = null;
@@ -311,11 +329,15 @@ let _interactionTimer = null;
 export function setInteracting() {
   _isInteracting = true;
   clearTimeout(_interactionTimer);
-  _interactionTimer = setTimeout(() => _isInteracting = false, 2000);
+  _interactionTimer = setTimeout(() => (_isInteracting = false), 2000);
 }
 
 export function isInteracting() {
-  return _isInteracting || (typeof document !== 'undefined' && !!document.activeElement?.matches('input, textarea, select'));
+  return (
+    _isInteracting ||
+    (typeof document !== 'undefined' &&
+      !!document.activeElement?.matches('input, textarea, select'))
+  );
 }
 
 export function renderShimmer(container, label, barCount = 2) {
@@ -333,39 +355,21 @@ export function renderError(container, message, onRetry) {
   el.setAttribute('role', 'alert');
   el.innerHTML = `<span>${message}</span>`;
 
-  const actions = document.createElement('span');
-  actions.className = 'error-actions';
-
   if (onRetry) {
     const retryBtn = document.createElement('button');
     retryBtn.className = 'btn-retry';
     retryBtn.textContent = 'Retry';
     retryBtn.addEventListener('click', onRetry);
-    actions.appendChild(retryBtn);
+    el.appendChild(retryBtn);
   }
 
   const dismissBtn = document.createElement('button');
-  dismissBtn.className = 'btn-dismiss';
-  dismissBtn.textContent = '×';
   dismissBtn.setAttribute('aria-label', 'Dismiss error');
+  dismissBtn.textContent = '×';
   dismissBtn.addEventListener('click', () => el.remove());
-  
-  actions.appendChild(dismissBtn);
-  el.appendChild(actions);
+  el.appendChild(dismissBtn);
+
   container.appendChild(el);
-}
-
-export function showNotification(container, message, type) {
-  const existing = container.querySelector('.notification');
-  if (existing) existing.remove();
-
-  const el = document.createElement('div');
-  el.className = `notification notification--${type}`;
-  el.setAttribute('aria-live', 'polite');
-  el.textContent = message;
-  container.appendChild(el);
-
-  setTimeout(() => el.remove(), 2000);
 }
 
 /**
@@ -374,9 +378,18 @@ export function showNotification(container, message, type) {
  * @param {object} config - { files, selected, onChange }
  */
 export function createFilePicker(container, config) {
-  const { files = [], selected = [], onChange, placeholder = 'Search files\u2026', helperText = '' } = config;
+  const {
+    files = [],
+    selected = [],
+    onChange,
+    placeholder = 'Search files\u2026',
+    helperText = '',
+  } = config;
 
-  const allPaths = files.map((f) => (typeof f === 'string' ? f : f.path)).filter(Boolean).sort();
+  const allPaths = files
+    .map((f) => (typeof f === 'string' ? f : f.path))
+    .filter(Boolean)
+    .sort();
   let selectedPaths = [...selected];
 
   const wrapper = document.createElement('div');
@@ -393,31 +406,35 @@ export function createFilePicker(container, config) {
 
   const renderTags = () => {
     tagsContainer.innerHTML = '';
-    selectedPaths.forEach(path => {
-      tagsContainer.appendChild(createTag({
-        label: path,
-        iconName: fileIconName(path),
-        title: path,
-        textClass: 'truncate-start',
-        onRemove: () => {
-          selectedPaths = selectedPaths.filter((p) => p !== path);
-          renderTags();
-          onChange([...selectedPaths]);
-        },
-      }));
+    selectedPaths.forEach((path) => {
+      tagsContainer.appendChild(
+        createTag({
+          label: path,
+          iconName: fileIconName(path),
+          title: path,
+          textClass: 'truncate-start',
+          onRemove: () => {
+            selectedPaths = selectedPaths.filter((p) => p !== path);
+            renderTags();
+            onChange([...selectedPaths]);
+          },
+        })
+      );
     });
   };
 
-  wrapper.appendChild(createPicker({
-    items: allPaths.map(p => ({ value: p, label: p, title: p })),
-    placeholder,
-    searchIconName: 'file',
-    onSelect: (item) => {
-      selectedPaths = [...selectedPaths, item.value];
-      renderTags();
-      onChange([...selectedPaths]);
-    },
-  }));
+  wrapper.appendChild(
+    createPicker({
+      items: allPaths.map((p) => ({ value: p, label: p, title: p })),
+      placeholder,
+      searchIconName: 'file',
+      onSelect: (item) => {
+        selectedPaths = [...selectedPaths, item.value];
+        renderTags();
+        onChange([...selectedPaths]);
+      },
+    })
+  );
 
   wrapper.appendChild(tagsContainer);
   container.appendChild(wrapper);

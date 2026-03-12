@@ -26,7 +26,6 @@ import {
   createTag,
   renderShimmer,
   renderError,
-  showNotification,
   isInteracting,
 } from '../common/ui.js';
 
@@ -141,16 +140,8 @@ function renderShell(container) {
   elPatInput = elPatSection._inputEl;
 
   elPatToggle = createButton('icon', { ariaLabel: 'Show token' });
-  elPatToggle.classList.add('js-eye-btn');
   elPatToggle.hidden = true;
-  const eyeOn = document.createElement('span');
-  eyeOn.className = 'icon-eye-on';
-  eyeOn.appendChild(icon('eye', 'icon-btn'));
-  const eyeOff = document.createElement('span');
-  eyeOff.className = 'icon-eye-off';
-  eyeOff.appendChild(icon('eye-closed', 'icon-btn'));
-  elPatToggle.appendChild(eyeOn);
-  elPatToggle.appendChild(eyeOff);
+  elPatToggle.appendChild(icon('eye', 'icon-btn'));
   elPatSection.appendChild(elPatToggle);
 
   elPatClear = createButton('icon', {
@@ -224,20 +215,6 @@ function renderDisabledPlaceholder(container, placeholderText) {
   input.disabled = true;
   input.setAttribute('aria-disabled', 'true');
   container.appendChild(input);
-
-  // AC 1.2: Show warning on click when disabled
-  container.addEventListener('click', () => {
-    if (!input.disabled) return;
-    let alert = container.querySelector('[role="alert"]');
-    if (!alert) {
-      alert = document.createElement('span');
-      alert.setAttribute('role', 'alert');
-      alert.className = 'guard-hint';
-      alert.textContent = 'Enter username and PAT first';
-      container.appendChild(alert);
-      setTimeout(() => alert.remove(), 3000);
-    }
-  });
 }
 
 // --- Event handlers ---
@@ -261,7 +238,9 @@ function onPatChange() {
 function onPatToggle() {
   const isPassword = elPatInput.type === 'password';
   elPatInput.type = isPassword ? 'text' : 'password';
-  elPatToggle.classList.toggle('is-shown', isPassword);
+  elPatToggle.replaceChildren(
+    icon(isPassword ? 'eye-closed' : 'eye', 'icon-btn')
+  );
   elPatToggle.setAttribute(
     'aria-label',
     isPassword ? 'Hide token' : 'Show token'
@@ -271,7 +250,7 @@ function onPatToggle() {
 function onPatClear() {
   elPatInput.value = '';
   elPatInput.type = 'password';
-  elPatToggle.classList.remove('is-shown');
+  elPatToggle.replaceChildren(icon('eye', 'icon-btn'));
   elPatToggle.hidden = true;
   elPatClear.hidden = true;
   cacheClear();
@@ -520,17 +499,12 @@ async function loadRepos(owner, pat, isBackground = false) {
     if (changed) {
       deferIfInteracting(() => {
         renderRepoSection(result.data, getState().configuration.repo);
-        showNotification(elRepoSection, 'Updated', 'success');
       });
     }
     return;
   }
 
   renderRepoSection(result.data, getState().configuration.repo);
-
-  if (result.warning) {
-    showNotification(elRepoSection, result.warning, 'info');
-  }
 }
 
 async function loadBranches(owner, repo, pat, defaultBranch) {
@@ -584,7 +558,6 @@ async function loadBranchesBackground(owner, repo, pat, cacheKey, cached) {
     deferIfInteracting(() => {
       const selected = getState().configuration.branch;
       renderBranchSection(result.data, selected);
-      showNotification(elBranchSection, 'Updated', 'success');
     });
   }
 }

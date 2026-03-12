@@ -40,7 +40,6 @@
   color: var(--text-tertiary);
 }
 
-
 /* ============================================================
    OUTPUT FLOAT ANIMATION (step output mode feedback)
    ============================================================ */
@@ -106,4 +105,3 @@
   z-index: var(--z-above);
   width: fit-content;
 }
-

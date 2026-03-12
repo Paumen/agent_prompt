@@ -34,8 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize Card 4: Prompt
   initPromptCard();
-
-
 });
 
 export { initChevrons };

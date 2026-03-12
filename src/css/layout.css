@@ -14,7 +14,7 @@
   box-sizing: border-box;
 }
 
-:is(ol,ul,h5,h4,h3,h2) {
+:is(ol, ul, h5, h4, h3, h2) {
   padding: 0;
   margin: 0;
   list-style: none;
@@ -49,7 +49,6 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
-
 
 .card[data-card-state] {
   transition: opacity 200ms ease;
@@ -144,8 +143,8 @@ body {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-auto-rows: auto;
-  gap: var(--sp-8);  
-  padding: var(--sp-8); 
+  gap: var(--sp-8);
+  padding: var(--sp-8);
 }
 
 .card-body > * {
