@@ -3,68 +3,12 @@
 /**
  * special.css — One-off component styles
  *
- * Quality meter, shimmer/loader, notifications, animations.
+ * Shimmer/loader, notifications, animations.
  * These have unique DOM structures that don't repeat across cards.
  * Goal: keep this file small and shrinking.
  *
  * Import order: variables.css → layout.css → components.css → special.css
  */
-
-/* ============================================================
-   QUALITY METER
-   ============================================================ */
-
-.quality-meter {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  width: 100%;
-  min-width: 0;
-}
-
-.quality-meter-track {
-  height: 4px;
-  overflow: hidden;
-  background: var(--bg-inset);
-  border-radius: var(--radius);
-}
-
-.quality-meter-bar {
-  width: 0%;
-  height: 100%;
-  border-radius: var(--radius);
-  transition:
-    width 0.25s ease,
-    background-color 0.25s ease;
-}
-
-/* Info button (reuses btn-icon pattern) */
-.meter-info-wrapper {
-  position: relative;
-  display: inline-flex;
-  place-items: center;
-}
-
-.meter-tooltip {
-  position: absolute;
-  inset: auto auto calc(100% + var(--sp-4)) 0;
-  z-index: var(--z-dropdown);
-  display: none;
-  min-width: 240px;
-  max-width: 320px;
-  padding: var(--sp-4);
-  font-size: var(--text-sm);
-  line-height: var(--line-height);
-  color: var(--text-primary);
-  background: var(--bg-raised);
-  border: 1px solid var(--text-tertiary);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.meter-tooltip--visible {
-  display: block;
-}
 
 /* ============================================================
    SHIMMER / LOADER
