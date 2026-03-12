@@ -13,7 +13,7 @@
  * it does NOT belong here.
  */
 
-import { icon } from './icons.js';
+import { icon, fileIconName } from './icons.js';
 
 // ============================================================
 // BUTTONS
@@ -528,4 +528,255 @@ export function createSingleSelectPicker(options) {
 
   // Return render function for external updates
   return { render };
+}
+
+// ============================================================
+// CARD EXPAND / COLLAPSE
+// ============================================================
+
+/**
+ * Expand a card by ID.
+ * Sets the native `open` attribute on the <details> element.
+ *
+ * @param {string} id - card element ID (e.g., 'card-steps')
+ */
+export function expandCard(id) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  card.open = true;
+}
+
+/**
+ * Collapse a card by ID.
+ * Removes the native `open` attribute from the <details> element.
+ *
+ * @param {string} id - card element ID (e.g., 'card-configuration')
+ */
+export function collapseCard(id) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  card.open = false;
+}
+
+// ============================================================
+// MID-INTERACTION TRACKING (GL-05)
+// ============================================================
+
+let _isInteracting = false;
+let _interactionTimer = null;
+
+/**
+ * Signal that the user is actively interacting (e.g. toggled a lens or file).
+ * Auto-clears after 2 seconds of inactivity.
+ */
+export function setInteracting() {
+  _isInteracting = true;
+  clearTimeout(_interactionTimer);
+  _interactionTimer = setTimeout(() => {
+    _isInteracting = false;
+  }, 2000);
+}
+
+/**
+ * Returns true if the user is mid-interaction:
+ * - setInteracting() was called within the last 2 seconds, OR
+ * - an input/textarea/select has active focus
+ */
+export function isInteracting() {
+  return (
+    _isInteracting ||
+    (typeof document !== 'undefined' &&
+      !!document.activeElement?.matches('input, textarea, select'))
+  );
+}
+
+// ============================================================
+// SHIMMER / ERROR / NOTIFICATION
+// ============================================================
+
+/**
+ * Render shimmer skeleton bars with contextual label.
+ * Replaces container content.
+ *
+ * @param {HTMLElement} container
+ * @param {string} label - e.g. "Loading repos…"
+ * @param {number} [barCount=2] - number of shimmer bars to show
+ */
+export function renderShimmer(container, label, barCount = 2) {
+  container.innerHTML = '';
+
+  const labelEl = document.createElement('div');
+  labelEl.className = 'shimmer-label';
+  labelEl.textContent = label;
+  container.appendChild(labelEl);
+
+  for (let i = 0; i < barCount; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'shimmer shimmer-bar';
+    container.appendChild(bar);
+  }
+}
+
+/**
+ * Render inline dismissible error message.
+ * Appends to container (does not replace content).
+ *
+ * @param {HTMLElement} container
+ * @param {string} message
+ * @param {Function} [onRetry] - optional retry callback; shows Retry button when provided
+ */
+export function renderError(container, message, onRetry) {
+  const el = document.createElement('div');
+  el.className = 'error-inline';
+  el.setAttribute('role', 'alert');
+
+  const msgSpan = document.createElement('span');
+  msgSpan.textContent = message;
+  el.appendChild(msgSpan);
+
+  const actions = document.createElement('span');
+  actions.className = 'error-actions';
+
+  if (onRetry) {
+    const retryBtn = document.createElement('button');
+    retryBtn.className = 'btn-retry';
+    retryBtn.textContent = 'Retry';
+    retryBtn.addEventListener('click', onRetry);
+    actions.appendChild(retryBtn);
+  }
+
+  const dismissBtn = document.createElement('button');
+  dismissBtn.className = 'btn-dismiss';
+  dismissBtn.textContent = '×';
+  dismissBtn.setAttribute('aria-label', 'Dismiss error');
+  dismissBtn.addEventListener('click', () => el.remove());
+  actions.appendChild(dismissBtn);
+
+  el.appendChild(actions);
+  container.appendChild(el);
+}
+
+/**
+ * Show brief notification that auto-removes after 2 seconds.
+ * Replaces any existing notification in the container.
+ *
+ * @param {HTMLElement} container
+ * @param {string} message
+ * @param {'success'|'error'|'info'} type
+ */
+export function showNotification(container, message, type) {
+  // Remove existing notification in this container
+  const existing = container.querySelector('.notification');
+  if (existing) existing.remove();
+
+  const el = document.createElement('div');
+  el.className = `notification notification--${type}`;
+  el.setAttribute('aria-live', 'polite');
+  el.textContent = message;
+  container.appendChild(el);
+
+  setTimeout(() => el.remove(), 2000);
+}
+
+// ============================================================
+// FILE PICKER (SCT-01, SCT-06)
+// ============================================================
+
+/**
+ * Create a multi-select file picker widget.
+ *
+ * Stateful wrapper around createPicker for file selection.
+ * Uses a flat alphabetical searchable list (per SCT-06).
+ * Files are picked one at a time from a search dropdown.
+ * Selected files are displayed as removable tags below the picker.
+ *
+ * @param {HTMLElement} container - element to render into
+ * @param {object} config
+ * @param {{ path: string }[] | string[]} config.files - available files from getFileTree()
+ * @param {string[]} config.selected - currently selected file paths
+ * @param {Function} config.onChange - called with updated selected paths array
+ * @param {string} [config.placeholder] - search input placeholder text
+ * @param {string} [config.helperText] - tooltip/helper text for spec vs guideline distinction
+ */
+export function createFilePicker(container, config) {
+  const {
+    files = [],
+    selected = [],
+    onChange,
+    placeholder = 'Search files\u2026',
+    helperText = '',
+  } = config;
+
+  // Normalize files: accept both {path} objects and plain strings
+  const allPaths = files
+    .map((f) => (typeof f === 'string' ? f : f.path))
+    .filter(Boolean)
+    .sort();
+
+  // Track selection internally
+  let selectedPaths = [...selected];
+
+  // Build wrapper
+  const wrapper = document.createElement('div');
+  wrapper.className = 'field-picker';
+
+  // Helper text
+  if (helperText) {
+    const helper = document.createElement('small');
+    helper.textContent = helperText;
+    wrapper.appendChild(helper);
+  }
+
+  // Create picker using createPicker (search + dropdown)
+  const pickerItems = allPaths.map((path) => ({
+    value: path,
+    label: path,
+    title: path,
+  }));
+
+  const picker = createPicker({
+    items: pickerItems,
+    placeholder,
+    searchIconName: 'file',
+    emptyMessages: {
+      noItems: 'No files available. Select a repo first.',
+      noMatches: 'No matches',
+    },
+    onSelect: (item) => {
+      selectedPaths = [...selectedPaths, item.value];
+      renderTags();
+      onChange([...selectedPaths]);
+    },
+  });
+
+  wrapper.appendChild(picker);
+
+  // Tags container for selected files
+  const tagsContainer = document.createElement('div');
+  tagsContainer.className = 'cloud';
+  wrapper.appendChild(tagsContainer);
+
+  container.appendChild(wrapper);
+
+  // Render selected files as tags
+  function renderTags() {
+    tagsContainer.innerHTML = '';
+    for (const path of selectedPaths) {
+      const tag = createTag({
+        label: path,
+        iconName: fileIconName(path),
+        title: path,
+        textClass: 'truncate-start',
+        onRemove: () => {
+          selectedPaths = selectedPaths.filter((p) => p !== path);
+          renderTags();
+          onChange([...selectedPaths]);
+        },
+      });
+      tagsContainer.appendChild(tag);
+    }
+  }
+
+  // Initial render
+  renderTags();
 }

@@ -18,18 +18,16 @@ import { getFlows } from '../logic/flow-loader.js';
 import { prefetchForFlow } from './card-tasks.js';
 import { fetchRepos, fetchBranches, fetchTree } from '../common/github-api.js';
 import { cacheGet, cacheSet, cacheClear } from '../common/cache.js';
-import {
-  renderShimmer,
-  renderError,
-  showNotification,
-  isInteracting,
-} from '../common/components.js';
 import { icon } from '../common/icons.js';
 import {
   createButton,
   createInputField,
   createPicker,
   createTag,
+  renderShimmer,
+  renderError,
+  showNotification,
+  isInteracting,
 } from '../common/ui.js';
 
 // --- Flow selector state ---

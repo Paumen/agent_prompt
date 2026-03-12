@@ -10,9 +10,7 @@
 import { getState, setState, subscribe } from '../core/state.js';
 import { getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
 import { generateSteps, reconcileSteps } from '../logic/step-generator.js';
-import { setInteracting } from '../common/components.js';
 import { fileIconName } from '../common/icons.js';
-import { createFilePicker } from '../common/file-tree.js';
 import { getFileTree } from './card-configuration.js';
 import { getCachedIssues, getCachedPRs } from './card-tasks.js';
 import {
@@ -21,6 +19,8 @@ import {
   createTag,
   createInputField,
   createMoreLess,
+  setInteracting,
+  createFilePicker,
 } from '../common/ui.js';
 
 // Show first 7 lenses. Rest behind "more" button.
