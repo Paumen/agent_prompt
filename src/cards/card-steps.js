@@ -468,9 +468,9 @@ function createLensPill(lens, activeLenses, stepIndex) {
 
 // --- Event handlers ---
 
-function updateStepParam(stepIndex, paramKey, value) {
-  const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+function updateStepParam(stepIndex, paramKey, value, state) {
+  const currentState = state || getState();
+  const steps = (currentState.steps.enabled_steps || []).map((s) => ({ ...s }));
   if (stepIndex < 0 || stepIndex >= steps.length) return;
   steps[stepIndex] = {
     ...steps[stepIndex],
