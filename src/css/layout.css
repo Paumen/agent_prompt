@@ -58,16 +58,8 @@ body {
   opacity: 0.7;
 }
 
-.card[data-card-state='skippable'] {
-  opacity: 1;
-}
-
 [data-card-state='active'] {
   border-color: var(--accent-a);
-  opacity: 1;
-}
-
-[data-card-state='sufficient'] {
   opacity: 1;
 }
 
@@ -84,8 +76,6 @@ body {
 /* D603: Focus-within undims sufficient/complete cards for re-editing */
 
 [data-card-state='active']:focus-within,
-[data-card-state='skippable']:focus-within,
-[data-card-state='sufficient']:focus-within,
 [data-card-state='complete']:focus-within {
   opacity: 1;
 }
@@ -121,7 +111,7 @@ body {
 
 .card-header {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr 1fr auto;
   gap: var(--sp-4);
   place-items: center stretch;
   width: 100%;
