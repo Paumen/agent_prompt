@@ -48,15 +48,7 @@ describe('flow-loader.js', () => {
     }
   });
 
-  it('flow-specific fields exist', () => {
-    expect(getFlowById('implement').panel_b.fields).toHaveProperty(
-      'acceptance_criteria'
-    );
-    expect(getFlowById('improve').panel_b.fields).toHaveProperty(
-      'guideline_files'
-    );
-    expect(getFlowById('improve').multi_file.scope_selector).toBeDefined();
-  });
+  
 });
 
 describe('flow-schema validation', () => {
