@@ -1,6 +1,7 @@
 /**
  * Multi-select file picker (SCT-01, SCT-06).
  *
+ * Stateful wrapper around createPicker for file selection.
  * Uses a flat alphabetical searchable list (per SCT-06).
  * Files are picked one at a time from a search dropdown.
  * Selected files are displayed as removable tags below the picker.
@@ -11,7 +12,7 @@
  */
 
 import { fileIconName } from './icons.js';
-import { createTag, createInputField } from './ui.js';
+import { createPicker, createTag } from './ui.js';
 
 /**
  * Create a multi-select file picker widget.
@@ -29,7 +30,7 @@ export function createFilePicker(container, config) {
     files = [],
     selected = [],
     onChange,
-    placeholder = 'Search files…',
+    placeholder = 'Search files\u2026',
     helperText = '',
   } = config;
 
@@ -39,44 +40,52 @@ export function createFilePicker(container, config) {
     .filter(Boolean)
     .sort();
 
-  // Track current selection (copy of initial)
+  // Track selection internally
   let selectedPaths = [...selected];
 
-  // --- Build UI ---
-
+  // Build wrapper
   const wrapper = document.createElement('div');
   wrapper.className = 'field-picker';
 
-  // Helper text (SCT-06: tooltip/helper for spec vs guideline distinction)
+  // Helper text
   if (helperText) {
     const helper = document.createElement('small');
     helper.textContent = helperText;
     wrapper.appendChild(helper);
   }
 
-  // Search input with icon (creates a .field-picker-search wrapper)
-  const searchRow = createInputField({
-    iconName: 'file',
+  // Create picker using createPicker (search + dropdown)
+  const pickerItems = allPaths.map((path) => ({
+    value: path,
+    label: path,
+    title: path,
+  }));
+
+  const picker = createPicker({
+    items: pickerItems,
     placeholder,
-    ariaLabel: placeholder,
+    searchIconName: 'file',
+    emptyMessages: {
+      noItems: 'No files available. Select a repo first.',
+      noMatches: 'No matches',
+    },
+    onSelect: (item) => {
+      selectedPaths = [...selectedPaths, item.value];
+      renderTags();
+      onChange([...selectedPaths]);
+    },
   });
-  const searchInput = searchRow._inputEl;
 
-  // Dropdown list (inside searchRow for CSS positioning)
-  const dropdownList = document.createElement('div');
-  dropdownList.className = 'field-picker-dropdown';
-  searchRow.appendChild(dropdownList);
-  wrapper.appendChild(searchRow);
+  wrapper.appendChild(picker);
 
-  // Selected files tags container
+  // Tags container for selected files
   const tagsContainer = document.createElement('div');
   tagsContainer.className = 'cloud';
   wrapper.appendChild(tagsContainer);
 
   container.appendChild(wrapper);
 
-  // --- Render functions ---
-
+  // Render selected files as tags
   function renderTags() {
     tagsContainer.innerHTML = '';
     for (const path of selectedPaths) {
@@ -93,64 +102,6 @@ export function createFilePicker(container, config) {
       tagsContainer.appendChild(tag);
     }
   }
-
-  function renderDropdown(filter = '') {
-    dropdownList.innerHTML = '';
-    const lower = filter.toLowerCase();
-    const available = allPaths.filter(
-      (p) => p.toLowerCase().includes(lower) && !selectedPaths.includes(p)
-    );
-
-    if (allPaths.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'field-picker-empty';
-      empty.textContent = 'No files available. Select a repo first.';
-      dropdownList.appendChild(empty);
-      return;
-    }
-
-    if (available.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'field-picker-empty';
-      empty.textContent = filter ? 'No matches' : 'All files selected';
-      dropdownList.appendChild(empty);
-      return;
-    }
-
-    for (const path of available) {
-      const item = document.createElement('div');
-      item.className = 'field-picker-item';
-      item.title = path;
-      item.textContent = path;
-      item.addEventListener('click', () => {
-        selectedPaths = [...selectedPaths, path];
-        searchInput.value = '';
-        dropdownList.classList.remove('field-picker-dropdown--open');
-        renderTags();
-        renderDropdown('');
-        onChange([...selectedPaths]);
-      });
-      dropdownList.appendChild(item);
-    }
-  }
-
-  // --- Events ---
-
-  searchInput.addEventListener('focus', () => {
-    renderDropdown(searchInput.value);
-    dropdownList.classList.add('field-picker-dropdown--open');
-  });
-
-  searchInput.addEventListener('input', () => {
-    renderDropdown(searchInput.value);
-    dropdownList.classList.add('field-picker-dropdown--open');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!searchRow.contains(e.target)) {
-      dropdownList.classList.remove('field-picker-dropdown--open');
-    }
-  });
 
   // Initial render
   renderTags();
