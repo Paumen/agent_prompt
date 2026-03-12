@@ -2,11 +2,9 @@
 
 /**
  * special.css — One-off component styles
- *
  * Shimmer/loader, notifications, animations.
  * These have unique DOM structures that don't repeat across cards.
  * Goal: keep this file small and shrinking.
- *
  * Import order: variables.css → layout.css → components.css → special.css
  */
 
@@ -32,8 +30,7 @@
 }
 
 .shimmer-bar {
-  height: var(--sp-8);
-  margin: 0 0 var(--sp-4);
+  height: var(--sp-4);
   border-radius: var(--sp-4);
 }
 
@@ -110,7 +107,3 @@
   width: fit-content;
 }
 
-.prompt-output--empty {
-  font-family: var(--font-body);
-  color: var(--text-tertiary);
-}
