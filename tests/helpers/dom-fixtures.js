@@ -20,13 +20,6 @@ export function setupFullHTML() {
         </summary>
         <div class="card-body" id="bd-configuration"></div>
       </details>
-      <details class="card" id="card-tasks">
-        <summary class="card-header">
-          <h3>Task</h3>
-          <span class="card-meta"></span>
-        </summary>
-        <div class="card-body" id="bd-tasks"></div>
-      </details>
       <details class="card" id="card-steps">
         <summary class="card-header">
           <h3>Steps</h3>
@@ -55,32 +48,7 @@ export function setupConfigurationCard() {
         <summary class="card-header"><h3>Configuration</h3><span class="card-meta"></span></summary>
         <div class="card-body" id="bd-configuration"></div>
       </details>
-      <details class="card" id="card-tasks">
-        <summary class="card-header"><h3>Task</h3><span class="card-meta"></span></summary>
-        <div class="card-body" id="bd-tasks"></div>
-      </details>
     </main>
-  `;
-}
-
-/**
- * Create the tasks card HTML with optional adjacent cards.
- */
-export function setupTasksCard() {
-  document.body.innerHTML = `
-    <details class="card" id="card-configuration">
-      <summary class="card-header"><h3>Configuration</h3><span class="card-meta"></span></summary>
-    </details>
-    <details class="card" id="card-tasks" open>
-      <summary class="card-header"><h3>Task</h3><span class="card-meta"></span></summary>
-      <div class="card-body" id="bd-tasks"></div>
-    </details>
-    <details class="card" id="card-steps">
-      <summary class="card-header"><h3>Steps</h3><span class="card-meta"></span></summary>
-    </details>
-    <details class="card" id="card-prompt">
-      <summary class="card-header"><h3>Prompt</h3><span class="card-meta"></span></summary>
-    </details>
   `;
 }
 

@@ -56,7 +56,6 @@ describe('state.js', () => {
       });
       expect(s.steps).toEqual({ enabled_steps: [], removed_step_ids: [] });
       expect(s.improve_scope).toBe(null);
-      expect(s.notes).toEqual({ user_text: '' });
       expect(s.output).toEqual({ destination: 'clipboard' });
     });
 
@@ -187,7 +186,6 @@ describe('state.js', () => {
       stateModule.setState('configuration.repo', 'my-repo');
       stateModule.setState('configuration.branch', 'main');
       stateModule.setState('task.flow_id', 'fix');
-      stateModule.setState('notes.user_text', 'some notes');
       stateModule.setState('panel_a.files', ['a.js']);
       stateModule.setState('panel_a.description', 'bug description');
       stateModule.setState('panel_b.description', 'expected behavior');
@@ -207,7 +205,6 @@ describe('state.js', () => {
       expect(s.configuration.repo).toBe('');
       expect(s.configuration.branch).toBe('');
       expect(s.task.flow_id).toBe('');
-      expect(s.notes.user_text).toBe('');
       expect(s.panel_a.files).toEqual([]);
       expect(s.panel_a.description).toBe('');
       expect(s.panel_a.issue_number).toBe(null);

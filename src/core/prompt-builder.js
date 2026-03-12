@@ -4,13 +4,12 @@
  *
  * Flow-specific templates per OUT-02 and hybrid-framework-design.md.
  * Each flow produces a <prompt> with <context>, flow-specific <task> section,
- * <todo> step list, and optional <notes>.
+ * and <todo> step list.
  */
 export function buildPrompt(state) {
   if (!state) return '';
 
-  const { configuration, task, panel_a, panel_b, steps, notes, improve_scope } =
-    state;
+  const { configuration, task, panel_a, panel_b, steps, improve_scope } = state;
   const { owner, repo, branch, pat, include_repo, include_pat } =
     configuration || {};
 
@@ -158,14 +157,6 @@ export function buildPrompt(state) {
 
   lines.push('  </todo>');
   lines.push('</prompt>');
-
-  // Notes section (OUT-06)
-  const userNotes = notes?.user_text?.trim();
-  if (userNotes) {
-    lines.push('<notes>');
-    lines.push(`  Critical note: ${escapeXml(userNotes)}`);
-    lines.push('</notes>');
-  }
 
   return lines.join('\n');
 }

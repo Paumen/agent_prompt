@@ -5,9 +5,8 @@
  * Tests UI behaviors specific to prompt card:
  * - XML highlighting
  * - Copy button (success/failure feedback)
- * - Notes textarea behavior
+ * - Description textareas (panel_a / panel_b)
  * - Prompt Claude deep-link
- * - Quality meter tooltip
  *
  * Prompt generation is tested in prompt-builder.test.js and e2e.test.js
  */
@@ -36,9 +35,38 @@ vi.mock('../src/core/state.js', () => ({
   getState: vi.fn(() => structuredClone(mockState)),
   setState: vi.fn(),
   subscribe: vi.fn(() => () => {}),
+  getValueByPath: vi.fn((obj, path) =>
+    path.split('.').reduce((o, k) => o?.[k], obj)
+  ),
 }));
 
-
+vi.mock('../src/logic/flow-loader.js', () => ({
+  getFlowById: vi.fn((flowId) => {
+    if (flowId === 'fix') {
+      return {
+        panel_a: {
+          label: 'Current State',
+          fields: {
+            description: {
+              type: 'text',
+              placeholder: 'Describe the issue...',
+            },
+          },
+        },
+        panel_b: {
+          label: 'Expected Outcome',
+          fields: {
+            description: {
+              type: 'text',
+              placeholder: 'Describe expected behavior...',
+            },
+          },
+        },
+      };
+    }
+    return null;
+  }),
+}));
 
 import { initPromptCard, highlightXml } from '../src/cards/card-prompt.js';
 import { getState, setState, subscribe } from '../src/core/state.js';
@@ -126,19 +154,49 @@ describe('Copy button', () => {
   });
 });
 
-describe('Notes textarea', () => {
-  it('renders textarea populated from state and updates on input', () => {
+describe('Description textareas', () => {
+  it('renders two textareas for panel_a and panel_b descriptions', () => {
+    initPromptCard();
+    const textareas = document.querySelectorAll('textarea');
+    expect(textareas.length).toBe(2);
+  });
+
+  it('updates panel_a.description state on input', () => {
+    initPromptCard();
+    const textareas = document.querySelectorAll('textarea');
+    textareas[0].value = 'bug description';
+    textareas[0].dispatchEvent(new Event('input'));
+    expect(setState).toHaveBeenCalledWith(
+      'panel_a.description',
+      'bug description'
+    );
+  });
+
+  it('updates panel_b.description state on input', () => {
+    initPromptCard();
+    const textareas = document.querySelectorAll('textarea');
+    textareas[1].value = 'expected behavior';
+    textareas[1].dispatchEvent(new Event('input'));
+    expect(setState).toHaveBeenCalledWith(
+      'panel_b.description',
+      'expected behavior'
+    );
+  });
+
+  it('populates textareas from state', () => {
     getState.mockReturnValue(
-      createMockState({ notes: { user_text: 'my note' } })
+      createMockState({
+        task: { flow_id: 'fix' },
+        panel_a: { description: 'existing bug' },
+        panel_b: { description: 'should work' },
+        _prompt: MOCK_PROMPT,
+      })
     );
     initPromptCard();
 
-    const textarea = document.querySelector('textarea');
-    expect(textarea.value).toBe('my note');
-
-    textarea.value = 'updated';
-    textarea.dispatchEvent(new Event('input'));
-    expect(setState).toHaveBeenCalledWith('notes.user_text', 'updated');
+    const textareas = document.querySelectorAll('textarea');
+    expect(textareas[0].value).toBe('existing bug');
+    expect(textareas[1].value).toBe('should work');
   });
 
   it('preserves user input when textarea has focus during state update', () => {
@@ -149,19 +207,23 @@ describe('Notes textarea', () => {
     });
     initPromptCard();
 
-    const textarea = document.querySelector('textarea');
-    textarea.value = 'typing';
+    const textareas = document.querySelectorAll('textarea');
+    textareas[0].value = 'typing';
     Object.defineProperty(document, 'activeElement', {
-      get: () => textarea,
+      get: () => textareas[0],
       configurable: true,
     });
 
     getState.mockReturnValue(
-      createMockState({ notes: { user_text: 'from state' } })
+      createMockState({
+        task: { flow_id: 'fix' },
+        panel_a: { description: 'from state' },
+        _prompt: MOCK_PROMPT,
+      })
     );
     cb();
 
-    expect(textarea.value).toBe('typing');
+    expect(textareas[0].value).toBe('typing');
   });
 });
 
@@ -178,4 +240,3 @@ describe('Prompt Claude button', () => {
     openSpy.mockRestore();
   });
 });
-

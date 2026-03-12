@@ -71,7 +71,7 @@ function createSmartFetch() {
   });
 }
 
-let state, cardConfig, cardTasks, cardSteps, cardPrompt, mainModule;
+let state, cardConfig, cardSteps, cardPrompt, mainModule;
 
 async function initAllModules() {
   vi.resetModules();
@@ -84,9 +84,112 @@ async function initAllModules() {
   vi.spyOn(window, 'open').mockImplementation(() => null);
   globalThis.fetch = createSmartFetch();
 
+  // Mock flow-loader (YAML import not available in vitest)
+  vi.doMock('../src/logic/flow-loader.js', () => ({
+    getFlows: () => ({
+      fix: {
+        label: 'Debug',
+        icon: 'bug',
+        task: 'debug',
+        panel_a: {
+          label: 'Current State',
+          fields: {
+            description: { type: 'text', placeholder: 'Describe the issue...' },
+          },
+        },
+        panel_b: {
+          label: 'Expected Outcome',
+          fields: {
+            description: {
+              type: 'text',
+              placeholder: 'Describe expected behavior...',
+            },
+          },
+        },
+        steps: [
+          {
+            id: 's1',
+            label: 'Step 1',
+            template: 'Step 1: Read @claude.md',
+            operation: 'read',
+            object: 'claude_md',
+          },
+        ],
+      },
+      review: {
+        label: 'Review',
+        icon: 'code-review',
+        task: 'review',
+        panel_a: { label: 'PR Context', fields: {} },
+        panel_b: { label: 'Review Focus', fields: {} },
+        steps: [
+          {
+            id: 's1',
+            label: 'Step 1',
+            template: 'Step 1: Check PR',
+            operation: 'check',
+            object: 'pull_request',
+          },
+        ],
+      },
+    }),
+    getFlowById: vi.fn((id) => {
+      const flows = {
+        fix: {
+          label: 'Debug',
+          icon: 'bug',
+          task: 'debug',
+          panel_a: {
+            label: 'Current State',
+            fields: {
+              description: {
+                type: 'text',
+                placeholder: 'Describe the issue...',
+              },
+            },
+          },
+          panel_b: {
+            label: 'Expected Outcome',
+            fields: {
+              description: {
+                type: 'text',
+                placeholder: 'Describe expected behavior...',
+              },
+            },
+          },
+          steps: [
+            {
+              id: 's1',
+              label: 'Step 1',
+              template: 'Step 1: Read @claude.md',
+              operation: 'read',
+              object: 'claude_md',
+            },
+          ],
+        },
+        review: {
+          label: 'Review',
+          icon: 'code-review',
+          task: 'review',
+          panel_a: { label: 'PR Context', fields: {} },
+          panel_b: { label: 'Review Focus', fields: {} },
+          steps: [
+            {
+              id: 's1',
+              label: 'Step 1',
+              template: 'Step 1: Check PR',
+              operation: 'check',
+              object: 'pull_request',
+            },
+          ],
+        },
+      };
+      return flows[id] || null;
+    }),
+  }));
+
   state = await import('../src/core/state.js');
   cardConfig = await import('../src/cards/card-configuration.js');
-  cardTasks = await import('../src/cards/card-tasks.js');
   cardSteps = await import('../src/cards/card-steps.js');
   cardPrompt = await import('../src/cards/card-prompt.js');
   mainModule = await import('../src/common/main.js');
@@ -127,23 +230,18 @@ describe('E2E: Complete User Journey', () => {
     vi.restoreAllMocks();
   });
 
-  it('produces valid prompt for Fix flow with issue', async () => {
+  it('produces valid prompt for Fix flow with description', async () => {
     mainModule.initChevrons();
-    cardTasks.initTasksCard();
     cardSteps.initStepsCard();
     cardPrompt.initPromptCard();
     await setupRepoAndBranch();
 
-    // Select Fix flow
+    // Select Fix flow (now in config card)
     document.querySelector('.btn-select[data-flow-id="fix"]').click();
     await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
 
-    // Fill description
-    const textarea = document.querySelector(
-      '#bd-tasks .card .input-field--textarea'
-    );
-    textarea.value = 'Login crashes when clicking submit';
-    textarea.dispatchEvent(new Event('input'));
+    // Fill description via state (descriptions now on prompt card)
+    state.setState('panel_a.description', 'Login crashes when clicking submit');
 
     // Verify prompt structure
     const prompt = state.getState()._prompt;
@@ -154,32 +252,6 @@ describe('E2E: Complete User Journey', () => {
     expect(prompt).toContain('Login crashes when clicking submit');
     expect(prompt).toContain('<todo>');
     expect(prompt).toContain('Step 1:');
-  });
-
-  it('step deletion updates prompt', async () => {
-    mainModule.initChevrons();
-    cardTasks.initTasksCard();
-    cardSteps.initStepsCard();
-    cardPrompt.initPromptCard();
-    await setupRepoAndBranch();
-
-    document.querySelector('.btn-select[data-flow-id="fix"]').click();
-    await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
-
-    const textarea = document.querySelector(
-      '#bd-tasks .card .input-field--textarea'
-    );
-    textarea.value = 'Bug description';
-    textarea.dispatchEvent(new Event('input'));
-
-    await vi.waitFor(() => {
-      expect(document.querySelectorAll('.output-field').length).toBeGreaterThan(
-        0
-      );
-    });
-
-    const promptBefore = state.getState()._prompt;
-    document.querySelector('.btn-icon[aria-label^="Remove step"]').click();
   });
 });
 
@@ -197,7 +269,6 @@ describe('E2E: Flow Switch Reset (DM-DEF-03)', () => {
 
   it('switching flow resets panel_a, panel_b, steps but preserves config', async () => {
     mainModule.initChevrons();
-    cardTasks.initTasksCard();
     cardSteps.initStepsCard();
     cardPrompt.initPromptCard();
     await setupRepoAndBranch();
@@ -254,7 +325,6 @@ describe('E2E: Prompt Determinism (TST-01)', () => {
       buildPrompt(structuredClone(fixedState))
     );
 
-    // All runs must produce identical output
     for (let i = 1; i < results.length; i++) {
       expect(results[i]).toBe(results[0]);
     }
