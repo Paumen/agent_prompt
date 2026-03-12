@@ -195,6 +195,7 @@ export function createPicker(options = {}) {
     helperText = '',
     emptyMessages = {},
     container: renderContainer,
+    tagTextClass,
   } = options;
 
   const container = document.createElement('div');
@@ -290,6 +291,7 @@ export function createPicker(options = {}) {
         label: tagLabel,
         title: tagLabel,
         iconName: iconFn ? iconFn(val) : undefined,
+        textClass: tagTextClass,
         onRemove: onRemove
           ? () => {
               onRemove(val);
@@ -343,7 +345,7 @@ export function createPicker(options = {}) {
  * @returns {HTMLElement}
  */
 export function createTag(options = {}) {
-  const { label, iconName, onRemove, title } = options;
+  const { label, iconName, onRemove, title, textClass } = options;
 
   const tag = document.createElement('span');
   tag.className = 'tag';
@@ -354,7 +356,7 @@ export function createTag(options = {}) {
   }
 
   const text = document.createElement('span');
-  text.className = 'tag-text';
+  text.className = textClass ? `tag-text ${textClass}` : 'tag-text';
   text.textContent = label;
   tag.appendChild(text);
 
