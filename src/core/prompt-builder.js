@@ -1,10 +1,6 @@
 /**
  * Pure function: prompt_input → structured XML prompt string.
  * DM-INV-03: identical input always produces identical output (deterministic).
- *
- * Flow-specific templates per OUT-02 and hybrid-framework-design.md.
- * Each flow produces a <prompt> with <context>, flow-specific <task> section,
- * <todo> step list, and optional <notes>.
  */
 export function buildPrompt(state) {
   if (!state) return '';
@@ -31,27 +27,14 @@ export function buildPrompt(state) {
   // Spec uses task="debug" for fix flow, other flows match their flow ID
   const taskId = TASK_IDS[flowId] || flowId || 'task';
 
-  let contextLine =
-    '  <context>    Please help <task="' +
-    escapeXml(taskId) +
-    '"> ' +
-    escapeXml(flowLabel) +
-    " </task> by executing below 'todo' steps";
+  let contextLine = `  <context>    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`;
   if (includeRepo) {
-    contextLine +=
-      ' for <repository> https://github.com/' +
-      escapeXml(owner) +
-      '/' +
-      escapeXml(repo) +
-      ' </repository> on <branch> ' +
-      escapeXml(branch || 'main') +
-      ' </branch>.';
+    contextLine += ` for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> on <branch> ${escapeXml(branch || 'main')} </branch>.`;
   } else {
     contextLine += '.';
   }
   if (pat && includePat) {
-    contextLine +=
-      ' Authenticate using PAT: <PAT> ' + escapeXml(pat) + ' </PAT>.';
+    contextLine += ` Authenticate using PAT: <PAT> ${escapeXml(pat)} </PAT>.`;
   }
   contextLine += '  </context>';
   lines.push(contextLine);
@@ -406,9 +389,6 @@ function buildFeedbackStep(flowId, enabledSteps) {
     case 'fix':
       return [
         'Provide concise feedback to HUMAN (me) here (in this interface) include:',
-        '              - Your understanding of the issue in one sentence.',
-        '              - The root cause you identified.',
-        '              - The action you took: create branch (incl name and link), implemented fix by editing files (incl file names), ran tests (incl which ones), verified issue is solved, committed PR (incl PR name and link)',
       ].join('\n');
     case 'review':
       return buildReviewFeedback(
@@ -421,18 +401,10 @@ function buildFeedbackStep(flowId, enabledSteps) {
     case 'implement':
       return [
         'Provide concise feedback to HUMAN (me) here (in this interface) include:',
-        '              - Summary of what you implemented in one sentence.',
-        '              - Files created or modified with brief description of changes.',
-        '              - Tests run and results.',
-        '              - PR link.',
       ].join('\n');
     case 'improve':
       return [
         'Provide concise feedback to HUMAN (me) here (in this interface) include:',
-        '              - Summary of improvements made, one sentence each improvement type.',
-        '              - Files modified with brief description of changes.',
-        '              - How the improvements address the desired outcome.',
-        '              - PR link.',
       ].join('\n');
     default:
       return null;
