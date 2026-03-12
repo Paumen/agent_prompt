@@ -47,8 +47,6 @@ describe('flow-loader.js', () => {
       }
     }
   });
-
-  
 });
 
 describe('flow-schema validation', () => {

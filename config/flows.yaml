@@ -176,7 +176,7 @@ flows:
       - *step_plan
       - id: edit
         operation: create
-        object: code 
+        object: code
         file_name: optional_text
       - *step_test
       - *step_commit

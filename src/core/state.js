@@ -68,9 +68,18 @@ const STORAGE_KEY = 'agent_prompt_state';
 
 // Downstream reset map - which state sections to reset when upstream data changes
 const DOWNSTREAM_MAP = {
-  pat: { reset: ['task', 'panels', 'steps'], cards: ['card-tasks', 'card-steps', 'card-prompt'] },
-  owner: { reset: ['task', 'panels', 'steps'], cards: ['card-tasks', 'card-steps', 'card-prompt'] },
-  repo: { reset: ['task', 'panels', 'steps'], cards: ['card-tasks', 'card-steps', 'card-prompt'] },
+  pat: {
+    reset: ['task', 'panels', 'steps'],
+    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+  },
+  owner: {
+    reset: ['task', 'panels', 'steps'],
+    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+  },
+  repo: {
+    reset: ['task', 'panels', 'steps'],
+    cards: ['card-tasks', 'card-steps', 'card-prompt'],
+  },
   branch: { reset: [], cards: ['card-steps', 'card-prompt'] },
   flow: { reset: [], cards: ['card-steps', 'card-prompt'] },
 };
@@ -112,7 +121,7 @@ export function getValueByPath(obj, path) {
 function setByPath(obj, path, value) {
   const keys = path.split('.');
   if (!keys.every(isSafeKey)) return; // Block dangerous paths
-  
+
   const last = keys.pop();
   const target = keys.reduce((o, k) => {
     if (o[k] === null || o[k] === undefined || typeof o[k] !== 'object') {
@@ -131,7 +140,8 @@ function loadPersistent() {
     const saved = JSON.parse(raw);
     if (saved && typeof saved === 'object') {
       if (typeof saved.pat === 'string') state.configuration.pat = saved.pat;
-      if (typeof saved.owner === 'string') state.configuration.owner = saved.owner;
+      if (typeof saved.owner === 'string')
+        state.configuration.owner = saved.owner;
       if (typeof saved.repo === 'string') state.configuration.repo = saved.repo;
     }
   } catch {
@@ -142,11 +152,14 @@ function loadPersistent() {
 /** Save persisted credentials to localStorage */
 function savePersistent() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      pat: state.configuration.pat,
-      owner: state.configuration.owner,
-      repo: state.configuration.repo,
-    }));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        pat: state.configuration.pat,
+        owner: state.configuration.owner,
+        repo: state.configuration.repo,
+      })
+    );
   } catch {
     // Storage unavailable - ignore silently
   }
@@ -160,16 +173,19 @@ function notify() {
   }
 }
 
-/** 
+/**
  * Schedule notification - uses RAF to batch updates, falling back to sync in test env.
  * This ensures DOM rendering completes before subscribers are notified.
  */
 function scheduleNotify() {
   if (pendingNotify) return;
   pendingNotify = true;
-  
+
   // Use RAF for batching in browser, but fallback to sync for tests
-  if (typeof requestAnimationFrame === 'function' && typeof window !== 'undefined') {
+  if (
+    typeof requestAnimationFrame === 'function' &&
+    typeof window !== 'undefined'
+  ) {
     requestAnimationFrame(() => {
       pendingNotify = false;
       notify();
@@ -211,7 +227,13 @@ export function setState(pathOrUpdater, value) {
   if (typeof pathOrUpdater === 'string') {
     setByPath(state, pathOrUpdater, value);
     // Persist if changing a persistent field
-    if (['configuration.pat', 'configuration.owner', 'configuration.repo'].includes(pathOrUpdater)) {
+    if (
+      [
+        'configuration.pat',
+        'configuration.owner',
+        'configuration.repo',
+      ].includes(pathOrUpdater)
+    ) {
       savePersistent();
     }
   } else if (typeof pathOrUpdater === 'function') {
@@ -265,7 +287,9 @@ export function applyFlowDefaults(flowId, flowDef) {
   state.panel_a = clone(DEFAULT_STATE.panel_a);
   state.panel_b = clone(DEFAULT_STATE.panel_b);
   state.improve_scope = null;
-  state.steps.enabled_steps = Array.isArray(flowDef?.steps) ? clone(flowDef.steps) : [];
+  state.steps.enabled_steps = Array.isArray(flowDef?.steps)
+    ? clone(flowDef.steps)
+    : [];
   state.steps.removed_step_ids = [];
 
   // Apply flow-specific default lenses
