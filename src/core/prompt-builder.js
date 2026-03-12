@@ -27,32 +27,34 @@ export function buildPrompt(state) {
   lines.push('<prompt>');
 
   // Context section — same across all flows
-  lines.push('  <context>');
   const flowLabel = FLOW_LABELS[flowId] || flowId || 'task';
   // Spec uses task="debug" for fix flow, other flows match their flow ID
   const taskId = TASK_IDS[flowId] || flowId || 'task';
 
+  let contextLine =
+    '  <context>    Please help <task="' +
+    escapeXml(taskId) +
+    '"> ' +
+    escapeXml(flowLabel) +
+    " </task> by executing below 'todo' steps";
   if (includeRepo) {
-    lines.push(
-      `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`
-    );
-    lines.push(
-      `    for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository>`
-    );
-    lines.push(`    on <branch> ${escapeXml(branch || 'main')} </branch>.`);
+    contextLine +=
+      ' for <repository> https://github.com/' +
+      escapeXml(owner) +
+      '/' +
+      escapeXml(repo) +
+      ' </repository> on <branch> ' +
+      escapeXml(branch || 'main') +
+      ' </branch>.';
   } else {
-    lines.push(
-      `    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps.`
-    );
+    contextLine += '.';
   }
-
   if (pat && includePat) {
-    lines.push(`    Authenticate using PAT: <PAT> ${escapeXml(pat)} </PAT>.`);
+    contextLine +=
+      ' Authenticate using PAT: <PAT> ' + escapeXml(pat) + ' </PAT>.';
   }
-  lines.push(
-    '    Please provide one sentence feedback to HUMAN (me) here (in this interface) after each step (except step 1), and proceed to next step.'
-  );
-  lines.push('  </context>');
+  contextLine += '  </context>';
+  lines.push(contextLine);
 
   // Todo section — build step list
   lines.push('  <todo>');
@@ -60,8 +62,8 @@ export function buildPrompt(state) {
   let stepNum = 1;
   const enabledSteps = steps?.enabled_steps || [];
   const taskStepString = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
-  
-  const contextIndex = enabledSteps.findIndex(s => s.id === 'context');
+
+  const contextIndex = enabledSteps.findIndex((s) => s.id === 'context');
   const taskStepInsertionPoint = contextIndex >= 0 ? contextIndex : -1;
 
   // If no context step exists, insert understanding step before the first regular step
@@ -175,13 +177,13 @@ const TASK_IDS = {
 function buildTaskStep(flowId, panelA, panelB, improveScope) {
   switch (flowId) {
     case 'fix':
-      return buildFixTaskStep(panelA, panelB) + '\n' + getAmbiguityWarning('the issue');
+      return buildFixTaskStep(panelA, panelB);
     case 'review':
-      return buildReviewTaskStep(panelA, panelB) + '\n' + getAmbiguityWarning('what to review or the criteria');
+      return buildReviewTaskStep(panelA, panelB);
     case 'implement':
-      return buildImplementTaskStep(panelA, panelB) + '\n' + getAmbiguityWarning('what to build');
+      return buildImplementTaskStep(panelA, panelB);
     case 'improve':
-      return buildImproveTaskStep(panelA, panelB, improveScope) + '\n' + getAmbiguityWarning('what improvements to make');
+      return buildImproveTaskStep(panelA, panelB, improveScope);
     default:
       return buildGenericTaskStep(panelA, panelB);
   }
@@ -193,16 +195,34 @@ function buildFixTaskStep(panelA, panelB) {
   ];
 
   const panelASection = buildPanelSection('undesired_behavior', panelA, [
-    { condition: panelA?.description, text: `Undesired behavior observed by user is: ${escapeXml(panelA.description)}.` },
-    { condition: panelA?.issue_number, text: `Attempt to learn more regarding the undesired behavior by reading issue #${escapeXml(String(panelA.issue_number))}.` },
-    { condition: panelA?.files?.length > 0, text: `Attempt to learn more regarding the undesired behavior by reading files ${formatFileList(panelA.files)}.` }
+    {
+      condition: panelA?.description,
+      text: `Undesired behavior observed by user is: ${escapeXml(panelA.description)}.`,
+    },
+    {
+      condition: panelA?.issue_number,
+      text: `Attempt to learn more regarding the undesired behavior by reading issue #${escapeXml(String(panelA.issue_number))}.`,
+    },
+    {
+      condition: panelA?.files?.length > 0,
+      text: `Attempt to learn more regarding the undesired behavior by reading files ${formatFileList(panelA.files)}.`,
+    },
   ]);
   if (panelASection) parts.push(panelASection);
 
   const panelBSection = buildPanelSection('expected_behavior', panelB, [
-    { condition: panelB?.description, text: `Expected behavior after the fix: ${escapeXml(panelB.description)}.` },
-    { condition: panelB?.spec_files?.length > 0, text: `Reference specifications: ${formatFileList(panelB.spec_files)}.` },
-    { condition: panelB?.guideline_files?.length > 0, text: `Follow guidelines: ${formatFileList(panelB.guideline_files)}.` }
+    {
+      condition: panelB?.description,
+      text: `Expected behavior after the fix: ${escapeXml(panelB.description)}.`,
+    },
+    {
+      condition: panelB?.spec_files?.length > 0,
+      text: `Reference specifications: ${formatFileList(panelB.spec_files)}.`,
+    },
+    {
+      condition: panelB?.guideline_files?.length > 0,
+      text: `Follow guidelines: ${formatFileList(panelB.guideline_files)}.`,
+    },
   ]);
   if (panelBSection) parts.push(panelBSection);
 
@@ -215,16 +235,34 @@ function buildReviewTaskStep(panelA, panelB) {
   ];
 
   const panelASection = buildPanelSection('review_subject', panelA, [
-    { condition: panelA?.pr_number, text: `Review PR #${escapeXml(String(panelA.pr_number))}. Fetch and examine the PR diff.` },
-    { condition: panelA?.files?.length > 0, text: `Review files: ${formatFileList(panelA.files)}. Read and examine each file.` },
-    { condition: panelA?.description, text: `Context provided by user: ${escapeXml(panelA.description)}.` }
+    {
+      condition: panelA?.pr_number,
+      text: `Review PR #${escapeXml(String(panelA.pr_number))}. Fetch and examine the PR diff.`,
+    },
+    {
+      condition: panelA?.files?.length > 0,
+      text: `Review files: ${formatFileList(panelA.files)}. Read and examine each file.`,
+    },
+    {
+      condition: panelA?.description,
+      text: `Context provided by user: ${escapeXml(panelA.description)}.`,
+    },
   ]);
   if (panelASection) parts.push(panelASection);
 
   const panelBSection = buildPanelSection('review_criteria', panelB, [
-    { condition: panelB?.lenses?.length > 0, text: `Focus on: [${(panelB.lenses || []).map(escapeXml).join(', ')}].` },
-    { condition: panelB?.spec_files?.length > 0, text: `Evaluate against specifications: ${formatFileList(panelB.spec_files)}.` },
-    { condition: panelB?.guideline_files?.length > 0, text: `Evaluate against guidelines: ${formatFileList(panelB.guideline_files)}.` }
+    {
+      condition: panelB?.lenses?.length > 0,
+      text: `Focus on: [${(panelB.lenses || []).map(escapeXml).join(', ')}].`,
+    },
+    {
+      condition: panelB?.spec_files?.length > 0,
+      text: `Evaluate against specifications: ${formatFileList(panelB.spec_files)}.`,
+    },
+    {
+      condition: panelB?.guideline_files?.length > 0,
+      text: `Evaluate against guidelines: ${formatFileList(panelB.guideline_files)}.`,
+    },
   ]);
   if (panelBSection) parts.push(panelBSection);
 
@@ -237,15 +275,30 @@ function buildImplementTaskStep(panelA, panelB) {
   ];
 
   const panelASection = buildPanelSection('existing_context', panelA, [
-    { condition: panelA?.description, text: `Context provided by user: ${escapeXml(panelA.description)}.` },
-    { condition: panelA?.files?.length > 0, text: `Build upon existing files: ${formatFileList(panelA.files)}.` }
+    {
+      condition: panelA?.description,
+      text: `Context provided by user: ${escapeXml(panelA.description)}.`,
+    },
+    {
+      condition: panelA?.files?.length > 0,
+      text: `Build upon existing files: ${formatFileList(panelA.files)}.`,
+    },
   ]);
   if (panelASection) parts.push(panelASection);
 
   const panelBSection = buildPanelSection('requirements', panelB, [
-    { condition: panelB?.description, text: `${escapeXml(panelB.description)}` },
-    { condition: panelB?.spec_files?.length > 0, text: `Specifications to follow: ${formatFileList(panelB.spec_files)}.` },
-    { condition: panelB?.acceptance_criteria, text: `Acceptance criteria: ${escapeXml(panelB.acceptance_criteria)}.` }
+    {
+      condition: panelB?.description,
+      text: `${escapeXml(panelB.description)}`,
+    },
+    {
+      condition: panelB?.spec_files?.length > 0,
+      text: `Specifications to follow: ${formatFileList(panelB.spec_files)}.`,
+    },
+    {
+      condition: panelB?.acceptance_criteria,
+      text: `Acceptance criteria: ${escapeXml(panelB.acceptance_criteria)}.`,
+    },
   ]);
   if (panelBSection) parts.push(panelBSection);
 
@@ -258,24 +311,49 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
   ];
 
   const panelASection = buildPanelSection('current_state', panelA, [
-    { condition: panelA?.description, text: `${escapeXml(panelA.description)}` },
-    { condition: panelA?.issue_number, text: `Related issue describing current state: #${escapeXml(String(panelA.issue_number))}. Read this issue for context.` },
-    { condition: panelA?.files?.length > 0, text: `Files to improve: ${formatFileList(panelA.files)}.` }
+    {
+      condition: panelA?.description,
+      text: `${escapeXml(panelA.description)}`,
+    },
+    {
+      condition: panelA?.issue_number,
+      text: `Related issue describing current state: #${escapeXml(String(panelA.issue_number))}. Read this issue for context.`,
+    },
+    {
+      condition: panelA?.files?.length > 0,
+      text: `Files to improve: ${formatFileList(panelA.files)}.`,
+    },
   ]);
   if (panelASection) parts.push(panelASection);
 
   const panelBSection = buildPanelSection('desired_outcome', panelB, [
-    { condition: panelB?.description, text: `Desired improvements: ${escapeXml(panelB.description)}.` },
-    { condition: panelB?.issue_number, text: `Desired state per issue: #${escapeXml(String(panelB.issue_number))}. Read this issue for target state.` },
-    { condition: panelB?.guideline_files?.length > 0, text: `Reference files for target style: ${formatFileList(panelB.guideline_files)}.` },
-    { condition: panelB?.lenses?.length > 0, text: `Focus on: [${(panelB.lenses || []).map(escapeXml).join(', ')}].` }
+    {
+      condition: panelB?.description,
+      text: `Desired improvements: ${escapeXml(panelB.description)}.`,
+    },
+    {
+      condition: panelB?.issue_number,
+      text: `Desired state per issue: #${escapeXml(String(panelB.issue_number))}. Read this issue for target state.`,
+    },
+    {
+      condition: panelB?.guideline_files?.length > 0,
+      text: `Reference files for target style: ${formatFileList(panelB.guideline_files)}.`,
+    },
+    {
+      condition: panelB?.lenses?.length > 0,
+      text: `Focus on: [${(panelB.lenses || []).map(escapeXml).join(', ')}].`,
+    },
   ]);
   if (panelBSection) parts.push(panelBSection);
 
   if (improveScope === 'across_files') {
-    parts.push('              <scope>Apply improvements across all files as a unified change, considering relationships between files.</scope>');
+    parts.push(
+      '              <scope>Apply improvements across all files as a unified change, considering relationships between files.</scope>'
+    );
   } else if (improveScope === 'each_file') {
-    parts.push('              <scope>Apply improvements to each file independently.</scope>');
+    parts.push(
+      '              <scope>Apply improvements to each file independently.</scope>'
+    );
   }
 
   return parts.join('\n');
@@ -499,13 +577,6 @@ function buildPanelSection(tagName, panel, instructions) {
   }
   parts.push(`              </${tagName}>`);
   return parts.length > 2 ? parts.join('\n') : '';
-}
-
-/**
- * Helper to generate common ambiguity warning string.
- */
-function getAmbiguityWarning(context) {
-  return `             If unclear or high ambiguity about ${context}, STOP and DO NOT proceed to next steps, share your interpretation with HUMAN and ask for confirmation or clarification, and await HUMAN feedback.`;
 }
 
 /**
