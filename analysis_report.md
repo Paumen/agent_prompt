@@ -1,23 +1,23 @@
 # DOM-CSS Analysis Report
 
-| Metric | Count |
-|--------|-------|
-| CSS classes defined | 59 |
-| Classes used (HTML+JS) | 62 |
-| Unused CSS classes | 3 |
-| Undefined classes | 6 |
-| Inline style violations | 3 |
+| Metric                  | Count |
+| ----------------------- | ----- |
+| CSS classes defined     | 59    |
+| Classes used (HTML+JS)  | 62    |
+| Unused CSS classes      | 3     |
+| Undefined classes       | 6     |
+| Inline style violations | 3     |
 
 ## Elements Without Classes
 
-| Element | Occurrences | Without Class | Violations |
-|---------|-------------|---------------|------------|
-| `<span>` | 18 | 9 | cards/card-configuration.js:69, cards/card-configuration.js:76, cards/card-configuration.js:96, cards/card-steps.js:136, cards/card-steps.js:236, common/components.js:104, common/ui.js:358, common/ui.js:451, logic/quality-meter.js:164 |
-| `<h3>` | 3 | 3 | index.html:16, index.html:27, index.html:38 |
-| `<small>` | 2 | 2 | common/file-tree.js:52, common/ui.js:206 |
-| `<div>` | 28 | 1 | cards/card-prompt.js:148 |
-| `<template>` | 1 | 1 | common/icons.js:103 |
-| `<label>` | 1 | 1 | common/ui.js:445 |
+| Element      | Occurrences | Without Class | Violations                                                                                                                                                                                                                                 |
+| ------------ | ----------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `<span>`     | 18          | 9             | cards/card-configuration.js:69, cards/card-configuration.js:76, cards/card-configuration.js:96, cards/card-steps.js:136, cards/card-steps.js:236, common/components.js:104, common/ui.js:358, common/ui.js:451, logic/quality-meter.js:164 |
+| `<h3>`       | 3           | 3             | index.html:16, index.html:27, index.html:38                                                                                                                                                                                                |
+| `<small>`    | 2           | 2             | common/file-tree.js:52, common/ui.js:206                                                                                                                                                                                                   |
+| `<div>`      | 28          | 1             | cards/card-prompt.js:148                                                                                                                                                                                                                   |
+| `<template>` | 1           | 1             | common/icons.js:103                                                                                                                                                                                                                        |
+| `<label>`    | 1           | 1             | common/ui.js:445                                                                                                                                                                                                                           |
 
 ## Unused CSS Classes
 
@@ -203,7 +203,7 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 
 ## Cross-File Class Map
 
-*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*
+_Classes appearing in 3+ files (CSS definitions + HTML/JS usage)._
 
 ### `.cloud` (6 files)
 
