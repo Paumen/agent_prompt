@@ -25,9 +25,6 @@ h3 {
   list-style: none;
 }
 
-[hidden][hidden] {
-  display: none;
-}
 
 /* === Page / App container === */
 
@@ -59,17 +56,13 @@ body {
   box-shadow: var(--shadow);
 }
 
-.card .card {
-  background: var(--bg-raised);
-  border-left: 3px solid var(--accent-a);
-}
 
 .card[data-card-state] {
   transition: opacity 200ms ease;
 }
 
 .card[data-card-state='locked'] {
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .card[data-card-state='skippable'] {
@@ -86,7 +79,7 @@ body {
 }
 
 [data-card-state='complete'] {
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 /* D602: summary always clickable for expand/collapse (except locked prevents open in JS) */
@@ -102,10 +95,6 @@ body {
 [data-card-state='sufficient']:focus-within,
 [data-card-state='complete']:focus-within {
   opacity: 1;
-}
-
-.guard-hint {
-  display: none;
 }
 
 .card-header > h3 {
@@ -151,10 +140,6 @@ body {
   background: none;
   border: none;
   border-radius: var(--radius) var(--radius) 0 0;
-}
-
-.card-header small {
-  font-weight: 400;
 }
 
 .card-header:hover {
