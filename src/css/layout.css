@@ -111,7 +111,7 @@ body {
 
 .card-header {
   display: grid;
-  grid-template-columns: auto 1fr 1fr auto;
+  grid-template-columns: auto 1fr 1fr 1fr auto;
   gap: var(--sp-4);
   place-items: center stretch;
   width: 100%;
