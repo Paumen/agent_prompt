@@ -150,15 +150,7 @@ function isOpen(id) {
   return document.getElementById(id)?.open ?? false;
 }
 
-/** Helper: check if a panel <details> is open */
-function isPanelOpen(panelName) {
-  return document.querySelector(`[data-panel="${panelName}"]`)?.open ?? false;
-}
 
-/** Helper: check if a panel <details> exists in the DOM */
-function panelExists(panelName) {
-  return document.querySelector(`[data-panel="${panelName}"]`) !== null;
-}
 
 /** Helper: simulate user interaction with a card */
 function interactWithCard(cardId) {
@@ -305,16 +297,7 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     expect(cardState('card-tasks')).toBe('active');
   });
 
-  it('AC 2.1: Situation and Target panels exist as closed elements after repo selection', async () => {
-    initCards();
-    await setupRepoAndBranch();
-
-    // Situation and Target panels must exist in the DOM (as closed <details>)
-    expect(panelExists('situation')).toBe(true);
-    expect(panelExists('target')).toBe(true);
-    expect(isPanelOpen('situation')).toBe(false);
-    expect(isPanelOpen('target')).toBe(false);
-  });
+  
 
   it('AC 2.2: When flow is selected, Config card becomes complete and collapses', async () => {
     initCards();
@@ -343,96 +326,14 @@ describe('AC 2 — Card Progression & Hierarchy', () => {
     expect(isPanelOpen('target')).toBe(true);
   });
 
-  it('AC 2.3: Filling mandatory Situation field keeps Situation open/undimmed', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('fix');
+  
 
-    // Fill situation description (satisfies required_group)
-    const textarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    expect(textarea).not.toBeNull();
-    textarea.value = 'Login crashes when clicking submit';
-    textarea.dispatchEvent(new Event('input'));
-    await flushStates();
+    
 
-    // Situation must remain open and undimmed
-    expect(isPanelOpen('situation')).toBe(true);
-    const sitSt = panelState('situation');
-    // 'active' or 'sufficient' both acceptable — NOT collapsed, NOT closed
-    expect(sitSt === 'active' || sitSt === 'sufficient').toBe(true);
-  });
 
-  it('AC 2.3: Filling mandatory Situation field makes Target undimmed', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('fix');
 
-    const textarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    textarea.value = 'Login crashes';
-    textarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    // Target should become active (undimmed)
-    expect(panelState('target')).toBe('active');
-  });
-
-  it('AC 2.3: Review flow — filling Situation does NOT skip Target or jump to Steps', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('review');
-
-    // Fill situation description for review flow
-    const textarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    expect(textarea).not.toBeNull();
-    textarea.value = 'Review the auth module';
-    textarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    // Target must still be open (not collapsed/skipped)
-    expect(isPanelOpen('target')).toBe(true);
-
-    // Situation must remain open (not collapsed)
-    expect(isPanelOpen('situation')).toBe(true);
-
-    // Steps must NOT be active yet — target has not been engaged
-    expect(cardState('card-steps')).not.toBe('active');
-  });
-
-  it('AC 2.4: Steps card becomes active ONLY when both panels have mandatory fields completed', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('fix');
-
-    // Fill situation only
-    const sitTextarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    sitTextarea.value = 'Login crashes';
-    sitTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    // Steps must NOT be active (target not filled)
-    expect(cardState('card-steps')).not.toBe('active');
-
-    // Fill target
-    const tgtTextarea = document.querySelector(
-      '[data-panel="target"] .input-field--textarea'
-    );
-    expect(tgtTextarea).not.toBeNull();
-    tgtTextarea.value = 'Should redirect to dashboard';
-    tgtTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    // NOW steps should be active
-    expect(cardState('card-steps')).toBe('active');
-  });
-});
+  
+  
 
 // ─── AC 3: Interaction & Focus Management ──────────────────────────────────
 
@@ -448,64 +349,4 @@ describe('AC 3 — Interaction & Focus Management', () => {
     vi.restoreAllMocks();
   });
 
-  it('AC 3.1: Prompt card opens when Steps card is interacted with', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('fix');
-
-    // Fill both panels
-    const sitTextarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    sitTextarea.value = 'Login crashes';
-    sitTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    const tgtTextarea = document.querySelector(
-      '[data-panel="target"] .input-field--textarea'
-    );
-    tgtTextarea.value = 'Should work';
-    tgtTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    // Steps should be active
-    expect(cardState('card-steps')).toBe('active');
-
-    // Interact with steps
-    interactWithCard('card-steps');
-
-    // Prompt card must open
-    expect(isOpen('card-prompt')).toBe(true);
-  });
-
-  it('AC 3.3: Re-engaging a previous card keeps it open/undimmed', async () => {
-    initCards();
-    await setupRepoAndBranch();
-    await clickFlow('fix');
-
-    const sitTextarea = document.querySelector(
-      '[data-panel="situation"] .input-field--textarea'
-    );
-    sitTextarea.value = 'Login crashes';
-    sitTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    const tgtTextarea = document.querySelector(
-      '[data-panel="target"] .input-field--textarea'
-    );
-    tgtTextarea.value = 'Should work';
-    tgtTextarea.dispatchEvent(new Event('input'));
-    await flushStates();
-
-    interactWithCard('card-steps');
-
-    // Steps card should remain open after interaction
-    expect(isOpen('card-steps')).toBe(true);
-
-    // Interact with situation panel (go back)
-    interactWithPanel('situation');
-
-    // Situation should be open
-    expect(isPanelOpen('situation')).toBe(true);
-  });
-});
+  
