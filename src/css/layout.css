@@ -294,6 +294,7 @@ summary.card-header::-webkit-details-marker {
 
 .card-tabs .card-header {
   place-items: end stretch;
+  padding: var(--sp-8) var(--sp-8) 0;
 }
 
 .card-tabs .card-body {
