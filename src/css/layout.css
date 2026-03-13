@@ -175,8 +175,8 @@ details::details-content {
   content-visibility: hidden;
   overflow: clip;
   transition:
-    block-size 0.3s ease,
-    content-visibility 0.3s ease;
+    block-size: 0.2s ease,
+    content-visibility 0.2s ease;
 }
 
 details[open]::details-content {
@@ -227,7 +227,7 @@ summary.card-header::-webkit-details-marker {
   grid-column: 1 / -1;
   width: 100%;
   padding: var(--sp-4);
-  background: var(--bg-inset);
+  background: var(--accent-a );
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
 }
