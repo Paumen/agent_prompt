@@ -113,7 +113,7 @@ body {
 
 .card-header {
   display: grid;
-  grid-template-columns: auto 1fr 1fr 1fr 1fr minmax(12cqi, auto);
+  grid-template-columns: auto 1fr 1fr 1fr 1fr minmax(8cqi, auto);
   gap: var(--sp-4);
   place-items: center stretch;
   width: 100%;
@@ -149,6 +149,7 @@ body {
   grid-auto-rows: auto;
   gap: var(--sp-8);
   padding: var(--sp-8);
+  background: var(--accent-a)
 }
 
 .card-body > * {
@@ -227,7 +228,7 @@ summary.card-header::-webkit-details-marker {
   grid-column: 1 / -1;
   width: 100%;
   padding: var(--sp-4);
-  background: var(--accent-a);
+  background: var(--bg-inset);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
 }
