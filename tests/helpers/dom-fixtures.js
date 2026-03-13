@@ -85,7 +85,7 @@ export function setupPromptCard() {
  * @param {string} id - Container ID (default: 'target')
  * @returns {HTMLElement} The container element
  */
-export function setupContainer(id = 'target') {
+export function setupContainer(id = "target") {
   document.body.innerHTML = `<div id="${id}"></div>`;
   return document.getElementById(id);
 }
@@ -94,5 +94,5 @@ export function setupContainer(id = 'target') {
  * Clear the document body after each test.
  */
 export function cleanupDOM() {
-  document.body.innerHTML = '';
+  document.body.innerHTML = "";
 }
