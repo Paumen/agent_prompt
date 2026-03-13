@@ -285,6 +285,22 @@ summary.card-header::-webkit-details-marker {
   counter-reset: steps;
 }
 
+/* === Tab-style card layout === */
+
+.card-tabs {
+  gap: 0;
+  padding: 0;
+}
+
+.card-tabs .card-header {
+  place-items: end stretch;
+}
+
+.card-tabs .card-body {
+  background: var(--accent-b);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
 /* === Container queries for card-internal layout === */
 
 @container card (max-width: 599px) {
