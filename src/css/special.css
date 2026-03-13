@@ -85,7 +85,6 @@
   max-height: 320px;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  line-height: var(--line-height-sm);
   background: var(--bg-inset);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);

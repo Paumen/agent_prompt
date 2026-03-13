@@ -57,7 +57,6 @@
   place-items: center;
   font-family: inherit;
   font-size: var(--text-sm);
-  line-height: var(--line-height);
   color: var(--text-secondary);
   white-space: nowrap;
   text-decoration: none;

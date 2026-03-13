@@ -50,23 +50,6 @@ body {
   box-shadow: var(--shadow);
 }
 
-.card[data-card-state] {
-  transition: opacity 200ms ease;
-}
-
-.card[data-card-state="locked"] {
-  opacity: 0.7;
-}
-
-[data-card-state="active"] {
-  border-color: var(--accent-a);
-  opacity: 1;
-}
-
-[data-card-state="complete"] {
-  opacity: 0.7;
-}
-
 /* D602: summary always clickable for expand/collapse (except locked prevents open in JS) */
 
 [data-card-state] > summary {
@@ -74,11 +57,6 @@ body {
 }
 
 /* D603: Focus-within undims sufficient/complete cards for re-editing */
-
-[data-card-state="active"]:focus-within,
-[data-card-state="complete"]:focus-within {
-  opacity: 1;
-}
 
 .card-header > h3 {
   display: inline-flex;
@@ -113,7 +91,7 @@ body {
 
 .card-header {
   display: grid;
-  grid-template-columns: auto 1fr 1fr 1fr 1fr minmax(8cqi, auto);
+  grid-template-columns: auto 1fr 1fr 1fr 1fr minmax(4cqi, auto);
   gap: var(--sp-4);
   place-items: center stretch;
   width: 100%;
@@ -299,18 +277,4 @@ summary.card-header::-webkit-details-marker {
 .card-tabs .card-body {
   background: var(--accent-a);
   border-radius: 0 0 var(--radius) var(--radius);
-}
-
-/* === Container queries for card-internal layout === */
-
-@container card (max-width: 599px) {
-  .input {
-    grid-template-columns: clamp(40px, 15%, 80px) 1fr;
-  }
-}
-
-@container card (min-width: 600px) {
-  .input {
-    grid-template-columns: clamp(80px, 20%, 160px) 1fr;
-  }
 }
