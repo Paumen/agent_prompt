@@ -19,14 +19,12 @@ export function buildPrompt(state) {
   const flowId = task?.flow_id || "";
   const lines = [];
 
-  lines.push("<prompt>");
-
   // Context section — same across all flows
   const flowLabel = FLOW_LABELS[flowId] || flowId || "task";
   // Spec uses task="debug" for fix flow, other flows match their flow ID
   const taskId = TASK_IDS[flowId] || flowId || "task";
 
-  let contextLine = `  <context> <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> Execute the steps below`;
+  let contextLine = `  <context> <task> ${escapeXml(flowLabel)} </task> Execute the steps below`;
   if (includeRepo) {
     contextLine += ` in <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> branch <branch> ${escapeXml(branch || "main")} </branch>.`;
   } else {
@@ -80,7 +78,7 @@ export function buildPrompt(state) {
       continue;
     }
 
-    // Commit step — includes branch creation, commit, and PR opening
+    // Commit step — includes commit, and PR opening
     if (step.id === "commit") {
       const desc = formatCommitStep(step);
       lines.push(`    Step ${stepNum}: ${desc}`);
@@ -112,7 +110,6 @@ export function buildPrompt(state) {
   }
 
   lines.push("  </todo>");
-  lines.push("</prompt>");
 
   return lines.join("\n");
 }
