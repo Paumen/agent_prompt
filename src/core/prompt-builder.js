@@ -1,6 +1,5 @@
 /**
  * Pure function: prompt_input → structured XML prompt string.
- * DM-INV-03: identical input always produces identical output (deterministic).
  */
 export function buildPrompt(state) {
   if (!state) return "";
@@ -27,7 +26,7 @@ export function buildPrompt(state) {
   // Spec uses task="debug" for fix flow, other flows match their flow ID
   const taskId = TASK_IDS[flowId] || flowId || "task";
 
-  let contextLine = `  <context>    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`;
+  let contextLine = `  <context> Execute <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> via below 'todo' steps`;
   if (includeRepo) {
     contextLine += ` for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> on <branch> ${escapeXml(branch || "main")} </branch>.`;
   } else {
@@ -58,18 +57,6 @@ export function buildPrompt(state) {
   for (let i = 0; i < enabledSteps.length; i++) {
     const step = enabledSteps[i];
 
-    // Context step (read claude.md) — rendered as "Read @claude.md"
-    if (step.id === "context") {
-      lines.push(`    Step ${stepNum}: Read @claude.md`);
-      stepNum++;
-      // Insert flow-specific understanding step right after context
-      if (taskStepString) {
-        lines.push(`    Step ${stepNum}: ${taskStepString}`);
-        stepNum++;
-      }
-      continue;
-    }
-
     // Read step — single line listing all sources
     if (step.id === "read") {
       const parts = [];
@@ -93,13 +80,13 @@ export function buildPrompt(state) {
       continue;
     }
 
-    // Commit step — includes branch creation, commit, and PR opening
+    // Commit step — includes commit and PR opening
     if (step.id === "commit") {
       const desc = formatCommitStep(step);
       lines.push(`    Step ${stepNum}: ${desc}`);
       stepNum++;
       // Append flow-specific feedback instruction
-      const feedback = buildFeedbackStep(flowId, enabledSteps);
+      const feedback = buildFeedbackStep(flowId, nabledSteps);
       if (feedback) {
         lines.push(`    Step ${stepNum}: ${feedback}`);
         stepNum++;
@@ -126,14 +113,6 @@ export function buildPrompt(state) {
 
   lines.push("  </todo>");
   lines.push("</prompt>");
-
-  // Notes section (OUT-06)
-  const userNotes = notes?.user_text?.trim();
-  if (userNotes) {
-    lines.push("<notes>");
-    lines.push(`  Critical note: ${escapeXml(userNotes)}`);
-    lines.push("</notes>");
-  }
 
   return lines.join("\n");
 }
@@ -174,21 +153,21 @@ function buildTaskStep(flowId, panelA, panelB, improveScope) {
 
 function buildFixTaskStep(panelA, panelB) {
   const parts = [
-    "Read and investigate the 'undesired_behavior' and 'expected_behavior' to understand the issue:",
+    "Investigate the 'undesired_behavior' and 'expected_behavior':",
   ];
 
   const panelASection = buildPanelSection("undesired_behavior", panelA, [
     {
       condition: panelA?.description,
-      text: `Undesired behavior observed by user is: ${escapeXml(panelA.description)}.`,
+      text: `Undesired behavior observed user: ${escapeXml(panelA.description)}.`,
     },
     {
       condition: panelA?.issue_number,
-      text: `Attempt to learn more regarding the undesired behavior by reading issue #${escapeXml(String(panelA.issue_number))}.`,
+      text: `Undesired behavior described in issue #${escapeXml(String(panelA.issue_number))}.`,
     },
     {
       condition: panelA?.files?.length > 0,
-      text: `Attempt to learn more regarding the undesired behavior by reading files ${formatFileList(panelA.files)}.`,
+      text: `Undesired behavior located in files ${formatFileList(panelA.files)}.`,
     },
   ]);
   if (panelASection) parts.push(panelASection);
@@ -197,15 +176,7 @@ function buildFixTaskStep(panelA, panelB) {
     {
       condition: panelB?.description,
       text: `Expected behavior after the fix: ${escapeXml(panelB.description)}.`,
-    },
-    {
-      condition: panelB?.spec_files?.length > 0,
-      text: `Reference specifications: ${formatFileList(panelB.spec_files)}.`,
-    },
-    {
-      condition: panelB?.guideline_files?.length > 0,
-      text: `Follow guidelines: ${formatFileList(panelB.guideline_files)}.`,
-    },
+    },     
   ]);
   if (panelBSection) parts.push(panelBSection);
 
@@ -214,7 +185,7 @@ function buildFixTaskStep(panelA, panelB) {
 
 function buildReviewTaskStep(panelA, panelB) {
   const parts = [
-    "Read and investigate the 'review_subject' and 'review_criteria' to understand what to review:",
+    "Investigate the 'review_subject' and 'review_criteria' to understand what to review:",
   ];
 
   const panelASection = buildPanelSection("review_subject", panelA, [
@@ -238,14 +209,7 @@ function buildReviewTaskStep(panelA, panelB) {
       condition: panelB?.lenses?.length > 0,
       text: `Focus on: [${(panelB.lenses || []).map(escapeXml).join(", ")}].`,
     },
-    {
-      condition: panelB?.spec_files?.length > 0,
-      text: `Evaluate against specifications: ${formatFileList(panelB.spec_files)}.`,
-    },
-    {
-      condition: panelB?.guideline_files?.length > 0,
-      text: `Evaluate against guidelines: ${formatFileList(panelB.guideline_files)}.`,
-    },
+    
   ]);
   if (panelBSection) parts.push(panelBSection);
 
@@ -274,14 +238,7 @@ function buildImplementTaskStep(panelA, panelB) {
       condition: panelB?.description,
       text: `${escapeXml(panelB.description)}`,
     },
-    {
-      condition: panelB?.spec_files?.length > 0,
-      text: `Specifications to follow: ${formatFileList(panelB.spec_files)}.`,
-    },
-    {
-      condition: panelB?.acceptance_criteria,
-      text: `Acceptance criteria: ${escapeXml(panelB.acceptance_criteria)}.`,
-    },
+
   ]);
   if (panelBSection) parts.push(panelBSection);
 
@@ -290,7 +247,7 @@ function buildImplementTaskStep(panelA, panelB) {
 
 function buildImproveTaskStep(panelA, panelB, improveScope) {
   const parts = [
-    "Read and investigate the 'current_state' and 'desired_outcome' to understand what to improve:",
+    "Investigate the 'current_state' and 'desired_outcome' and what to improve:",
   ];
 
   const panelASection = buildPanelSection("current_state", panelA, [
@@ -317,10 +274,6 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
     {
       condition: panelB?.issue_number,
       text: `Desired state per issue: #${escapeXml(String(panelB.issue_number))}. Read this issue for target state.`,
-    },
-    {
-      condition: panelB?.guideline_files?.length > 0,
-      text: `Reference files for target style: ${formatFileList(panelB.guideline_files)}.`,
     },
     {
       condition: panelB?.lenses?.length > 0,
@@ -388,7 +341,7 @@ function buildFeedbackStep(flowId, enabledSteps) {
   switch (flowId) {
     case "fix":
       return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
+        "Provide concise feedback to HUMAN (me) here (in this interface) ",
       ].join("\n");
     case "review":
       return buildReviewFeedback(
@@ -400,11 +353,11 @@ function buildFeedbackStep(flowId, enabledSteps) {
       );
     case "implement":
       return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
+        "Provide concise feedback to HUMAN (me) here (in this interface) ",
       ].join("\n");
     case "improve":
       return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
+        "Provide concise feedback to HUMAN (me) here (in this interface) ",
       ].join("\n");
     default:
       return null;
