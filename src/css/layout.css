@@ -227,7 +227,7 @@ summary.card-header::-webkit-details-marker {
   grid-column: 1 / -1;
   width: 100%;
   padding: var(--sp-4);
-  background: var(--accent-a );
+  background: var(--accent-a);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
 }
