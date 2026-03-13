@@ -5,8 +5,7 @@
 export function buildPrompt(state) {
   if (!state) return "";
 
-  const { configuration, task, panel_a, panel_b, steps, notes, improve_scope } =
-    state;
+  const { configuration, task, panel_a, panel_b, steps, improve_scope } = state;
   const { owner, repo, branch, pat, include_repo, include_pat } =
     configuration || {};
 
@@ -27,14 +26,14 @@ export function buildPrompt(state) {
   // Spec uses task="debug" for fix flow, other flows match their flow ID
   const taskId = TASK_IDS[flowId] || flowId || "task";
 
-  let contextLine = `  <context>    Please help <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> by executing below 'todo' steps`;
+  let contextLine = `  <context> <task="${escapeXml(taskId)}"> ${escapeXml(flowLabel)} </task> Execute the steps below`;
   if (includeRepo) {
-    contextLine += ` for <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> on <branch> ${escapeXml(branch || "main")} </branch>.`;
+    contextLine += ` in <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> branch <branch> ${escapeXml(branch || "main")} </branch>.`;
   } else {
     contextLine += ".";
   }
   if (pat && includePat) {
-    contextLine += ` Authenticate using PAT: <PAT> ${escapeXml(pat)} </PAT>.`;
+    contextLine += ` PAT: <PAT> ${escapeXml(pat)} </PAT>.`;
   }
   contextLine += "  </context>";
   lines.push(contextLine);
@@ -46,11 +45,8 @@ export function buildPrompt(state) {
   const enabledSteps = steps?.enabled_steps || [];
   const taskStepString = buildTaskStep(flowId, panel_a, panel_b, improve_scope);
 
-  const contextIndex = enabledSteps.findIndex((s) => s.id === "context");
-  const taskStepInsertionPoint = contextIndex >= 0 ? contextIndex : -1;
-
-  // If no context step exists, insert understanding step before the first regular step
-  if (taskStepInsertionPoint === -1 && taskStepString) {
+  // Insert flow-specific task step before other steps
+  if (taskStepString) {
     lines.push(`    Step ${stepNum}: ${taskStepString}`);
     stepNum++;
   }
@@ -58,17 +54,8 @@ export function buildPrompt(state) {
   for (let i = 0; i < enabledSteps.length; i++) {
     const step = enabledSteps[i];
 
-    // Context step (read claude.md) — rendered as "Read @claude.md"
-    if (step.id === "context") {
-      lines.push(`    Step ${stepNum}: Read @claude.md`);
-      stepNum++;
-      // Insert flow-specific understanding step right after context
-      if (taskStepString) {
-        lines.push(`    Step ${stepNum}: ${taskStepString}`);
-        stepNum++;
-      }
-      continue;
-    }
+    // Skip context step — no longer rendered
+    if (step.id === "context") continue;
 
     // Read step — single line listing all sources
     if (step.id === "read") {
@@ -127,14 +114,6 @@ export function buildPrompt(state) {
   lines.push("  </todo>");
   lines.push("</prompt>");
 
-  // Notes section (OUT-06)
-  const userNotes = notes?.user_text?.trim();
-  if (userNotes) {
-    lines.push("<notes>");
-    lines.push(`  Critical note: ${escapeXml(userNotes)}`);
-    lines.push("</notes>");
-  }
-
   return lines.join("\n");
 }
 
@@ -173,22 +152,20 @@ function buildTaskStep(flowId, panelA, panelB, improveScope) {
 }
 
 function buildFixTaskStep(panelA, panelB) {
-  const parts = [
-    "Read and investigate the 'undesired_behavior' and 'expected_behavior' to understand the issue:",
-  ];
+  const parts = ["Investigate the issue:"];
 
   const panelASection = buildPanelSection("undesired_behavior", panelA, [
     {
       condition: panelA?.description,
-      text: `Undesired behavior observed by user is: ${escapeXml(panelA.description)}.`,
+      text: `Bug: ${escapeXml(panelA.description)}.`,
     },
     {
       condition: panelA?.issue_number,
-      text: `Attempt to learn more regarding the undesired behavior by reading issue #${escapeXml(String(panelA.issue_number))}.`,
+      text: `Read issue #${escapeXml(String(panelA.issue_number))}.`,
     },
     {
       condition: panelA?.files?.length > 0,
-      text: `Attempt to learn more regarding the undesired behavior by reading files ${formatFileList(panelA.files)}.`,
+      text: `Read ${formatFileList(panelA.files)}.`,
     },
   ]);
   if (panelASection) parts.push(panelASection);
@@ -196,15 +173,15 @@ function buildFixTaskStep(panelA, panelB) {
   const panelBSection = buildPanelSection("expected_behavior", panelB, [
     {
       condition: panelB?.description,
-      text: `Expected behavior after the fix: ${escapeXml(panelB.description)}.`,
+      text: `Expected: ${escapeXml(panelB.description)}.`,
     },
     {
       condition: panelB?.spec_files?.length > 0,
-      text: `Reference specifications: ${formatFileList(panelB.spec_files)}.`,
+      text: `Specs: ${formatFileList(panelB.spec_files)}.`,
     },
     {
       condition: panelB?.guideline_files?.length > 0,
-      text: `Follow guidelines: ${formatFileList(panelB.guideline_files)}.`,
+      text: `Guidelines: ${formatFileList(panelB.guideline_files)}.`,
     },
   ]);
   if (panelBSection) parts.push(panelBSection);
@@ -213,22 +190,20 @@ function buildFixTaskStep(panelA, panelB) {
 }
 
 function buildReviewTaskStep(panelA, panelB) {
-  const parts = [
-    "Read and investigate the 'review_subject' and 'review_criteria' to understand what to review:",
-  ];
+  const parts = ["Review the subject against criteria:"];
 
   const panelASection = buildPanelSection("review_subject", panelA, [
     {
       condition: panelA?.pr_number,
-      text: `Review PR #${escapeXml(String(panelA.pr_number))}. Fetch and examine the PR diff.`,
+      text: `Review PR #${escapeXml(String(panelA.pr_number))} diff.`,
     },
     {
       condition: panelA?.files?.length > 0,
-      text: `Review files: ${formatFileList(panelA.files)}. Read and examine each file.`,
+      text: `Review ${formatFileList(panelA.files)}.`,
     },
     {
       condition: panelA?.description,
-      text: `Context provided by user: ${escapeXml(panelA.description)}.`,
+      text: `Context: ${escapeXml(panelA.description)}.`,
     },
   ]);
   if (panelASection) parts.push(panelASection);
@@ -236,15 +211,15 @@ function buildReviewTaskStep(panelA, panelB) {
   const panelBSection = buildPanelSection("review_criteria", panelB, [
     {
       condition: panelB?.lenses?.length > 0,
-      text: `Focus on: [${(panelB.lenses || []).map(escapeXml).join(", ")}].`,
+      text: `Focus: [${(panelB.lenses || []).map(escapeXml).join(", ")}].`,
     },
     {
       condition: panelB?.spec_files?.length > 0,
-      text: `Evaluate against specifications: ${formatFileList(panelB.spec_files)}.`,
+      text: `Specs: ${formatFileList(panelB.spec_files)}.`,
     },
     {
       condition: panelB?.guideline_files?.length > 0,
-      text: `Evaluate against guidelines: ${formatFileList(panelB.guideline_files)}.`,
+      text: `Guidelines: ${formatFileList(panelB.guideline_files)}.`,
     },
   ]);
   if (panelBSection) parts.push(panelBSection);
@@ -253,18 +228,16 @@ function buildReviewTaskStep(panelA, panelB) {
 }
 
 function buildImplementTaskStep(panelA, panelB) {
-  const parts = [
-    "Read and investigate the 'existing_context' and 'requirements' to understand what to build:",
-  ];
+  const parts = ["Implement per context and requirements:"];
 
   const panelASection = buildPanelSection("existing_context", panelA, [
     {
       condition: panelA?.description,
-      text: `Context provided by user: ${escapeXml(panelA.description)}.`,
+      text: `Context: ${escapeXml(panelA.description)}.`,
     },
     {
       condition: panelA?.files?.length > 0,
-      text: `Build upon existing files: ${formatFileList(panelA.files)}.`,
+      text: `Build on: ${formatFileList(panelA.files)}.`,
     },
   ]);
   if (panelASection) parts.push(panelASection);
@@ -276,11 +249,11 @@ function buildImplementTaskStep(panelA, panelB) {
     },
     {
       condition: panelB?.spec_files?.length > 0,
-      text: `Specifications to follow: ${formatFileList(panelB.spec_files)}.`,
+      text: `Specs: ${formatFileList(panelB.spec_files)}.`,
     },
     {
       condition: panelB?.acceptance_criteria,
-      text: `Acceptance criteria: ${escapeXml(panelB.acceptance_criteria)}.`,
+      text: `Acceptance: ${escapeXml(panelB.acceptance_criteria)}.`,
     },
   ]);
   if (panelBSection) parts.push(panelBSection);
@@ -289,9 +262,7 @@ function buildImplementTaskStep(panelA, panelB) {
 }
 
 function buildImproveTaskStep(panelA, panelB, improveScope) {
-  const parts = [
-    "Read and investigate the 'current_state' and 'desired_outcome' to understand what to improve:",
-  ];
+  const parts = ["Improve per current state and desired outcome:"];
 
   const panelASection = buildPanelSection("current_state", panelA, [
     {
@@ -300,11 +271,11 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
     },
     {
       condition: panelA?.issue_number,
-      text: `Related issue describing current state: #${escapeXml(String(panelA.issue_number))}. Read this issue for context.`,
+      text: `Read issue #${escapeXml(String(panelA.issue_number))}.`,
     },
     {
       condition: panelA?.files?.length > 0,
-      text: `Files to improve: ${formatFileList(panelA.files)}.`,
+      text: `Files: ${formatFileList(panelA.files)}.`,
     },
   ]);
   if (panelASection) parts.push(panelASection);
@@ -312,30 +283,30 @@ function buildImproveTaskStep(panelA, panelB, improveScope) {
   const panelBSection = buildPanelSection("desired_outcome", panelB, [
     {
       condition: panelB?.description,
-      text: `Desired improvements: ${escapeXml(panelB.description)}.`,
+      text: `Goal: ${escapeXml(panelB.description)}.`,
     },
     {
       condition: panelB?.issue_number,
-      text: `Desired state per issue: #${escapeXml(String(panelB.issue_number))}. Read this issue for target state.`,
+      text: `Target per issue #${escapeXml(String(panelB.issue_number))}.`,
     },
     {
       condition: panelB?.guideline_files?.length > 0,
-      text: `Reference files for target style: ${formatFileList(panelB.guideline_files)}.`,
+      text: `Style reference: ${formatFileList(panelB.guideline_files)}.`,
     },
     {
       condition: panelB?.lenses?.length > 0,
-      text: `Focus on: [${(panelB.lenses || []).map(escapeXml).join(", ")}].`,
+      text: `Focus: [${(panelB.lenses || []).map(escapeXml).join(", ")}].`,
     },
   ]);
   if (panelBSection) parts.push(panelBSection);
 
   if (improveScope === "across_files") {
     parts.push(
-      "              <scope>Apply improvements across all files as a unified change, considering relationships between files.</scope>",
+      "              <scope>Apply as unified cross-file change.</scope>",
     );
   } else if (improveScope === "each_file") {
     parts.push(
-      "              <scope>Apply improvements to each file independently.</scope>",
+      "              <scope>Apply to each file independently.</scope>",
     );
   }
 
@@ -387,9 +358,7 @@ function buildFeedbackStep(flowId, enabledSteps) {
 
   switch (flowId) {
     case "fix":
-      return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
-      ].join("\n");
+      return "Report results here:";
     case "review":
       return buildReviewFeedback(
         Array.isArray(outputMode)
@@ -399,13 +368,9 @@ function buildFeedbackStep(flowId, enabledSteps) {
             : null,
       );
     case "implement":
-      return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
-      ].join("\n");
+      return "Report results here:";
     case "improve":
-      return [
-        "Provide concise feedback to HUMAN (me) here (in this interface) include:",
-      ].join("\n");
+      return "Report results here:";
     default:
       return null;
   }
@@ -436,29 +401,24 @@ function buildReviewFeedback(outputModes) {
         " AND " +
         deliveryParts[deliveryParts.length - 1];
 
-  const lines = [`Provide feedback ${deliveryClause} include:`];
+  const lines = [`Report feedback ${deliveryClause}:`];
 
-  // Include mode-specific instructions for each selected mode
   if (modes.includes("pr_inline_comments")) {
     lines.push(
-      "              - For inline comments: note the issue, severity label, and suggested fix at the relevant line.",
+      "              - Inline: issue, severity, suggested fix at relevant line.",
     );
   }
   if (modes.some((m) => ["pr_comment", "issue_comment"].includes(m))) {
-    lines.push(
-      "              - Provide a link to the comment to HUMAN (me) here (in this interface).",
-    );
+    lines.push("              - Link the comment here.");
   }
   if (modes.includes("report_file")) {
-    lines.push(
-      "              - Commit the report file and provide the file link to HUMAN (me) here (in this interface).",
-    );
+    lines.push("              - Commit report file, link here.");
   }
 
   lines.push(
-    "              - Summary of what you reviewed in one sentence.",
-    "              - Number of issues found by severity.",
-    "              - Top 3 most important findings with file/line references.",
+    "              - One-sentence summary.",
+    "              - Issue count by severity.",
+    "              - Top 3 findings with file/line references.",
   );
 
   return lines.join("\n");
