@@ -680,9 +680,9 @@ export function initStepsCard() {
   elBody = document.getElementById('bd-steps');
   if (!elBody) return;
 
-  // Hide card-meta (step count no longer shown in header)
+  // Remove card-meta (step count no longer shown in header)
   const metaEl = document.querySelector('#card-steps .card-meta');
-  if (metaEl) metaEl.hidden = true;
+  if (metaEl) metaEl.remove();
   elStepsMeta = null;
 
   // Render flow selector buttons in the card header (before chevron)

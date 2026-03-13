@@ -160,7 +160,7 @@ export function initPromptCard() {
   const cardHeader = document.querySelector('#card-prompt .card-header');
   const cardMeta = cardHeader?.querySelector('.card-meta');
   if (cardHeader) {
-    if (cardMeta) cardMeta.hidden = true;
+    if (cardMeta) cardMeta.remove();
     cardHeader.insertBefore(
       copyBtn,
       cardHeader.querySelector('.icon--chevron')
