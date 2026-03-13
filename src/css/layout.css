@@ -175,8 +175,8 @@ details::details-content {
   content-visibility: hidden;
   overflow: clip;
   transition:
-    block-size 0.3s ease,
-    content-visibility 0.3s ease;
+    block-size 0.2s ease,
+    content-visibility 0.2s ease;
 }
 
 details[open]::details-content {
@@ -227,7 +227,7 @@ summary.card-header::-webkit-details-marker {
   grid-column: 1 / -1;
   width: 100%;
   padding: var(--sp-4);
-  background: var(--bg-inset);
+  background: var(--accent-a);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
 }
@@ -283,6 +283,23 @@ summary.card-header::-webkit-details-marker {
   gap: var(--sp-4);
   width: 100%;
   counter-reset: steps;
+}
+
+/* === Tab-style card layout === */
+
+.card-tabs {
+  gap: 0;
+  padding: 0;
+}
+
+.card-tabs .card-header {
+  place-items: end stretch;
+  padding: var(--sp-8) var(--sp-8) 0;
+}
+
+.card-tabs .card-body {
+  background: var(--accent-b);
+  border-radius: 0 0 var(--radius) var(--radius);
 }
 
 /* === Container queries for card-internal layout === */

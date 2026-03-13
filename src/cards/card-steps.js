@@ -680,6 +680,9 @@ export function initStepsCard() {
   elBody = document.getElementById('bd-steps');
   if (!elBody) return;
 
+  // Add tab-style layout class to card
+  document.getElementById('card-steps').classList.add('card-tabs');
+
   // Remove card-meta (step count no longer shown in header)
   const metaEl = document.querySelector('#card-steps .card-meta');
   if (metaEl) metaEl.remove();
