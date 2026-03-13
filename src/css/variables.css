@@ -7,7 +7,6 @@
   --bg-raised: light-dark(#fff, #161b22);
   --bg-inset: light-dark(#ddd, #010409);
   --bg-inset-darker: light-dark(#ccc, #000);
-  --bg-test: #bbb;
 
   /* === Text === */
   --text-primary: light-dark(#1f2328, #ddd);
@@ -18,13 +17,10 @@
   --accent-a: light-dark(#3b696d, #bfe6ed);
   --accent-b: light-dark(#bfe6ed, #3b696d);
   --accent-hover: light-dark(#326a89, #326a89);
-  --accent-caution: light-dark(#bc4c00, #bc4c00);
-  --accent-caution-dark: light-dark(#953800, #e68431);
 
   /* === Shadows === */
   --shadow: 0 1px 0 rgb(31 35 40 / 4%);
-  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 20%);
-  --shadow-inset-sm: inset 0 1px 2px rgb(31 35 40 / 7.5%);
+  --shadow-inset: inset 0 1px 2px rgb(31 35 40 / 7.5%);
 
   /* === Typography === */
   --font-body:
@@ -39,16 +35,11 @@
   --line-height-sm: 1.1;
   --line-height: 1.4;
 
-  /* === Spacing (clamp for responsive) === */
+  /* === other === */
   --sp-2: clamp(2px, 1px + 0.1cqi, 3px);
   --sp-4: clamp(4px, 3px + 0.15cqi, 6px);
   --sp-8: clamp(6px, 5px + 0.25cqi, 10px);
-
-  /* === Z-index scale === */
-  --z-above: 1;
-  --z-dropdown: 10;
-
-  /* === Border radius === */
+  --z10: 10;
   --radius: 6px;
   --radius-pill: 999px;
 }

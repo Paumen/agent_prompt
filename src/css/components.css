@@ -92,13 +92,19 @@
   color: var(--text-secondary);
   background: var(--bg-inset);
   border: 2px solid var(--text-tertiary);
+  box-shadow: var(--shadow);
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    padding 150ms ease; 
 }
 
 .btn-select--selected {
-  font-weight: 800;
+  font-weight: 900;
   color: var(--accent-a);
   background: var(--accent-b);
-  border-color: var(--accent-a);
 }
 
 /* --- Tab variant for btn-select in card-tabs --- */
@@ -106,13 +112,6 @@
 .card-tabs .btn-select {
   border-bottom-color: transparent;
   border-radius: var(--radius) var(--radius) 0 0;
-  box-shadow: var(--shadow);
-  transition:
-    background 150ms ease,
-    color 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    padding 150ms ease;
 }
 
 .card-tabs .btn-select--selected {
@@ -120,7 +119,6 @@
   color: var(--accent-b);
   background: var(--accent-a);
   border-color: var(--accent-a);
-  border-bottom-color: var(--accent-b);
 }
 
 /* --- 3. btn-action: one-shot stateless action --- */
@@ -253,7 +251,7 @@
   background: var(--bg-raised);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-inset-sm);
+  box-shadow: var(--shadow-inset);
 }
 
 .field-picker-search .input-field {
@@ -277,7 +275,7 @@
 .field-picker-dropdown {
   position: absolute;
   inset: 100% 0 auto;
-  z-index: var(--z-dropdown);
+  z-index: var(--z10);
   display: none;
   max-height: 320px;
   overflow-y: auto;

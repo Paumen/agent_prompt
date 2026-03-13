@@ -47,7 +47,7 @@
 .output-float {
   position: absolute;
   inset: auto auto calc(100% + var(--sp-2)) 50%;
-  z-index: var(--z-dropdown);
+  z-index: var(--z10);
   padding: var(--sp-2);
   font-size: var(--text-sm);
   color: var(--text-primary);
@@ -102,6 +102,6 @@
 .prompt-output > .cloud {
   position: absolute;
   inset: var(--sp-4) auto;
-  z-index: var(--z-above);
+  z-index: var(--z10);
   width: fit-content;
 }

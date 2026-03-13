@@ -218,7 +218,7 @@ summary.card-header::-webkit-details-marker {
   background: var(--bg-raised);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-inset-sm);
+  box-shadow: var(--shadow-inset);
 }
 
 /* === Output (full-width content area) === */
