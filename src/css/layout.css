@@ -95,8 +95,10 @@ body {
 
 .card-meta {
   display: inline-flex;
+  grid-column: 2 / 6;
   gap: var(--sp-4);
   place-items: center;
+  justify-self: end;
   min-width: 0;
   overflow: visible;
   font-size: var(--text-sm);
@@ -111,7 +113,7 @@ body {
 
 .card-header {
   display: grid;
-  grid-template-columns: auto 1fr 1fr 1fr auto;
+  grid-template-columns: auto 1fr 1fr 1fr 1fr minmax(12cqi, auto);
   gap: var(--sp-4);
   place-items: center stretch;
   width: 100%;
@@ -123,6 +125,18 @@ body {
   background: none;
   border: none;
   border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.card-header > .icon--chevron {
+  grid-column: 6;
+}
+
+.card-header > .btn-copy {
+  grid-column: 4;
+}
+
+.card-header > .btn-primary {
+  grid-column: 5;
 }
 
 .card-header:hover {
