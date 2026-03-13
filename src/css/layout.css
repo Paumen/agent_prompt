@@ -1,4 +1,4 @@
-@import url('./variables.css');
+@import url("./variables.css");
 
 /**
  * layout.css — Grid definitions + structural rules.
@@ -54,16 +54,16 @@ body {
   transition: opacity 200ms ease;
 }
 
-.card[data-card-state='locked'] {
+.card[data-card-state="locked"] {
   opacity: 0.7;
 }
 
-[data-card-state='active'] {
+[data-card-state="active"] {
   border-color: var(--accent-a);
   opacity: 1;
 }
 
-[data-card-state='complete'] {
+[data-card-state="complete"] {
   opacity: 0.7;
 }
 
@@ -75,8 +75,8 @@ body {
 
 /* D603: Focus-within undims sufficient/complete cards for re-editing */
 
-[data-card-state='active']:focus-within,
-[data-card-state='complete']:focus-within {
+[data-card-state="active"]:focus-within,
+[data-card-state="complete"]:focus-within {
   opacity: 1;
 }
 

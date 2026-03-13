@@ -13,12 +13,12 @@ import {
   resetDownstream,
   applyFlowDefaults,
   subscribe,
-} from '../core/state.js';
-import { getFlows } from '../logic/flow-loader.js';
-import { prefetchForFlow } from './card-tasks.js';
-import { fetchRepos, fetchBranches, fetchTree } from '../common/github-api.js';
-import { cacheGet, cacheSet, cacheClear } from '../common/cache.js';
-import { icon } from '../common/icons.js';
+} from "../core/state.js";
+import { getFlows } from "../logic/flow-loader.js";
+import { prefetchForFlow } from "./card-tasks.js";
+import { fetchRepos, fetchBranches, fetchTree } from "../common/github-api.js";
+import { cacheGet, cacheSet, cacheClear } from "../common/cache.js";
+import { icon } from "../common/icons.js";
 import {
   createButton,
   createInputField,
@@ -27,7 +27,7 @@ import {
   renderShimmer,
   renderError,
   isInteracting,
-} from '../common/ui.js';
+} from "../common/ui.js";
 
 // --- Flow selector state ---
 let currentFlowId = null;
@@ -54,31 +54,31 @@ export function getFileTree() {
 
 /** Update the configuration card .card-meta with current owner/repo/branch (D203) */
 export function updateConfigCardMeta() {
-  const metaEl = document.querySelector('#card-configuration .card-meta');
+  const metaEl = document.querySelector("#card-configuration .card-meta");
   if (!metaEl) return;
 
-  metaEl.textContent = '';
+  metaEl.textContent = "";
   const state = getState();
   const { owner, repo, branch } = state.configuration;
 
   if (owner) {
-    metaEl.appendChild(icon('mark-github', 'icon-btn'));
-    const ownerSpan = document.createElement('span');
+    metaEl.appendChild(icon("mark-github", "icon-btn"));
+    const ownerSpan = document.createElement("span");
     ownerSpan.textContent = owner;
     metaEl.appendChild(ownerSpan);
   }
 
   if (repo) {
-    metaEl.appendChild(icon('repo', 'icon-btn'));
-    const repoSpan = document.createElement('span');
+    metaEl.appendChild(icon("repo", "icon-btn"));
+    const repoSpan = document.createElement("span");
     repoSpan.textContent = repo;
     metaEl.appendChild(repoSpan);
   }
 
   if (branch) {
-    metaEl.appendChild(icon('git-branch', 'icon-btn'));
-    const branchSpan = document.createElement('span');
-    branchSpan.className = 'truncate-start';
+    metaEl.appendChild(icon("git-branch", "icon-btn"));
+    const branchSpan = document.createElement("span");
+    branchSpan.className = "truncate-start";
     branchSpan.textContent = branch;
     branchSpan.title = branch;
     metaEl.appendChild(branchSpan);
@@ -100,55 +100,55 @@ let elPatInput,
 // --- Render static UI shell ---
 
 function renderShell(container) {
-  container.innerHTML = '';
+  container.innerHTML = "";
 
   // --- Username (top-left) ---
   elUserSection = createInputField({
-    iconName: 'mark-github',
-    id: 'cfg-username',
-    placeholder: 'GitHub username',
+    iconName: "mark-github",
+    id: "cfg-username",
+    placeholder: "GitHub username",
   });
   elUsername = elUserSection._inputEl;
 
-  elUserClear = createButton('icon', {
-    iconName: 'x',
-    iconClass: 'icon-remove',
-    ariaLabel: 'Clear username',
+  elUserClear = createButton("icon", {
+    iconName: "x",
+    iconClass: "icon-remove",
+    ariaLabel: "Clear username",
   });
   elUserClear.hidden = true;
   elUserSection.appendChild(elUserClear);
 
   // --- PAT (top-right) ---
   elPatSection = createInputField({
-    type: 'password',
-    id: 'cfg-pat',
-    iconName: 'key',
-    placeholder: 'GitHub personal access token',
+    type: "password",
+    id: "cfg-pat",
+    iconName: "key",
+    placeholder: "GitHub personal access token",
   });
   elPatInput = elPatSection._inputEl;
 
-  elPatToggle = createButton('icon', { ariaLabel: 'Show token' });
+  elPatToggle = createButton("icon", { ariaLabel: "Show token" });
   elPatToggle.hidden = true;
-  elPatToggle.appendChild(icon('eye', 'icon-btn'));
+  elPatToggle.appendChild(icon("eye", "icon-btn"));
   elPatSection.appendChild(elPatToggle);
 
-  elPatClear = createButton('icon', {
-    iconName: 'x',
-    iconClass: 'icon-remove',
-    ariaLabel: 'Clear token',
+  elPatClear = createButton("icon", {
+    iconName: "x",
+    iconClass: "icon-remove",
+    ariaLabel: "Clear token",
   });
   elPatClear.hidden = true;
   elPatSection.appendChild(elPatClear);
 
   // --- Repo (bottom-left) ---
-  elRepoSection = document.createElement('div');
-  elRepoSection.className = 'field-picker';
-  renderDisabledPlaceholder(elRepoSection, 'Select repository…');
+  elRepoSection = document.createElement("div");
+  elRepoSection.className = "field-picker";
+  renderDisabledPlaceholder(elRepoSection, "Select repository…");
 
   // --- Branch (bottom-right) ---
-  elBranchSection = document.createElement('div');
-  elBranchSection.className = 'field-picker';
-  renderDisabledPlaceholder(elBranchSection, 'Select branch…');
+  elBranchSection = document.createElement("div");
+  elBranchSection.className = "field-picker";
+  renderDisabledPlaceholder(elBranchSection, "Select branch…");
 
   // Order: username (top-left), PAT (top-right), repo (bottom-left), branch (bottom-right)
   container.appendChild(elUserSection);
@@ -163,7 +163,7 @@ export function renderFlowSelector(container, beforeEl = null) {
   elFlowButtons = [];
   const flows = getFlows();
   for (const [flowId, flowDef] of Object.entries(flows)) {
-    const btn = createButton('select', {
+    const btn = createButton("select", {
       label: flowDef.label,
       iconName: flowDef.icon || undefined,
       onClick: () => onFlowSelect(flowId, flowDef),
@@ -182,13 +182,13 @@ function onFlowSelect(flowId, flowDef) {
   if (flowId === currentFlowId) return;
   currentFlowId = flowId;
 
-  resetDownstream('flow');
+  resetDownstream("flow");
   applyFlowDefaults(flowId, flowDef);
 
   for (const btn of elFlowButtons) {
     const isSelected = btn.dataset.flowId === flowId;
-    btn.classList.toggle('btn-select--selected', isSelected);
-    btn.setAttribute('aria-selected', String(isSelected));
+    btn.classList.toggle("btn-select--selected", isSelected);
+    btn.setAttribute("aria-selected", String(isSelected));
   }
 
   updateConfigCardMeta();
@@ -198,11 +198,11 @@ function onFlowSelect(flowId, flowDef) {
 // --- AC 1.1: Disabled placeholder for pickers when credentials are missing ---
 
 function renderDisabledPlaceholder(container, placeholderText) {
-  const input = document.createElement('input');
-  input.className = 'input-field';
+  const input = document.createElement("input");
+  input.className = "input-field";
   input.placeholder = placeholderText;
   input.disabled = true;
-  input.setAttribute('aria-disabled', 'true');
+  input.setAttribute("aria-disabled", "true");
   container.appendChild(input);
 }
 
@@ -210,7 +210,7 @@ function renderDisabledPlaceholder(container, placeholderText) {
 
 function onPatInput() {
   const pat = elPatInput.value.trim();
-  setState('configuration.pat', pat);
+  setState("configuration.pat", pat);
   const hasValue = pat.length > 0;
   elPatToggle.hidden = !hasValue;
   elPatClear.hidden = !hasValue;
@@ -225,32 +225,32 @@ function onPatChange() {
 }
 
 function onPatToggle() {
-  const isPassword = elPatInput.type === 'password';
-  elPatInput.type = isPassword ? 'text' : 'password';
+  const isPassword = elPatInput.type === "password";
+  elPatInput.type = isPassword ? "text" : "password";
   elPatToggle.replaceChildren(
-    icon(isPassword ? 'eye-closed' : 'eye', 'icon-btn')
+    icon(isPassword ? "eye-closed" : "eye", "icon-btn"),
   );
   elPatToggle.setAttribute(
-    'aria-label',
-    isPassword ? 'Hide token' : 'Show token'
+    "aria-label",
+    isPassword ? "Hide token" : "Show token",
   );
 }
 
 function onPatClear() {
-  elPatInput.value = '';
-  elPatInput.type = 'password';
-  elPatToggle.replaceChildren(icon('eye', 'icon-btn'));
+  elPatInput.value = "";
+  elPatInput.type = "password";
+  elPatToggle.replaceChildren(icon("eye", "icon-btn"));
   elPatToggle.hidden = true;
   elPatClear.hidden = true;
   cacheClear();
   setState((s) => {
-    s.configuration.pat = '';
-    s.configuration.repo = '';
-    s.configuration.branch = '';
+    s.configuration.pat = "";
+    s.configuration.repo = "";
+    s.configuration.branch = "";
     return s;
   });
   fileTree = [];
-  resetDownstream('pat');
+  resetDownstream("pat");
   // Show credentials again when clearing
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   renderRepoSection([]);
@@ -267,7 +267,7 @@ function onUsernameInput() {
 
 function onUsernameChange() {
   const owner = elUsername.value.trim();
-  setState('configuration.owner', owner);
+  setState("configuration.owner", owner);
   updateConfigCardMeta();
   const pat = getState().configuration.pat;
   if (pat && owner) {
@@ -280,17 +280,17 @@ function onUsernameChange() {
 }
 
 function onUserClear() {
-  elUsername.value = '';
+  elUsername.value = "";
   elUserClear.hidden = true;
   cacheClear();
   setState((s) => {
-    s.configuration.owner = '';
-    s.configuration.repo = '';
-    s.configuration.branch = '';
+    s.configuration.owner = "";
+    s.configuration.repo = "";
+    s.configuration.branch = "";
     return s;
   });
   fileTree = [];
-  resetDownstream('owner');
+  resetDownstream("owner");
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   renderRepoSection([]);
   renderBranchSection([]);
@@ -302,7 +302,7 @@ function onUserClear() {
 // --- Repo picker rendering ---
 
 function renderRepoSection(repos, selectedRepo) {
-  elRepoSection.innerHTML = '';
+  elRepoSection.innerHTML = "";
   if (!repos || repos.length === 0) return;
 
   if (selectedRepo) {
@@ -313,7 +313,7 @@ function renderRepoSection(repos, selectedRepo) {
 }
 
 function renderRepoDropdown(pickerWrapper, repos) {
-  pickerWrapper.innerHTML = '';
+  pickerWrapper.innerHTML = "";
 
   const pickerItems = repos.map((r) => ({
     value: r.name,
@@ -323,8 +323,8 @@ function renderRepoDropdown(pickerWrapper, repos) {
 
   const picker = createPicker({
     items: pickerItems,
-    placeholder: 'Search repositories…',
-    searchIconName: 'repo',
+    placeholder: "Search repositories…",
+    searchIconName: "repo",
     onSelect: (item) => {
       const repo = repos.find((r) => r.name === item.value);
       if (repo) onRepoSelect(repo, repos);
@@ -335,25 +335,25 @@ function renderRepoDropdown(pickerWrapper, repos) {
 }
 
 function renderRepoSelection(pickerWrapper, selectedRepo, repos) {
-  pickerWrapper.innerHTML = '';
+  pickerWrapper.innerHTML = "";
 
   const tag = createTag({
     label: selectedRepo,
-    iconName: 'repo',
+    iconName: "repo",
     onRemove: () => {
       setState((s) => {
-        s.configuration.repo = '';
-        s.configuration.branch = '';
+        s.configuration.repo = "";
+        s.configuration.branch = "";
         return s;
       });
       fileTree = [];
-      resetDownstream('repo');
+      resetDownstream("repo");
       renderBranchSection([]);
       renderRepoDropdown(pickerWrapper, repos);
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
       updateConfigCardMeta();
       // D502: Focus repo search input for easy re-selection
-      pickerWrapper.querySelector('input')?.focus();
+      pickerWrapper.querySelector("input")?.focus();
     },
   });
 
@@ -366,7 +366,7 @@ function onRepoSelect(repo, allRepos) {
 
   setState((s) => {
     s.configuration.repo = repo.name;
-    s.configuration.branch = '';
+    s.configuration.branch = "";
     return s;
   });
   fileTree = [];
@@ -387,7 +387,7 @@ function onRepoSelect(repo, allRepos) {
 // --- Branch picker rendering ---
 
 function renderBranchSection(branches, selectedBranch) {
-  elBranchSection.innerHTML = '';
+  elBranchSection.innerHTML = "";
   if (!branches || branches.length === 0) return;
 
   if (selectedBranch) {
@@ -398,7 +398,7 @@ function renderBranchSection(branches, selectedBranch) {
 }
 
 function renderBranchDropdown(pickerWrapper, branches) {
-  pickerWrapper.innerHTML = '';
+  pickerWrapper.innerHTML = "";
 
   const pickerItems = branches.map((b) => ({
     value: b.name,
@@ -407,8 +407,8 @@ function renderBranchDropdown(pickerWrapper, branches) {
 
   const picker = createPicker({
     items: pickerItems,
-    placeholder: 'Search branches…',
-    searchIconName: 'git-branch',
+    placeholder: "Search branches…",
+    searchIconName: "git-branch",
     onSelect: (item) => {
       const branch = branches.find((b) => b.name === item.value);
       if (branch) onBranchSelect(branch, branches);
@@ -419,19 +419,19 @@ function renderBranchDropdown(pickerWrapper, branches) {
 }
 
 function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
-  pickerWrapper.innerHTML = '';
+  pickerWrapper.innerHTML = "";
 
   const tag = createTag({
     label: selectedBranch,
-    iconName: 'git-branch',
+    iconName: "git-branch",
     onRemove: () => {
-      setState('configuration.branch', '');
+      setState("configuration.branch", "");
       fileTree = [];
-      resetDownstream('branch');
+      resetDownstream("branch");
       renderBranchDropdown(pickerWrapper, branches);
       updateConfigCardMeta();
       // D502: Focus branch search input for easy re-selection
-      pickerWrapper.querySelector('input')?.focus();
+      pickerWrapper.querySelector("input")?.focus();
     },
   });
 
@@ -439,7 +439,7 @@ function renderBranchSelection(pickerWrapper, selectedBranch, branches) {
 }
 
 function onBranchSelect(branch, allBranches) {
-  setState('configuration.branch', branch.name);
+  setState("configuration.branch", branch.name);
   renderBranchSection(allBranches, branch.name);
   updateConfigCardMeta();
 
@@ -463,17 +463,17 @@ async function loadRepos(owner, pat, isBackground = false) {
   }
 
   if (!isBackground) {
-    elRepoSection.innerHTML = '';
-    renderShimmer(elRepoSection, 'Loading repositories\u2026', 3);
+    elRepoSection.innerHTML = "";
+    renderShimmer(elRepoSection, "Loading repositories\u2026", 3);
   }
 
   const result = await fetchRepos(owner, pat);
 
   if (result.error) {
     if (!isBackground) {
-      elRepoSection.innerHTML = '';
+      elRepoSection.innerHTML = "";
       renderError(elRepoSection, result.error, () =>
-        loadRepos(owner, pat, false)
+        loadRepos(owner, pat, false),
       );
     }
     return;
@@ -501,8 +501,8 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
 
   const cached = cacheGet(cacheKey);
   if (cached) {
-    const autoSelected = defaultBranch || cached[0]?.name || '';
-    setState('configuration.branch', autoSelected);
+    const autoSelected = defaultBranch || cached[0]?.name || "";
+    setState("configuration.branch", autoSelected);
     renderBranchSection(cached, autoSelected);
     updateConfigCardMeta();
     loadTreeInBackground(owner, repo, autoSelected, pat);
@@ -510,15 +510,15 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
     return;
   }
 
-  elBranchSection.innerHTML = '';
-  renderShimmer(elBranchSection, 'Loading branches\u2026', 2);
+  elBranchSection.innerHTML = "";
+  renderShimmer(elBranchSection, "Loading branches\u2026", 2);
 
   const result = await fetchBranches(owner, repo, pat);
 
   if (result.error) {
-    elBranchSection.innerHTML = '';
+    elBranchSection.innerHTML = "";
     renderError(elBranchSection, result.error, () =>
-      loadBranches(owner, repo, pat, defaultBranch)
+      loadBranches(owner, repo, pat, defaultBranch),
     );
     return;
   }
@@ -526,8 +526,8 @@ async function loadBranches(owner, repo, pat, defaultBranch) {
   cacheSet(cacheKey, result.data);
 
   const match = result.data.find((b) => b.name === defaultBranch);
-  const autoSelected = match ? match.name : result.data[0]?.name || '';
-  setState('configuration.branch', autoSelected);
+  const autoSelected = match ? match.name : result.data[0]?.name || "";
+  setState("configuration.branch", autoSelected);
   renderBranchSection(result.data, autoSelected);
   updateConfigCardMeta();
 
@@ -571,7 +571,7 @@ async function loadTreeInBackground(owner, repo, branch, pat) {
 // --- Initialization ---
 
 export function initConfigurationCard() {
-  elCardBody = document.getElementById('bd-configuration');
+  elCardBody = document.getElementById("bd-configuration");
   if (!elCardBody) return;
 
   renderShell(elCardBody);
@@ -592,17 +592,17 @@ export function initConfigurationCard() {
   }
 
   // Wire events
-  elPatInput.addEventListener('input', onPatInput);
-  elPatInput.addEventListener('change', onPatChange);
-  elPatToggle.addEventListener('click', onPatToggle);
-  elPatClear.addEventListener('click', onPatClear);
-  elUsername.addEventListener('input', onUsernameInput);
-  elUsername.addEventListener('change', onUsernameChange);
-  elUserClear.addEventListener('click', onUserClear);
+  elPatInput.addEventListener("input", onPatInput);
+  elPatInput.addEventListener("change", onPatChange);
+  elPatToggle.addEventListener("click", onPatToggle);
+  elPatClear.addEventListener("click", onPatClear);
+  elUsername.addEventListener("input", onUsernameInput);
+  elUsername.addEventListener("change", onUsernameChange);
+  elUserClear.addEventListener("click", onUserClear);
 
   // When config card is re-opened, show credentials again (D111: toggle listener)
-  const cfgCard = document.getElementById('card-configuration');
-  cfgCard?.addEventListener('toggle', () => {
+  const cfgCard = document.getElementById("card-configuration");
+  cfgCard?.addEventListener("toggle", () => {
     if (cfgCard.open) {
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
     }
@@ -618,8 +618,8 @@ export function initConfigurationCard() {
       currentFlowId = flowId;
       for (const btn of elFlowButtons) {
         const isSelected = btn.dataset.flowId === flowId;
-        btn.classList.toggle('btn-select--selected', isSelected);
-        btn.setAttribute('aria-selected', String(isSelected));
+        btn.classList.toggle("btn-select--selected", isSelected);
+        btn.setAttribute("aria-selected", String(isSelected));
       }
       updateConfigCardMeta();
     }

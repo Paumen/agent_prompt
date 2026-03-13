@@ -5,9 +5,9 @@
  * Steps card imports getCachedIssues/getCachedPRs from here.
  */
 
-import { getState } from '../core/state.js';
-import { fetchPRs, fetchIssues } from '../common/github-api.js';
-import { cacheGet, cacheSet } from '../common/cache.js';
+import { getState } from "../core/state.js";
+import { fetchPRs, fetchIssues } from "../common/github-api.js";
+import { cacheGet, cacheSet } from "../common/cache.js";
 
 // --- Module-level cache state ---
 
@@ -35,13 +35,13 @@ export function prefetchForFlow(flowDef) {
 // --- GitHub data fetching ---
 
 function requiresPRs(flowDef) {
-  if (hasFieldOfType(flowDef, 'pr_picker')) return true;
-  return hasStepSource(flowDef, '.pr_number');
+  if (hasFieldOfType(flowDef, "pr_picker")) return true;
+  return hasStepSource(flowDef, ".pr_number");
 }
 
 function requiresIssues(flowDef) {
-  if (hasFieldOfType(flowDef, 'issue_picker')) return true;
-  return hasStepSource(flowDef, '.issue_number');
+  if (hasFieldOfType(flowDef, "issue_picker")) return true;
+  return hasStepSource(flowDef, ".issue_number");
 }
 
 function hasStepSource(flowDef, suffix) {

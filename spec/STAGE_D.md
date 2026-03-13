@@ -217,20 +217,20 @@ Guide users through a step-by-step journey: highlight the active card, dim compl
 - [x] D601 – CSS for all five card states:
 
 ```css
-[data-card-state='locked'] {
+[data-card-state="locked"] {
   opacity: 0.3;
 }
-[data-card-state='skippable'] {
+[data-card-state="skippable"] {
   opacity: 0.5;
 }
-[data-card-state='active'] {
+[data-card-state="active"] {
   opacity: 1;
   border-color: var(--accent-a);
 }
-[data-card-state='sufficient'] {
+[data-card-state="sufficient"] {
   opacity: 0.6;
 }
-[data-card-state='complete'] {
+[data-card-state="complete"] {
   opacity: 0.35;
 }
 ```
@@ -267,11 +267,11 @@ When hard prerequisites are missing (e.g., no repo selected), prevent card from 
     outline-color: var(--accent-a);
   }
 }
-[data-card-state='locked'] > summary:active {
+[data-card-state="locked"] > summary:active {
   animation: highlight-pulse 0.6s ease;
 }
 @media (prefers-reduced-motion: reduce) {
-  [data-card-state='locked'] > summary:active {
+  [data-card-state="locked"] > summary:active {
     animation: none;
     outline: 2px solid var(--accent-a);
   }

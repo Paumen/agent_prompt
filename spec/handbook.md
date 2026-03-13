@@ -121,7 +121,7 @@ Examples:
 
 ```css
 /* Auto-size text fields to their content */
-input[type='text'],
+input[type="text"],
 textarea {
   field-sizing: content;
   min-inline-size: 5ch;
@@ -199,11 +199,11 @@ One can also use adjacent icons:
 
 ```css
 input:user-valid + span::after {
-  content: '✔';
+  content: "✔";
   color: green;
 }
 input:user-invalid + span::after {
-  content: '✖';
+  content: "✖";
   color: red;
 }
 ```
@@ -339,8 +339,8 @@ Use cases: implementing pop-up dialogs, alerts, or input forms without external 
 </dialog>
 <button id="openBtn">Open Dialog</button>
 <script>
-  const dlg = document.getElementById('dlg');
-  document.getElementById('openBtn').onclick = () => dlg.showModal();
+  const dlg = document.getElementById("dlg");
+  document.getElementById("openBtn").onclick = () => dlg.showModal();
 </script>
 ```
 
@@ -389,7 +389,7 @@ The :checked pseudo-class matches any `<input type="radio">`, `<input type="chec
 Use cases: styling form controls when selected or using checkboxes/radios for toggling UI purely via CSS. Examples:
 
 ```css
-input[type='checkbox']:checked + .content {
+input[type="checkbox"]:checked + .content {
   display: block;
 }
 ```
@@ -441,7 +441,7 @@ input:disabled {
 Example from MDN highlights disabled fields in a form:
 
 ```css
-input[type='text']:disabled {
+input[type="text"]:disabled {
   background: #cccccc;
 }
 ```
@@ -554,7 +554,7 @@ Use cases: defining and safeguarding CSS custom properties (variables). For exam
 
 ```css
 @property --logo-color {
-  syntax: '<color>';
+  syntax: "<color>";
   inherits: false;
   initial-value: #c0ffee;
 }
@@ -564,7 +564,7 @@ This registers `--logo-color` to only accept `<color>` values, not inherit, defa
 
 ```css
 @property --rotation {
-  syntax: '<angle>';
+  syntax: "<angle>";
   inherits: false;
   initial-value: 0deg;
 }

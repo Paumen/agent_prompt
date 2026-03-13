@@ -10,37 +10,37 @@
  * - Automatic prompt rebuilding
  */
 
-import { buildPrompt } from './prompt-builder.js';
+import { buildPrompt } from "./prompt-builder.js";
 
 // ============================================================================
 // DEFAULT STATE
 // ============================================================================
 
-const CURRENT_VERSION = '1.0';
+const CURRENT_VERSION = "1.0";
 
 const DEFAULT_STATE = {
   version: CURRENT_VERSION,
   configuration: {
-    owner: '',
-    repo: '',
-    branch: '',
-    pat: '',
+    owner: "",
+    repo: "",
+    branch: "",
+    pat: "",
     include_repo: true,
     include_pat: true,
   },
-  task: { flow_id: '' },
+  task: { flow_id: "" },
   panel_a: {
-    description: '',
+    description: "",
     issue_number: null,
     pr_number: null,
     files: [],
   },
   panel_b: {
-    description: '',
+    description: "",
     issue_number: null,
     spec_files: [],
     guideline_files: [],
-    acceptance_criteria: '',
+    acceptance_criteria: "",
     lenses: [],
   },
   steps: {
@@ -48,7 +48,7 @@ const DEFAULT_STATE = {
     removed_step_ids: [],
   },
   improve_scope: null,
-  output: { destination: 'clipboard' },
+  output: { destination: "clipboard" },
 };
 
 // ============================================================================
@@ -56,31 +56,31 @@ const DEFAULT_STATE = {
 // ============================================================================
 
 let state = clone(DEFAULT_STATE);
-let prompt = '';
+let prompt = "";
 const subscribers = new Set();
 
 // Notification batching - ensures DOM updates happen before notifications
 let pendingNotify = false;
 
 // Persistence config
-const STORAGE_KEY = 'agent_prompt_state';
+const STORAGE_KEY = "agent_prompt_state";
 
 // Downstream reset map - which state sections to reset when upstream data changes
 const DOWNSTREAM_MAP = {
   pat: {
-    reset: ['task', 'panels', 'steps'],
-    cards: ['card-steps', 'card-prompt'],
+    reset: ["task", "panels", "steps"],
+    cards: ["card-steps", "card-prompt"],
   },
   owner: {
-    reset: ['task', 'panels', 'steps'],
-    cards: ['card-steps', 'card-prompt'],
+    reset: ["task", "panels", "steps"],
+    cards: ["card-steps", "card-prompt"],
   },
   repo: {
-    reset: ['task', 'panels', 'steps'],
-    cards: ['card-steps', 'card-prompt'],
+    reset: ["task", "panels", "steps"],
+    cards: ["card-steps", "card-prompt"],
   },
-  branch: { reset: [], cards: ['card-steps', 'card-prompt'] },
-  flow: { reset: [], cards: ['card-steps', 'card-prompt'] },
+  branch: { reset: [], cards: ["card-steps", "card-prompt"] },
+  flow: { reset: [], cards: ["card-steps", "card-prompt"] },
 };
 
 // ============================================================================
@@ -93,7 +93,7 @@ function clone(obj) {
 }
 
 /** Keys that could pollute prototypes - block these in path-based updates */
-const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 /** Check if a key is safe to use */
 function isSafeKey(key) {
@@ -107,7 +107,7 @@ function isSafeKey(key) {
  * @returns {*} value at path, or undefined if not found
  */
 export function getValueByPath(obj, path) {
-  return path.split('.').reduce((o, key) => o?.[key], obj);
+  return path.split(".").reduce((o, key) => o?.[key], obj);
 }
 
 /**
@@ -118,12 +118,12 @@ export function getValueByPath(obj, path) {
  * @param {*} value - value to set
  */
 function setByPath(obj, path, value) {
-  const keys = path.split('.');
+  const keys = path.split(".");
   if (!keys.every(isSafeKey)) return; // Block dangerous paths
 
   const last = keys.pop();
   const target = keys.reduce((o, k) => {
-    if (o[k] === null || o[k] === undefined || typeof o[k] !== 'object') {
+    if (o[k] === null || o[k] === undefined || typeof o[k] !== "object") {
       o[k] = {};
     }
     return o[k];
@@ -137,11 +137,11 @@ function loadPersistent() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const saved = JSON.parse(raw);
-    if (saved && typeof saved === 'object') {
-      if (typeof saved.pat === 'string') state.configuration.pat = saved.pat;
-      if (typeof saved.owner === 'string')
+    if (saved && typeof saved === "object") {
+      if (typeof saved.pat === "string") state.configuration.pat = saved.pat;
+      if (typeof saved.owner === "string")
         state.configuration.owner = saved.owner;
-      if (typeof saved.repo === 'string') state.configuration.repo = saved.repo;
+      if (typeof saved.repo === "string") state.configuration.repo = saved.repo;
     }
   } catch {
     localStorage.removeItem(STORAGE_KEY);
@@ -157,7 +157,7 @@ function savePersistent() {
         pat: state.configuration.pat,
         owner: state.configuration.owner,
         repo: state.configuration.repo,
-      })
+      }),
     );
   } catch {
     // Storage unavailable - ignore silently
@@ -182,8 +182,8 @@ function scheduleNotify() {
 
   // Use RAF for batching in browser, but fallback to sync for tests
   if (
-    typeof requestAnimationFrame === 'function' &&
-    typeof window !== 'undefined'
+    typeof requestAnimationFrame === "function" &&
+    typeof window !== "undefined"
   ) {
     requestAnimationFrame(() => {
       pendingNotify = false;
@@ -223,21 +223,21 @@ export function getState() {
  *   setState(state => ({ ...state, improve_scope: 'each_file' }))
  */
 export function setState(pathOrUpdater, value) {
-  if (typeof pathOrUpdater === 'string') {
+  if (typeof pathOrUpdater === "string") {
     setByPath(state, pathOrUpdater, value);
     // Persist if changing a persistent field
     if (
       [
-        'configuration.pat',
-        'configuration.owner',
-        'configuration.repo',
+        "configuration.pat",
+        "configuration.owner",
+        "configuration.repo",
       ].includes(pathOrUpdater)
     ) {
       savePersistent();
     }
-  } else if (typeof pathOrUpdater === 'function') {
+  } else if (typeof pathOrUpdater === "function") {
     const updates = pathOrUpdater(state);
-    if (updates && typeof updates === 'object') {
+    if (updates && typeof updates === "object") {
       // Filter out dangerous keys from updater result
       for (const key of Object.keys(updates)) {
         if (isSafeKey(key)) {
@@ -312,14 +312,14 @@ export function resetDownstream(from) {
   if (!target) return [];
 
   // Reset state sections
-  if (target.reset.includes('task')) {
+  if (target.reset.includes("task")) {
     state.task = clone(DEFAULT_STATE.task);
   }
-  if (target.reset.includes('panels')) {
+  if (target.reset.includes("panels")) {
     state.panel_a = clone(DEFAULT_STATE.panel_a);
     state.panel_b = clone(DEFAULT_STATE.panel_b);
   }
-  if (target.reset.includes('steps')) {
+  if (target.reset.includes("steps")) {
     state.steps = clone(DEFAULT_STATE.steps);
     state.improve_scope = null;
   }
@@ -329,7 +329,7 @@ export function resetDownstream(from) {
   // Mark affected cards as locked
   for (const cardId of target.cards) {
     const el = document.getElementById(cardId);
-    if (el) el.dataset.cardState = 'locked';
+    if (el) el.dataset.cardState = "locked";
   }
 
   scheduleNotify();
