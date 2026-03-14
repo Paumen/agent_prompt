@@ -143,6 +143,7 @@
   color: var(--accent-a);
   background: var(--bg-inset-darker);
   border-color: var(--accent-a);
+  font-weight: 800;
 }
 
 /* --- 5. btn-icon: transparent, icon-only or icon+label tertiary --- */
@@ -215,7 +216,7 @@
 
 .input-field--textarea {
   field-sizing: content;
-  min-height: 32px;
+  min-height: 40px;
   resize: vertical;
 }
 
@@ -302,7 +303,6 @@
 
 .tag {
   display: inline-flex;
-  gap: var(--sp-2);
   place-items: center;
   min-width: 0;
   max-width: 100%;
