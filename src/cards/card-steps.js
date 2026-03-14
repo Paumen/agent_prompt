@@ -623,12 +623,6 @@ function onSelectOutput(stepIndex, mode, btn) {
   btn.setAttribute("aria-checked", String(isNowOn));
   btn.classList.toggle("btn-pill--on", isNowOn);
 
-  // Float-up toast
-  const float = document.createElement("span");
-  float.className = "output-float";
-  float.textContent = OUTPUT_LABELS[mode] || mode;
-  btn.appendChild(float);
-  float.addEventListener("animationend", () => float.remove());
 }
 
 function onOptionalTextChange(stepIndex, value) {
