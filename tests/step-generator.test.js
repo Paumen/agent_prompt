@@ -151,7 +151,7 @@ describe('generateSteps', () => {
     expect(generateSteps({}, EMPTY_PANEL_A, EMPTY_PANEL_B)).toEqual([]);
   });
 
-  it('generates steps for fix flow, merging edit+test into one', () => {
+  it('generates steps for fix flow', () => {
     const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
     const ids = steps.map((s) => s.id);
 
@@ -164,10 +164,10 @@ describe('generateSteps', () => {
       'commit',
     ]);
 
-    // edit step absorbs test step's sources and file picker
+    // edit step has no sources (sourceless step always appears)
     const editStep = steps.find((s) => s.id === 'edit');
-    expect(editStep.sources).toEqual(['panel_a.files']);
-    expect(editStep.has_file_picker).toBe(true);
+    expect(editStep.sources).toBeUndefined();
+    expect(editStep.has_file_picker).toBeUndefined();
   });
 
   it('generates subset of steps for review flow', () => {

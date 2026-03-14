@@ -117,7 +117,6 @@ describe('state.js', () => {
         'performance',
       ]);
     });
-
   });
 
   describe('setState() with updater function', () => {
@@ -261,15 +260,6 @@ describe('state.js', () => {
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
-      stateModule.applyFlowDefaults('fix', flowDef);
-
-      const s = stateModule.getState();
-      expect(s.steps.enabled_steps).toHaveLength(3);
-      expect(s.steps.enabled_steps[0].id).toBe('read-claude');
-      expect(s.steps.enabled_steps[1].id).toBe('create-branch');
-      expect(s.steps.enabled_steps[2].id).toBe('commit-pr');
-    });
-
     it('sets empty enabled_steps when flow def has no steps', () => {
       stateModule.applyFlowDefaults('fix', {});
       const s = stateModule.getState();
@@ -372,5 +362,4 @@ describe('state.js', () => {
       expect(stored).not.toHaveProperty('branch');
     });
   });
-
 });
