@@ -44,12 +44,6 @@ const FIX_FLOW = {
     { id: 'plan', operation: 'create', object: 'plan' },
     { id: 'edit', operation: 'edit', object: 'files' },
     {
-      id: 'test',
-      operation: 'validate',
-      object: 'tests',
-      sources: ['panel_a.files'],
-    },
-    {
       id: 'commit',
       operation: 'commit',
       object: 'changes',
