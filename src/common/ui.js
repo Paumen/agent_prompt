@@ -328,23 +328,6 @@ export const collapseCard = (id) => {
   if (c) c.open = false;
 };
 
-let _isInteracting = false;
-let _interactionTimer = null;
-
-export function setInteracting() {
-  _isInteracting = true;
-  clearTimeout(_interactionTimer);
-  _interactionTimer = setTimeout(() => (_isInteracting = false), 2000);
-}
-
-export function isInteracting() {
-  return (
-    _isInteracting ||
-    (typeof document !== "undefined" &&
-      !!document.activeElement?.matches("input, textarea, select"))
-  );
-}
-
 export function renderShimmer(container, label, barCount = 2) {
   container.innerHTML = `<div class="shimmer-label">${label}</div>`;
   for (let i = 0; i < barCount; i++) {

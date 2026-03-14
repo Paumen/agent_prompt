@@ -12,12 +12,12 @@ import {
   resetDownstream,
   applyFlowDefaults,
   subscribe,
-} from '../core/state.js';
-import { getFlows } from '../logic/flow-loader.js';
-import { prefetchForFlow } from './card-tasks.js';
-import { fetchRepos, fetchBranches, fetchTree } from '../common/github-api.js';
-import { cacheGet, cacheSet, cacheClear } from '../common/cache.js';
-import { icon } from '../common/icons.js';
+} from "../core/state.js";
+import { getFlows } from "../logic/flow-loader.js";
+import { prefetchForFlow } from "./card-tasks.js";
+import { fetchRepos, fetchBranches, fetchTree } from "../common/github-api.js";
+import { cacheGet, cacheSet, cacheClear } from "../common/cache.js";
+import { icon } from "../common/icons.js";
 import {
   createButton,
   createInputField,
@@ -25,20 +25,10 @@ import {
   createTag,
   renderShimmer,
   renderError,
-  isInteracting,
-} from '../common/ui.js';
+} from "../common/ui.js";
 // --- Flow selector state ---
 let currentFlowId = null;
 let elFlowButtons = [];
-// --- GL-05: Defer re-render until user is not mid-interaction ---
-function deferIfInteracting(fn, maxRetries = 5) {
-  if (!isInteracting()) {
-    fn();
-    return;
-  }
-  if (maxRetries <= 0) return;
-  setTimeout(() => deferIfInteracting(fn, maxRetries - 1), 2000);
-}
 // --- Module-level UI data ---
 let fileTree = [];
 /** @returns {Array} current file tree data */
@@ -47,27 +37,27 @@ export function getFileTree() {
 }
 /** Update the configuration card .card-meta with current owner/repo/branch (D203) */
 export function updateConfigCardMeta() {
-  const metaEl = document.querySelector('#card-configuration .card-meta');
+  const metaEl = document.querySelector("#card-configuration .card-meta");
   if (!metaEl) return;
-  metaEl.textContent = '';
+  metaEl.textContent = "";
   const state = getState();
   const { owner, repo, branch } = state.configuration;
   if (owner) {
-    metaEl.appendChild(icon('mark-github', 'icon-btn'));
-    const ownerSpan = document.createElement('span');
+    metaEl.appendChild(icon("mark-github", "icon-btn"));
+    const ownerSpan = document.createElement("span");
     ownerSpan.textContent = owner;
     metaEl.appendChild(ownerSpan);
   }
   if (repo) {
-    metaEl.appendChild(icon('repo', 'icon-btn'));
-    const repoSpan = document.createElement('span');
+    metaEl.appendChild(icon("repo", "icon-btn"));
+    const repoSpan = document.createElement("span");
     repoSpan.textContent = repo;
     metaEl.appendChild(repoSpan);
   }
   if (branch) {
-    metaEl.appendChild(icon('git-branch', 'icon-btn'));
-    const branchSpan = document.createElement('span');
-    branchSpan.className = 'truncate-start';
+    metaEl.appendChild(icon("git-branch", "icon-btn"));
+    const branchSpan = document.createElement("span");
+    branchSpan.className = "truncate-start";
     branchSpan.textContent = branch;
     branchSpan.title = branch;
     metaEl.appendChild(branchSpan);
@@ -86,48 +76,48 @@ let elPatInput,
   elUserSection;
 // --- Render static UI shell ---
 function renderShell(container) {
-  container.innerHTML = '';
+  container.innerHTML = "";
   // --- Username (top-left) ---
   elUserSection = createInputField({
-    iconName: 'mark-github',
-    id: 'cfg-username',
-    placeholder: 'GitHub username',
+    iconName: "mark-github",
+    id: "cfg-username",
+    placeholder: "GitHub username",
   });
   elUsername = elUserSection._inputEl;
-  elUserClear = createButton('icon', {
-    iconName: 'x',
-    iconClass: 'icon-remove',
-    ariaLabel: 'Clear username',
+  elUserClear = createButton("icon", {
+    iconName: "x",
+    iconClass: "icon-remove",
+    ariaLabel: "Clear username",
   });
   elUserClear.hidden = true;
   elUserSection.appendChild(elUserClear);
   // --- PAT (top-right) ---
   elPatSection = createInputField({
-    type: 'password',
-    id: 'cfg-pat',
-    iconName: 'key',
-    placeholder: 'GitHub personal access token',
+    type: "password",
+    id: "cfg-pat",
+    iconName: "key",
+    placeholder: "GitHub personal access token",
   });
   elPatInput = elPatSection._inputEl;
-  elPatToggle = createButton('icon', { ariaLabel: 'Show token' });
+  elPatToggle = createButton("icon", { ariaLabel: "Show token" });
   elPatToggle.hidden = true;
-  elPatToggle.appendChild(icon('eye', 'icon-btn'));
+  elPatToggle.appendChild(icon("eye", "icon-btn"));
   elPatSection.appendChild(elPatToggle);
-  elPatClear = createButton('icon', {
-    iconName: 'x',
-    iconClass: 'icon-remove',
-    ariaLabel: 'Clear token',
+  elPatClear = createButton("icon", {
+    iconName: "x",
+    iconClass: "icon-remove",
+    ariaLabel: "Clear token",
   });
   elPatClear.hidden = true;
   elPatSection.appendChild(elPatClear);
   // --- Repo (bottom-left) ---
-  elRepoSection = document.createElement('div');
-  elRepoSection.className = 'field-picker';
-  renderDisabledPlaceholder(elRepoSection, 'Select repository…');
+  elRepoSection = document.createElement("div");
+  elRepoSection.className = "field-picker";
+  renderDisabledPlaceholder(elRepoSection, "Select repository…");
   // --- Branch (bottom-right) ---
-  elBranchSection = document.createElement('div');
-  elBranchSection.className = 'field-picker';
-  renderDisabledPlaceholder(elBranchSection, 'Select branch…');
+  elBranchSection = document.createElement("div");
+  elBranchSection.className = "field-picker";
+  renderDisabledPlaceholder(elBranchSection, "Select branch…");
   // Order: username (top-left), PAT (top-right), repo (bottom-left), branch (bottom-right)
   container.appendChild(elUserSection);
   container.appendChild(elPatSection);
@@ -139,7 +129,7 @@ export function renderFlowSelector(container, beforeEl = null) {
   elFlowButtons = [];
   const flows = getFlows();
   for (const [flowId, flowDef] of Object.entries(flows)) {
-    const btn = createButton('select', {
+    const btn = createButton("select", {
       label: flowDef.label,
       iconName: flowDef.icon || undefined,
       onClick: () => onFlowSelect(flowId, flowDef),
@@ -156,29 +146,29 @@ export function renderFlowSelector(container, beforeEl = null) {
 function onFlowSelect(flowId, flowDef) {
   if (flowId === currentFlowId) return;
   currentFlowId = flowId;
-  resetDownstream('flow');
+  resetDownstream("flow");
   applyFlowDefaults(flowId, flowDef);
   for (const btn of elFlowButtons) {
     const isSelected = btn.dataset.flowId === flowId;
-    btn.classList.toggle('btn-select--selected', isSelected);
-    btn.setAttribute('aria-selected', String(isSelected));
+    btn.classList.toggle("btn-select--selected", isSelected);
+    btn.setAttribute("aria-selected", String(isSelected));
   }
   updateConfigCardMeta();
   prefetchForFlow(flowDef);
 }
 // --- AC 1.1: Disabled placeholder for pickers when credentials are missing ---
 function renderDisabledPlaceholder(container, placeholderText) {
-  const input = document.createElement('input');
-  input.className = 'input-field';
+  const input = document.createElement("input");
+  input.className = "input-field";
   input.placeholder = placeholderText;
   input.disabled = true;
-  input.setAttribute('aria-disabled', 'true');
+  input.setAttribute("aria-disabled", "true");
   container.appendChild(input);
 }
 // --- Event handlers ---
 function onPatInput() {
   const pat = elPatInput.value.trim();
-  setState('configuration.pat', pat);
+  setState("configuration.pat", pat);
   const hasValue = pat.length > 0;
   elPatToggle.hidden = !hasValue;
   elPatClear.hidden = !hasValue;
@@ -188,42 +178,42 @@ function onPatChange() {
   if (!pat) return;
   cacheClear();
   const owner = getState().configuration.owner;
-  if (owner) loadRepos(owner, pat, false);
+  if (owner) loadRepos(owner, pat);
 }
 function onPatToggle() {
-  const isPassword = elPatInput.type === 'password';
-  elPatInput.type = isPassword ? 'text' : 'password';
+  const isPassword = elPatInput.type === "password";
+  elPatInput.type = isPassword ? "text" : "password";
   elPatToggle.replaceChildren(
-    icon(isPassword ? 'eye-closed' : 'eye', 'icon-btn')
+    icon(isPassword ? "eye-closed" : "eye", "icon-btn"),
   );
   elPatToggle.setAttribute(
-    'aria-label',
-    isPassword ? 'Hide token' : 'Show token'
+    "aria-label",
+    isPassword ? "Hide token" : "Show token",
   );
 }
 /** Unified handler for clearing primary fields (PAT/Owner) */
 function clearPrimaryField(key) {
-  const isPat = key === 'pat';
+  const isPat = key === "pat";
   if (isPat) {
-    elPatInput.value = '';
-    elPatInput.type = 'password';
-    elPatToggle.replaceChildren(icon('eye', 'icon-btn'));
+    elPatInput.value = "";
+    elPatInput.type = "password";
+    elPatToggle.replaceChildren(icon("eye", "icon-btn"));
     elPatToggle.hidden = true;
     elPatClear.hidden = true;
   } else {
-    elUsername.value = '';
+    elUsername.value = "";
     elUserClear.hidden = true;
   }
   cacheClear();
   setState((s) => {
-    if (isPat) s.configuration.pat = '';
-    else s.configuration.owner = '';
-    s.configuration.repo = '';
-    s.configuration.branch = '';
+    if (isPat) s.configuration.pat = "";
+    else s.configuration.owner = "";
+    s.configuration.repo = "";
+    s.configuration.branch = "";
     return s;
   });
   fileTree = [];
-  resetDownstream(isPat ? 'pat' : 'owner');
+  resetDownstream(isPat ? "pat" : "owner");
   if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
   renderRepoSection([]);
   renderBranchSection([]);
@@ -231,7 +221,7 @@ function clearPrimaryField(key) {
   (isPat ? elPatInput : elUsername).focus();
 }
 function onPatClear() {
-  clearPrimaryField('pat');
+  clearPrimaryField("pat");
 }
 function onUsernameInput() {
   const owner = elUsername.value.trim();
@@ -239,26 +229,26 @@ function onUsernameInput() {
 }
 function onUsernameChange() {
   const owner = elUsername.value.trim();
-  setState('configuration.owner', owner);
+  setState("configuration.owner", owner);
   updateConfigCardMeta();
   const pat = getState().configuration.pat;
   if (pat && owner) {
     cacheClear();
-    loadRepos(owner, pat, false);
+    loadRepos(owner, pat);
   } else {
     renderRepoSection([]);
     renderBranchSection([]);
   }
 }
 function onUserClear() {
-  clearPrimaryField('owner');
+  clearPrimaryField("owner");
 }
 // --- Shared picker rendering logic ---
 function renderPickerSection(type, items, selected) {
-  const isRepo = type === 'repo';
+  const isRepo = type === "repo";
   const container = isRepo ? elRepoSection : elBranchSection;
-  const iconName = isRepo ? 'repo' : 'git-branch';
-  container.innerHTML = '';
+  const iconName = isRepo ? "repo" : "git-branch";
+  container.innerHTML = "";
   if (!items || items.length === 0) return;
 
   if (selected) {
@@ -268,28 +258,28 @@ function renderPickerSection(type, items, selected) {
       onRemove: () => {
         if (isRepo) {
           setState((s) => {
-            s.configuration.repo = '';
-            s.configuration.branch = '';
+            s.configuration.repo = "";
+            s.configuration.branch = "";
             return s;
           });
           renderBranchSection([]);
-          resetDownstream('repo');
+          resetDownstream("repo");
         } else {
-          setState('configuration.branch', '');
-          resetDownstream('branch');
+          setState("configuration.branch", "");
+          resetDownstream("branch");
         }
         fileTree = [];
         renderPickerSection(type, items, null);
         if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
         updateConfigCardMeta();
-        container.querySelector('input')?.focus();
+        container.querySelector("input")?.focus();
       },
     });
     container.appendChild(tag);
   } else {
     const picker = createPicker({
       items: items.map((i) => ({ value: i.name, label: i.name })),
-      placeholder: `Search ${isRepo ? 'repositories' : 'branches'}…`,
+      placeholder: `Search ${isRepo ? "repositories" : "branches"}…`,
       searchIconName: iconName,
       onSelect: (item) => {
         const entry = items.find((i) => i.name === item.value);
@@ -303,14 +293,14 @@ function renderPickerSection(type, items, selected) {
   }
 }
 function renderRepoSection(repos, selectedRepo) {
-  renderPickerSection('repo', repos, selectedRepo);
+  renderPickerSection("repo", repos, selectedRepo);
 }
 function onRepoSelect(repo, allRepos) {
   const state = getState();
   const { owner, pat } = state.configuration;
   setState((s) => {
     s.configuration.repo = repo.name;
-    s.configuration.branch = '';
+    s.configuration.branch = "";
     return s;
   });
   fileTree = [];
@@ -320,118 +310,83 @@ function onRepoSelect(repo, allRepos) {
   loadBranches(owner, repo.name, pat, repo.default_branch);
 }
 function renderBranchSection(branches, selectedBranch) {
-  renderPickerSection('branch', branches, selectedBranch);
+  renderPickerSection("branch", branches, selectedBranch);
 }
 function onBranchSelect(branch, allBranches) {
-  setState('configuration.branch', branch.name);
+  setState("configuration.branch", branch.name);
   renderBranchSection(allBranches, branch.name);
   updateConfigCardMeta();
   const state = getState();
   const { owner, repo, pat } = state.configuration;
   if (owner && repo && pat) {
-    loadTreeInBackground(owner, repo, branch.name, pat);
+    loadTree(owner, repo, branch.name, pat);
   }
 }
-// --- Data loading with cache + background refresh (GL-05) ---
-async function loadRepos(owner, pat, isBackground = false) {
+// --- Data loading with cache ---
+async function loadRepos(owner, pat) {
   const cacheKey = `repos_${owner}`;
   const cached = cacheGet(cacheKey);
-  if (cached && !isBackground) {
+  if (cached) {
     renderRepoSection(cached, getState().configuration.repo);
-    loadRepos(owner, pat, true);
     return;
   }
-  if (!isBackground) {
-    elRepoSection.innerHTML = '';
-    renderShimmer(elRepoSection, 'Loading repositories\u2026', 3);
-  }
+  elRepoSection.innerHTML = "";
+  renderShimmer(elRepoSection, "Loading repositories\u2026", 3);
   const result = await fetchRepos(owner, pat);
   if (result.error) {
-    if (!isBackground) {
-      elRepoSection.innerHTML = '';
-      renderError(elRepoSection, result.error, () =>
-        loadRepos(owner, pat, false)
-      );
-    }
+    elRepoSection.innerHTML = "";
+    renderError(elRepoSection, result.error, () => loadRepos(owner, pat));
     return;
   }
   cacheSet(cacheKey, result.data);
-  if (isBackground && cached) {
-    const changed =
-      JSON.stringify(result.data.map((r) => r.name)) !==
-      JSON.stringify(cached.map((r) => r.name));
-    if (changed) {
-      deferIfInteracting(() => {
-        renderRepoSection(result.data, getState().configuration.repo);
-      });
-    }
-    return;
-  }
   renderRepoSection(result.data, getState().configuration.repo);
 }
 async function loadBranches(owner, repo, pat, defaultBranch) {
   const cacheKey = `branches_${owner}_${repo}`;
   const cached = cacheGet(cacheKey);
   if (cached) {
-    const autoSelected = defaultBranch || cached[0]?.name || '';
-    setState('configuration.branch', autoSelected);
+    const autoSelected = defaultBranch || cached[0]?.name || "";
+    setState("configuration.branch", autoSelected);
     renderBranchSection(cached, autoSelected);
     updateConfigCardMeta();
-    loadTreeInBackground(owner, repo, autoSelected, pat);
-    loadBranchesBackground(owner, repo, pat, cacheKey, cached);
+    loadTree(owner, repo, autoSelected, pat);
     return;
   }
-  elBranchSection.innerHTML = '';
-  renderShimmer(elBranchSection, 'Loading branches\u2026', 2);
+  elBranchSection.innerHTML = "";
+  renderShimmer(elBranchSection, "Loading branches\u2026", 2);
   const result = await fetchBranches(owner, repo, pat);
   if (result.error) {
-    elBranchSection.innerHTML = '';
+    elBranchSection.innerHTML = "";
     renderError(elBranchSection, result.error, () =>
-      loadBranches(owner, repo, pat, defaultBranch)
+      loadBranches(owner, repo, pat, defaultBranch),
     );
     return;
   }
   cacheSet(cacheKey, result.data);
   const match = result.data.find((b) => b.name === defaultBranch);
-  const autoSelected = match ? match.name : result.data[0]?.name || '';
-  setState('configuration.branch', autoSelected);
+  const autoSelected = match ? match.name : result.data[0]?.name || "";
+  setState("configuration.branch", autoSelected);
   renderBranchSection(result.data, autoSelected);
   updateConfigCardMeta();
   if (autoSelected) {
-    loadTreeInBackground(owner, repo, autoSelected, pat);
+    loadTree(owner, repo, autoSelected, pat);
   }
 }
-async function loadBranchesBackground(owner, repo, pat, cacheKey, cached) {
-  const result = await fetchBranches(owner, repo, pat);
-  if (result.error) return;
-  cacheSet(cacheKey, result.data);
-  const changed =
-    JSON.stringify(result.data.map((b) => b.name)) !==
-    JSON.stringify(cached.map((b) => b.name));
-  if (changed) {
-    deferIfInteracting(() => {
-      const selected = getState().configuration.branch;
-      renderBranchSection(result.data, selected);
-    });
-  }
-}
-async function loadTreeInBackground(owner, repo, branch, pat) {
+async function loadTree(owner, repo, branch, pat) {
   const cacheKey = `tree_${owner}_${repo}_${branch}`;
   const cached = cacheGet(cacheKey);
   if (cached) {
     fileTree = cached;
-  }
-  const result = await fetchTree(owner, repo, branch, pat);
-  if (result.error) {
-    if (!cached) fileTree = [];
     return;
   }
+  const result = await fetchTree(owner, repo, branch, pat);
+  if (result.error) return;
   fileTree = result.data;
   cacheSet(cacheKey, result.data);
 }
 // --- Initialization ---
 export function initConfigurationCard() {
-  elCardBody = document.getElementById('bd-configuration');
+  elCardBody = document.getElementById("bd-configuration");
   if (!elCardBody) return;
   renderShell(elCardBody);
   const state = getState();
@@ -447,16 +402,16 @@ export function initConfigurationCard() {
     elUserClear.hidden = false;
   }
   // Wire events
-  elPatInput.addEventListener('input', onPatInput);
-  elPatInput.addEventListener('change', onPatChange);
-  elPatToggle.addEventListener('click', onPatToggle);
-  elPatClear.addEventListener('click', onPatClear);
-  elUsername.addEventListener('input', onUsernameInput);
-  elUsername.addEventListener('change', onUsernameChange);
-  elUserClear.addEventListener('click', onUserClear);
+  elPatInput.addEventListener("input", onPatInput);
+  elPatInput.addEventListener("change", onPatChange);
+  elPatToggle.addEventListener("click", onPatToggle);
+  elPatClear.addEventListener("click", onPatClear);
+  elUsername.addEventListener("input", onUsernameInput);
+  elUsername.addEventListener("change", onUsernameChange);
+  elUserClear.addEventListener("click", onUserClear);
   // When config card is re-opened, show credentials again (D111: toggle listener)
-  const cfgCard = document.getElementById('card-configuration');
-  cfgCard?.addEventListener('toggle', () => {
+  const cfgCard = document.getElementById("card-configuration");
+  cfgCard?.addEventListener("toggle", () => {
     if (cfgCard.open) {
       if (elPatSection) elPatSection.hidden = elUserSection.hidden = false;
     }
@@ -470,8 +425,8 @@ export function initConfigurationCard() {
       currentFlowId = flowId;
       for (const btn of elFlowButtons) {
         const isSelected = btn.dataset.flowId === flowId;
-        btn.classList.toggle('btn-select--selected', isSelected);
-        btn.setAttribute('aria-selected', String(isSelected));
+        btn.classList.toggle("btn-select--selected", isSelected);
+        btn.setAttribute("aria-selected", String(isSelected));
       }
       updateConfigCardMeta();
     }
@@ -481,7 +436,7 @@ export function initConfigurationCard() {
     const savedRepo = state.configuration.repo;
     const { owner, pat } = state.configuration;
     // E3: Also auto-restore branches when a cached repo is present
-    loadRepos(owner, pat, false).then(() => {
+    loadRepos(owner, pat).then(() => {
       if (savedRepo) {
         const cachedRepos = cacheGet(`repos_${owner}`);
         const repoData = cachedRepos?.find((r) => r.name === savedRepo);
