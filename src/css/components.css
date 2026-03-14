@@ -32,7 +32,6 @@
 .card-header .icon {
   display: inline-block;
   vertical-align: middle;
-  color: var(--accent-b);
   transition: transform 0.5s ease;
 }
 
@@ -51,6 +50,7 @@
   flex-shrink: 0;
   gap: var(--sp-4);
   place-items: center;
+  place-content: center;
   font-family: inherit;
   color: var(--text-secondary);
   white-space: nowrap;
