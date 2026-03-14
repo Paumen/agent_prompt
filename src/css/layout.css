@@ -50,14 +50,6 @@ body {
   box-shadow: var(--shadow);
 }
 
-/* D602: summary always clickable for expand/collapse (except locked prevents open in JS) */
-
-[data-card-state] > summary {
-  pointer-events: auto;
-}
-
-/* D603: Focus-within undims sufficient/complete cards for re-editing */
-
 .card-header > h3 {
   display: inline-flex;
   gap: var(--sp-2);
@@ -91,7 +83,7 @@ body {
 
 .card-header {
   display: grid;
-  grid-template-columns: auto 1fr 1fr 1fr 1fr minmax(4cqi, auto);
+  grid-template-columns: auto 1fr 1fr 1fr 1fr minmax(5cqi, auto);
   gap: var(--sp-4);
   place-items: center stretch;
   width: 100%;
@@ -145,6 +137,34 @@ body {
   place-content: center;
 }
 
+.card-tabs {
+  gap: 0;
+  padding: 0;
+}
+
+.card-tabs .card-header {
+  place-items: end stretch;
+  padding: var(--sp-8) var(--sp-8) 0;
+}
+
+.card-tabs .card-body {
+  background: var(--accent-a);
+  border-radius: var(--radius);
+}
+
+.cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  width: 100%;
+}
+
+/* D602: summary always clickable for expand/collapse */
+
+[data-card-state]>summary {
+  pointer-events: auto;
+}
+
 details {
   interpolate-size: allow-keywords;
 }
@@ -154,8 +174,8 @@ details::details-content {
   content-visibility: hidden;
   overflow: clip;
   transition:
-    block-size 0.2s ease,
-    content-visibility 0.2s ease;
+    block-size 0.4s ease,
+    content-visibility 0.4s ease;
 }
 
 details[open]::details-content {
@@ -200,6 +220,30 @@ summary.card-header::-webkit-details-marker {
   box-shadow: var(--shadow-inset);
 }
 
+.input-field::placeholder {
+  font-size: var(--text);
+  color: var(--text-tertiary);
+}
+
+.input-field:not(:where(.field-picker-search .input-field)):focus {
+  outline: none;
+  background: var(--bg-inset);
+  border-color: var(--accent-b);
+}
+
+.input-field:not(:where(.field-picker-search .input-field)):focus-visible {
+  outline: 2px solid var(--accent-a);
+  outline-offset: 0;
+  box-shadow: 0 0 0 var(--sp-2)
+    color-mix(in srgb, var(--accent-a) 20%, transparent);
+}
+
+.input-field--textarea {
+  field-sizing: content;
+  min-height: 40px;
+  resize: vertical;
+}
+
 /* === Output (full-width content area) === */
 
 .output {
@@ -236,20 +280,9 @@ summary.card-header::-webkit-details-marker {
   grid-column: -2 / -1;
 }
 
-.cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  width: 100%;
-}
-
-/* Single-content items span both content columns */
-
 .output-field > .cloud {
   grid-column: 3 / -2;
 }
-
-/* Pickers placed directly in a step row fill their column track */
 
 .output-field > .field-picker {
   width: 100%;
@@ -259,23 +292,6 @@ summary.card-header::-webkit-details-marker {
 .output-block {
   display: flex;
   flex-direction: column;
-  width: 100%;
   counter-reset: steps;
 }
 
-/* === Tab-style card layout === */
-
-.card-tabs {
-  gap: 0;
-  padding: 0;
-}
-
-.card-tabs .card-header {
-  place-items: end stretch;
-  padding: var(--sp-8) var(--sp-8) 0;
-}
-
-.card-tabs .card-body {
-  background: var(--accent-a);
-  border-radius: var(--radius);
-}

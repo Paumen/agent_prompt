@@ -2,11 +2,11 @@
 
 /**
  * DOM level L5, L6, L7
- * Button taxonomy (5 types), input fields, field-picker, tags, icons.
- * Import order: variables.css → layout.css → components.css 
+ * Button taxonomy (input fields,-pickers, tags, icons.
+ * order: variables.css → layout.css → components.css 
  */
 
-/* ==================================================
+/* ================================================
    ICON (standardized size)
    ============================================== */
 
@@ -21,10 +21,6 @@
   color: var(--text-secondary);
 }
 
-.icon-remove:hover {
-  color: var(--text-primary);
-}
-
 .icon-btn {
   color: inherit;
 }
@@ -35,11 +31,9 @@
   transition: transform 0.5s ease;
 }
 
-/* ====================================================
+/* ==================================================
    BUTTONS — 5 types
    ============================================== */
-
-/* --- Shared button reset --- */
 
 .btn-primary,
 .btn-select,
@@ -73,10 +67,6 @@
   border: 2px solid var(--accent-a);
 }
 
-.btn-primary:hover {
-  background: var(--accent-b);
-}
-
 /* --- 2. btn-select: single-select from options --- */
 
 .btn-select {
@@ -101,8 +91,6 @@
   background: var(--accent-b);
 }
 
-/* --- Tab variant for btn-select in card-tabs --- */
-
 .card-tabs .btn-select {
   border-bottom-color: transparent;
   border-radius: var(--radius) var(--radius) 0 0;
@@ -126,7 +114,7 @@
   border: 2px solid var(--text-tertiary);
 }
 
-/* --- 4. btn-pill: multi-select toggle (pill shape) --- */
+/* --- 4. btn-pill: multi-select toggle (pill) --- */
 
 .btn-pill {
   min-height: 24px;
@@ -135,7 +123,6 @@
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius-pill);
   font-size: var(--text-sm);
-
 }
 
 .btn-pill[aria-checked='true'],
@@ -146,7 +133,7 @@
   font-weight: 800;
 }
 
-/* --- 5. btn-icon: transparent, icon-only or icon+label tertiary --- */
+/* --- 5. btn-icon: transparent, icon-onlyy --- */
 
 .btn-icon {
   display: grid;
@@ -165,25 +152,11 @@
   font-weight: 700;
 }
 
-/* ============================================================
-   HOVER & FOCUS STATES
-   ============================================================ */
+/* =================================================
+   FOCUS STATES
+   =============================================== */
 
-.btn-pill:hover {
-  border-color: var(--accent-b);
-}
-
-.btn-icon:hover {
-  color: var(--text-primary);
-}
-
-:is(
-  .btn-primary,
-  .btn-select,
-  .btn-action,
-  .btn-pill,
-  .btn-icon
-):focus-visible {
+:is( .btn-primary,.btn-select,.btn-action,.btn-pill,.btn-icon):focus-visible {
   outline: 2px solid var(--accent-a);
   outline-offset: 2px;
 }
@@ -192,37 +165,9 @@
   outline: none;
 }
 
-/* ============================================================
+/* ================================================
    INPUT FIELD
-   ============================================================ */
-
-.input-field::placeholder {
-  font-size: var(--text);
-  color: var(--text-tertiary);
-}
-
-.input-field:not(:where(.field-picker-search .input-field)):focus {
-  outline: none;
-  background: var(--bg-inset);
-  border-color: var(--accent-b);
-}
-
-.input-field:not(:where(.field-picker-search .input-field)):focus-visible {
-  outline: 2px solid var(--accent-a);
-  outline-offset: 0;
-  box-shadow: 0 0 0 var(--sp-2)
-    color-mix(in srgb, var(--accent-a) 20%, transparent);
-}
-
-.input-field--textarea {
-  field-sizing: content;
-  min-height: 40px;
-  resize: vertical;
-}
-
-/* ============================================================
-   FIELD PICKER (search input + dropdown + tags)
-   ============================================================ */
+   ============================================== */
 
 .field-picker {
   position: relative;
@@ -286,10 +231,6 @@
   cursor: pointer;
 }
 
-.field-picker-item:hover {
-  background: var(--bg-inset);
-}
-
 .field-picker-empty {
   padding: var(--sp-4);
   font-size: var(--text);
@@ -349,14 +290,7 @@
   text-align: center;
 }
 
-/* =================================================
-   SPECIAL PATTERNS (icon swap, XML highlight)
-   ============================================= */
-
-.btn-copy .icon-check {
-  display: none;
-}
-
+.btn-copy .icon-check,
 .btn--copied .icon-clipboard {
   display: none;
 }
@@ -370,17 +304,15 @@
   color: var(--accent-a);
 }
 
-/* ============================================================
-   SHIMMER / LOADER
-   ============================================================ */
+/* =================================================
+   SHIMMER 
+   ================================================= */
 
 @keyframes shimmer-pulse {
-
   0%,
   100% {
     opacity: 1;
   }
-  
   50% {
     opacity: 0.45;
   }
