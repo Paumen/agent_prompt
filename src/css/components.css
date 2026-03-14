@@ -32,7 +32,7 @@
 .card-header .icon {
   display: inline-block;
   vertical-align: middle;
-  color: var(--accent-a);
+  color: var(--accent-b);
   transition: transform 0.5s ease;
 }
 
@@ -52,7 +52,6 @@
   gap: var(--sp-4);
   place-items: center;
   font-family: inherit;
-  font-size: var(--text-sm);
   color: var(--text-secondary);
   white-space: nowrap;
   text-decoration: none;
@@ -135,6 +134,8 @@
   background: var(--bg);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+
 }
 
 .btn-pill[aria-checked='true'],
