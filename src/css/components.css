@@ -3,7 +3,7 @@
 /**
  * DOM level L5, L6, L7
  * Button taxonomy (5 types), input fields, field-picker, tags, icons.
- * Import order: variables.css → layout.css → components.css → Specials.css 
+ * Import order: variables.css → layout.css → components.css 
  */
 
 /* ==================================================
@@ -378,4 +378,60 @@
 .xml-tag {
   font-weight: 900;
   color: var(--accent-a);
+}
+
+/* ============================================================
+   SHIMMER / LOADER
+   ============================================================ */
+
+@keyframes shimmer-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+  
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.shimmer {
+  background: var(--bg-inset);
+  border-radius: var(--radius);
+  animation: shimmer-pulse 1.5s ease-in-out infinite;
+}
+
+.shimmer-bar {
+  height: var(--sp-4);
+  border-radius: var(--sp-4);
+}
+
+/* ==================================================
+   PROMPT OUTPUT
+   =============================================== */
+
+.prompt-output {
+  position: relative;
+  max-height: 320px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: var(--bg-inset);
+  border: 1px solid var(--text-tertiary);
+  border-radius: var(--radius);
+}
+
+.prompt-output>code {
+  display: block;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.prompt-output>.cloud {
+  position: absolute;
+  inset: var(--sp-4) auto;
+  z-index: var(--z10);
+  width: fit-content;
 }
