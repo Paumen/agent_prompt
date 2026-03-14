@@ -100,9 +100,15 @@ export function createMockSteps(count = 2) {
       lenses: ['semantics'],
     },
     {
-      id: 'implement',
+      id: 'edit',
       operation: 'edit',
       object: 'files',
+    },
+    {
+      id: 'test',
+      operation: 'validate',
+      object: 'tests',
+      sources: ['panel_a.files'],
     },
     {
       id: 'commit',

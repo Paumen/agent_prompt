@@ -17,7 +17,7 @@ import { createMockState, createMockSteps } from './helpers/state-factory.js';
 
 // --- Mock dependencies ---
 
-const mockSteps = createMockSteps(4);
+const mockSteps = createMockSteps(5);
 
 const mockState = createMockState({
   task: { flow_id: 'fix' },
@@ -82,11 +82,18 @@ describe('Step rendering (STP-01)', () => {
   it('renders step list from state with correct labels', () => {
     initStepsCard();
     const rows = document.querySelectorAll('.output-field');
-    // Step 0 (context row) + 4 enabled steps
+    // Step 0 (context) + 4 visible steps (test merged into edit)
     expect(rows.length).toBe(5);
     expect(rows[0].children[0].textContent).toContain('Context');
     expect(rows[1].children[0].textContent).toContain('Context: @claude.md');
     expect(rows[2].children[0].textContent).toContain('Analyze');
+    expect(rows[3].children[0].textContent).toBe('Implement');
+  });
+
+  it('merges test step into edit step — no separate test row rendered', () => {
+    initStepsCard();
+    expect(document.querySelector('[data-step-id="edit"]')).toBeTruthy();
+    expect(document.querySelector('[data-step-id="test"]')).toBeNull();
   });
 
   it('uses ordered list for step numbering', () => {
@@ -109,6 +116,21 @@ describe('Step rendering (STP-01)', () => {
     expect(document.getElementById('bd-steps').textContent).toContain(
       'Select a flow'
     );
+  });
+
+  it('renders test step when no edit step is present', () => {
+    getState.mockReturnValue(
+      createMockState({
+        steps: {
+          enabled_steps: [
+            { id: 'test', operation: 'validate', object: 'tests' },
+          ],
+          removed_step_ids: [],
+        },
+      })
+    );
+    initStepsCard();
+    expect(document.querySelector('[data-step-id="test"]')).toBeTruthy();
   });
 });
 
