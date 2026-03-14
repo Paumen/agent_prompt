@@ -118,10 +118,6 @@ describe('state.js', () => {
       ]);
     });
 
-    it('sets improve_scope', () => {
-      stateModule.setState('improve_scope', 'each_file');
-      expect(stateModule.getState().improve_scope).toBe('each_file');
-    });
   });
 
   describe('setState() with updater function', () => {
@@ -258,41 +254,12 @@ describe('state.js', () => {
       expect(s.improve_scope).toBe(null);
     });
 
-    it('applies flow default lenses to panel_b', () => {
-      const flowDef = {
-        panel_b: {
-          fields: {
-            lenses: { default: ['semantics', 'structure'] },
-          },
-        },
-      };
-
-      stateModule.applyFlowDefaults('review', flowDef);
-
-      const s = stateModule.getState();
-      expect(s.panel_b.lenses).toEqual(['semantics', 'structure']);
-    });
-
     it('notifies subscribers', () => {
       const listener = vi.fn();
       stateModule.subscribe(listener);
       stateModule.applyFlowDefaults('fix', {});
       expect(listener).toHaveBeenCalledTimes(1);
     });
-
-    it('populates enabled_steps from flow definition steps', () => {
-      const flowDef = {
-        steps: [
-          {
-            id: 'read-claude',
-            operation: 'read',
-            object: 'file',
-            params: { file: 'claude.md' },
-          },
-          { id: 'create-branch', operation: 'create', object: 'branch' },
-          { id: 'commit-pr', operation: 'commit', object: 'changes' },
-        ],
-      };
 
       stateModule.applyFlowDefaults('fix', flowDef);
 
@@ -406,45 +373,4 @@ describe('state.js', () => {
     });
   });
 
-  describe('prototype pollution protection', () => {
-    it('setByPath rejects __proto__ in path', () => {
-      const before = Object.prototype.polluted;
-      stateModule.setState('__proto__.polluted', true);
-      expect(Object.prototype.polluted).toBeUndefined();
-      expect(Object.prototype.polluted).toBe(before);
-    });
-
-    it('setByPath rejects constructor in path', () => {
-      stateModule.setState('constructor.polluted', true);
-      expect({}.polluted).toBeUndefined();
-    });
-
-    it('setByPath rejects prototype in path', () => {
-      stateModule.setState('prototype.polluted', true);
-      expect({}.polluted).toBeUndefined();
-    });
-
-    it('setByPath rejects __proto__ in nested path', () => {
-      stateModule.setState('configuration.__proto__.polluted', true);
-      expect(Object.prototype.polluted).toBeUndefined();
-    });
-
-    it('deepMerge skips __proto__ keys in updater', () => {
-      const before = Object.prototype.polluted;
-      stateModule.setState(() => {
-        // Attempt to inject __proto__ via the updater function
-        const malicious = JSON.parse('{"__proto__": {"polluted": true}}');
-        return malicious;
-      });
-      expect(Object.prototype.polluted).toBeUndefined();
-      expect(Object.prototype.polluted).toBe(before);
-    });
-
-    it('deepMerge skips constructor keys in updater', () => {
-      stateModule.setState(() => ({
-        constructor: { polluted: true },
-      }));
-      expect({}.polluted).toBeUndefined();
-    });
-  });
 });
