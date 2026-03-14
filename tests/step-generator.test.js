@@ -42,7 +42,7 @@ const FIX_FLOW = {
     },
     { id: 'analyze', operation: 'analyze', object: 'issue', lenses: [] },
     { id: 'plan', operation: 'create', object: 'plan' },
-    { id: 'implement', operation: 'edit', object: 'files' },
+    { id: 'edit', operation: 'edit', object: 'files' },
     {
       id: 'test',
       operation: 'validate',
@@ -157,7 +157,7 @@ describe('generateSteps', () => {
     expect(generateSteps({}, EMPTY_PANEL_A, EMPTY_PANEL_B)).toEqual([]);
   });
 
-  it('generates all generic steps for fix flow', () => {
+  it('generates steps for fix flow, merging edit+test into one', () => {
     const steps = generateSteps(FIX_FLOW, EMPTY_PANEL_A, EMPTY_PANEL_B);
     const ids = steps.map((s) => s.id);
 
@@ -166,10 +166,14 @@ describe('generateSteps', () => {
       'read',
       'analyze',
       'plan',
-      'implement',
-      'test',
+      'edit',
       'commit',
     ]);
+
+    // edit step absorbs test step's sources and file picker
+    const editStep = steps.find((s) => s.id === 'edit');
+    expect(editStep.sources).toEqual(['panel_a.files']);
+    expect(editStep.has_file_picker).toBe(true);
   });
 
   it('generates subset of steps for review flow', () => {

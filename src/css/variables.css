@@ -36,7 +36,7 @@
   --sp-2: clamp(2px, 1px + 0.1cqi, 4px);
   --sp-4: clamp(4px, 3px + 0.2cqi, 8px);
   --sp-8: clamp(6px, 5px + 0.4cqi, 12px);
-  
+
   --z10: 10;
   --radius: 8px;
   --radius-pill: 999px;

@@ -145,7 +145,38 @@ export function generateSteps(flowDef, panelA, panelB) {
     steps.push(step);
   }
 
-  return steps;
+  // Merge consecutive edit + test into a single "edit" step
+  return mergeEditAndTest(steps);
+}
+
+/**
+ * If an "edit" step is immediately followed by a "test" step,
+ * absorb test's sources/params into edit and drop test.
+ */
+function mergeEditAndTest(steps) {
+  const result = [];
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    const next = steps[i + 1];
+    if (step.id === 'edit' && next?.id === 'test') {
+      const merged = { ...step };
+      const editSources = step.sources || [];
+      const testSources = next.sources || [];
+      if (testSources.length > 0) {
+        merged.sources = [...editSources, ...testSources];
+      }
+      if (next.has_file_picker) merged.has_file_picker = true;
+      if (next.has_issue_picker) merged.has_issue_picker = true;
+      if (next.params) {
+        merged.params = { ...(step.params || {}), ...next.params };
+      }
+      result.push(merged);
+      i++; // skip test
+    } else {
+      result.push(step);
+    }
+  }
+  return result;
 }
 
 /**

@@ -87,6 +87,7 @@ describe('Step rendering (STP-01)', () => {
     expect(rows[0].children[0].textContent).toContain('Context');
     expect(rows[1].children[0].textContent).toContain('Context: @claude.md');
     expect(rows[2].children[0].textContent).toContain('Analyze');
+    expect(rows[3].children[0].textContent).toBe('Implement');
   });
 
   it('uses ordered list for step numbering', () => {

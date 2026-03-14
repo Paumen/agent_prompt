@@ -7,52 +7,52 @@
  * Req IDs: STP-01..04
  */
 
-import { getState, setState, subscribe } from "../core/state.js";
-import { getFlowById, ALL_LENSES } from "../logic/flow-loader.js";
-import { generateSteps, reconcileSteps } from "../logic/step-generator.js";
-import { fileIconName } from "../common/icons.js";
-import { getFileTree, renderFlowSelector } from "./card-configuration.js";
-import { getCachedIssues, getCachedPRs } from "./card-tasks.js";
+import { getState, setState, subscribe } from '../core/state.js';
+import { getFlowById, ALL_LENSES } from '../logic/flow-loader.js';
+import { generateSteps, reconcileSteps } from '../logic/step-generator.js';
+import { fileIconName } from '../common/icons.js';
+import { getFileTree, renderFlowSelector } from './card-configuration.js';
+import { getCachedIssues, getCachedPRs } from './card-tasks.js';
 import {
   createButton,
   createPicker,
   createTag,
   createInputField,
   createMoreLess,
-} from "../common/ui.js";
+} from '../common/ui.js';
 
 // Show first 7 lenses. Rest behind "more" button.
 const INITIAL_LENS_COUNT = 7;
 
 // Output mode labels
 const OUTPUT_LABELS = {
-  here: "Here (in chat)",
-  pr_comment: "PR comment",
-  pr_inline_comments: "PR inline comments",
-  issue_comment: "Issue comment",
-  report_file: "Report file",
+  here: 'Here (in chat)',
+  pr_comment: 'PR comment',
+  pr_inline_comments: 'PR inline comments',
+  issue_comment: 'Issue comment',
+  report_file: 'Report file',
 };
 
 const OUTPUT_SHORT_LABELS = {
-  here: "Here",
-  pr_comment: "PR Com",
-  pr_inline_comments: "Inline",
-  issue_comment: "Issue",
-  report_file: "File",
+  here: 'Here',
+  pr_comment: 'PR Com',
+  pr_inline_comments: 'Inline',
+  issue_comment: 'Issue',
+  report_file: 'File',
 };
 
 const OUTPUT_ICON_MAP = {
-  here: "comment",
-  pr_comment: "git-pull-request",
-  pr_inline_comments: "comment-discussion",
-  issue_comment: "issue-opened",
-  report_file: "file",
+  here: 'comment',
+  pr_comment: 'git-pull-request',
+  pr_inline_comments: 'comment-discussion',
+  issue_comment: 'issue-opened',
+  report_file: 'file',
 };
 
 // --- Module-level state ---
 
 let elBody = null;
-let previousStepSnapshot = "";
+let previousStepSnapshot = '';
 let elStepsMeta = null;
 
 // Lens expanded state — persists across re-renders; resets on flow switch
@@ -61,14 +61,14 @@ const expandedSteps = new Map();
 // --- Generic step labels ---
 
 const STEP_LABELS = {
-  context: "Context",
-  read: "Read",
-  analyze: "Analyze",
-  plan: "Plan",
-  implement: "Implement",
-  test: "Test",
-  commit: "Commit",
-  report: "Report",
+  context: 'Context',
+  read: 'Read',
+  analyze: 'Analyze',
+  plan: 'Plan',
+  edit: 'Implement',
+  implement: 'Implement',
+  commit: 'Commit',
+  report: 'Report',
 };
 
 // --- Step label formatting ---
@@ -77,21 +77,21 @@ function formatStepLabel(step) {
   // Use generic label if available, fall back to operation:object
   const label = STEP_LABELS[step.id];
   if (label) {
-    if (step.id === "context" && step.params?.file) {
+    if (step.id === 'context' && step.params?.file) {
       return `${label}: @${step.params.file}`;
     }
-    if (step.id === "read") {
+    if (step.id === 'read') {
       const count =
         (step.params?.files?.length || 0) +
         (step.params?.issues?.length || 0) +
         (step.params?.pr_number ? 1 : 0);
-      if (count > 0) return `${label}: ${count} source${count > 1 ? "s" : ""}`;
+      if (count > 0) return `${label}: ${count} source${count > 1 ? 's' : ''}`;
     }
     return label;
   }
 
   const op = step.operation.charAt(0).toUpperCase() + step.operation.slice(1);
-  const obj = step.object.replace(/_/g, " ");
+  const obj = step.object.replace(/_/g, ' ');
 
   if (step.params?.file) {
     return `${op}: @${step.params.file}`;
@@ -99,16 +99,16 @@ function formatStepLabel(step) {
 
   if (step.params?.files?.length > 0) {
     const n = step.params.files.length;
-    return `${op}: ${n} file${n > 1 ? "s" : ""}`;
+    return `${op}: ${n} file${n > 1 ? 's' : ''}`;
   }
 
   return `${op}: ${obj}`;
 }
 
 function getOptionalTextPlaceholder(step) {
-  if (step.branch_name !== undefined) return "Branch name (optional)";
-  if (step.pr_name !== undefined) return "PR title (optional)";
-  if (step.file_name !== undefined) return "File name (optional)";
+  if (step.branch_name !== undefined) return 'Branch name (optional)';
+  if (step.pr_name !== undefined) return 'PR title (optional)';
+  if (step.file_name !== undefined) return 'File name (optional)';
   return null;
 }
 
@@ -127,46 +127,46 @@ function renderStep0(state) {
   const repoOn = include_repo !== false;
   const patOn = include_pat !== false;
 
-  const li = document.createElement("li");
-  li.className = "output output-field";
-  li.dataset.stepId = "step-0";
+  const li = document.createElement('li');
+  li.className = 'output output-field';
+  li.dataset.stepId = 'step-0';
 
-  const label = document.createElement("span");
-  label.textContent = "Context";
+  const label = document.createElement('span');
+  label.textContent = 'Context';
   li.appendChild(label);
 
-  const cloud = document.createElement("div");
-  cloud.className = "cloud";
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud';
 
-  const repoBtn = createButton("pill", {
-    label: "Repository",
+  const repoBtn = createButton('pill', {
+    label: 'Repository',
     selected: repoOn,
     ariaLabel: repoOn
-      ? "Repository included in prompt"
-      : "Repository excluded from prompt",
+      ? 'Repository included in prompt'
+      : 'Repository excluded from prompt',
     onClick: () => onToggleIncludeRepo(),
   });
-  repoBtn.setAttribute("role", "checkbox");
-  repoBtn.setAttribute("aria-checked", String(repoOn));
+  repoBtn.setAttribute('role', 'checkbox');
+  repoBtn.setAttribute('aria-checked', String(repoOn));
   cloud.appendChild(repoBtn);
 
-  const patBtn = createButton("pill", {
-    label: "PAT token",
+  const patBtn = createButton('pill', {
+    label: 'PAT token',
     selected: patOn,
-    ariaLabel: patOn ? "PAT included in prompt" : "PAT excluded from prompt",
+    ariaLabel: patOn ? 'PAT included in prompt' : 'PAT excluded from prompt',
     onClick: () => onToggleIncludePat(),
   });
-  patBtn.setAttribute("role", "checkbox");
-  patBtn.setAttribute("aria-checked", String(patOn));
+  patBtn.setAttribute('role', 'checkbox');
+  patBtn.setAttribute('aria-checked', String(patOn));
   cloud.appendChild(patBtn);
 
   li.appendChild(cloud);
 
-  const deleteBtn = createButton("icon", {
-    iconName: "trash",
-    iconClass: "icon-remove",
-    title: "Remove context step",
-    ariaLabel: "Remove context step",
+  const deleteBtn = createButton('icon', {
+    iconName: 'trash',
+    iconClass: 'icon-remove',
+    title: 'Remove context step',
+    ariaLabel: 'Remove context step',
     onClick: () => onRemoveStep0(),
   });
   li.appendChild(deleteBtn);
@@ -195,26 +195,26 @@ function renderStepList() {
   if (elStepsMeta) {
     elStepsMeta.textContent =
       steps.length > 0
-        ? `${steps.length} step${steps.length !== 1 ? "s" : ""}`
-        : "";
+        ? `${steps.length} step${steps.length !== 1 ? 's' : ''}`
+        : '';
   }
 
-  elBody.innerHTML = "";
+  elBody.innerHTML = '';
 
   if (steps.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.textContent = "Select a flow to generate steps.";
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'Select a flow to generate steps.';
     elBody.appendChild(empty);
     return;
   }
 
-  const list = document.createElement("ol");
-  list.className = "output-block";
-  list.setAttribute("role", "list");
+  const list = document.createElement('ol');
+  list.className = 'output-block';
+  list.setAttribute('role', 'list');
 
   // Prepend Step 0 (context toggles) unless user removed it
-  if (!removedIds.includes("step-0")) {
+  if (!removedIds.includes('step-0')) {
     list.appendChild(renderStep0(state));
   }
 
@@ -226,12 +226,12 @@ function renderStepList() {
 }
 
 function renderStepRow(step, index) {
-  const li = document.createElement("li");
-  li.className = "output output-field";
+  const li = document.createElement('li');
+  li.className = 'output output-field';
   li.dataset.stepId = step.id;
 
   // Col 2 (col 1 is the CSS counter ::before): Label
-  const label = document.createElement("span");
+  const label = document.createElement('span');
   label.textContent = formatStepLabel(step);
   li.appendChild(label);
 
@@ -239,13 +239,13 @@ function renderStepRow(step, index) {
   const sources = step.sources || (step.source ? [step.source] : []);
 
   // PR picker
-  if (sources.some((s) => s.endsWith(".pr_number"))) {
+  if (sources.some((s) => s.endsWith('.pr_number'))) {
     renderStepPRPicker(li, step, index);
   }
 
   // File picker
   if (
-    (sources.some((s) => s.endsWith(".files")) && step.params) ||
+    (sources.some((s) => s.endsWith('.files')) && step.params) ||
     step.has_file_picker
   ) {
     renderStepFilePicker(li, step, index);
@@ -253,7 +253,7 @@ function renderStepRow(step, index) {
 
   // Issue picker
   if (
-    sources.some((s) => s.endsWith(".issue_number")) ||
+    sources.some((s) => s.endsWith('.issue_number')) ||
     step.has_issue_picker
   ) {
     renderStepIssuePicker(li, step, index);
@@ -261,7 +261,7 @@ function renderStepRow(step, index) {
 
   // File pills — legacy display for steps without a dedicated file picker
   const hasFilePicker =
-    sources.some((s) => s.endsWith(".files")) || step.has_file_picker;
+    sources.some((s) => s.endsWith('.files')) || step.has_file_picker;
   if (!hasFilePicker && step.params?.files?.length > 0) {
     li.appendChild(renderFilePills(step));
   }
@@ -282,10 +282,10 @@ function renderStepRow(step, index) {
   }
 
   // Col 5: Delete button
-  const deleteBtn = createButton("icon", {
-    iconName: "trash",
-    iconClass: "icon-remove",
-    title: "Remove step",
+  const deleteBtn = createButton('icon', {
+    iconName: 'trash',
+    iconClass: 'icon-remove',
+    title: 'Remove step',
     ariaLabel: `Remove step: ${formatStepLabel(step)}`,
     onClick: () => onDeleteStep(step.id),
   });
@@ -295,16 +295,16 @@ function renderStepRow(step, index) {
 }
 
 function renderFilePills(step) {
-  const container = document.createElement("div");
-  container.className = "cloud";
+  const container = document.createElement('div');
+  container.className = 'cloud';
 
   for (const filePath of step.params.files) {
-    const segments = filePath.split("/");
+    const segments = filePath.split('/');
     const tag = createTag({
-      label: "@" + segments[segments.length - 1],
+      label: '@' + segments[segments.length - 1],
       iconName: fileIconName(filePath),
       title: filePath,
-      textClass: "truncate-start",
+      textClass: 'truncate-start',
       onRemove: () => onRemoveFileFromStep(step, filePath),
     });
     container.appendChild(tag);
@@ -316,7 +316,7 @@ function renderFilePills(step) {
 function renderStepFilePicker(li, step, index) {
   const files = getFileTree();
   const allPaths = files
-    .map((f) => (typeof f === "string" ? f : f.path))
+    .map((f) => (typeof f === 'string' ? f : f.path))
     .filter(Boolean)
     .sort();
   const selected = step.params.files || [];
@@ -324,17 +324,17 @@ function renderStepFilePicker(li, step, index) {
   const picker = createPicker({
     items: allPaths.map((p) => ({ value: p, label: p, title: p })),
     selected,
-    placeholder: "Search files…",
-    searchIconName: "file",
+    placeholder: 'Search files…',
+    searchIconName: 'file',
     multiSelect: true,
     iconFn: (val) => fileIconName(val),
-    tagLabelFn: (val) => val.split("/").pop(),
-    tagTextClass: "truncate-start",
+    tagLabelFn: (val) => val.split('/').pop(),
+    tagTextClass: 'truncate-start',
     onSelect: (item) => onUpdateStepFiles(index, [...selected, item.value]),
     onRemove: (value) =>
       onUpdateStepFiles(
         index,
-        selected.filter((v) => v !== value),
+        selected.filter((v) => v !== value)
       ),
   });
 
@@ -356,10 +356,10 @@ function renderStepPRPicker(li, step, index) {
   const picker = createPicker({
     items: pickerItems,
     selected,
-    placeholder: "Search pull requests…",
-    searchIconName: "git-pull-request",
+    placeholder: 'Search pull requests…',
+    searchIconName: 'git-pull-request',
     multiSelect: true,
-    tagTextClass: "truncate-end",
+    tagTextClass: 'truncate-end',
     onSelect: (item) => onUpdateStepPR(index, item.value),
     onRemove: () => onUpdateStepPR(index, null),
   });
@@ -377,16 +377,16 @@ function renderStepIssuePicker(li, step, index) {
   const picker = createPicker({
     items: pickerItems,
     selected: step.params?.issues || [],
-    placeholder: "Search issues…",
-    searchIconName: "issue-opened",
+    placeholder: 'Search issues…',
+    searchIconName: 'issue-opened',
     multiSelect: true,
-    tagTextClass: "truncate-end",
+    tagTextClass: 'truncate-end',
     onSelect: (item) =>
       onUpdateStepIssues(index, [...(step.params?.issues || []), item.value]),
     onRemove: (value) =>
       onUpdateStepIssues(
         index,
-        (step.params?.issues || []).filter((v) => v !== value),
+        (step.params?.issues || []).filter((v) => v !== value)
       ),
   });
 
@@ -396,14 +396,14 @@ function renderStepIssuePicker(li, step, index) {
 function renderOptionalTextRow(step, index) {
   return createInputField({
     placeholder: getOptionalTextPlaceholder(step),
-    value: step.name_provided || "",
+    value: step.name_provided || '',
     onInput: (e) => onOptionalTextChange(index, e.target.value),
   });
 }
 
 function renderOutputIcons(step, index) {
-  const cloud = document.createElement("div");
-  cloud.className = "cloud";
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud';
 
   const selected =
     step.outputs_selected ||
@@ -411,14 +411,14 @@ function renderOutputIcons(step, index) {
 
   for (const mode of step.output) {
     const isOn = selected.includes(mode);
-    const btn = createButton("pill", {
+    const btn = createButton('pill', {
       label: OUTPUT_SHORT_LABELS[mode] || mode,
-      iconName: OUTPUT_ICON_MAP[mode] || "comment",
+      iconName: OUTPUT_ICON_MAP[mode] || 'comment',
       selected: isOn,
       ariaLabel: OUTPUT_LABELS[mode] || mode,
       onClick: () => onSelectOutput(index, mode, btn),
     });
-    btn.setAttribute("role", "checkbox");
+    btn.setAttribute('role', 'checkbox');
     cloud.appendChild(btn);
   }
 
@@ -426,8 +426,8 @@ function renderOutputIcons(step, index) {
 }
 
 function renderStepLenses(step, stepIndex) {
-  const container = document.createElement("div");
-  container.className = "cloud";
+  const container = document.createElement('div');
+  container.className = 'cloud';
 
   const activeLenses = step.lenses || [];
   const initial = ALL_LENSES.slice(0, INITIAL_LENS_COUNT);
@@ -476,8 +476,8 @@ function renderStepLenses(step, stepIndex) {
 
 function createLensPill(lens, activeLenses, stepIndex) {
   const isOn = activeLenses.includes(lens);
-  return createButton("pill", {
-    label: lens.replace(/_/g, " "),
+  return createButton('pill', {
+    label: lens.replace(/_/g, ' '),
     selected: isOn,
     onClick: () => onToggleLens(stepIndex, lens),
   });
@@ -493,12 +493,12 @@ function updateStepParam(stepIndex, paramKey, value, state) {
     ...steps[stepIndex],
     params: { ...(steps[stepIndex].params || {}), [paramKey]: value },
   };
-  setState("steps.enabled_steps", steps);
+  setState('steps.enabled_steps', steps);
 }
 
 function onRemoveStep0() {
   const state = getState();
-  const removedIds = [...(state.steps.removed_step_ids || []), "step-0"];
+  const removedIds = [...(state.steps.removed_step_ids || []), 'step-0'];
   setState((current) => ({
     steps: { ...current.steps, removed_step_ids: removedIds },
     configuration: {
@@ -512,16 +512,16 @@ function onRemoveStep0() {
 function onToggleIncludeRepo() {
   const state = getState();
   setState(
-    "configuration.include_repo",
-    state.configuration.include_repo === false ? true : false,
+    'configuration.include_repo',
+    state.configuration.include_repo === false ? true : false
   );
 }
 
 function onToggleIncludePat() {
   const state = getState();
   setState(
-    "configuration.include_pat",
-    state.configuration.include_pat === false ? true : false,
+    'configuration.include_pat',
+    state.configuration.include_pat === false ? true : false
   );
 }
 
@@ -529,7 +529,7 @@ function onDeleteStep(stepId) {
   const state = getState();
   const removedIds = [...(state.steps.removed_step_ids || []), stepId];
   const newSteps = (state.steps.enabled_steps || []).filter(
-    (s) => s.id !== stepId,
+    (s) => s.id !== stepId
   );
 
   setState((current) => ({
@@ -544,27 +544,27 @@ function onDeleteStep(stepId) {
 function onRemoveFileFromStep(step, filePath) {
   const state = getState();
   const idx = (state.steps.enabled_steps || []).findIndex(
-    (s) => s.id === step.id,
+    (s) => s.id === step.id
   );
   if (idx === -1) return;
   const currentFiles = state.steps.enabled_steps[idx].params?.files || [];
   updateStepParam(
     idx,
-    "files",
-    currentFiles.filter((f) => f !== filePath),
+    'files',
+    currentFiles.filter((f) => f !== filePath)
   );
 }
 
 function onUpdateStepFiles(stepIndex, files) {
-  updateStepParam(stepIndex, "files", files);
+  updateStepParam(stepIndex, 'files', files);
 }
 
 function onUpdateStepPR(stepIndex, prNumber) {
-  updateStepParam(stepIndex, "pr_number", prNumber);
+  updateStepParam(stepIndex, 'pr_number', prNumber);
 }
 
 function onUpdateStepIssues(stepIndex, issues) {
-  updateStepParam(stepIndex, "issues", issues);
+  updateStepParam(stepIndex, 'issues', issues);
 }
 
 function onToggleLens(stepIndex, lens) {
@@ -587,11 +587,11 @@ function onToggleLens(stepIndex, lens) {
     }
   }
 
-  setState("steps.enabled_steps", steps);
+  setState('steps.enabled_steps', steps);
 
   // Sync to task card lens picker if this flow uses one (panel_b.lenses)
   if (state.panel_b?.lenses !== undefined) {
-    setState("panel_b.lenses", newLenses);
+    setState('panel_b.lenses', newLenses);
   }
 }
 
@@ -613,12 +613,12 @@ function onSelectOutput(stepIndex, mode, btn) {
     : [...current, mode];
 
   steps[stepIndex] = { ...step, outputs_selected: newSelected };
-  setState("steps.enabled_steps", steps);
+  setState('steps.enabled_steps', steps);
 
   // Update button state visually
   const isNowOn = newSelected.includes(mode);
-  btn.setAttribute("aria-checked", String(isNowOn));
-  btn.classList.toggle("btn-pill--on", isNowOn);
+  btn.setAttribute('aria-checked', String(isNowOn));
+  btn.classList.toggle('btn-pill--on', isNowOn);
 }
 
 function onOptionalTextChange(stepIndex, value) {
@@ -626,14 +626,14 @@ function onOptionalTextChange(stepIndex, value) {
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
   if (stepIndex < 0 || stepIndex >= steps.length) return;
   steps[stepIndex] = { ...steps[stepIndex], name_provided: value || undefined };
-  setState("steps.enabled_steps", steps);
+  setState('steps.enabled_steps', steps);
 }
 
 // --- Step regeneration on panel changes ---
 
-let lastFlowId = "";
-let lastPanelASnapshot = "";
-let lastPanelBSnapshot = "";
+let lastFlowId = '';
+let lastPanelASnapshot = '';
+let lastPanelBSnapshot = '';
 
 function regenerateIfNeeded(snapshot) {
   const flowId = snapshot.task?.flow_id;
@@ -665,13 +665,13 @@ function regenerateIfNeeded(snapshot) {
   const reconciled = reconcileSteps(
     generated,
     snapshot.steps.enabled_steps,
-    snapshot.steps.removed_step_ids,
+    snapshot.steps.removed_step_ids
   );
 
   const currentJson = JSON.stringify(snapshot.steps.enabled_steps);
   const newJson = JSON.stringify(reconciled);
   if (currentJson !== newJson) {
-    setState("steps.enabled_steps", reconciled);
+    setState('steps.enabled_steps', reconciled);
   }
 }
 
@@ -685,20 +685,20 @@ function onStateChange(snapshot) {
 // --- Initialization ---
 
 export function initStepsCard() {
-  elBody = document.getElementById("bd-steps");
+  elBody = document.getElementById('bd-steps');
   if (!elBody) return;
 
   // Add tab-style layout class to card
-  document.getElementById("card-steps").classList.add("card-tabs");
+  document.getElementById('card-steps').classList.add('card-tabs');
 
   // Remove card-meta (step count no longer shown in header)
-  const metaEl = document.querySelector("#card-steps .card-meta");
+  const metaEl = document.querySelector('#card-steps .card-meta');
   if (metaEl) metaEl.remove();
   elStepsMeta = null;
 
   // Render flow selector buttons in the card header (before chevron)
-  const header = document.querySelector("#card-steps .card-header");
-  const chevron = header?.querySelector(".icon--chevron");
+  const header = document.querySelector('#card-steps .card-header');
+  const chevron = header?.querySelector('.icon--chevron');
   if (header) renderFlowSelector(header, chevron);
 
   // Default to "fix" tab if no flow is already selected
@@ -706,7 +706,7 @@ export function initStepsCard() {
     header?.querySelector("[data-flow-id='fix']")?.click();
   }
 
-  previousStepSnapshot = "";
+  previousStepSnapshot = '';
   expandedSteps.clear();
 
   renderStepList();
