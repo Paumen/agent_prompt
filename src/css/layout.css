@@ -277,5 +277,5 @@ summary.card-header::-webkit-details-marker {
 
 .card-tabs .card-body {
   background: var(--accent-a);
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: var(--radius);
 }
