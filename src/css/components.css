@@ -1,4 +1,4 @@
-@import url('./variables.css');
+@import url("./variables.css");
 
 /**
  * DOM level L5, L6, L7
@@ -43,8 +43,8 @@
   display: inline-flex;
   flex-shrink: 0;
   gap: var(--sp-4);
-  place-items: center;
   place-content: center;
+  place-items: center;
   font-family: inherit;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -119,18 +119,18 @@
 .btn-pill {
   min-height: 24px;
   padding: var(--sp-2);
+  font-size: var(--text-sm);
   background: var(--bg);
   border: 1px solid var(--text-tertiary);
   border-radius: var(--radius-pill);
-  font-size: var(--text-sm);
 }
 
-.btn-pill[aria-checked='true'],
+.btn-pill[aria-checked="true"],
 .btn-pill.btn-pill--on {
+  font-weight: 800;
   color: var(--accent-a);
   background: var(--bg-inset-darker);
   border-color: var(--accent-a);
-  font-weight: 800;
 }
 
 /* --- 5. btn-icon: transparent, icon-onlyy --- */
@@ -140,7 +140,7 @@
   place-content: center;
   min-width: 16px;
   min-height: 16px;
-  padding: 0;
+  padding: var(--sp-4);
   background: none;
   border: none;
 }
@@ -292,6 +292,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.45;
   }
@@ -320,7 +321,7 @@
   border-radius: var(--radius);
 }
 
-.prompt-output>code {
+.prompt-output > code {
   display: block;
   max-height: 320px;
   overflow-y: auto;
@@ -328,7 +329,7 @@
   white-space: pre-wrap;
 }
 
-.prompt-output>.cloud {
+.prompt-output > .cloud {
   position: absolute;
   inset: var(--sp-4) auto;
   z-index: var(--z10);
