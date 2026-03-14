@@ -117,7 +117,6 @@
   padding: var(--sp-8) var(--sp-4) var(--sp-4);
   color: var(--accent-b);
   background: var(--accent-a);
-  border-color: var(--accent-a);
 }
 
 /* --- 3. btn-action: one-shot stateless action --- */
@@ -145,7 +144,7 @@
 .btn-pill[aria-checked='true'],
 .btn-pill.btn-pill--on {
   color: var(--accent-a);
-  background: var(--bg-inset);
+  background: var(--bg-inset-darker);
   border-color: var(--accent-a);
 }
 
