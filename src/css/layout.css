@@ -125,6 +125,7 @@ body {
 .card-body {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+  border-right: var(--radius);
   grid-auto-rows: auto;
   gap: var(--sp-8);
   padding: var(--sp-8);
