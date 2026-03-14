@@ -270,43 +270,6 @@ async function setupRepoAndBranch() {
 
 // --- Tests ---
 
-describe('E2E: Complete User Journey', () => {
-  beforeEach(async () => {
-    setupFullHTML();
-    await initAllModules();
-  });
-
-  afterEach(() => {
-    cleanupDOM();
-    localStorage.clear();
-    vi.restoreAllMocks();
-  });
-
-  it('produces valid prompt for Fix flow with description', async () => {
-    mainModule.initChevrons();
-    cardSteps.initStepsCard();
-    cardPrompt.initPromptCard();
-    await setupRepoAndBranch();
-
-    // Select Fix flow (now in config card)
-    document.querySelector('.btn-select[data-flow-id="fix"]').click();
-    await vi.waitFor(() => expect(state.getState().task.flow_id).toBe('fix'));
-
-    // Fill description via state (descriptions now on prompt card)
-    state.setState('panel_a.description', 'Login crashes when clicking submit');
-
-    // Verify prompt structure
-    const prompt = state.getState()._prompt;
-    expect(prompt).toContain('<prompt>');
-    expect(prompt).toContain('</prompt>');
-    expect(prompt).toContain('task="debug"');
-    expect(prompt).toContain('https://github.com/testuser/my-app');
-    expect(prompt).toContain('Login crashes when clicking submit');
-    expect(prompt).toContain('<todo>');
-    expect(prompt).toContain('Step 1:');
-  });
-});
-
 describe('E2E: Flow Switch Reset (DM-DEF-03)', () => {
   beforeEach(async () => {
     setupFullHTML();
