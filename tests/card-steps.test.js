@@ -63,6 +63,7 @@ vi.mock('../src/cards/card-configuration.js', () => ({
 
 import { initStepsCard } from '../src/cards/card-steps.js';
 import { getState, setState } from '../src/core/state.js';
+import { getFileTree } from '../src/cards/card-configuration.js';
 
 // --- Setup ---
 
@@ -94,6 +95,31 @@ describe('Step rendering (STP-01)', () => {
     initStepsCard();
     expect(document.querySelector('[data-step-id="edit"]')).toBeTruthy();
     expect(document.querySelector('[data-step-id="test"]')).toBeNull();
+  });
+
+  it('merged edit step inherits file picker from absorbed test step', () => {
+    getFileTree.mockReturnValue(['src/app.js', 'src/utils.js']);
+    getState.mockReturnValue(
+      createMockState({
+        steps: {
+          enabled_steps: [
+            { id: 'edit', operation: 'edit', object: 'files' },
+            {
+              id: 'test',
+              operation: 'validate',
+              object: 'tests',
+              sources: ['panel_a.files'],
+              has_file_picker: true,
+              params: { files: ['src/app.js'] },
+            },
+          ],
+          removed_step_ids: [],
+        },
+      })
+    );
+    initStepsCard();
+    const editRow = document.querySelector('[data-step-id="edit"]');
+    expect(editRow.querySelector('.field-picker')).toBeTruthy();
   });
 
   it('uses ordered list for step numbering', () => {
