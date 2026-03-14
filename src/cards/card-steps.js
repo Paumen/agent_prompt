@@ -67,33 +67,9 @@ const STEP_LABELS = {
   plan: 'Plan',
   edit: 'Implement',
   implement: 'Implement',
-  test: 'Test',
   commit: 'Commit',
   report: 'Report',
 };
-
-// Steps that are visually merged into the preceding step.
-// When an "edit" step exists, the "test" step is absorbed into it.
-const MERGED_STEP_IDS = { test: 'edit' };
-
-/**
- * Merge an absorbed child step's sources/picker flags into the parent step
- * so the parent row renders the child's pickers (e.g. file picker from test).
- */
-function mergeChildStep(parent, child) {
-  const merged = { ...parent };
-  const parentSources = parent.sources || [];
-  const childSources = child.sources || [];
-  if (childSources.length > 0) {
-    merged.sources = [...parentSources, ...childSources];
-  }
-  if (child.has_file_picker) merged.has_file_picker = true;
-  if (child.has_issue_picker) merged.has_issue_picker = true;
-  if (child.params) {
-    merged.params = { ...(parent.params || {}), ...child.params };
-  }
-  return merged;
-}
 
 // --- Step label formatting ---
 
@@ -242,26 +218,8 @@ function renderStepList() {
     list.appendChild(renderStep0(state));
   }
 
-  // Determine which steps are absorbed into a preceding step
-  const stepIds = new Set(steps.map((s) => s.id));
-  const hiddenIds = new Set();
-  const childStepMap = new Map();
-  for (const [childId, parentId] of Object.entries(MERGED_STEP_IDS)) {
-    if (stepIds.has(parentId) && stepIds.has(childId)) {
-      hiddenIds.add(childId);
-      childStepMap.set(
-        parentId,
-        steps.find((s) => s.id === childId)
-      );
-    }
-  }
-
   steps.forEach((step, index) => {
-    if (hiddenIds.has(step.id)) return;
-    // Merge absorbed child step's picker properties into parent
-    const childStep = childStepMap.get(step.id);
-    const renderStep = childStep ? mergeChildStep(step, childStep) : step;
-    list.appendChild(renderStepRow(renderStep, index));
+    list.appendChild(renderStepRow(step, index));
   });
 
   elBody.appendChild(list);
@@ -569,17 +527,9 @@ function onToggleIncludePat() {
 
 function onDeleteStep(stepId) {
   const state = getState();
-
-  // Collect merged child IDs (e.g. deleting "edit" also removes "test")
-  const idsToRemove = [stepId];
-  for (const [childId, parentId] of Object.entries(MERGED_STEP_IDS)) {
-    if (parentId === stepId) idsToRemove.push(childId);
-  }
-
-  const removeSet = new Set(idsToRemove);
-  const removedIds = [...(state.steps.removed_step_ids || []), ...idsToRemove];
+  const removedIds = [...(state.steps.removed_step_ids || []), stepId];
   const newSteps = (state.steps.enabled_steps || []).filter(
-    (s) => !removeSet.has(s.id)
+    (s) => s.id !== stepId
   );
 
   setState((current) => ({

@@ -103,12 +103,9 @@ export function createMockSteps(count = 2) {
       id: 'edit',
       operation: 'edit',
       object: 'files',
-    },
-    {
-      id: 'test',
-      operation: 'validate',
-      object: 'tests',
       sources: ['panel_a.files'],
+      has_file_picker: true,
+      params: { files: [] },
     },
     {
       id: 'commit',
