@@ -2,7 +2,7 @@
   color-scheme: light dark;
 
   /* === Surfaces === */
-  --bg-shell: light-dark(#f6f8fa, #010409);
+  --bg-shell: light-dark(#fbfcfd, #0d1117);
   --bg: light-dark(#f1f1f1, #0d1117);
   --bg-raised: light-dark(#fff, #161b22);
   --bg-inset: light-dark(#ddd, #010409);
