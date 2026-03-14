@@ -64,7 +64,7 @@
   font-weight: 700;
   color: var(--accent-b);
   background: var(--accent-a);
-  border: 2px solid var(--accent-a);
+  border: 1px solid var(--accent-a);
 }
 
 /* --- 2. btn-select: single-select from options --- */
@@ -75,7 +75,7 @@
   padding: var(--sp-4);
   color: var(--text-secondary);
   background: var(--bg-inset);
-  border: 2px solid var(--text-tertiary);
+  border: 1px solid var(--text-tertiary);
   box-shadow: var(--shadow);
   transition:
     background 150ms ease,
@@ -150,19 +150,6 @@
   gap: var(--sp-2);
   padding: var(--sp-2);
   font-weight: 700;
-}
-
-/* =================================================
-   FOCUS STATES
-   =============================================== */
-
-:is( .btn-primary,.btn-select,.btn-action,.btn-pill,.btn-icon):focus-visible {
-  outline: 2px solid var(--accent-a);
-  outline-offset: 2px;
-}
-
-:where(.card-tabs) .btn-select:focus-visible {
-  outline: none;
 }
 
 /* ================================================
