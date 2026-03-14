@@ -8,7 +8,7 @@
  * - Corrupted entry recovery
  */
 
-const PREFIX = "ap_cache_";
+const PREFIX = 'ap_cache_';
 const DEFAULT_TTL = 15 * 60 * 1000; // 15 minutes
 
 /**
@@ -26,9 +26,9 @@ export function cacheGet(key) {
     // Validate entry shape
     if (
       !entry ||
-      typeof entry !== "object" ||
-      typeof entry.ts !== "number" ||
-      !("data" in entry)
+      typeof entry !== 'object' ||
+      typeof entry.ts !== 'number' ||
+      !('data' in entry)
     ) {
       localStorage.removeItem(storageKey);
       return null;
@@ -61,7 +61,7 @@ export function cacheSet(key, data, ttlMs) {
   try {
     localStorage.setItem(
       storageKey,
-      JSON.stringify({ data, ts: Date.now(), ttl }),
+      JSON.stringify({ data, ts: Date.now(), ttl })
     );
   } catch {
     // Storage full or unavailable — silently ignore

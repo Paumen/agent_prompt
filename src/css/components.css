@@ -1,4 +1,4 @@
-@import url("./variables.css");
+@import url('./variables.css');
 
 /**
  * DOM level L5, L6, L7
@@ -97,7 +97,7 @@
     color 150ms ease,
     border-color 150ms ease,
     box-shadow 150ms ease,
-    padding 150ms ease; 
+    padding 150ms ease;
 }
 
 .btn-select--selected {
@@ -142,7 +142,7 @@
   border-radius: var(--radius-pill);
 }
 
-.btn-pill[aria-checked="true"],
+.btn-pill[aria-checked='true'],
 .btn-pill.btn-pill--on {
   color: var(--accent-a);
   background: var(--bg-inset);

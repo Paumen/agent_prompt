@@ -15,17 +15,17 @@
 export function isSourceFilled(source, panelA, panelB) {
   if (!source) return true;
 
-  const parts = source.split(".");
+  const parts = source.split('.');
   if (parts.length !== 2) return false;
 
   const [panel, field] = parts;
-  const data = panel === "panel_a" ? panelA : panelB;
+  const data = panel === 'panel_a' ? panelA : panelB;
   const value = data?.[field];
 
   if (value === null || value === undefined) return false;
   if (Array.isArray(value)) return value.length > 0;
-  if (typeof value === "number") return true;
-  if (typeof value === "string") return value.trim() !== "";
+  if (typeof value === 'number') return true;
+  if (typeof value === 'string') return value.trim() !== '';
   return false;
 }
 
@@ -34,7 +34,7 @@ export function isSourceFilled(source, panelA, panelB) {
  * These sources always cause a step to appear regardless of panel state
  * so the user can make their selection directly in the step row.
  */
-const PICKER_SOURCE_SUFFIXES = [".files", ".issue_number", ".pr_number"];
+const PICKER_SOURCE_SUFFIXES = ['.files', '.issue_number', '.pr_number'];
 
 function hasStepPicker(source) {
   return PICKER_SOURCE_SUFFIXES.some((s) => source?.endsWith(s));
@@ -44,8 +44,8 @@ function hasStepPicker(source) {
  * Resolve a source reference to its panel data value.
  */
 function resolveSource(source, panelA, panelB) {
-  const [panel, field] = source.split(".");
-  const data = panel === "panel_a" ? panelA : panelB;
+  const [panel, field] = source.split('.');
+  const data = panel === 'panel_a' ? panelA : panelB;
   return data?.[field];
 }
 
@@ -64,13 +64,13 @@ function processSources(step, sources, panelA, panelB) {
   for (const src of sources) {
     const value = resolveSource(src, panelA, panelB);
 
-    if (src.endsWith(".files")) {
+    if (src.endsWith('.files')) {
       hasFilePicker = true;
       if (Array.isArray(value)) allFiles.push(...value);
-    } else if (src.endsWith(".issue_number")) {
+    } else if (src.endsWith('.issue_number')) {
       hasIssuePicker = true;
       if (value !== null && value !== undefined) allIssues.push(value);
-    } else if (src.endsWith(".pr_number")) {
+    } else if (src.endsWith('.pr_number')) {
       hasPrSource = true;
       prNumber = value ?? null;
     } else {
