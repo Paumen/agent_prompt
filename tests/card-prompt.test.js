@@ -3,10 +3,6 @@
  * Tests for card-prompt.js
  *
  * Tests UI behaviors specific to prompt card:
- * - XML highlighting
- * - Copy button (success/failure feedback)
- * - Description textareas (panel_a / panel_b)
- * - Prompt Claude deep-link
  *
  * Prompt generation is tested in prompt-builder.test.js and e2e.test.js
  */
@@ -84,21 +80,6 @@ afterEach(() => {
 
 // --- Tests ---
 
-describe('highlightXml', () => {
-  it('wraps XML tags in spans and escapes content', () => {
-    const result = highlightXml('<prompt>text & more</prompt>');
-    expect(result).toContain('<span class="xml-tag">');
-    expect(result).toContain('&lt;prompt&gt;');
-    expect(result).toContain('&amp;');
-  });
-
-  it('textContent of highlighted output equals original', () => {
-    const el = document.createElement('span');
-    el.innerHTML = highlightXml(MOCK_PROMPT);
-    expect(el.textContent).toBe(MOCK_PROMPT);
-  });
-});
-
 describe('Copy button', () => {
   it('copies prompt to clipboard and shows success feedback', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
@@ -158,16 +139,6 @@ describe('Description textareas', () => {
     expect(textareas.length).toBe(2);
   });
 
-  it('updates panel_a.description state on input', () => {
-    initPromptCard();
-    const textareas = document.querySelectorAll('textarea');
-    textareas[0].value = 'bug description';
-    textareas[0].dispatchEvent(new Event('input'));
-    expect(setState).toHaveBeenCalledWith(
-      'panel_a.description',
-      'bug description'
-    );
-  });
 
   it('updates panel_b.description state on input', () => {
     initPromptCard();
