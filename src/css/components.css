@@ -79,8 +79,8 @@
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
+  background: var(--accent-b);
+  border-color: var(--accent-b);
 }
 
 /* --- 2. btn-select: single-select from options --- */
@@ -175,12 +175,12 @@
 
 .btn-select:hover,
 .btn-action:hover {
-  border-color: var(--accent-hover);
+  border-color: var(--accent-b);
   filter: brightness(1.015);
 }
 
 .btn-pill:hover {
-  border-color: var(--accent-hover);
+  border-color: var(--accent-b);
 }
 
 .btn-icon:hover {
@@ -214,7 +214,7 @@
 .input-field:not(:where(.field-picker-search .input-field)):focus {
   outline: none;
   background: var(--bg-inset);
-  border-color: var(--accent-hover);
+  border-color: var(--accent-b);
 }
 
 .input-field:not(:where(.field-picker-search .input-field)):focus-visible {
@@ -267,7 +267,7 @@
 
 .field-picker-search:focus-within {
   background: var(--bg-inset);
-  border-color: var(--accent-hover);
+  border-color: var(--accent-b);
   box-shadow: 0 0 0 var(--sp-2)
     color-mix(in srgb, var(--accent-a) 20%, transparent);
 }
