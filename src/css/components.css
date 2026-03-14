@@ -62,7 +62,7 @@
   text-decoration: none;
   cursor: pointer;
   border-radius: var(--radius);
-   -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* --- 1. btn-primary: accent bg, white text, main action --- */
