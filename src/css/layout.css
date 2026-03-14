@@ -45,17 +45,13 @@ body {
   container-name: card;
   container-type: inline-size;
   background: var(--bg);
-  border: 1px solid var(--text-tertiary);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
 .card-header > h3 {
   display: inline-flex;
-  gap: var(--sp-2);
   place-items: center;
-  padding: var(--sp-4);
-  font-size: var(--text);
   font-weight: 700;
 }
 
@@ -108,10 +104,6 @@ body {
 
 .card-header > .btn-primary {
   grid-column: 5;
-}
-
-.card-header:hover {
-  background: var(--bg-inset);
 }
 
 .card-body {
