@@ -32,7 +32,7 @@
 .card-header .icon {
   display: inline-block;
   vertical-align: middle;
-  color: var(--text-tertiary);
+  color: var(--accent-a);
   transition: transform 0.5s ease;
 }
 
