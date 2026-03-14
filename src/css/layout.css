@@ -3,7 +3,7 @@
 /**
  * layout.css — Grid definitions + structural rules.
  *.The "skeleton": DOM level L1, L2, L3, L4 elements.
- * Import order: variables.css → layout.css → components.css → special.css
+ * Import order: variables.css → layout.css → components.css 
  */
 
 /* === Base reset === */
