@@ -1,23 +1,23 @@
 # DOM-CSS Analysis Report
 
-| Metric                  | Count |
-| ----------------------- | ----- |
-| CSS classes defined     | 43    |
-| Classes used (HTML+JS)  | 46    |
-| Unused CSS classes      | 0     |
-| Undefined classes       | 3     |
-| Inline style violations | 0     |
+| Metric | Count |
+|--------|-------|
+| CSS classes defined | 43 |
+| Classes used (HTML+JS) | 45 |
+| Unused CSS classes | 0 |
+| Undefined classes | 2 |
+| Inline style violations | 0 |
 
 ## Elements Without Classes
 
-| Element      | Occurrences | Without Class | Violations                                                                                                                                           |
-| ------------ | ----------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `<span>`     | 12          | 6             | cards/card-configuration.js:57, cards/card-configuration.js:63, cards/card-steps.js:135, cards/card-steps.js:235, common/ui.js:259, common/ui.js:312 |
-| `<h3>`       | 3           | 3             | index.html:16, index.html:27, index.html:38                                                                                                          |
-| `<template>` | 1           | 1             | common/icons.js:103                                                                                                                                  |
-| `<button>`   | 3           | 1             | common/ui.js:371                                                                                                                                     |
-| `<small>`    | 1           | 1             | common/ui.js:138                                                                                                                                     |
-| `<label>`    | 1           | 1             | common/ui.js:307                                                                                                                                     |
+| Element | Occurrences | Without Class | Violations |
+|---------|-------------|---------------|------------|
+| `<span>` | 11 | 6 | cards/card-configuration.js:47, cards/card-configuration.js:53, cards/card-steps.js:134, cards/card-steps.js:234, common/ui.js:259, common/ui.js:312 |
+| `<h3>` | 3 | 3 | index.html:16, index.html:27, index.html:38 |
+| `<template>` | 1 | 1 | common/icons.js:103 |
+| `<button>` | 3 | 1 | common/ui.js:354 |
+| `<small>` | 1 | 1 | common/ui.js:138 |
+| `<label>` | 1 | 1 | common/ui.js:307 |
 
 ## Unused CSS Classes
 
@@ -25,9 +25,8 @@ None detected.
 
 ## Undefined Classes (used but not in CSS)
 
-- `.btn-retry` — used at common/ui.js:365
-- `.error-inline` — used at common/ui.js:359
-- `.output-float` — used at cards/card-steps.js:628
+- `.btn-retry` — used at common/ui.js:348
+- `.error-inline` — used at common/ui.js:342
 
 ## Inline Style Violations
 
@@ -37,31 +36,30 @@ None detected.
 
 ```
 L3 details#card-configuration.card [Grid 1fr] — index.html:14
-├─ L4 summary.card-header [Grid auto 1fr 1fr 1fr 1fr minmax(4cqi, auto)] — index.html:15
+├─ L4 summary.card-header [Grid auto 1fr 1fr 1fr 1fr minmax(5cqi, auto)] — index.html:15
 │  ├─ L5 h3 — index.html:16
 │  └─ L5 span.card-meta [Flex row] — index.html:17
 └─ L4 div#bd-configuration.card-body [Grid 8×1fr] — index.html:19
-   ├─ L5 span — cards/card-configuration.js:57
-   ├─ L5 span — cards/card-configuration.js:63
-   ├─ L5 span.truncate-start — cards/card-configuration.js:69
-   └─ L5 input.input-field — cards/card-configuration.js:171
+   ├─ L5 span — cards/card-configuration.js:47
+   ├─ L5 span — cards/card-configuration.js:53
+   ├─ L5 span.truncate-start — cards/card-configuration.js:59
+   └─ L5 input.input-field — cards/card-configuration.js:161
 
 L3 details#card-steps.card [Grid 1fr] — index.html:25
-├─ L4 summary.card-header [Grid auto 1fr 1fr 1fr 1fr minmax(4cqi, auto)] — index.html:26
+├─ L4 summary.card-header [Grid auto 1fr 1fr 1fr 1fr minmax(5cqi, auto)] — index.html:26
 │  ├─ L5 h3 — index.html:27
 │  └─ L5 span.card-meta [Flex row] — index.html:28
 └─ L4 div#bd-steps.card-body [Grid 8×1fr] — index.html:30
-   ├─ L5 li.output.output-field [Grid auto minmax(0, 1fr) minmax(0, 4fr) minmax(0, 4fr) auto] — cards/card-steps.js:230
-   │  ├─ L6 span — cards/card-steps.js:235
-   │  ├─ L6 div.cloud [Flex row wrap] — cards/card-steps.js:406
-   │  └─ L6 span — cards/card-steps.js:235
-   ├─ L5 div.empty-state — cards/card-steps.js:206
-   ├─ L5 ol.output-block [Flex column] — cards/card-steps.js:213
-   ├─ L5 div.cloud [Flex row wrap] — cards/card-steps.js:430
-   └─ L5 span.output-float — cards/card-steps.js:627
+   ├─ L5 li.output.output-field [Grid auto minmax(0, 1fr) minmax(0, 4fr) minmax(0, 4fr) auto] — cards/card-steps.js:229
+   │  ├─ L6 span — cards/card-steps.js:234
+   │  ├─ L6 div.cloud [Flex row wrap] — cards/card-steps.js:405
+   │  └─ L6 span — cards/card-steps.js:234
+   ├─ L5 div.empty-state — cards/card-steps.js:205
+   ├─ L5 ol.output-block [Flex column] — cards/card-steps.js:212
+   └─ L5 div.cloud [Flex row wrap] — cards/card-steps.js:429
 
 L3 details#card-prompt.card [Grid 1fr] — index.html:36
-├─ L4 summary.card-header [Grid auto 1fr 1fr 1fr 1fr minmax(4cqi, auto)] — index.html:37
+├─ L4 summary.card-header [Grid auto 1fr 1fr 1fr 1fr minmax(5cqi, auto)] — index.html:37
 │  ├─ L5 h3 — index.html:38
 │  └─ L5 span.card-meta [Flex row] — index.html:39
 └─ L4 div#bd-prompt.card-body [Grid 8×1fr] — index.html:41
@@ -105,7 +103,6 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 - `.empty-state` × 1
 - `.output-block` × 1
 - `.btn-pill--on` × 1
-- `.output-float` × 1
 - `.truncate-end` × 1
 - `.card-tabs` × 1
 
@@ -156,7 +153,7 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 
 ## Cross-File Class Map
 
-_Classes appearing in 3+ files (CSS definitions + HTML/JS usage)._
+*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*
 
 ### `.icon` (6 files)
 
@@ -255,12 +252,6 @@ _Classes appearing in 3+ files (CSS definitions + HTML/JS usage)._
 ### `.field-picker-search` (3 files)
 
 - common/ui.js
-- css/components.css
-- css/layout.css
-
-### `.icon--chevron` (3 files)
-
-- common/main.js
 - css/components.css
 - css/layout.css
 
