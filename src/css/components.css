@@ -80,7 +80,6 @@
 
 .btn-primary:hover {
   background: var(--accent-b);
-  border-color: var(--accent-b);
 }
 
 /* --- 2. btn-select: single-select from options --- */

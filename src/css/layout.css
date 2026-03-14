@@ -103,6 +103,7 @@ body {
   background: none;
   border: none;
   border-radius: var(--radius) var(--radius) 0 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .card-header > .icon--chevron {
