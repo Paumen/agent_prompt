@@ -9,41 +9,41 @@
 // Code file extensions — file-code icon; everything else → file icon
 // Shared constant used by card-steps.js and file-tree.js
 export const CODE_EXTENSIONS = new Set([
-  "js",
-  "mjs",
-  "cjs",
-  "ts",
-  "tsx",
-  "jsx",
-  "css",
-  "scss",
-  "html",
-  "vue",
-  "svelte",
-  "py",
-  "rb",
-  "go",
-  "rs",
-  "java",
-  "c",
-  "cpp",
-  "h",
-  "cs",
-  "php",
-  "sh",
-  "bash",
-  "zsh",
-  "sql",
-  "json",
-  "xml",
-  "swift",
-  "kt",
-  "lua",
-  "r",
-  "pl",
-  "ex",
-  "exs",
-  "elm",
+  'js',
+  'mjs',
+  'cjs',
+  'ts',
+  'tsx',
+  'jsx',
+  'css',
+  'scss',
+  'html',
+  'vue',
+  'svelte',
+  'py',
+  'rb',
+  'go',
+  'rs',
+  'java',
+  'c',
+  'cpp',
+  'h',
+  'cs',
+  'php',
+  'sh',
+  'bash',
+  'zsh',
+  'sql',
+  'json',
+  'xml',
+  'swift',
+  'kt',
+  'lua',
+  'r',
+  'pl',
+  'ex',
+  'exs',
+  'elm',
 ]);
 
 /**
@@ -54,8 +54,8 @@ export const CODE_EXTENSIONS = new Set([
  * @returns {string} 'file-code' for code files, 'file' otherwise
  */
 export function fileIconName(path) {
-  const ext = path.split(".").pop()?.toLowerCase() || "";
-  return CODE_EXTENSIONS.has(ext) ? "file-code" : "file";
+  const ext = path.split('.').pop()?.toLowerCase() || '';
+  return CODE_EXTENSIONS.has(ext) ? 'file-code' : 'file';
 }
 
 // prettier-ignore
@@ -98,13 +98,13 @@ export function icon(name, styleClass) {
   const svg = ICONS[name];
   if (!svg) {
     console.warn(`icon: unknown icon "${name}"`);
-    return document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    return document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   }
-  const tpl = document.createElement("template");
+  const tpl = document.createElement('template');
   tpl.innerHTML = svg;
   const el = tpl.content.firstElementChild.cloneNode(true);
-  el.classList.add("icon");
+  el.classList.add('icon');
   if (styleClass) el.classList.add(styleClass);
-  el.setAttribute("aria-hidden", "true");
+  el.setAttribute('aria-hidden', 'true');
   return el;
 }

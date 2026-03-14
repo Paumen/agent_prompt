@@ -21,9 +21,6 @@ export function buildPrompt(state) {
 
   // Context section — same across all flows
   const flowLabel = FLOW_LABELS[flowId] || flowId || "task";
-  // Spec uses task="debug" for fix flow, other flows match their flow ID
-  const taskId = TASK_IDS[flowId] || flowId || "task";
-
   let contextLine = `  <context> <task> ${escapeXml(flowLabel)} </task> Execute the steps below`;
   if (includeRepo) {
     contextLine += ` in <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> branch <branch> ${escapeXml(branch || "main")} </branch>.`;
@@ -121,14 +118,6 @@ const FLOW_LABELS = {
   review: "Review / Analyze",
   implement: "Implement / Build",
   improve: "Improve / Modify",
-};
-
-// Spec task attribute values (hybrid-framework-design.md: fix → "debug")
-const TASK_IDS = {
-  fix: "debug",
-  review: "review",
-  implement: "implement",
-  improve: "improve",
 };
 
 // --- Flow-specific task step builders ---

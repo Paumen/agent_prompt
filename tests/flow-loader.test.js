@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getFlows, getFlowById, getFlowIds } from "../src/logic/flow-loader.js";
+import { getFlows, getFlowIds } from "../src/logic/flow-loader.js";
 import { validateFlows } from "../config/flow-schema.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
