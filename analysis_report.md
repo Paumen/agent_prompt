@@ -2,10 +2,10 @@
 
 | Metric | Count |
 |--------|-------|
-| CSS classes defined | 45 |
-| Classes used (HTML+JS) | 47 |
+| CSS classes defined | 43 |
+| Classes used (HTML+JS) | 46 |
 | Unused CSS classes | 0 |
-| Undefined classes | 2 |
+| Undefined classes | 3 |
 | Inline style violations | 0 |
 
 ## Elements Without Classes
@@ -27,6 +27,7 @@ None detected.
 
 - `.btn-retry` — used at common/ui.js:365
 - `.error-inline` — used at common/ui.js:359
+- `.output-float` — used at cards/card-steps.js:628
 
 ## Inline Style Violations
 
@@ -145,7 +146,6 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 - `.btn-pill` × 1
 - `.btn-icon` × 1
 - `.tag-text` × 1
-- `.shimmer-label` × 1
 
 ### index.html
 
@@ -179,8 +179,8 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 
 - cards/card-steps.js
 - common/ui.js
+- css/components.css
 - css/layout.css
-- css/special.css
 
 ### `.field-picker` (4 files)
 
