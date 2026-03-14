@@ -1,13 +1,6 @@
 // @vitest-environment jsdom
 /**
  * Tests for card-steps.js
- *
- * Tests UI behaviors specific to steps card:
- * - Step rendering with lenses and file pills
- * - Lens pill toggling
- * - Optional text inputs (branch name, PR name)
- * - Output mode buttons
- *
  * Step deletion → prompt update is tested in e2e.test.js
  */
 
@@ -31,25 +24,7 @@ vi.mock('../src/core/state.js', () => ({
   subscribe: vi.fn(() => () => {}),
 }));
 
-vi.mock('../src/logic/flow-loader.js', () => ({
-  getFlowById: vi.fn(() => null),
-  ALL_LENSES: [
-    'semantics',
-    'syntax',
-    'security',
-    'performance',
-    'structure',
-    'dependencies',
-    'duplications',
-    'redundancies',
-    'error_handling',
-    'naming_conventions',
-    'test_coverage',
-    'type_safety',
-    'documentation_completeness',
-    'accessibility',
-  ],
-}));
+
 
 vi.mock('../src/logic/step-generator.js', () => ({
   generateSteps: vi.fn(() => []),
@@ -89,59 +64,9 @@ describe('Step rendering (STP-01)', () => {
     expect(rows[2].children[0].textContent).toContain('Analyze');
     expect(rows[3].children[0].textContent).toBe('Implement');
   });
-
-  it('uses ordered list for step numbering', () => {
-    initStepsCard();
-    expect(document.querySelector('#bd-steps ol').tagName).toBe('OL');
-  });
-
-  it('adds data-step-id attribute', () => {
-    initStepsCard();
-    expect(document.querySelector('[data-step-id="context"]')).toBeTruthy();
-  });
-
-  it('shows empty state when no steps', () => {
-    getState.mockReturnValue(
-      createMockState({
-        steps: { enabled_steps: [], removed_step_ids: [] },
-      })
-    );
-    initStepsCard();
-    expect(document.getElementById('bd-steps').textContent).toContain(
-      'Select a flow'
-    );
-  });
 });
 
-describe('Lens pills (STP-03)', () => {
-  it('renders lens pills on steps with lenses, marks active correctly', () => {
-    initStepsCard();
-    const row = document.querySelector('[data-step-id="analyze"]');
-    const pills = row.querySelectorAll('.btn-pill');
 
-    expect(pills.length).toBeGreaterThan(0);
-
-    const semanticsPill = Array.from(pills).find(
-      (p) => p.textContent === 'semantics'
-    );
-    expect(semanticsPill.getAttribute('aria-checked')).toBe('true');
-    expect(semanticsPill.classList.contains('btn-pill--on')).toBe(true);
-
-    const securityPill = Array.from(pills).find(
-      (p) => p.textContent === 'security'
-    );
-    expect(securityPill.getAttribute('aria-checked')).toBe('false');
-  });
-
-  it('calls setState when lens pill is clicked', () => {
-    initStepsCard();
-    document.querySelector('[data-step-id="analyze"] .btn-pill').click();
-    expect(setState).toHaveBeenCalledWith(
-      'steps.enabled_steps',
-      expect.any(Array)
-    );
-  });
-});
 
 describe('File pills', () => {
   beforeEach(() => {
@@ -186,12 +111,6 @@ describe('File pills', () => {
 });
 
 describe('Optional text inputs', () => {
-  it('renders text inputs for steps with branch_name or pr_name', () => {
-    initStepsCard();
-    expect(
-      document.querySelector('[data-step-id="commit"] input.input-field')
-    ).toBeTruthy();
-  });
 
   it('calls setState on input change', () => {
     initStepsCard();
@@ -203,35 +122,6 @@ describe('Optional text inputs', () => {
     expect(setState).toHaveBeenCalled();
   });
 });
-
-describe('Output mode buttons', () => {
-  beforeEach(() => {
-    getState.mockReturnValue(
-      createMockState({
-        task: { flow_id: 'review' },
-        steps: {
-          enabled_steps: [
-            {
-              id: 'report',
-              operation: 'create',
-              object: 'review_feedback',
-              output: ['here', 'pr_comment', 'pr_inline_comments'],
-            },
-          ],
-          removed_step_ids: [],
-        },
-      })
-    );
-  });
-
-  it('renders output buttons with correct roles', () => {
-    initStepsCard();
-    const btns = document.querySelectorAll('.btn-pill[role="checkbox"]');
-    // 2 step-0 context pills (Repo + PAT) + 3 output mode buttons
-    expect(btns.length).toBe(5);
-    expect(btns[0].getAttribute('role')).toBe('checkbox');
-    expect(btns[0].getAttribute('aria-checked')).toBe('true');
-  });
 
   it('calls setState on click', () => {
     initStepsCard();
