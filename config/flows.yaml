@@ -87,6 +87,21 @@ flows:
   fix:
     label: 'Debug'
     icon: 'bug'
+    prompt_template:
+      heading: 'Investigate the issue:'
+      panels:
+        - panel: panel_a
+          tag: undesired_behavior
+          fields:
+            - { key: description, type: text, label: 'Bug: ' }
+            - { key: issue_number, type: issue, label: 'Read issue ' }
+            - { key: files, type: files, label: 'Read ' }
+        - panel: panel_b
+          tag: expected_behavior
+          fields:
+            - { key: description, type: text, label: 'Expected: ' }
+            - { key: spec_files, type: files, label: 'Specs: ' }
+            - { key: guideline_files, type: files, label: 'Guidelines: ' }
     panel_a:
       label: 'Current State'
       subtitle: "What's happening now"
@@ -120,6 +135,21 @@ flows:
   review:
     label: 'Review'
     icon: 'codescan'
+    prompt_template:
+      heading: 'Review the subject against criteria:'
+      panels:
+        - panel: panel_a
+          tag: review_subject
+          fields:
+            - { key: pr_number, type: pr, label: 'Review PR ' }
+            - { key: files, type: files, label: 'Review ' }
+            - { key: description, type: text, label: 'Context: ' }
+        - panel: panel_b
+          tag: review_criteria
+          fields:
+            - { key: lenses, type: lenses, label: 'Focus: ' }
+            - { key: spec_files, type: files, label: 'Specs: ' }
+            - { key: guideline_files, type: files, label: 'Guidelines: ' }
     panel_a:
       label: 'Review Subject'
       subtitle: 'The PR, code, or document to examine'
@@ -151,6 +181,20 @@ flows:
   implement:
     label: 'Implement'
     icon: 'rocket'
+    prompt_template:
+      heading: 'Implement per context and requirements:'
+      panels:
+        - panel: panel_a
+          tag: existing_context
+          fields:
+            - { key: description, type: text, label: 'Context: ' }
+            - { key: files, type: files, label: 'Build on: ' }
+        - panel: panel_b
+          tag: requirements
+          fields:
+            - { key: description, type: text, label: '', dot: false }
+            - { key: spec_files, type: files, label: 'Specs: ' }
+            - { key: acceptance_criteria, type: text, label: 'Acceptance: ' }
     panel_a:
       label: 'Context'
       subtitle: 'Existing code or context to build upon (optional)'
@@ -184,6 +228,22 @@ flows:
   improve:
     label: 'refactor'
     icon: 'compose'
+    prompt_template:
+      heading: 'Improve per current state and desired outcome:'
+      panels:
+        - panel: panel_a
+          tag: current_state
+          fields:
+            - { key: description, type: text, label: '', dot: false }
+            - { key: issue_number, type: issue, label: 'Read issue ' }
+            - { key: files, type: files, label: 'Files: ' }
+        - panel: panel_b
+          tag: desired_outcome
+          fields:
+            - { key: description, type: text, label: 'Goal: ' }
+            - { key: issue_number, type: issue, label: 'Target per issue ' }
+            - { key: guideline_files, type: files, label: 'Style reference: ' }
+            - { key: lenses, type: lenses, label: 'Focus: ' }
     panel_a:
       label: 'Current State'
       subtitle: 'What exists and what needs improvement'
