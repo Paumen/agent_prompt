@@ -343,7 +343,7 @@ describe('E2E: Prompt Determinism (TST-01)', () => {
     for (let i = 1; i < results.length; i++) {
       expect(results[i]).toBe(results[0]);
     }
-    expect(results[0]).toContain('<prompt>');
+    expect(results[0]).toContain('<context>');
     expect(results[0]).toContain('Login crashes');
   });
 
