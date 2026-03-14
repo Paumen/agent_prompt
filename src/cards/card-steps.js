@@ -701,6 +701,11 @@ export function initStepsCard() {
   const chevron = header?.querySelector(".icon--chevron");
   if (header) renderFlowSelector(header, chevron);
 
+  // Default to "fix" tab if no flow is already selected
+  if (!getState().task?.flow_id) {
+    header?.querySelector("[data-flow-id='fix']")?.click();
+  }
+
   previousStepSnapshot = "";
   expandedSteps.clear();
 
