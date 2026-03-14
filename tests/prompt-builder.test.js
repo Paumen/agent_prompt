@@ -118,7 +118,7 @@ describe("prompt-builder.js", () => {
       expect(result).toContain('<task="review">');
       expect(result).toContain("<review_subject>");
       expect(result).toContain("PR #15");
-      expect(result).toContain("Focus on: [security]");
+      expect(result).toContain("Focus: [security]");
     });
   });
 
@@ -178,7 +178,7 @@ describe("prompt-builder.js", () => {
       expect(result).toContain('<task="improve">');
       expect(result).toContain("<current_state>");
       expect(result).toContain("<desired_outcome>");
-      expect(result).toContain("Apply improvements to each file independently");
+      expect(result).toContain("Apply to each file independently");
 
       const noScope = buildPrompt(baseState({ task: { flow_id: "improve" } }));
       expect(noScope).not.toContain("<scope>");
@@ -215,7 +215,8 @@ describe("prompt-builder.js", () => {
         }),
       );
 
-      expect(result).toContain("Step 1: Read @claude.md");
+      // Context step is skipped (no longer rendered)
+      expect(result).not.toContain("Read @claude.md");
       expect(result).toContain(
         "Analyze code — focus on [security, performance]",
       );
@@ -382,8 +383,8 @@ describe("prompt-builder.js", () => {
   });
 
   describe("context step", () => {
-    it("renders context step as Read @claude.md, omits when removed", () => {
-      const withContext = buildPrompt(
+    it("skips context step — no longer rendered in prompt", () => {
+      const result = buildPrompt(
         baseState({
           steps: {
             enabled_steps: [
@@ -393,29 +394,13 @@ describe("prompt-builder.js", () => {
                 object: "file",
                 params: { file: "claude.md" },
               },
-            ],
-          },
-        }),
-      );
-      expect(withContext).toContain("Step 1: Read @claude.md");
-
-      const withoutContext = buildPrompt(
-        baseState({
-          task: { flow_id: "fix" },
-          panel_a: {
-            description: "Bug",
-            issue_number: null,
-            pr_number: null,
-            files: [],
-          },
-          steps: {
-            enabled_steps: [
               { id: "analyze", operation: "analyze", object: "issue" },
             ],
           },
         }),
       );
-      expect(withoutContext).not.toContain("claude.md");
+      expect(result).not.toContain("claude.md");
+      expect(result).toContain("Analyze issue");
     });
   });
 
