@@ -19,7 +19,6 @@ import {
   createTag,
   createInputField,
   createMoreLess,
-  setInteracting,
 } from "../common/ui.js";
 
 // Show first 7 lenses. Rest behind "more" button.
@@ -569,7 +568,6 @@ function onUpdateStepIssues(stepIndex, issues) {
 }
 
 function onToggleLens(stepIndex, lens) {
-  setInteracting();
   const state = getState();
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
 
@@ -598,7 +596,6 @@ function onToggleLens(stepIndex, lens) {
 }
 
 function onSelectOutput(stepIndex, mode, btn) {
-  setInteracting();
   const state = getState();
   const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
 
@@ -622,7 +619,6 @@ function onSelectOutput(stepIndex, mode, btn) {
   const isNowOn = newSelected.includes(mode);
   btn.setAttribute("aria-checked", String(isNowOn));
   btn.classList.toggle("btn-pill--on", isNowOn);
-
 }
 
 function onOptionalTextChange(stepIndex, value) {
