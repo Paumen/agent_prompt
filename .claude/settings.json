@@ -1,7 +1,5 @@
 {
-  "permissions": {
-    "deny": ["Edit(**/*.css)", "Write(**/*.css)"]
-  },
+  "permissions": {},
   "hooks": {
     "PreToolUse": [
       {
