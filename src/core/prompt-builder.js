@@ -1,3 +1,5 @@
+import { getFlowById } from '../logic/flow-loader.js';
+
 /**
  * Pure function: prompt_input → structured XML prompt string.
  * DM-INV-03: identical input always produces identical output (deterministic).
@@ -120,145 +122,44 @@ const FLOW_LABELS = {
   improve: 'Improve / Modify',
 };
 
-// --- Flow-specific task step config & builder ---
+// --- Task step builder ---
 
 /**
- * Per-flow config for building the task step.
- * Each field: { key, type, label, dot } where:
- *   type: "text" | "issue" | "pr" | "files" | "lenses"
- *   label: prefix string (default "")
- *   dot: whether to append "." (default true)
- * Panel tag: XML wrapper tag name, or null for plain indented lines.
+ * Fallback prompt template for unknown flows.
+ * Known flows read their prompt_template from flows.yaml via flow-loader.
  */
-const FLOW_TASK_CONFIGS = {
-  fix: {
-    heading: 'Investigate the issue:',
-    panels: [
-      {
-        panelKey: 'panel_a',
-        tag: 'undesired_behavior',
-        fields: [
-          { key: 'description', type: 'text', label: 'Bug: ' },
-          { key: 'issue_number', type: 'issue', label: 'Read issue ' },
-          { key: 'files', type: 'files', label: 'Read ' },
-        ],
-      },
-      {
-        panelKey: 'panel_b',
-        tag: 'expected_behavior',
-        fields: [
-          { key: 'description', type: 'text', label: 'Expected: ' },
-          { key: 'spec_files', type: 'files', label: 'Specs: ' },
-          { key: 'guideline_files', type: 'files', label: 'Guidelines: ' },
-        ],
-      },
-    ],
-  },
-  review: {
-    heading: 'Review the subject against criteria:',
-    panels: [
-      {
-        panelKey: 'panel_a',
-        tag: 'review_subject',
-        fields: [
-          { key: 'pr_number', type: 'pr', label: 'Review PR ' },
-          { key: 'files', type: 'files', label: 'Review ' },
-          { key: 'description', type: 'text', label: 'Context: ' },
-        ],
-      },
-      {
-        panelKey: 'panel_b',
-        tag: 'review_criteria',
-        fields: [
-          { key: 'lenses', type: 'lenses', label: 'Focus: ' },
-          { key: 'spec_files', type: 'files', label: 'Specs: ' },
-          { key: 'guideline_files', type: 'files', label: 'Guidelines: ' },
-        ],
-      },
-    ],
-  },
-  implement: {
-    heading: 'Implement per context and requirements:',
-    panels: [
-      {
-        panelKey: 'panel_a',
-        tag: 'existing_context',
-        fields: [
-          { key: 'description', type: 'text', label: 'Context: ' },
-          { key: 'files', type: 'files', label: 'Build on: ' },
-        ],
-      },
-      {
-        panelKey: 'panel_b',
-        tag: 'requirements',
-        fields: [
-          { key: 'description', type: 'text', label: '', dot: false },
-          { key: 'spec_files', type: 'files', label: 'Specs: ' },
-          { key: 'acceptance_criteria', type: 'text', label: 'Acceptance: ' },
-        ],
-      },
-    ],
-  },
-  improve: {
-    heading: 'Improve per current state and desired outcome:',
-    panels: [
-      {
-        panelKey: 'panel_a',
-        tag: 'current_state',
-        fields: [
-          { key: 'description', type: 'text', label: '', dot: false },
-          { key: 'issue_number', type: 'issue', label: 'Read issue ' },
-          { key: 'files', type: 'files', label: 'Files: ' },
-        ],
-      },
-      {
-        panelKey: 'panel_b',
-        tag: 'desired_outcome',
-        fields: [
-          { key: 'description', type: 'text', label: 'Goal: ' },
-          { key: 'issue_number', type: 'issue', label: 'Target per issue ' },
-          {
-            key: 'guideline_files',
-            type: 'files',
-            label: 'Style reference: ',
-          },
-          { key: 'lenses', type: 'lenses', label: 'Focus: ' },
-        ],
-      },
-    ],
-  },
-  default: {
-    heading: 'Understand the task:',
-    returnNullIfEmpty: true,
-    panels: [
-      {
-        panelKey: 'panel_a',
-        tag: null,
-        fields: [
-          { key: 'description', type: 'text', label: 'Context: ' },
-          { key: 'files', type: 'files', label: 'Files: ' },
-        ],
-      },
-      {
-        panelKey: 'panel_b',
-        tag: null,
-        fields: [
-          { key: 'description', type: 'text', label: 'Goal: ' },
-          { key: 'spec_files', type: 'files', label: 'Specs: ' },
-        ],
-      },
-    ],
-  },
+const DEFAULT_PROMPT_TEMPLATE = {
+  heading: 'Understand the task:',
+  returnNullIfEmpty: true,
+  panels: [
+    {
+      panel: 'panel_a',
+      tag: null,
+      fields: [
+        { key: 'description', type: 'text', label: 'Context: ' },
+        { key: 'files', type: 'files', label: 'Files: ' },
+      ],
+    },
+    {
+      panel: 'panel_b',
+      tag: null,
+      fields: [
+        { key: 'description', type: 'text', label: 'Goal: ' },
+        { key: 'spec_files', type: 'files', label: 'Specs: ' },
+      ],
+    },
+  ],
 };
 
 function buildTaskStep(flowId, panelA, panelB, improveScope) {
   const panels = { panel_a: panelA, panel_b: panelB };
-  const config = FLOW_TASK_CONFIGS[flowId] || FLOW_TASK_CONFIGS.default;
+  const flow = getFlowById(flowId);
+  const config = flow?.prompt_template || DEFAULT_PROMPT_TEMPLATE;
   const parts = [config.heading];
   let hasContent = false;
 
   for (const pc of config.panels) {
-    const panel = panels[pc.panelKey];
+    const panel = panels[pc.panel];
     if (!panel) continue;
 
     if (pc.tag) {

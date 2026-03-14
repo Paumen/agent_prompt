@@ -85,12 +85,61 @@ async function initAllModules() {
   globalThis.fetch = createSmartFetch();
 
   // Mock flow-loader (YAML import not available in vitest)
+  const FIX_PROMPT_TEMPLATE = {
+    heading: 'Investigate the issue:',
+    panels: [
+      {
+        panel: 'panel_a',
+        tag: 'undesired_behavior',
+        fields: [
+          { key: 'description', type: 'text', label: 'Bug: ' },
+          { key: 'issue_number', type: 'issue', label: 'Read issue ' },
+          { key: 'files', type: 'files', label: 'Read ' },
+        ],
+      },
+      {
+        panel: 'panel_b',
+        tag: 'expected_behavior',
+        fields: [
+          { key: 'description', type: 'text', label: 'Expected: ' },
+          { key: 'spec_files', type: 'files', label: 'Specs: ' },
+          { key: 'guideline_files', type: 'files', label: 'Guidelines: ' },
+        ],
+      },
+    ],
+  };
+
+  const REVIEW_PROMPT_TEMPLATE = {
+    heading: 'Review the subject against criteria:',
+    panels: [
+      {
+        panel: 'panel_a',
+        tag: 'review_subject',
+        fields: [
+          { key: 'pr_number', type: 'pr', label: 'Review PR ' },
+          { key: 'files', type: 'files', label: 'Review ' },
+          { key: 'description', type: 'text', label: 'Context: ' },
+        ],
+      },
+      {
+        panel: 'panel_b',
+        tag: 'review_criteria',
+        fields: [
+          { key: 'lenses', type: 'lenses', label: 'Focus: ' },
+          { key: 'spec_files', type: 'files', label: 'Specs: ' },
+          { key: 'guideline_files', type: 'files', label: 'Guidelines: ' },
+        ],
+      },
+    ],
+  };
+
   vi.doMock('../src/logic/flow-loader.js', () => ({
     getFlows: () => ({
       fix: {
         label: 'Debug',
         icon: 'bug',
         task: 'debug',
+        prompt_template: FIX_PROMPT_TEMPLATE,
         panel_a: {
           label: 'Current State',
           fields: {
@@ -120,6 +169,7 @@ async function initAllModules() {
         label: 'Review',
         icon: 'code-review',
         task: 'review',
+        prompt_template: REVIEW_PROMPT_TEMPLATE,
         panel_a: { label: 'PR Context', fields: {} },
         panel_b: { label: 'Review Focus', fields: {} },
         steps: [
@@ -139,6 +189,7 @@ async function initAllModules() {
           label: 'Debug',
           icon: 'bug',
           task: 'debug',
+          prompt_template: FIX_PROMPT_TEMPLATE,
           panel_a: {
             label: 'Current State',
             fields: {
@@ -171,6 +222,7 @@ async function initAllModules() {
           label: 'Review',
           icon: 'code-review',
           task: 'review',
+          prompt_template: REVIEW_PROMPT_TEMPLATE,
           panel_a: { label: 'PR Context', fields: {} },
           panel_b: { label: 'Review Focus', fields: {} },
           steps: [
