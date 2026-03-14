@@ -329,6 +329,7 @@ function renderStepFilePicker(li, step, index) {
     searchIconName: "file",
     multiSelect: true,
     iconFn: (val) => fileIconName(val),
+    tagLabelFn: (val) => val.split("/").pop(),
     tagTextClass: "truncate-start",
     onSelect: (item) => onUpdateStepFiles(index, [...selected, item.value]),
     onRemove: (value) =>

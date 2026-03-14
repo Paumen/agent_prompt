@@ -128,6 +128,7 @@ export function createPicker(options = {}) {
     emptyMessages = {},
     container: renderContainer,
     tagTextClass,
+    tagLabelFn,
   } = options;
 
   const container = document.createElement("div");
@@ -206,7 +207,11 @@ export function createPicker(options = {}) {
     tagsContainer.innerHTML = "";
     for (const val of selected) {
       const item = items.find((i) => i.value === val);
-      const tagLabel = item ? item.label : String(val);
+      const tagLabel = tagLabelFn
+        ? tagLabelFn(val)
+        : item
+          ? item.label
+          : String(val);
       tagsContainer.appendChild(
         createTag({
           label: tagLabel,
