@@ -1,6 +1,7 @@
 #!/bin/bash
 # require-edit-approval.sh
-# PreToolUse hook: exits 2 to force user approval before editing protected files.
+# PreToolUse hook: forces user approval before editing protected files.
+# Uses permissionDecision "ask" to show approval prompt instead of exit 2 which blocks outright.
 
 LOG="/tmp/require-edit-approval.log"
 echo "--- $(date -Iseconds) ---" >> "$LOG"
@@ -33,9 +34,15 @@ NORMALIZED_PATH=$(echo "$FILE_PATH" | sed 's#//*#/#g; s#/\./#/#g; s#^\./##')
 
 for pattern in "${PROTECTED_PATTERNS[@]}"; do
   if [[ "$NORMALIZED_PATH" == *"$pattern"* ]]; then
-    echo "MATCH: '$FILE_PATH' matches '$pattern'. Exiting 2." >> "$LOG"
-    echo "Protected file: $FILE_PATH matches '$pattern'. Approval required." >&2
-    exit 2
+    echo "MATCH: '$FILE_PATH' matches '$pattern'. Requesting approval." >> "$LOG"
+    jq -n --arg reason "Protected file: $FILE_PATH matches '$pattern'" '{
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "ask",
+        permissionDecisionReason: $reason
+      }
+    }'
+    exit 0
   fi
 done
 
