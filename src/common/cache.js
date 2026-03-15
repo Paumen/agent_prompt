@@ -69,13 +69,6 @@ export function cacheSet(key, data, ttlMs) {
 }
 
 /**
- * Remove a specific cache entry.
- */
-export function cacheRemove(key) {
-  localStorage.removeItem(PREFIX + key);
-}
-
-/**
  * Clear ALL cache entries (PAT-change cascade).
  * Only removes keys with the ap_cache_ prefix — does not touch app state.
  */
