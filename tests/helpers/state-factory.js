@@ -13,30 +13,30 @@
  */
 export function createMockState(overrides = {}) {
   return {
-    version: "1.0",
+    version: '1.0',
     configuration: {
-      owner: "",
-      repo: "",
-      branch: "",
-      pat: "",
+      owner: '',
+      repo: '',
+      branch: '',
+      pat: '',
       include_repo: true,
       include_pat: true,
     },
     task: {
-      flow_id: "",
+      flow_id: '',
     },
     panel_a: {
-      description: "",
+      description: '',
       issue_number: null,
       pr_number: null,
       files: [],
     },
     panel_b: {
-      description: "",
+      description: '',
       issue_number: null,
       spec_files: [],
       guideline_files: [],
-      acceptance_criteria: "",
+      acceptance_criteria: '',
       lenses: [],
     },
     steps: {
@@ -45,9 +45,9 @@ export function createMockState(overrides = {}) {
     },
     improve_scope: null,
     output: {
-      destination: "clipboard",
+      destination: 'clipboard',
     },
-    _prompt: "",
+    _prompt: '',
     ...overrides,
   };
 }
@@ -66,11 +66,11 @@ export function createMockState(overrides = {}) {
  */
 export function createConfiguredState(options = {}) {
   const {
-    flowId = "fix",
-    owner = "testuser",
-    repo = "testrepo",
-    branch = "main",
-    pat = "ghp_test",
+    flowId = 'fix',
+    owner = 'testuser',
+    repo = 'testrepo',
+    branch = 'main',
+    pat = 'ghp_test',
   } = options;
 
   return createMockState({
@@ -88,32 +88,32 @@ export function createConfiguredState(options = {}) {
 export function createMockSteps(count = 2) {
   const steps = [
     {
-      id: "context",
-      operation: "read",
-      object: "file",
-      params: { file: "claude.md" },
+      id: 'context',
+      operation: 'read',
+      object: 'file',
+      params: { file: 'claude.md' },
     },
     {
-      id: "analyze",
-      operation: "analyze",
-      object: "issue",
-      lenses: ["semantics"],
+      id: 'analyze',
+      operation: 'analyze',
+      object: 'issue',
+      lenses: ['semantics'],
     },
     {
-      id: "edit",
-      operation: "edit",
-      object: "files",
-      sources: ["panel_a.files"],
+      id: 'edit',
+      operation: 'edit',
+      object: 'files',
+      sources: ['panel_a.files'],
       has_file_picker: true,
       params: { files: [] },
     },
     {
-      id: "commit",
-      operation: "commit",
-      object: "changes",
+      id: 'commit',
+      operation: 'commit',
+      object: 'changes',
       params: { open_draft_pr: true },
-      branch_name: "optional_text",
-      pr_name: "optional_text",
+      branch_name: 'optional_text',
+      pr_name: 'optional_text',
     },
   ];
 
@@ -125,22 +125,22 @@ export function createMockSteps(count = 2) {
  */
 export const PANEL_A_PRESETS = {
   fix: {
-    description: "Login crashes when clicking submit",
+    description: 'Login crashes when clicking submit',
     issue_number: 42,
-    files: ["src/auth.js"],
+    files: ['src/auth.js'],
   },
   review: {
-    description: "Review authentication code",
+    description: 'Review authentication code',
     pr_number: 101,
-    files: ["src/auth.js"],
+    files: ['src/auth.js'],
   },
   implement: {
-    description: "Existing authentication module",
-    files: ["src/auth.js"],
+    description: 'Existing authentication module',
+    files: ['src/auth.js'],
   },
   improve: {
-    description: "Slow performance in data processing",
-    files: ["src/data.js", "src/utils.js"],
+    description: 'Slow performance in data processing',
+    files: ['src/data.js', 'src/utils.js'],
   },
 };
 
@@ -149,21 +149,21 @@ export const PANEL_A_PRESETS = {
  */
 export const PANEL_B_PRESETS = {
   fix: {
-    description: "Should redirect to dashboard",
-    spec_files: ["spec/auth.md"],
+    description: 'Should redirect to dashboard',
+    spec_files: ['spec/auth.md'],
     guideline_files: [],
   },
   review: {
-    lenses: ["security", "performance"],
-    spec_files: ["spec/auth.md"],
+    lenses: ['security', 'performance'],
+    spec_files: ['spec/auth.md'],
   },
   implement: {
-    description: "Add OAuth2 authentication",
-    acceptance_criteria: "Users can login with Google",
-    spec_files: ["spec/oauth.md"],
+    description: 'Add OAuth2 authentication',
+    acceptance_criteria: 'Users can login with Google',
+    spec_files: ['spec/oauth.md'],
   },
   improve: {
-    description: "Optimize data processing",
-    lenses: ["performance"],
+    description: 'Optimize data processing',
+    lenses: ['performance'],
   },
 };
