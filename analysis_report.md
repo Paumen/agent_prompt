@@ -1,23 +1,23 @@
 # DOM-CSS Analysis Report
 
-| Metric | Count |
-|--------|-------|
-| CSS classes defined | 43 |
-| Classes used (HTML+JS) | 45 |
-| Unused CSS classes | 0 |
-| Undefined classes | 2 |
-| Inline style violations | 0 |
+| Metric                  | Count |
+| ----------------------- | ----- |
+| CSS classes defined     | 43    |
+| Classes used (HTML+JS)  | 45    |
+| Unused CSS classes      | 0     |
+| Undefined classes       | 2     |
+| Inline style violations | 0     |
 
 ## Elements Without Classes
 
-| Element | Occurrences | Without Class | Violations |
-|---------|-------------|---------------|------------|
-| `<span>` | 11 | 6 | cards/card-configuration.js:47, cards/card-configuration.js:53, cards/card-steps.js:134, cards/card-steps.js:234, common/ui.js:259, common/ui.js:312 |
-| `<h3>` | 3 | 3 | index.html:16, index.html:27, index.html:38 |
-| `<template>` | 1 | 1 | common/icons.js:103 |
-| `<button>` | 3 | 1 | common/ui.js:354 |
-| `<small>` | 1 | 1 | common/ui.js:138 |
-| `<label>` | 1 | 1 | common/ui.js:307 |
+| Element      | Occurrences | Without Class | Violations                                                                                                                                           |
+| ------------ | ----------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<span>`     | 11          | 6             | cards/card-configuration.js:47, cards/card-configuration.js:53, cards/card-steps.js:134, cards/card-steps.js:234, common/ui.js:259, common/ui.js:312 |
+| `<h3>`       | 3           | 3             | index.html:16, index.html:27, index.html:38                                                                                                          |
+| `<template>` | 1           | 1             | common/icons.js:103                                                                                                                                  |
+| `<button>`   | 3           | 1             | common/ui.js:354                                                                                                                                     |
+| `<small>`    | 1           | 1             | common/ui.js:138                                                                                                                                     |
+| `<label>`    | 1           | 1             | common/ui.js:307                                                                                                                                     |
 
 ## Unused CSS Classes
 
@@ -153,7 +153,7 @@ L3 details#card-prompt.card [Grid 1fr] — index.html:36
 
 ## Cross-File Class Map
 
-*Classes appearing in 3+ files (CSS definitions + HTML/JS usage).*
+_Classes appearing in 3+ files (CSS definitions + HTML/JS usage)._
 
 ### `.icon` (6 files)
 
