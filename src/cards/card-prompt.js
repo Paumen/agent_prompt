@@ -9,6 +9,7 @@
 
 import { getState, setState, subscribe } from '../core/state.js';
 import { getFlowById } from '../logic/flow-loader.js';
+import { escapeXml } from '../core/prompt-builder.js';
 import { icon } from '../common/icons.js';
 import { createButton, createInputField, createLabel } from '../common/ui.js';
 
@@ -28,10 +29,7 @@ let lastFlowId = null;
 // --- XML Syntax Highlighting ---
 
 export function highlightXml(text) {
-  const escaped = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  const escaped = escapeXml(text);
 
   return escaped.replace(
     /&lt;\/?[\w][\w.-]*(?:\s[^&]*?)?&gt;/g,

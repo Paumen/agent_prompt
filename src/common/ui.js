@@ -319,15 +319,6 @@ export function createLabel(text, { required = false, htmlFor } = {}) {
 
 // --- HELPERS ---
 
-export const expandCard = (id) => {
-  const c = document.getElementById(id);
-  if (c) c.open = true;
-};
-export const collapseCard = (id) => {
-  const c = document.getElementById(id);
-  if (c) c.open = false;
-};
-
 export function renderShimmer(container, label, barCount = 2) {
   container.innerHTML = `<div class="shimmer-label">${label}</div>`;
   for (let i = 0; i < barCount; i++) {

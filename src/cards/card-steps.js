@@ -485,15 +485,22 @@ function createLensPill(lens, activeLenses, stepIndex) {
 
 // --- Event handlers ---
 
-function updateStepParam(stepIndex, paramKey, value, state) {
-  const currentState = state || getState();
-  const steps = (currentState.steps.enabled_steps || []).map((s) => ({ ...s }));
+/** Clone enabled_steps, run updater if index is valid, then commit. */
+function updateStep(stepIndex, updater) {
+  const state = getState();
+  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
   if (stepIndex < 0 || stepIndex >= steps.length) return;
-  steps[stepIndex] = {
-    ...steps[stepIndex],
-    params: { ...(steps[stepIndex].params || {}), [paramKey]: value },
-  };
+  updater(steps, state);
   setState('steps.enabled_steps', steps);
+}
+
+function updateStepParam(stepIndex, paramKey, value) {
+  updateStep(stepIndex, (steps) => {
+    steps[stepIndex] = {
+      ...steps[stepIndex],
+      params: { ...(steps[stepIndex].params || {}), [paramKey]: value },
+    };
+  });
 }
 
 function onRemoveStep0() {
@@ -568,65 +575,58 @@ function onUpdateStepIssues(stepIndex, issues) {
 }
 
 function onToggleLens(stepIndex, lens) {
-  const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+  updateStep(stepIndex, (steps, state) => {
+    const current = steps[stepIndex].lenses || [];
+    const newLenses = current.includes(lens)
+      ? current.filter((l) => l !== lens)
+      : [...current, lens];
 
-  if (stepIndex < 0 || stepIndex >= steps.length) return;
-
-  const step = steps[stepIndex];
-  const current = step.lenses || [];
-
-  const newLenses = current.includes(lens)
-    ? current.filter((l) => l !== lens)
-    : [...current, lens];
-
-  // Sync all lens-enabled steps to the same selection
-  for (let i = 0; i < steps.length; i++) {
-    if (steps[i].lenses !== undefined) {
-      steps[i] = { ...steps[i], lenses: newLenses };
+    // Sync all lens-enabled steps to the same selection
+    for (let i = 0; i < steps.length; i++) {
+      if (steps[i].lenses !== undefined) {
+        steps[i] = { ...steps[i], lenses: newLenses };
+      }
     }
-  }
 
-  setState('steps.enabled_steps', steps);
-
-  // Sync to task card lens picker if this flow uses one (panel_b.lenses)
-  if (state.panel_b?.lenses !== undefined) {
-    setState('panel_b.lenses', newLenses);
-  }
+    // Sync to task card lens picker if this flow uses one (panel_b.lenses)
+    if (state.panel_b?.lenses !== undefined) {
+      setState('panel_b.lenses', newLenses);
+    }
+  });
 }
 
 function onSelectOutput(stepIndex, mode, btn) {
-  const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
+  let newSelected;
+  updateStep(stepIndex, (steps) => {
+    const step = steps[stepIndex];
+    const current =
+      step.outputs_selected ||
+      (step.output_selected
+        ? [step.output_selected]
+        : [step.output?.[0]].filter(Boolean));
 
-  if (stepIndex < 0 || stepIndex >= steps.length) return;
+    newSelected = current.includes(mode)
+      ? current.filter((m) => m !== mode)
+      : [...current, mode];
 
-  const step = steps[stepIndex];
-  const current =
-    step.outputs_selected ||
-    (step.output_selected
-      ? [step.output_selected]
-      : [step.output?.[0]].filter(Boolean));
-
-  const newSelected = current.includes(mode)
-    ? current.filter((m) => m !== mode)
-    : [...current, mode];
-
-  steps[stepIndex] = { ...step, outputs_selected: newSelected };
-  setState('steps.enabled_steps', steps);
+    steps[stepIndex] = { ...step, outputs_selected: newSelected };
+  });
 
   // Update button state visually
-  const isNowOn = newSelected.includes(mode);
-  btn.setAttribute('aria-checked', String(isNowOn));
-  btn.classList.toggle('btn-pill--on', isNowOn);
+  if (newSelected) {
+    const isNowOn = newSelected.includes(mode);
+    btn.setAttribute('aria-checked', String(isNowOn));
+    btn.classList.toggle('btn-pill--on', isNowOn);
+  }
 }
 
 function onOptionalTextChange(stepIndex, value) {
-  const state = getState();
-  const steps = (state.steps.enabled_steps || []).map((s) => ({ ...s }));
-  if (stepIndex < 0 || stepIndex >= steps.length) return;
-  steps[stepIndex] = { ...steps[stepIndex], name_provided: value || undefined };
-  setState('steps.enabled_steps', steps);
+  updateStep(stepIndex, (steps) => {
+    steps[stepIndex] = {
+      ...steps[stepIndex],
+      name_provided: value || undefined,
+    };
+  });
 }
 
 // --- Step regeneration on panel changes ---

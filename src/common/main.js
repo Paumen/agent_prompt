@@ -1,4 +1,3 @@
-import { getState } from '../core/state.js';
 import { initConfigurationCard } from '../cards/card-configuration.js';
 import { initStepsCard } from '../cards/card-steps.js';
 import { initPromptCard } from '../cards/card-prompt.js';
@@ -19,12 +18,6 @@ function initChevrons() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initChevrons();
-
-  // State is already initialized (hydrated from localStorage on import).
-  const initial = getState();
-  if (initial.configuration.owner) {
-    console.log('Hydrated user:', initial.configuration.owner);
-  }
 
   // Initialize Card 1: Configuration
   initConfigurationCard();

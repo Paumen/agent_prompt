@@ -430,7 +430,7 @@ function capitalize(str) {
 /**
  * Escape XML-sensitive characters in user content.
  */
-function escapeXml(str) {
+export function escapeXml(str) {
   if (!str) return '';
   return String(str)
     .replace(/&/g, '&amp;')

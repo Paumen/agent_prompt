@@ -139,7 +139,6 @@ describe('Description textareas', () => {
     expect(textareas.length).toBe(2);
   });
 
-
   it('updates panel_b.description state on input', () => {
     initPromptCard();
     const textareas = document.querySelectorAll('textarea');

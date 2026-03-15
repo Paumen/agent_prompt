@@ -98,10 +98,7 @@ describe('corrupted data handling', () => {
   });
 
   it('returns null for entry missing timestamp', () => {
-    localStorage.setItem(
-      'ap_cache_repos',
-      JSON.stringify({ data: ['r1'] })
-    );
+    localStorage.setItem('ap_cache_repos', JSON.stringify({ data: ['r1'] }));
     expect(cacheModule.cacheGet('repos')).toBeNull();
   });
 

@@ -143,16 +143,19 @@ export function renderFlowSelector(container, beforeEl = null) {
     }
   }
 }
-function onFlowSelect(flowId, flowDef) {
-  if (flowId === currentFlowId) return;
-  currentFlowId = flowId;
-  resetDownstream('flow');
-  applyFlowDefaults(flowId, flowDef);
+function syncFlowButtons(flowId) {
   for (const btn of elFlowButtons) {
     const isSelected = btn.dataset.flowId === flowId;
     btn.classList.toggle('btn-select--selected', isSelected);
     btn.setAttribute('aria-selected', String(isSelected));
   }
+}
+function onFlowSelect(flowId, flowDef) {
+  if (flowId === currentFlowId) return;
+  currentFlowId = flowId;
+  resetDownstream('flow');
+  applyFlowDefaults(flowId, flowDef);
+  syncFlowButtons(flowId);
   updateConfigCardMeta();
   prefetchForFlow(flowDef);
 }
@@ -423,11 +426,7 @@ export function initConfigurationCard() {
     const flowId = newState.task?.flow_id || null;
     if (flowId !== currentFlowId) {
       currentFlowId = flowId;
-      for (const btn of elFlowButtons) {
-        const isSelected = btn.dataset.flowId === flowId;
-        btn.classList.toggle('btn-select--selected', isSelected);
-        btn.setAttribute('aria-selected', String(isSelected));
-      }
+      syncFlowButtons(flowId);
       updateConfigCardMeta();
     }
   });

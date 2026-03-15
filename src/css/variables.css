@@ -23,10 +23,10 @@
 
   /* === Typography === */
   --font-body:
-    -apple-system, blinkmacsystemfont, 'Segoe UI', 'Noto Sans', helvetica,
-    arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    -apple-system, blinkmacsystemfont, "Segoe UI", "Noto Sans", helvetica,
+    arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   --font-mono:
-    ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, 'Liberation Mono',
+    ui-monospace, sfmono-regular, "SF Mono", menlo, consolas, "Liberation Mono",
     monospace;
   --text-sm: clamp(0.625rem, 0.6rem + 0.15cqi, 0.75rem);
   --text: clamp(0.813rem, 0.775rem + 0.2cqi, 0.938rem);
