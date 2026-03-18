@@ -1,11 +1,11 @@
-import { getFlowById } from '../logic/flow-loader.js';
+import { getFlowById } from "../logic/flow-loader.js";
 
 /**
  * Pure function: prompt_input → structured XML prompt string.
  * DM-INV-03: identical input always produces identical output (deterministic).
  */
 export function buildPrompt(state) {
-  if (!state) return '';
+  if (!state) return "";
 
   const { configuration, task, panel_a, panel_b, steps, improve_scope } = state;
   const { owner, repo, branch, pat, include_repo, include_pat } =
@@ -15,28 +15,28 @@ export function buildPrompt(state) {
   const includePat = include_pat !== false;
 
   // Need at minimum an owner; also require repo when include_repo is on
-  if (!owner) return '';
-  if (includeRepo && !repo) return '';
+  if (!owner) return "";
+  if (includeRepo && !repo) return "";
 
-  const flowId = task?.flow_id || '';
+  const flowId = task?.flow_id || "";
   const lines = [];
 
   // Context section — same across all flows
-  const flowLabel = FLOW_LABELS[flowId] || flowId || 'task';
+  const flowLabel = FLOW_LABELS[flowId] || flowId || "task";
   let contextLine = `  <context> <task> ${escapeXml(flowLabel)} </task> Execute the steps below`;
   if (includeRepo) {
-    contextLine += ` in <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> branch <branch> ${escapeXml(branch || 'main')} </branch>.`;
+    contextLine += ` in <repository> https://github.com/${escapeXml(owner)}/${escapeXml(repo)} </repository> branch <branch> ${escapeXml(branch || "main")} </branch>.`;
   } else {
-    contextLine += '.';
+    contextLine += ".";
   }
   if (pat && includePat) {
     contextLine += ` PAT: <PAT> ${escapeXml(pat)} </PAT>.`;
   }
-  contextLine += '  </context>';
+  contextLine += "  </context>";
   lines.push(contextLine);
 
   // Todo section — build step list
-  lines.push('  <todo>');
+  lines.push("  <todo>");
 
   let stepNum = 1;
   const enabledSteps = steps?.enabled_steps || [];
@@ -52,33 +52,33 @@ export function buildPrompt(state) {
     const step = enabledSteps[i];
 
     // Skip context step — no longer rendered
-    if (step.id === 'context') continue;
+    if (step.id === "context") continue;
 
     // Read step — single line listing all sources
-    if (step.id === 'read') {
+    if (step.id === "read") {
       const parts = [];
       if (step.params?.files?.length > 0) {
-        parts.push(step.params.files.map((f) => `@${escapeXml(f)}`).join(', '));
+        parts.push(step.params.files.map((f) => `@${escapeXml(f)}`).join(", "));
       }
       if (step.params?.issues?.length > 0) {
         parts.push(
           step.params.issues
             .map((i) => `issue #${escapeXml(String(i))}`)
-            .join(', ')
+            .join(", "),
         );
       }
       if (step.params?.pr_number) {
         parts.push(`PR #${escapeXml(String(step.params.pr_number))}`);
       }
       if (parts.length > 0) {
-        lines.push(`    Step ${stepNum}: Read ${parts.join(', ')}`);
+        lines.push(`    Step ${stepNum}: Read ${parts.join(", ")}`);
         stepNum++;
       }
       continue;
     }
 
     // Commit step — includes commit, and PR opening
-    if (step.id === 'commit') {
+    if (step.id === "commit") {
       const desc = formatCommitStep(step);
       lines.push(`    Step ${stepNum}: ${desc}`);
       stepNum++;
@@ -92,7 +92,7 @@ export function buildPrompt(state) {
     }
 
     // Report step (review flow) — feedback with output modes
-    if (step.id === 'report') {
+    if (step.id === "report") {
       const feedback = buildReviewFeedback(getOutputModes(step));
       if (feedback) {
         lines.push(`    Step ${stepNum}: ${feedback}`);
@@ -108,18 +108,18 @@ export function buildPrompt(state) {
     }
   }
 
-  lines.push('  </todo>');
+  lines.push("  </todo>");
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 // --- Flow labels ---
 
 const FLOW_LABELS = {
-  fix: 'Fix / Debug',
-  review: 'Review / Analyze',
-  implement: 'Implement / Build',
-  improve: 'Improve / Modify',
+  fix: "Fix / Debug",
+  review: "Review / Analyze",
+  implement: "Implement / Build",
+  improve: "Improve / Modify",
 };
 
 // --- Task step builder ---
@@ -129,23 +129,23 @@ const FLOW_LABELS = {
  * Known flows read their prompt_template from flows.yaml via flow-loader.
  */
 const DEFAULT_PROMPT_TEMPLATE = {
-  heading: 'Understand the task:',
+  heading: "Understand the task:",
   returnNullIfEmpty: true,
   panels: [
     {
-      panel: 'panel_a',
+      panel: "panel_a",
       tag: null,
       fields: [
-        { key: 'description', type: 'text', label: 'Context: ' },
-        { key: 'files', type: 'files', label: 'Files: ' },
+        { key: "description", type: "text", label: "Context: " },
+        { key: "files", type: "files", label: "Files: " },
       ],
     },
     {
-      panel: 'panel_b',
+      panel: "panel_b",
       tag: null,
       fields: [
-        { key: 'description', type: 'text', label: 'Goal: ' },
-        { key: 'spec_files', type: 'files', label: 'Specs: ' },
+        { key: "description", type: "text", label: "Goal: " },
+        { key: "spec_files", type: "files", label: "Specs: " },
       ],
     },
   ],
@@ -169,7 +169,7 @@ function buildTaskStep(flowId, panelA, panelB, improveScope) {
         pc.fields.map((f) => ({
           condition: hasFieldValue(f.type, panel, f.key),
           text: formatField(f, panel[f.key]),
-        }))
+        })),
       );
       if (section) {
         parts.push(section);
@@ -185,20 +185,20 @@ function buildTaskStep(flowId, panelA, panelB, improveScope) {
     }
   }
 
-  if (flowId === 'improve') {
-    if (improveScope === 'across_files') {
+  if (flowId === "improve") {
+    if (improveScope === "across_files") {
       parts.push(
-        '              <scope>Apply as unified cross-file change.</scope>'
+        "              <scope>Apply as unified cross-file change.</scope>",
       );
-    } else if (improveScope === 'each_file') {
+    } else if (improveScope === "each_file") {
       parts.push(
-        '              <scope>Apply to each file independently.</scope>'
+        "              <scope>Apply to each file independently.</scope>",
       );
     }
   }
 
   if (config.returnNullIfEmpty && !hasContent) return null;
-  return parts.join('\n');
+  return parts.join("\n");
 }
 
 // --- Feedback step builders ---
@@ -210,7 +210,7 @@ function buildTaskStep(flowId, panelA, panelB, improveScope) {
 function buildFeedbackStep(flowId, enabledSteps) {
   // Find output modes from report-type steps (if any)
   const reportSteps = (enabledSteps || []).filter(
-    (s) => s.id === 'report' || s.object === 'review_feedback'
+    (s) => s.id === "report" || s.object === "review_feedback",
   );
   let outputMode = null;
   if (reportSteps.length > 0) {
@@ -218,20 +218,20 @@ function buildFeedbackStep(flowId, enabledSteps) {
   }
 
   switch (flowId) {
-    case 'fix':
-      return 'Report results here:';
-    case 'review':
+    case "fix":
+      return "Report results here:";
+    case "review":
       return buildReviewFeedback(
         Array.isArray(outputMode)
           ? outputMode
           : outputMode
             ? [outputMode]
-            : null
+            : null,
       );
-    case 'implement':
-      return 'Report results here:';
-    case 'improve':
-      return 'Report results here:';
+    case "implement":
+      return "Report results here:";
+    case "improve":
+      return "Report results here:";
     default:
       return null;
   }
@@ -244,45 +244,45 @@ function buildFeedbackStep(flowId, enabledSteps) {
  * @param {string[]|null} outputModes - array of selected mode IDs, or null for default
  */
 function buildReviewFeedback(outputModes) {
-  const modes = outputModes?.length > 0 ? outputModes : ['here'];
+  const modes = outputModes?.length > 0 ? outputModes : ["here"];
 
   // Build delivery clause from all selected modes
   const MODE_VERBS = {
-    here: 'here (in this interface)',
-    pr_comment: 'as a PR comment',
-    pr_inline_comments: 'via PR inline comments at relevant line numbers',
-    issue_comment: 'as a GitHub issue comment',
-    report_file: 'as a committed report file in the repository',
+    here: "here (in this interface)",
+    pr_comment: "as a PR comment",
+    pr_inline_comments: "via PR inline comments at relevant line numbers",
+    issue_comment: "as a GitHub issue comment",
+    report_file: "as a committed report file in the repository",
   };
   const deliveryParts = modes.map((m) => MODE_VERBS[m] || m);
   const deliveryClause =
     deliveryParts.length === 1
       ? deliveryParts[0]
-      : deliveryParts.slice(0, -1).join(', ') +
-        ' AND ' +
+      : deliveryParts.slice(0, -1).join(", ") +
+        " AND " +
         deliveryParts[deliveryParts.length - 1];
 
   const lines = [`Report feedback ${deliveryClause}:`];
 
-  if (modes.includes('pr_inline_comments')) {
+  if (modes.includes("pr_inline_comments")) {
     lines.push(
-      '              - Inline: issue, severity, suggested fix at relevant line.'
+      "              - Inline: issue, severity, suggested fix at relevant line.",
     );
   }
-  if (modes.some((m) => ['pr_comment', 'issue_comment'].includes(m))) {
-    lines.push('              - Link the comment here.');
+  if (modes.some((m) => ["pr_comment", "issue_comment"].includes(m))) {
+    lines.push("              - Link the comment here.");
   }
-  if (modes.includes('report_file')) {
-    lines.push('              - Commit report file, link here.');
+  if (modes.includes("report_file")) {
+    lines.push("              - Commit report file, link here.");
   }
 
   lines.push(
-    '              - One-sentence summary.',
-    '              - Issue count by severity.',
-    '              - Top 3 findings with file/line references.'
+    "              - One-sentence summary.",
+    "              - Issue count by severity.",
+    "              - Top 3 findings with file/line references.",
   );
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 // --- Step formatting ---
@@ -291,15 +291,15 @@ function buildReviewFeedback(outputModes) {
  * Format a commit step into a readable string.
  */
 function formatCommitStep(step) {
-  const parts = ['Create branch'];
+  const parts = ["Create branch"];
   if (step.name_provided && step.branch_name !== undefined) {
     parts[0] = `Create branch "${escapeXml(step.name_provided)}"`;
   }
-  parts.push('commit changes, and open draft PR');
+  parts.push("commit changes, and open draft PR");
   if (step.name_provided && step.pr_name !== undefined) {
     parts.push(`titled "${escapeXml(step.name_provided)}"`);
   }
-  return parts.join(', ');
+  return parts.join(", ");
 }
 
 /**
@@ -307,35 +307,35 @@ function formatCommitStep(step) {
  * Handles operation, object, params, lenses, name_provided, and output.
  */
 function formatStep(step) {
-  if (!step) return '';
+  if (!step) return "";
 
   const parts = [];
 
   // Operation + object (STP-02 minimum: 1x operation, 1x object)
-  const op = capitalize(escapeXml(step.operation || ''));
-  const obj = escapeXml(step.object || '');
+  const op = capitalize(escapeXml(step.operation || ""));
+  const obj = escapeXml(step.object || "");
   parts.push(`${op} ${obj}`.trim());
 
   // Params — add relevant details
   if (step.params) {
     const paramParts = [];
     for (const [key, val] of Object.entries(step.params)) {
-      if (val !== null && val !== undefined && val !== '') {
+      if (val !== null && val !== undefined && val !== "") {
         // File references get @ prefix (OUT-04)
         const escaped = escapeXml(String(val));
-        const display = key === 'file' ? `@${escaped}` : escaped;
+        const display = key === "file" ? `@${escaped}` : escaped;
         paramParts.push(display);
       }
     }
     if (paramParts.length > 0) {
-      parts.push(paramParts.join(', '));
+      parts.push(paramParts.join(", "));
     }
   }
 
   // Lenses (STP-03)
   const lenses = step.lenses || [];
   if (Array.isArray(lenses) && lenses.length > 0) {
-    parts.push(`— focus on [${lenses.map(escapeXml).join(', ')}]`);
+    parts.push(`— focus on [${lenses.map(escapeXml).join(", ")}]`);
   }
 
   // User-provided name for branch/PR/file (name_provided field)
@@ -343,7 +343,7 @@ function formatStep(step) {
     parts.push(`— name it ${escapeXml(step.name_provided)}`);
   }
 
-  return parts.join(' ');
+  return parts.join(" ");
 }
 
 // --- Field formatting helpers ---
@@ -353,7 +353,7 @@ function formatStep(step) {
  */
 function hasFieldValue(type, panel, key) {
   const val = panel?.[key];
-  if (type === 'files' || type === 'lenses') return val?.length > 0;
+  if (type === "files" || type === "lenses") return val?.length > 0;
   return !!val;
 }
 
@@ -362,8 +362,8 @@ function hasFieldValue(type, panel, key) {
  */
 function formatField(field, value) {
   const formatted = formatFieldValue(field.type, value);
-  const dot = field.dot !== false ? '.' : '';
-  return `${field.label || ''}${formatted}${dot}`;
+  const dot = field.dot !== false ? "." : "";
+  return `${field.label || ""}${formatted}${dot}`;
 }
 
 /**
@@ -371,16 +371,16 @@ function formatField(field, value) {
  */
 function formatFieldValue(type, value) {
   switch (type) {
-    case 'text':
+    case "text":
       return escapeXml(value);
-    case 'issue':
+    case "issue":
       return `#${escapeXml(String(value))}`;
-    case 'pr':
+    case "pr":
       return `#${escapeXml(String(value))} diff`;
-    case 'files':
+    case "files":
       return formatFileList(value);
-    case 'lenses':
-      return `[${(value || []).map(escapeXml).join(', ')}]`;
+    case "lenses":
+      return `[${(value || []).map(escapeXml).join(", ")}]`;
     default:
       return escapeXml(String(value));
   }
@@ -403,37 +403,37 @@ function getOutputModes(step) {
  * Helper to generate repeating XML panel sections conditionally.
  */
 function buildPanelSection(tagName, panel, instructions) {
-  if (!panel) return '';
+  if (!panel) return "";
   const parts = [`              <${tagName}>`];
   for (const { condition, text } of instructions) {
     if (condition) parts.push(`                ${text}`);
   }
   parts.push(`              </${tagName}>`);
-  return parts.length > 2 ? parts.join('\n') : '';
+  return parts.length > 2 ? parts.join("\n") : "";
 }
 
 /**
  * Format a list of file paths as @-prefixed references (OUT-04).
  */
 function formatFileList(files) {
-  if (!files || files.length === 0) return '';
-  return files.map((f) => `@${escapeXml(f)}`).join(', ');
+  if (!files || files.length === 0) return "";
+  return files.map((f) => `@${escapeXml(f)}`).join(", ");
 }
 
 /**
  * Capitalize first letter.
  */
 function capitalize(str) {
-  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 }
 
 /**
  * Escape XML-sensitive characters in user content.
  */
 export function escapeXml(str) {
-  if (!str) return '';
+  if (!str) return "";
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }

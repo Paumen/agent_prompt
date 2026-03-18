@@ -1,22 +1,22 @@
-import { initConfigurationCard } from '../cards/card-configuration.js';
-import { initStepsCard } from '../cards/card-steps.js';
-import { initPromptCard } from '../cards/card-prompt.js';
-import { icon } from './icons.js';
+import { initConfigurationCard } from "../cards/card-configuration.js";
+import { initStepsCard } from "../cards/card-steps.js";
+import { initPromptCard } from "../cards/card-prompt.js";
+import { icon } from "./icons.js";
 
 // --- Chevron icon init (D107) ---
 
 function initChevrons() {
-  const summaries = document.querySelectorAll('summary.card-header');
+  const summaries = document.querySelectorAll("summary.card-header");
   for (const summary of summaries) {
-    const chevron = icon('chevron-down', 'icon-btn');
-    chevron.classList.add('icon--chevron');
+    const chevron = icon("chevron-down", "icon-btn");
+    chevron.classList.add("icon--chevron");
     summary.appendChild(chevron);
   }
 }
 
 // --- Initialization ---
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   initChevrons();
 
   // Initialize Card 1: Configuration
