@@ -29,6 +29,6 @@
     "stylelint-declaration-strict-value": "^1.11.1",
     "stylelint-order": "^7.0.1",
     "vite": "^8.0.0",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.8"
   }
 }
